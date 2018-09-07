@@ -3,10 +3,7 @@ import numpy as np
 import pandas as pd
 import time
 
-
-def getNextValue(d):
-    ret = np.cos([d])[0]
-    return ret
+from ProValueGenerator import getNextValue
 
 
 class Grapher(object):
