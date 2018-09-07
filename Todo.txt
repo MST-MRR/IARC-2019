@@ -1,7 +1,11 @@
--Make into an object
--Make fake data generator to test from
+-Better generator
 -Option to save graphs
 -Option to pan as time goes on
 -Multiple graphs side by side
 -Analysis of data as it comes in
 -Look at old graph code
+-Choose how much data to graph at a time
+-Chose how often to update?
+-Ability to change labels & where data comes from
+-Show target line
+-Ability to pause?
