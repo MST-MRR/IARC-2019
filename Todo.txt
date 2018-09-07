@@ -1,0 +1,7 @@
+-Make into an object
+-Make fake data generator to test from
+-Option to save graphs
+-Option to pan as time goes on
+-Multiple graphs side by side
+-Analysis of data as it comes in
+-Look at old graph code
