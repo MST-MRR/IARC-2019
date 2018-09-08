@@ -15,6 +15,7 @@ usage_string = \
 def main(argv):
     will_pan = False;
     save_dest = 'none'
+    graph = []
 
     try:
         opts, args = getopt.getopt(argv, 
@@ -31,28 +32,30 @@ def main(argv):
         elif opt in ("-s", "--save"):
             save_dest = arg + ".png"
         elif opt == "--pitch":
-            # TODO: Implement subplot (same for next two options)
-            pass
+            graph.append('pitch')
         elif opt == "--yaw":
-            # TODO
-            pass
+            graph.append('yaw')
         elif opt == "--roll":
-            # TODO
-            pass
+            graph.append('roll')
+
+    if not graph:
+        print("Nothing to graph!")
+        print(usage_string)
+        sys.exit()
 
     if will_pan:
         if save_dest != 'none':
-            test_grapher = Grapher(pan=pan_window, save=save_dest)
+            test_grapher = Grapher(pan=pan_window, save=save_dest, graph=graph)
             test_grapher.run()
         else:
-            test_grapher = Grapher(pan=pan_window)
+            test_grapher = Grapher(pan=pan_window, graph=graph)
             test_grapher.run() 
     else:
         if save_dest != 'none':
-            test_grapher = Grapher(save=save_dest)
+            test_grapher = Grapher(save=save_dest, graph=graph)
             test_grapher.run()
         else:
-            test_grapher = Grapher()
+            test_grapher = Grapher(graph=graph)
             test_grapher.run() 
  
 
