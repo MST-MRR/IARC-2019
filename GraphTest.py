@@ -14,7 +14,7 @@ usage_string = \
 
 def main(argv):
     will_pan = False;
-    pan_window = -1;
+    save_dest = 'none'
 
     try:
         opts, args = getopt.getopt(argv, 
@@ -29,8 +29,7 @@ def main(argv):
             # catch error if cast fails?
             pan_window = int(arg)
         elif opt in ("-s", "--save"):
-            # TODO: Implement save feature
-            pass
+            save_dest = arg + ".png"
         elif opt == "--pitch":
             # TODO: Implement subplot (same for next two options)
             pass
@@ -41,14 +40,21 @@ def main(argv):
             # TODO
             pass
 
-    print("Pan is activated: ", will_pan)
-    print("Pan window: ", pan_window)
-    if pan_window > 0:
-        test_grapher = Grapher(pan_window)
-        test_grapher.run()
+    if will_pan:
+        if save_dest != 'none':
+            test_grapher = Grapher(pan=pan_window, save=save_dest)
+            test_grapher.run()
+        else:
+            test_grapher = Grapher(pan=pan_window)
+            test_grapher.run() 
     else:
-        test_grapher = Grapher()
-        test_grapher.run()
+        if save_dest != 'none':
+            test_grapher = Grapher(save=save_dest)
+            test_grapher.run()
+        else:
+            test_grapher = Grapher()
+            test_grapher.run() 
+ 
 
 if __name__ == "__main__":
     main(sys.argv[1:])

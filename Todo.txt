@@ -1,5 +1,5 @@
 -Better generator
--Option to save graphs
+-DONE Option to save graphs
 -DONE Option to pan as time goes on
 -Multiple graphs side by side
 -Analysis of data as it comes in
@@ -9,4 +9,5 @@
 -Ability to change labels & where data comes from
 -Show target line
 -Ability to pause? (what is the thought process on why this is needed?)
--Create command line arguments for each of the options
+-DONE (for now?) Create command line arguments for each of the options
+-Fix issue that causes graph data to slowly shift out of view when using pan
