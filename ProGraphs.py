@@ -7,7 +7,9 @@ from ProValueGenerator import getNextValue
 
 
 class Grapher(object):
-    def __init__(self):
+    def __init__(self, pan=-1):
+        self.pan = pan
+        
         self.startTime = time.time()
     
         self.df = pd.DataFrame({"Seconds":[], "y":[]})
@@ -15,20 +17,22 @@ class Grapher(object):
         plt.ion()
 
         self.fig, self.ax = plt.subplots()
-
+        
     def update(self):
         diff = time.time() - self.startTime
         self.df = self.df.append({"Seconds":diff, "y":getNextValue(diff)}, ignore_index=True)
         self.ax.clear()
         self.df.plot(x="Seconds", y="y", ax=self.ax)
+        if self.pan > 0:
+            left, right = self.ax.get_xlim()
+            if right > self.pan:
+                self.ax.set_xlim(right - self.pan, right)
+ 
         plt.draw()
 
-
-if __name__ == '__main__':
-    graph_test = Grapher()
-
-    while True:
-        graph_test.update()
-        plt.pause(0.05)
-
-    #plt.show()
+    def run(self, speed=0.05):
+        if speed <= 0:
+            speed = 0.05
+        while True:
+            self.update()
+            plt.pause(speed)
