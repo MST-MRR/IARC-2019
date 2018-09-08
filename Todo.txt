@@ -1,6 +1,6 @@
 -Better generator
 -Option to save graphs
--Option to pan as time goes on
+-DONE Option to pan as time goes on
 -Multiple graphs side by side
 -Analysis of data as it comes in
 -Look at old graph code
@@ -8,4 +8,5 @@
 -Chose how often to update?
 -Ability to change labels & where data comes from
 -Show target line
--Ability to pause?
+-Ability to pause? (what is the thought process on why this is needed?)
+-Create command line arguments for each of the options

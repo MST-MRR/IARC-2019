@@ -1,0 +1,9 @@
+This file contains the outline for our command line arguments.
+
+Usage: <program_name> [-p <pan_window>] [-s <output_file] [--pitch <target>] [--yaw <target>] [--roll <target>]
+
+    -p:       Sets the width of the panning window (in seconds). 
+    -s:       Saves graphing output to the specified file.
+    --pitch   Creates a subplot for pitch data with target
+    --yaw     Creates a subplot for yaw data with target
+    --roll    Creates a subplot for roll data with target
