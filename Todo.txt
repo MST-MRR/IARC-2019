@@ -1,7 +1,7 @@
 -Better generator
 -DONE Option to save graphs
 -DONE Option to pan as time goes on
--Multiple graphs side by side
+-DONE Multiple graphs side by side
 -Analysis of data as it comes in
 -Look at old graph code
 -Choose how much data to graph at a time
