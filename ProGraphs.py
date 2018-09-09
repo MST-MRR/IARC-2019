@@ -19,28 +19,49 @@ class Grapher(object):
         plt.ion()
 
         self.figure = plt.figure()
-        
+       
         numrows = len(graph)
         current = 1
-        if 'pitch' in graph:
-            self.graph.append('pitch')
-            self.ax_p = self.figure.add_subplot(numrows, 1, current)
-            self.ax_p.set_title('Pitch')
-            self.df_p = pd.DataFrame({"x":[], "y":[]})
-            current += 1
-        if 'yaw' in graph:
-            self.graph.append('yaw')
-            self.ax_y = self.figure.add_subplot(numrows, 1, current)
-            self.ax_y.set_title('Yaw')
-            self.df_y = pd.DataFrame({"x":[], "y":[]})
-            current += 1
-        if 'roll' in graph:
-            self.graph.append('roll')
-            self.ax_r = self.figure.add_subplot(numrows, 1, current)
-            self.ax_r.set_title('Roll')
-            self.df_r = pd.DataFrame({"x":[], "y":[]})
-            current += 1
- 
+        for g in graph:
+            if g[0] == 'pitch':
+                # Configuring the graph (factor into a new function?)
+                self.graph.append('pitch')
+                self.ax_p = self.figure.add_subplot(numrows, 1, current)
+                self.ax_p.set_title('Pitch')
+                self.ax_p.set_ylabel('PID Value')
+                self.ax_p.plot([0, 1800], [g[1], g[1]], label='Target')
+                if self.pan > 0:
+                    self.ax_p.set_xlim(left=0, right=self.pan)
+                else:
+                    self.ax_p.set_xlim(left=0.0, right=0.01)
+                self.df_p = pd.DataFrame({"Seconds":[], "PID":[]})
+                current += 1
+            if g[0] == 'yaw':
+                self.graph.append('yaw')
+                self.ax_y = self.figure.add_subplot(numrows, 1, current)
+                self.ax_y.set_title('Yaw')
+                self.ax_y.set_ylabel('PID Value')
+                self.ax_y.plot([0, 1800], [g[1], g[1]], label='Target')
+                if self.pan > 0:
+                    self.ax_y.set_xlim(left=0, right=self.pan)
+                else:
+                    self.ax_y.set_xlim(left=0.0, right=0.01) 
+                self.df_y = pd.DataFrame({"Seconds":[], "PID":[]})
+                current += 1
+            if g[0] == 'roll':
+                self.graph.append('roll')
+                self.ax_r = self.figure.add_subplot(numrows, 1, current)
+                self.ax_r.set_title('Roll')
+                self.ax_r.set_ylabel('PID Value')
+                self.ax_r.plot([0, 1800], [g[1], g[1]], label='Target')
+                if self.pan > 0:
+                    self.ax_r.set_xlim(left=0, right=self.pan)
+                else:
+                    self.ax_r.set_xlim(left=0.0, right=0.01) 
+                self.df_r = pd.DataFrame({"Seconds":[], "PID":[]})
+                current += 1
+
+        self.figure.subplots_adjust(hspace=1)
         self.startTime = time.time()
         
         if save:
@@ -52,16 +73,16 @@ class Grapher(object):
         if len(ax.lines) > 1:
             ax.lines[1].remove()
 
-        df = df.append({"x":new_x, "y":getNextValue(new_x)}
+        df = df.append({"Seconds":new_x, "PID":getNextValue(new_x)}
                 , ignore_index=True)
-        ax.set_xlim(auto=True)
-        df.plot(x="x", y="y", ax=ax, 
+        df.plot(x="Seconds", y="PID", ax=ax, 
                 legend=None, color='blue')
 
         if self.pan > 0:
-            left, right = ax.get_xlim()
-            if right > self.pan:
-                ax.set_xlim(left=right - self.pan)
+            if new_x > self.pan:
+                ax.set_xlim(left=new_x - self.pan, right=new_x)
+        else:
+            ax.set_xlim(right=new_x)
   
         return df
         
@@ -76,11 +97,9 @@ class Grapher(object):
             if element == 'yaw':
                 self.df_y = self.dispatch_update(self.ax_y, 
                         self.df_y, diff, 'y')
-                self.ax_y.set_title('Yaw')
             if element == 'roll':
                 self.df_r = self.dispatch_update(self.ax_r, 
                         self.df_r, diff, 'r')
-                self.ax_r.set_title('Roll')
 
         if self.save:
             # save every 5 seconds

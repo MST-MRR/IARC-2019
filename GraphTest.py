@@ -32,11 +32,11 @@ def main(argv):
         elif opt in ("-s", "--save"):
             save_dest = arg + ".png"
         elif opt == "--pitch":
-            graph.append('pitch')
+            graph.append(('pitch', int(arg)))
         elif opt == "--yaw":
-            graph.append('yaw')
+            graph.append(('yaw', int(arg)))
         elif opt == "--roll":
-            graph.append('roll')
+            graph.append(('roll', int(arg)))
 
     if not graph:
         print("Nothing to graph!")
