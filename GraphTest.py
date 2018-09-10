@@ -15,8 +15,10 @@ usage_string = \
 def main(argv):
     will_pan = False;
     save_dest = None
-    graph = []
+    what_to_graph = []
 
+    # Attempt to interpret command line arguments
+    # Documentation for getopt at https://docs.python.org/2/library/getopt.html
     try:
         opts, args = getopt(argv, 
                 "p:s:", ["pan=", "save=", 
@@ -29,22 +31,24 @@ def main(argv):
     for opt, arg in opts:
         if opt in ("-p", "--pan"):
             will_pan = True;
-            # catch error if cast fails?
             pan_window = int(arg)
         elif opt in ("-s", "--save"):
             save_dest = arg + ".png"
         elif opt == "--pitch":
-            graph.append(('pitch', int(arg)))
+            what_to_graph.append(('pitch', int(arg)))
         elif opt == "--yaw":
-            graph.append(('yaw', int(arg)))
+            what_to_graph.append(('yaw', int(arg)))
         elif opt == "--roll":
-            graph.append(('roll', int(arg)))
+            what_to_graph.append(('roll', int(arg)))
 
-    if not graph:
+    if not what_to_graph:
         print("Nothing to graph!")
         print(usage_string)
         sys.exit()
 
+    # Based on the command lines arguments, constructs 
+    # an appropriate Grapher object and tells that object
+    # to run.
     if will_pan:
         if save_dest:
             test_grapher = Grapher(pan=pan_window, save=save_dest, graph=graph)
@@ -54,10 +58,10 @@ def main(argv):
             test_grapher.run() 
     else:
         if save_dest:
-            test_grapher = Grapher(save=save_dest, graph=graph)
+            test_grapher = Grapher(save=save_dest, graph=what_to_graph)
             test_grapher.run()
         else:
-            test_grapher = Grapher(graph=graph)
+            test_grapher = Grapher(graph=what_to_graph)
             test_grapher.run() 
  
 

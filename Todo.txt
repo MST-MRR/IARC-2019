@@ -5,6 +5,8 @@
 -DONE Set target line
 -DONE (for now?) Create command line arguments for each of the options
 -DONE Look at old graph code
+-DONE Show target line
+-DONE Chose how often to update
 
 -Comment code
 -Rename variables to understandable names
@@ -14,11 +16,8 @@
 -Analysis of data as it comes in
 -Address the 'UserWarning' resulting from set_xlim()
 -Choose how much data to graph at a time
--Chose how often to update?
 -Ability to change labels & where data comes from
--Show target line
 -Make the graphs interactive (i.e. can set the target while running with a GUI)
 -Ability to pause? (what is the thought process on why this is needed?)
 -Fix issue that causes graph data to slowly shift out of view when using pan
--Add documentation strings to each function
 -Prepare a function that will accept input from drone

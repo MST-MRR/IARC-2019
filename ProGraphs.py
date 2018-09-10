@@ -10,88 +10,52 @@ from ProValueGenerator import getNextValue
 
 class Grapher(object):
     def __init__(self, pan=-1, save=False, graph=False):
-
+        
+        # Stores what will be graphed (ex. 'pitch', 'roll', 'yaw')
         self.graph = [] 
-         
+        
+        # Stores the pan window measured in seconds
         self.pan = pan
         
+        # Stores True is saving, False if not
         self.save = save
         
+        # Turn on interactive mode
         plt.ion()
 
+        # Get figure for Pyplot
         self.figure = plt.figure()
        
         numrows = len(graph)
         current = 1
         
-        # Replaces ax_?'s
-        self.graph_dictionary = {}
+        # Stores the axes for each thing to be graphed
+        self.axes_dictionary = {}
 
-        # Replaces df_?'s
-        self.d_graph_dictionary = {}
+        # Stores the data frame (df) for each thing to be graphed
+        self.df_dictionary = {}
 
-        # Configuring the graph (factor into a new function?)
+        # Configuring the figure
         for g in graph:
             self.graph.append(g[0])
 
-            self.graph_dictionary[g[0]] = self.figure.add_subplot(numrows, 1, current)
+            self.axes_dictionary[g[0]] = self.figure.add_subplot(numrows, 1, current)
             
-            self.graph_dictionary[g[0]].set_title(g[0])
-            self.graph_dictionary[g[0]].set_ylabel('PID Value')
-            
-            self.graph_dictionary[g[0]].plot([0, 1800], [g[1], g[1]], label='Target')
+            self.axes_dictionary[g[0]].set_title(g[0])
+            self.axes_dictionary[g[0]].set_ylabel('PID Value')
+           
+            # Sets the target line, which will be present for 1800 seconds (10 minutes)
+            self.axes_dictionary[g[0]].plot([0, 1800], [g[1], g[1]], label='Target')
             
             if self.pan > 0:
-                self.graph_dictionary[g[0]].set_xlim(left=0, right=self.pan)
+                self.axes_dictionary[g[0]].set_xlim(left=0, right=self.pan)
 
             else:
-                self.graph_dictionary[g[0]].set_xlim(left=0.0, right=0.01)
+                self.axes_dictionary[g[0]].set_xlim(left=0.0, right=0.01)
 
-            self.d_graph_dictionary[g[0]] = pd.DataFrame({"Seconds":[], "PID":[]})
+            self.df_dictionary[g[0]] = pd.DataFrame({"Seconds":[], "PID":[]})
             current += 1
             
-            # # Refactored below into above. Should be exactly the same functionality
-            
-            '''
-            if g[0] == 'pitch':
-                # Configuring the graph (factor into a new function?)
-                self.graph.append('pitch')
-                self.ax_p = self.figure.add_subplot(numrows, 1, current)
-                self.ax_p.set_title('Pitch')
-                self.ax_p.set_ylabel('PID Value')
-                self.ax_p.plot([0, 1800], [g[1], g[1]], label='Target')
-                if self.pan > 0:
-                    self.ax_p.set_xlim(left=0, right=self.pan)
-                else:
-                    self.ax_p.set_xlim(left=0.0, right=0.01)
-                self.df_p = pd.DataFrame({"Seconds":[], "PID":[]})
-                current += 1
-            if g[0] == 'yaw':
-                self.graph.append('yaw')
-                self.ax_y = self.figure.add_subplot(numrows, 1, current)
-                self.ax_y.set_title('Yaw')
-                self.ax_y.set_ylabel('PID Value')
-                self.ax_y.plot([0, 1800], [g[1], g[1]], label='Target')
-                if self.pan > 0:
-                    self.ax_y.set_xlim(left=0, right=self.pan)
-                else:
-                    self.ax_y.set_xlim(left=0.0, right=0.01) 
-                self.df_y = pd.DataFrame({"Seconds":[], "PID":[]})
-                current += 1
-            if g[0] == 'roll':
-                self.graph.append('roll')
-                self.ax_r = self.figure.add_subplot(numrows, 1, current)
-                self.ax_r.set_title('Roll')
-                self.ax_r.set_ylabel('PID Value')
-                self.ax_r.plot([0, 1800], [g[1], g[1]], label='Target')
-                if self.pan > 0:
-                    self.ax_r.set_xlim(left=0, right=self.pan)
-                else:
-                    self.ax_r.set_xlim(left=0.0, right=0.01) 
-                self.df_r = pd.DataFrame({"Seconds":[], "PID":[]})
-                current += 1
-            '''
-
         self.figure.subplots_adjust(hspace=1)
         self.startTime = time.time()
         
@@ -123,23 +87,12 @@ class Grapher(object):
         diff = now - self.startTime
 
         for key in self.graph:            
-            self.d_graph_dictionary[key] = self.dispatch_update(self.graph_dictionary[key], self.d_graph_dictionary[key], diff, key[0:1])
+            self.df_dictionary[key] = self.dispatch_update(
+                    self.axes_dictionary[key], 
+                    self.df_dictionary[key], 
+                    diff, 
+                    key[0:1])
 
-        # # Refactored below into above. Should be exactly the same functionality
-        
-        '''
-        for element in self.graph:
-            if element == 'pitch':
-                self.df_p = self.dispatch_update(self.ax_p, 
-                        self.df_p, diff, 'p')
-            if element == 'yaw':
-                self.df_y = self.dispatch_update(self.ax_y, 
-                        self.df_y, diff, 'y')
-            if element == 'roll':
-                self.df_r = self.dispatch_update(self.ax_r, 
-                        self.df_r, diff, 'r')
-        '''
-        
         if self.save:
             # save every 5 seconds
             if now - self.checkPoint > 5:
