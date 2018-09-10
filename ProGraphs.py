@@ -22,7 +22,36 @@ class Grapher(object):
        
         numrows = len(graph)
         current = 1
+
+        self.graph_dictionary = {}
+
+        # Wasnt sure what some of the variables were
+        self.d_graph_dictionary = {}
+
+        # Configuring the graph (factor into a new function?)
         for g in graph:
+            ''' '''
+            self.graph.append(g[0])
+
+            self.graph_dictionary[g[0]] = self.figure.add_subplot(numrows, 1, current)
+            
+            self.graph_dictionary[g[0]].set_title(g[0])
+            self.graph_dictionary[g[0]].set_ylabel('PID Value')
+            self.graph_dictionary[g[0]].plot([0, 1800], [g[1], g[1]], label='Target')
+            
+            if self.pan > 0:
+                self.graph_dictionary[g[0]].set_xlim(left=0, right=self.pan)
+
+            else:
+                self.graph_dictionary[g[0]].set_xlim(left=0.0, right=0.01)
+
+            self.d_graph_dictionary[g[0]] = pd.DataFrame({"Seconds":[], "PID":[]})
+            current += 1
+            ''' '''
+            
+            # # Refactored below into above
+            
+            '''
             if g[0] == 'pitch':
                 # Configuring the graph (factor into a new function?)
                 self.graph.append('pitch')
@@ -60,6 +89,7 @@ class Grapher(object):
                     self.ax_r.set_xlim(left=0.0, right=0.01) 
                 self.df_r = pd.DataFrame({"Seconds":[], "PID":[]})
                 current += 1
+            '''
 
         self.figure.subplots_adjust(hspace=1)
         self.startTime = time.time()
@@ -90,6 +120,13 @@ class Grapher(object):
     def update(self):
         now = time.time()
         diff = now - self.startTime
+
+        for key in self.graph:
+            #print(key)
+            
+            self.d_graph_dictionary[key] = self.dispatch_update(self.graph_dictionary[key], self.d_graph_dictionary[key], diff, key[0:1])
+
+        '''
         for element in self.graph:
             if element == 'pitch':
                 self.df_p = self.dispatch_update(self.ax_p, 
@@ -100,7 +137,8 @@ class Grapher(object):
             if element == 'roll':
                 self.df_r = self.dispatch_update(self.ax_r, 
                         self.df_r, diff, 'r')
-
+        '''
+        
         if self.save:
             # save every 5 seconds
             if now - self.checkPoint > 5:
