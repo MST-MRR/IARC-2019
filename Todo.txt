@@ -2,10 +2,12 @@
 -DONE Option to save graphs
 -DONE Option to pan as time goes on
 -DONE Multiple graphs side by side
--Analysis of data as it comes in
--Prepare a function that will accept input from drone
--Look at old graph code
 -DONE Set target line
+-DONE (for now?) Create command line arguments for each of the options
+-DONE Look at old graph code
+
+-Defaults for argument parser
+-Analysis of data as it comes in
 -Address the 'UserWarning' resulting from set_xlim()
 -Choose how much data to graph at a time
 -Chose how often to update?
@@ -13,6 +15,6 @@
 -Show target line
 -Make the graphs interactive (i.e. can set the target while running with a GUI)
 -Ability to pause? (what is the thought process on why this is needed?)
--DONE (for now?) Create command line arguments for each of the options
 -Fix issue that causes graph data to slowly shift out of view when using pan
 -Add documentation strings to each function
+-Prepare a function that will accept input from drone

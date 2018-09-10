@@ -1,5 +1,5 @@
 import sys
-import getopt
+from getopt import getopt, GetoptError
 
 from ProGraphs import Grapher
 
@@ -14,16 +14,18 @@ usage_string = \
 
 def main(argv):
     will_pan = False;
-    save_dest = 'none'
+    save_dest = None
     graph = []
 
     try:
-        opts, args = getopt.getopt(argv, 
+        opts, args = getopt(argv, 
                 "p:s:", ["pan=", "save=", 
                     "pitch=", "yaw=" , "roll="])
-    except getopt.GetoptError:
+        
+    except GetoptError:
         print(usage_string)
         sys.exit()
+        
     for opt, arg in opts:
         if opt in ("-p", "--pan"):
             will_pan = True;
@@ -44,14 +46,14 @@ def main(argv):
         sys.exit()
 
     if will_pan:
-        if save_dest != 'none':
+        if save_dest:
             test_grapher = Grapher(pan=pan_window, save=save_dest, graph=graph)
             test_grapher.run()
         else:
             test_grapher = Grapher(pan=pan_window, graph=graph)
             test_grapher.run() 
     else:
-        if save_dest != 'none':
+        if save_dest:
             test_grapher = Grapher(save=save_dest, graph=graph)
             test_grapher.run()
         else:
