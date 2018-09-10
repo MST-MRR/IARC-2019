@@ -6,6 +6,10 @@
 -DONE (for now?) Create command line arguments for each of the options
 -DONE Look at old graph code
 
+-Comment code
+-Rename variables to understandable names
+-Add function documentation
+-Clean up code
 -Defaults for argument parser
 -Analysis of data as it comes in
 -Address the 'UserWarning' resulting from set_xlim()
