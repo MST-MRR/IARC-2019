@@ -8,10 +8,13 @@
 -DONE Show target line
 -DONE Chose how often to update
 
+Rolling Todos
 -Comment code
--Rename variables to understandable names
+-Use understandable names for everything
 -Add function documentation
 -Clean up code
+
+List
 -Defaults for argument parser
 -Analysis of data as it comes in
 -Address the 'UserWarning' resulting from set_xlim()
@@ -21,3 +24,7 @@
 -Ability to pause? (what is the thought process on why this is needed?)
 -Fix issue that causes graph data to slowly shift out of view when using pan
 -Prepare a function that will accept input from drone
+-Split proGraphs into manager object & subplot object
+-Make graph demonstrator
+-Move command line options to demonstrator
+-Target update and set functions
