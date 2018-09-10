@@ -7,6 +7,7 @@ from weakref import ref
 
 from ProValueGenerator import getNextValue
 
+
 class Grapher(object):
     def __init__(self, pan=-1, save=False, graph=False):
 
@@ -22,21 +23,22 @@ class Grapher(object):
        
         numrows = len(graph)
         current = 1
-
+        
+        # Replaces ax_?'s
         self.graph_dictionary = {}
 
-        # Wasnt sure what some of the variables were
+        # Replaces df_?'s
         self.d_graph_dictionary = {}
 
         # Configuring the graph (factor into a new function?)
         for g in graph:
-            ''' '''
             self.graph.append(g[0])
 
             self.graph_dictionary[g[0]] = self.figure.add_subplot(numrows, 1, current)
             
             self.graph_dictionary[g[0]].set_title(g[0])
             self.graph_dictionary[g[0]].set_ylabel('PID Value')
+            
             self.graph_dictionary[g[0]].plot([0, 1800], [g[1], g[1]], label='Target')
             
             if self.pan > 0:
@@ -47,9 +49,8 @@ class Grapher(object):
 
             self.d_graph_dictionary[g[0]] = pd.DataFrame({"Seconds":[], "PID":[]})
             current += 1
-            ''' '''
             
-            # # Refactored below into above
+            # # Refactored below into above. Should be exactly the same functionality
             
             '''
             if g[0] == 'pitch':
@@ -121,11 +122,11 @@ class Grapher(object):
         now = time.time()
         diff = now - self.startTime
 
-        for key in self.graph:
-            #print(key)
-            
+        for key in self.graph:            
             self.d_graph_dictionary[key] = self.dispatch_update(self.graph_dictionary[key], self.d_graph_dictionary[key], diff, key[0:1])
 
+        # # Refactored below into above. Should be exactly the same functionality
+        
         '''
         for element in self.graph:
             if element == 'pitch':
