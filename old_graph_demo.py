@@ -1,7 +1,9 @@
+# Old main demo file
+
 import sys
 from getopt import getopt, GetoptError
 
-from ProGraphs import Grapher
+from graph_manager import GraphManager
 
 usage_string = \
 '''Usage: <program_name> [-p <pan_window>] [-s <output_file] [--pitch <target>] [--yaw <target>] [--roll <target>]
@@ -51,17 +53,17 @@ def main(argv):
     # to run.
     if will_pan:
         if save_dest:
-            test_grapher = Grapher(pan=pan_window, save=save_dest, graph=what_to_graph)
+            test_grapher = GraphManager(pan=pan_window, save=save_dest, graph=what_to_graph)
             test_grapher.run()
         else:
-            test_grapher = Grapher(pan=pan_window, graph=what_to_graph)
+            test_grapher = GraphManager(pan=pan_window, graph=what_to_graph)
             test_grapher.run() 
     else:
         if save_dest:
-            test_grapher = Grapher(save=save_dest, graph=what_to_graph)
+            test_grapher = GraphManager(save=save_dest, graph=what_to_graph)
             test_grapher.run()
         else:
-            test_grapher = Grapher(graph=what_to_graph)
+            test_grapher = GraphManager(graph=what_to_graph)
             test_grapher.run() 
  
 

@@ -1,3 +1,5 @@
+# The graph manager, takes input, interprets and passes on relevant data to individual graphs
+
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
@@ -5,10 +7,10 @@ import time
 
 from weakref import ref
 
-from ProValueGenerator import getNextValue
+from value_generator import get_next_value
 
 
-class Grapher(object):
+class GraphManager(object):
     def __init__(self, pan=-1, save=False, graph=False):
         
         # Stores what will be graphed (ex. 'pitch', 'roll', 'yaw')
@@ -68,7 +70,7 @@ class Grapher(object):
         if len(ax.lines) > 1:
             ax.lines[1].remove()
 
-        df = df.append({"Seconds":new_x, "PID":getNextValue(new_x)}
+        df = df.append({"Seconds":new_x, "PID":get_next_value(new_x)}
                 , ignore_index=True)
         df.plot(x="Seconds", y="PID", ax=ax, 
                 legend=None, color='blue')
