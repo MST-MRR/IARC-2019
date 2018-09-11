@@ -37,11 +37,11 @@ class GraphManager(object):
         # Stores the data frame (df) for each thing to be graphed
         self.df_dictionary = {}
 
-        # Configuring the figure
-        for g in graph:
-            name = g[0]
-            target = g[1]
+        # For target line
+        self.target = 4  # Needs to be one value for every possible list
 
+        # Configuring the figure
+        for name in graph:
             self.graph.append(name)
 
             self.axes_dictionary[name] = self.figure.add_subplot(numrows, 1, current)
@@ -50,7 +50,7 @@ class GraphManager(object):
             self.axes_dictionary[name].set_ylabel('PID Value')
            
             # Sets the target line, which will be present for 1800 seconds (10 minutes)
-            self.axes_dictionary[g[0]].plot([0, 1800], [target, target], label='Target')
+            self.axes_dictionary[name].plot([0, 1800], [self.target, self.target], label='Target')
             
             if self.pan > 0:
                 self.axes_dictionary[name].set_xlim(left=0, right=self.pan)
@@ -66,6 +66,9 @@ class GraphManager(object):
         
         if save:
             self.checkPoint = self.startTime
+
+    def set_target(self, target):
+        self.target = target
 
     def dispatch_update(self, ax, df, new_x, tag):
         # 0th line is the target line

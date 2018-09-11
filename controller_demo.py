@@ -11,7 +11,7 @@ from value_generator import get_next_value
 
 
 def main():
-    # Parse command line arguments if any
+    # Parse command line arguments, - for demo
     parser = ArgumentParser(description='Takes in flags --pan <seconds wide>, --save <filename>, <graphs_to_display>')
 
     parser.add_argument('-p', '--pan', type=int, nargs='?', default='100')
@@ -23,7 +23,7 @@ def main():
     args = parser.parse_args()
 
     # Initialize necessary components
-    test_graph = GraphManager(graph=[(graph, 1) for graph in args.to_graph])  # Remove need to add target immediately
+    test_graph = GraphManager(graph=[graph for graph in args.to_graph])  # Remove need to add target immediately
 
     speed = .05
 
