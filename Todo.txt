@@ -15,6 +15,7 @@ Rolling Todos
 -Clean up code
 
 List
+-Config file
 -Make hardcoded list that is all possible graphs
 -Dictionary containing all graph targets that can be updated
 -Make everything dynamic and ready to handle any number of possible graphs w/ their own special settings & subgraphs
