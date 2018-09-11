@@ -51,10 +51,10 @@ def main(argv):
     # to run.
     if will_pan:
         if save_dest:
-            test_grapher = Grapher(pan=pan_window, save=save_dest, graph=graph)
+            test_grapher = Grapher(pan=pan_window, save=save_dest, graph=what_to_graph)
             test_grapher.run()
         else:
-            test_grapher = Grapher(pan=pan_window, graph=graph)
+            test_grapher = Grapher(pan=pan_window, graph=what_to_graph)
             test_grapher.run() 
     else:
         if save_dest:
