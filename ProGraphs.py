@@ -41,7 +41,7 @@ class Grapher(object):
 
             self.axes_dictionary[g[0]] = self.figure.add_subplot(numrows, 1, current)
             
-            self.axes_dictionary[g[0]].set_title(g[0])
+            self.axes_dictionary[g[0]].set_title(g[0][0:1].upper() + g[0][1:])
             self.axes_dictionary[g[0]].set_ylabel('PID Value')
            
             # Sets the target line, which will be present for 1800 seconds (10 minutes)
@@ -81,7 +81,6 @@ class Grapher(object):
   
         return df
         
-
     def update(self):
         now = time.time()
         diff = now - self.startTime
