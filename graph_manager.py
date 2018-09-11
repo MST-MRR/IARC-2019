@@ -39,23 +39,26 @@ class GraphManager(object):
 
         # Configuring the figure
         for g in graph:
-            self.graph.append(g[0])
+            name = g[0]
+            target = g[1]
 
-            self.axes_dictionary[g[0]] = self.figure.add_subplot(numrows, 1, current)
+            self.graph.append(name)
+
+            self.axes_dictionary[name] = self.figure.add_subplot(numrows, 1, current)
             
-            self.axes_dictionary[g[0]].set_title(g[0][0:1].upper() + g[0][1:])
-            self.axes_dictionary[g[0]].set_ylabel('PID Value')
+            self.axes_dictionary[name].set_title("{}{}".format(name[0:1].upper(), name[1:]))
+            self.axes_dictionary[name].set_ylabel('PID Value')
            
             # Sets the target line, which will be present for 1800 seconds (10 minutes)
-            self.axes_dictionary[g[0]].plot([0, 1800], [g[1], g[1]], label='Target')
+            self.axes_dictionary[g[0]].plot([0, 1800], [target, target], label='Target')
             
             if self.pan > 0:
-                self.axes_dictionary[g[0]].set_xlim(left=0, right=self.pan)
+                self.axes_dictionary[name].set_xlim(left=0, right=self.pan)
 
             else:
-                self.axes_dictionary[g[0]].set_xlim(left=0.0, right=0.01)
+                self.axes_dictionary[name].set_xlim(left=0.0, right=0.01)
 
-            self.df_dictionary[g[0]] = pd.DataFrame({"Seconds":[], "PID":[]})
+            self.df_dictionary[name] = pd.DataFrame({"Seconds":[], "PID":[]})
             current += 1
             
         self.figure.subplots_adjust(hspace=1)

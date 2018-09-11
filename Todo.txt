@@ -15,6 +15,11 @@ Rolling Todos
 -Clean up code
 
 List
+-Handle target updates
+-Only do update when have some data to push
+-Make so data can come in as list before updating
+-Render only when have something to render
+-Maybe combine render and update
 -Defaults for argument parser
 -Analysis of data as it comes in
 -Address the 'UserWarning' resulting from set_xlim()
