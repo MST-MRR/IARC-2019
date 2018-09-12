@@ -8,6 +8,8 @@
 -DONE Show target line
 -DONE Chose how often to update
 -DONE Split proGraphs into manager object & subplot object
+-DONE Make everything dynamic and ready to handle any number of possible graphs w/ their own special settings & subgraphs
+-DONE Ability to change labels & where data comes from
 
 Rolling Todos
 -Comment code
@@ -18,14 +20,10 @@ Rolling Todos
 List
 -Delete old todos
 -Config file
--Dictionary containing all graph targets that can be updated
--Make everything dynamic and ready to handle any number of possible graphs w/ their own special settings & subgraphs
 -Handle target updates
 -Only do update when have some data to push
 -Analysis of data as it comes in
 -Choose how much data to graph at a time
--Ability to change labels & where data comes from
 -Make the graphs interactive (i.e. can set the target while running with a GUI)
 -Ability to pause? (what is the thought process on why this is needed?)
 -Prepare a function that will accept input from drone
--Target update and set functions
