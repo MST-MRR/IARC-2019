@@ -33,6 +33,8 @@ def main():
     while True:
         i += 1
         try:
+
+            # # Only update when new data comes in
             test_graph.update()  # get_next_value(i)
             plt.pause(speed)
 
