@@ -18,12 +18,12 @@ def main():
 
     parser.add_argument('-s', '--save', type=str, nargs='?', default='graph.png')
 
-    parser.add_argument('to_graph', type=str, nargs='+')
+    parser.add_argument('to_graph', type=str, nargs='*')
 
     args = parser.parse_args()
 
     # Initialize necessary components
-    test_graph = GraphManager(graph=[graph for graph in args.to_graph])  # Remove need to add target immediately
+    test_graph = GraphManager()  # Remove need to add target immediately
 
     speed = .05
 
@@ -32,17 +32,15 @@ def main():
     # Simulation loop
     while True:
         i += 1
-        try:
 
-            # # Only update when new data comes in
-            test_graph.update()  # get_next_value(i)
-            plt.pause(speed)
+        
+        # # Only update when new data comes in
+        test_graph.update()  # get_next_value(i)
+        plt.pause(speed)
 
-            # grapher.render()
+        # grapher.render()
 
-        except:
-            print("Hit exception")
-            break
+
 
     sys.exit()
 
