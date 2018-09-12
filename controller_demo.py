@@ -8,15 +8,19 @@ import matplotlib.pyplot as plt  # plt.pause()
 
 
 def main():
-    # Create graph manager
+    # Create Graph Manager Object
     test_graph = GraphManager()
 
-    # Simulation loop
+    # Demo Simulation Loop
     while True:
+        try:
+            test_graph.update()
 
-        # # Only update when new data comes in
-        test_graph.update()
-        plt.pause(.05)
+            plt.pause(.05)
+
+        except Exception as e:
+            print("Quitting: {}".format(e))
+            break
 
     sys.exit()
 
