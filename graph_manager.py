@@ -37,6 +37,9 @@ class GraphManager(object):
         # Set up matplot figure
         plt.ion()  # Enable interactive graphs
         self.figure = plt.figure()  # Figure that the subplots (Graph objects) go on
+        # Create a buffer space between subplots to avoid overlap
+        self.figure.subplots_adjust(hspace=1)
+ 
 
         #
         # # Initialize Graph Data Storage
