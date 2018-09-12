@@ -8,12 +8,17 @@ from graph import Graph
 
 class GraphManager(object):
     """
-    GraphManager()
+    Use:
+        GraphManager()
 
-    Creates & manages 1+ individual graphs. What to plot / keep track of is set in the graph config file
+        Creates & manages 1+ individual graphs. What to plot / keep track of is set in the graph config file
 
+    Functions:
+        update(): Sends any new data to relevant graphs
 
+        read_config(): Reads config file & returns interpreted version
 
+        add_graph(title): Starts tracking new data, title is used as unique id and subplot title
     """
 
     graphs_per_column = 3  # Formatting variable, how many graphs per column before loop
@@ -47,7 +52,7 @@ class GraphManager(object):
             self.add_graph(wanted_graph)
 
         #
-        # # Extras
+        # # Misc
 
         # For out current value generation system, to be removed in future
         self.temporary_iterator = 1
@@ -64,6 +69,9 @@ class GraphManager(object):
     def add_graph(self, title):
         """
         Use: To begin tracking new data
+
+        Parameters:
+            title: Unique id & subplot title
         """
 
         self.desired_graphs.append(title)
@@ -98,8 +106,8 @@ class GraphManager(object):
             if key in self.desired_graphs:
                 self.graphs[key].update(
                     pd.DataFrame({
-                        self.graph_settings[key][0]: [x + (10 * self.temporary_iterator) for x in value[0]],
-                        self.graph_settings[key][1]: value[1]
+                        self.graphs[key].x_label: [x + (10 * self.temporary_iterator) for x in value[0]],
+                        self.graphs[key].y_label: value[1]
                     })
                 )
         
