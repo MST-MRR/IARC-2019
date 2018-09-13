@@ -2,6 +2,7 @@
 
 import matplotlib.pyplot as plt
 import pandas as pd
+import numpy as np
 
 from graph import Graph
 
@@ -84,7 +85,7 @@ class GraphManager(object):
             len(self.graphs) % GraphManager.graphs_per_column + 1,
             len(self.graphs) / GraphManager.graphs_per_column + 1,
             len(self.graph_settings.keys()),
-            #pan=15
+            pan=300
         )
 
     def update(self):
@@ -101,9 +102,9 @@ class GraphManager(object):
         # Pull relevant values based on config and send them
 
         new_data = {
-            'Pitch': [[1, 2, 3, 4, 5, 6, 7, 8], [1, 2, 3, 4, 5, 6, 7, 8]],
-            'Yaw':   [[1, 2, 3, 4, 5, 6, 7, 8], [2, 1, 4, 3, 6, 5, 8, 7]],
-            'Roll':  [[1, 2, 3, 4, 5, 6, 7, 8], [2, 1, 4, 3, 6, 5, 8, 7]]
+            'Pitch': [[1, 2, 3, 4, 5, 6, 7, 8], np.random.rand(8)],
+            'Yaw':   [[1, 2, 3, 4, 5, 6, 7, 8], np.random.rand(8)],
+            'Roll':  [[1, 2, 3, 4, 5, 6, 7, 8], np.random.rand(8)]
         }
 
         for key, value in new_data.items():
