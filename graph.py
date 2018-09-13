@@ -33,7 +33,18 @@ class Graph(object):
 
         self.data = self.data.append(new_data, ignore_index=True)
 
-        self.data.plot(x=self.x_label, y=self.y_label, ax=self.axis, legend=None, color='blue')
+        # Number of new data items
+        new_items = len(new_data[self.x_label])
+
+        # Number of data items in the data frame
+        total = self.data.shape[0]
+
+        # Only plot the new data (set color to something to avoid rainbow effect)
+        self.data.iloc[total - new_items - 1 : total]\
+            .plot(x=self.x_label, y=self.y_label, ax=self.axis, legend=None) 
+
+        # Old code that plots every data point upon call to this function
+        #self.data.plot(x=self.x_label, y=self.y_label, ax=self.axis, legend=None, color='blue')
 
         # TODO: Add target point functionality
 
