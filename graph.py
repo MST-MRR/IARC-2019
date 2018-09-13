@@ -46,6 +46,10 @@ class Graph(object):
         # Old code that plots every data point upon call to this function
         #self.data.plot(x=self.x_label, y=self.y_label, ax=self.axis, legend=None, color='blue')
 
+        if self.pan:
+            right = self.data.tail(1)[self.x_label].iloc[0]
+            self.axis.set_xlim(left=right - self.pan, right=right)
+
         # TODO: Add target point functionality
 
     def set_target(self, new_target):

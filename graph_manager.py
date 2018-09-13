@@ -83,7 +83,8 @@ class GraphManager(object):
             title, self.figure, self.graph_settings[title][0], self.graph_settings[title][1],
             len(self.graphs) % GraphManager.graphs_per_column + 1,
             len(self.graphs) / GraphManager.graphs_per_column + 1,
-            len(self.graph_settings.keys())
+            len(self.graph_settings.keys()),
+            #pan=15
         )
 
     def update(self):
