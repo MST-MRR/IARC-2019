@@ -43,7 +43,7 @@ class Graph(object):
 
         # Only plot the new data (set color to something to avoid rainbow effect)
         ax =  self.data.iloc[-300 : ]\
-            .plot(x=self.x_label, y=self.y_label, ax=self.axis, color='blue') 
+            .plot(x=self.x_label, y=self.y_label, ax=self.axis, legend=None, color='blue') 
 
         # Old code that plots every data point upon call to this function
         #self.data.plot(x=self.x_label, y=self.y_label, ax=self.axis, legend=None, color='blue')
