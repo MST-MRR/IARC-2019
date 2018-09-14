@@ -1,16 +1,3 @@
--Done Better fake generator
--DONE Option to save graphs
--DONE Option to pan as time goes on
--DONE Multiple graphs side by side
--DONE Set target line
--DONE (for now?) Create command line arguments for each of the options
--DONE Look at old graph code
--DONE Show target line
--DONE Chose how often to update
--DONE Split proGraphs into manager object & subplot object
--DONE Make everything dynamic and ready to handle any number of possible graphs w/ their own special settings & subgraphs
--DONE Ability to change labels & where data comes from
-
 Rolling Todos
 -Comment code
 -Use understandable names for everything
@@ -18,12 +5,13 @@ Rolling Todos
 -Clean up code
 
 List
--Delete old todos
--Config file
--Handle target updates
--Only do update when have some data to push
+- Use getters and setters for basic encapsulation
+- Config file as xml to determine what functions to use for extra data
+- Make wrapper function to request a graph w/ certain data over certain time
+- Assertions to catch possible errors before they get too deep -> ie requesting negative time
+- Interface for interacting w/ config file
 -Analysis of data as it comes in
 -Choose how much data to graph at a time
 -Make the graphs interactive (i.e. can set the target while running with a GUI)
 -Ability to pause? (what is the thought process on why this is needed?)
--Prepare a function that will accept input from drone
+
