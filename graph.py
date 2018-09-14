@@ -1,4 +1,5 @@
 import pandas as pd
+import numpy as np
 
 
 class Graph(object):
@@ -17,6 +18,8 @@ class Graph(object):
 
         self.x_label = x_label
         self.y_label = y_label
+
+        self.axis.set_ylabel(self.y_label)
 
         self.data = pd.DataFrame({self.x_label: [], self.y_label: []})
 
@@ -39,6 +42,8 @@ class Graph(object):
         for line in self.axis.lines:
             if line.get_color() == 'blue':
                 self.axis.lines.remove(line)
+            if line.get_color() == 'orange':
+                self.axis.lines.remove(line)
 
 
         # Only plot the new data (set color to something to avoid rainbow effect)
@@ -52,7 +57,13 @@ class Graph(object):
             right = self.data.tail(1)[self.x_label].iloc[0]
             self.axis.set_xlim(left=right - self.pan, right=right)
 
-        # TODO: Add target point functionality
+        # Set target line
+        if self.target:
+            current_end = self.data.tail(1)[self.x_label].iloc[0]
+            # 20000 chosen arbitrarily (may need to be changed for real data)
+            self.axis.plot([0, 20000], 
+            [self.target, self.target],
+            color='orange')
 
     def set_target(self, new_target):
         """

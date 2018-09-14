@@ -85,7 +85,8 @@ class GraphManager(object):
             len(self.graphs) % GraphManager.graphs_per_column + 1,
             len(self.graphs) / GraphManager.graphs_per_column + 1,
             len(self.graph_settings.keys()),
-            pan=300
+            pan=300,
+            target=0.25
         )
 
     def update(self):
