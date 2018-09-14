@@ -55,14 +55,14 @@ class Graph(object):
 
         if self.pan:
             right = self.data.tail(1)[self.x_label].iloc[0]
-            self.axis.set_xlim(left=right - self.pan, right=right)
+            self.axis.set_xlim(left=right - self.pan, right=right+100)
 
         # Set target line
         if self.target:
-            current_end = self.data.tail(1)[self.x_label].iloc[0]
             # 20000 chosen arbitrarily (may need to be changed for real data)
-            self.axis.plot([0, 20000], 
-            [self.target, self.target],
+            self.axis.axhline(y=self.target, 
+            xmin=0,
+            xmax=20000,
             color='orange')
 
     def set_target(self, new_target):
