@@ -14,7 +14,7 @@ def main():
     # Demo Simulation Loop
     while True:
         try:
-            test_graph.update()
+            test_graph.update('data goes here')
 
             plt.pause(.05)
 

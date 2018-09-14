@@ -89,9 +89,12 @@ class GraphManager(object):
             target=0.25
         )
 
-    def update(self):
+    def update(self, data):
         """
         Use: To add new data to graphs
+
+        Parameters:
+            data: Dictionary w/ all info sent from drone, needs to be parsed
         """
 
         # Pull dictionary from json
