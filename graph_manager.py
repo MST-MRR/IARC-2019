@@ -38,6 +38,7 @@ class GraphManager(object):
         # Set up matplot figure
         plt.ion()  # Enable interactive graphs
         self.figure = plt.figure()  # Figure that the subplots (Graph objects) go on
+
         # Create a buffer space between subplots to avoid overlap
         self.figure.subplots_adjust(hspace=1)
  
@@ -86,8 +87,9 @@ class GraphManager(object):
             len(self.graphs) / GraphManager.graphs_per_column + 1,
             len(self.graph_settings.keys()),
             pan=300,
-            target=0.25
         )
+
+        self.graphs[title].set_target(.4)
 
     def update(self, data):
         """

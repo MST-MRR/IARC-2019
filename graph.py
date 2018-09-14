@@ -1,5 +1,6 @@
+# The individual graphs w/ all relevant data tracking
+
 import pandas as pd
-import numpy as np
 
 
 class Graph(object):
@@ -9,6 +10,8 @@ class Graph(object):
     Functions:
 
     """
+
+    config = {'main': 'blue', 'target': 'orange'}
 
     def __init__(self, title, figure, x_label, y_label, row, col, total_num, target=None, pan=None):
         self.title = title
@@ -36,34 +39,25 @@ class Graph(object):
 
         self.data = self.data.append(new_data, ignore_index=True)
 
-        # Number of new data items
-        new_items = len(new_data[self.x_label])
-
         for line in self.axis.lines:
             if line.get_color() == 'blue':
                 self.axis.lines.remove(line)
-            if line.get_color() == 'orange':
-                self.axis.lines.remove(line)
+            #if line.get_color() == 'orange':
+             #   self.axis.lines.remove(line)
 
-
-        # Only plot the new data (set color to something to avoid rainbow effect)
-        ax =  self.data.iloc[-300 : ]\
-            .plot(x=self.x_label, y=self.y_label, ax=self.axis, legend=None, color='blue') 
-
-        # Old code that plots every data point upon call to this function
-        #self.data.plot(x=self.x_label, y=self.y_label, ax=self.axis, legend=None, color='blue')
+        # Only plot relevant data
+        self.data.iloc[-300:].plot(x=self.x_label, y=self.y_label, ax=self.axis, legend=None, color=self.config['main'])
 
         if self.pan:
             right = self.data.tail(1)[self.x_label].iloc[0]
             self.axis.set_xlim(left=right - self.pan, right=right+100)
 
+    def plot_target(self):
+        # Target could be dots plotted from last update to this update? then purged
+
         # Set target line
         if self.target:
-            # 20000 chosen arbitrarily (may need to be changed for real data)
-            self.axis.axhline(y=self.target, 
-            xmin=0,
-            xmax=20000,
-            color='orange')
+            self.axis.axhline(y=self.target, xmin=0, xmax=100, color=self.config['target'])
 
     def set_target(self, new_target):
         """
@@ -74,6 +68,8 @@ class Graph(object):
         """
 
         self.target = new_target
+
+        self.plot_target()
 
     def add_analysis(self, f):
         """
