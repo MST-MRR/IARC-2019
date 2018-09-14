@@ -3,6 +3,7 @@ Rolling Todos
 -Use understandable names for everything
 -Add function documentation
 -Clean up code
+- Test every single function to limits higher than we expect to actually happen -> make sure to test non-visual things
 
 List
 - Use getters and setters for basic encapsulation

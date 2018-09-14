@@ -11,10 +11,14 @@ def main():
     # Create Graph Manager Object
     test_graph = GraphManager()
 
+    i = 0
+
     # Demo Simulation Loop
     while True:
+        i += 1
+
         try:
-            test_graph.update('data goes here')
+            test_graph.update(i)
 
             plt.pause(.05)
 

@@ -26,40 +26,27 @@ class GraphManager(object):
 
     def __init__(self):
 
-        #
-        # # Get Startup Data
-
-        # Read configuration file to see what should be graphed
+        # Get Startup Data
         self.graph_settings = self.read_config()
 
         #
-        # # Setup Matplot
-
-        # Set up matplot figure
+        # Setup Matplot
         plt.ion()  # Enable interactive graphs
         self.figure = plt.figure()  # Figure that the subplots (Graph objects) go on
 
         # Create a buffer space between subplots to avoid overlap
         self.figure.subplots_adjust(hspace=1)
- 
 
         #
-        # # Initialize Graph Data Storage
+        # Initialize Graph Data Storage
+        self.desired_graphs = []  # The desired graphs (May be redundant depending on how data comes in)
 
-        # The desired graphs (May be redundant depending on how data comes in)
-        self.desired_graphs = []
-
-        # Dictionary that holds the graph objects and their unique ids
-        self.graphs = {}
+        self.graphs = {}  # Dictionary that holds the graph objects and their unique ids
 
         # Add desired graphs to where they belong
-        for wanted_graph in self.graph_settings.keys():
-            self.add_graph(wanted_graph)
+        [self.add_graph(wanted_graph) for wanted_graph in self.graph_settings.keys()]
 
-        #
-        # # Misc
-
-        # For out current value generation system, to be removed in future
+        # For our current value generation system, to be removed in future
         self.temporary_iterator = 1
 
     def read_config(self):
@@ -88,7 +75,7 @@ class GraphManager(object):
             len(self.graph_settings.keys())
         )
 
-        self.graphs[title].set_target(.4)
+        self.graphs[title].update_target(.4)
 
     def update(self, data):
         """
@@ -105,6 +92,9 @@ class GraphManager(object):
         # new_data will be dictionary
 
         # Pull relevant values based on config and send them
+
+        target_updates = data  # Will be changed when data parsing is done
+        self.graphs['Roll'].update_target(int(target_updates / 100))
 
         new_data = {
             'Pitch': [[1, 2, 3, 4, 5, 6, 7, 8], np.random.rand(8)],

@@ -17,7 +17,7 @@ class Graph(object):
     def __init__(self, figure, title, x_label, y_label, row, col, total_num, target=None, pan=300):
         # Configuration settings
         self.config = {'main': ['blue', 'Main'], 'target': ['orange', 'Target']}
-        self.get_available_color = iter(['red', 'yellow', 'green'])
+        self.get_available_color = iter(['red', 'yellow', 'green', 'cyan', 'black'])
 
         # Create & add subplot to figure
         self.axis = figure.add_subplot(total_num, col, row)
@@ -54,39 +54,47 @@ class Graph(object):
 
         # # How to update individual line?
 
-        # Purge old main line before setting new one
-        for line in self.axis.lines:
-            if line.get_color() == self.config['main']:
-                self.axis.lines.remove(line)
-
         # Only plot relevant data
-        #self.data.iloc[-300:].plot(x=self.x_label, y=self.y_label, ax=self.axis, legend=None, color=self.config['main'])
         relevant_data = self.data.iloc[-300:]
-        self.plot('main', relevant_data)
+        self.plot_line('main', relevant_data)
 
         # Handle display panning
         if self.pan:
             right = self.data.tail(1)[self.x_label].iloc[0]
             self.axis.set_xlim(left=right - self.pan, right=right+100)
 
-    def plot(self, unique_id, data, color=None):
+    def plot_line(self, unique_id, data, color=None):
         # NOT TESTED
+        # Add a configuration if not already one
         if unique_id not in self.config.keys():
             self.config[unique_id] = [color if color else next(self.get_available_color), unique_id[0:1].upper() + unique_id[1:]]
 
-        # Supress label="_nolegend_" warning
+        #
+        # Purge old line before setting new one
+        for line in self.axis.lines:
+            if line.get_color() == self.config[unique_id][0]:
+                self.axis.lines.remove(line)
+
+        #
+        # Plot line
         with warnings.catch_warnings():
+            # Suppress label="_nolegend_" warning
             warnings.simplefilter("ignore")
+
+            # Plot line
             data.plot(x=self.x_label, y=self.y_label, ax=self.axis, label=self.config[unique_id][1], color=self.config[unique_id][0])
 
-        self.config[unique_id][1] = "_nolegend_"
+        # Patch for redundant legend entries
+        if self.config[unique_id][1] is not "_nolegend_": self.config[unique_id][1] = "_nolegend_"
 
     def plot_target(self):
+        # # Phase out # #
+
         # # # Target could be dots plotted from last update to this update? then purged
 
         if self.target: self.axis.axhline(y=self.target, xmin=0, xmax=100, color=self.config['target'][0])
 
-    def set_target(self, new_target):
+    def update_target(self, new_target):
         """
         Use: To update target value
 
@@ -98,12 +106,22 @@ class Graph(object):
 
         # # # Cannot purge in future
 
-        # Purge old target line
+        # Purge old target line ?
         for line in self.axis.lines:
-            if line.get_color() == self.config['target']:
+            if line.get_color() == self.config['target'][0]:
                 self.axis.lines.remove(line)
 
-        self.plot_target()
+        print(self.data[self.y_label].iloc[-1] if len(self.data[self.y_label]) > 0 else 0)
+
+        self.plot_line("target", pd.DataFrame(
+            {
+                self.x_label: [
+                    # FIX
+                    self.data[self.y_label].iloc[-1] if len(self.data[self.y_label]) > 0 else 0,
+                    20000],
+                self.y_label: [self.target, self.target]
+            }
+        ))
 
     def add_analysis(self, f):
         """
