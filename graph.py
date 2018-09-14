@@ -6,26 +6,34 @@ import pandas as pd
 class Graph(object):
     """
     Use:
-
+        To keep track of certain data points
+        Each lines unique identifier / type is noted by its color
     Functions:
 
     """
 
     config = {'main': 'blue', 'target': 'orange'}
 
-    def __init__(self, title, figure, x_label, y_label, row, col, total_num, target=None, pan=None):
-        self.title = title
-
+    def __init__(self, figure, title, x_label, y_label, row, col, total_num, target=None, pan=300):
+        # Create & add subplot to figure
         self.axis = figure.add_subplot(total_num, col, row)
+
+        # Title of the graph & this objects unique identifier
+        self.title = title
         self.axis.set_title(self.title)
 
+        # X and Y axis labels
         self.x_label = x_label
         self.y_label = y_label
 
+        # Set axis labels
+        #self.axis.set_xlabel(self.x_label)
         self.axis.set_ylabel(self.y_label)
 
+        # Graph data
         self.data = pd.DataFrame({self.x_label: [], self.y_label: []})
 
+        # Optional variables
         self.target = target
         self.pan = pan
         
@@ -37,27 +45,28 @@ class Graph(object):
             new_data: Data to be added to graph
         """
 
+        # Add new data to data
         self.data = self.data.append(new_data, ignore_index=True)
 
+        # # How to update individual line?
+
+        # Purge old main line before setting new one
         for line in self.axis.lines:
-            if line.get_color() == 'blue':
+            if line.get_color() == self.config['main']:
                 self.axis.lines.remove(line)
-            #if line.get_color() == 'orange':
-             #   self.axis.lines.remove(line)
 
         # Only plot relevant data
         self.data.iloc[-300:].plot(x=self.x_label, y=self.y_label, ax=self.axis, legend=None, color=self.config['main'])
 
+        # Handle display panning
         if self.pan:
             right = self.data.tail(1)[self.x_label].iloc[0]
             self.axis.set_xlim(left=right - self.pan, right=right+100)
 
     def plot_target(self):
-        # Target could be dots plotted from last update to this update? then purged
+        # # # Target could be dots plotted from last update to this update? then purged
 
-        # Set target line
-        if self.target:
-            self.axis.axhline(y=self.target, xmin=0, xmax=100, color=self.config['target'])
+        if self.target: self.axis.axhline(y=self.target, xmin=0, xmax=100, color=self.config['target'])
 
     def set_target(self, new_target):
         """
@@ -68,6 +77,13 @@ class Graph(object):
         """
 
         self.target = new_target
+
+        # # # Cannot purge in future
+
+        # Purge old target line
+        for line in self.axis.lines:
+            if line.get_color() == self.config['target']:
+                self.axis.lines.remove(line)
 
         self.plot_target()
 

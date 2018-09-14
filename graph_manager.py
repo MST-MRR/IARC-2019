@@ -82,11 +82,10 @@ class GraphManager(object):
         self.desired_graphs.append(title)
 
         self.graphs[title] = Graph(
-            title, self.figure, self.graph_settings[title][0], self.graph_settings[title][1],
+            self.figure, title, self.graph_settings[title][0], self.graph_settings[title][1],
             len(self.graphs) % GraphManager.graphs_per_column + 1,
             len(self.graphs) / GraphManager.graphs_per_column + 1,
-            len(self.graph_settings.keys()),
-            pan=300,
+            len(self.graph_settings.keys())
         )
 
         self.graphs[title].set_target(.4)
