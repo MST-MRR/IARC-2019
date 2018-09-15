@@ -9,15 +9,26 @@ from graph import Graph
 
 class GraphManager(object):
     """
-    Use:
-        GraphManager()
+    Use: GraphManager()
 
-        Creates & manages 1+ individual graphs. What to plot / keep track of is set in the graph config file
+        Creates & manages individual graphs. What to plot / keep track of is set in the graph config file. Data comes
+        in from GraphManager.update()
+
+    Variables:
+        self.graph_settings:  Settings read in from the config file.  (self.read_config())
+
+        self.figure: Figure that the subplots (Graph objects) go on.  (plt.figure())
+
+        self.desired_graphs: Graphs to plot
+
+        self.graphs: Dictionary that holds all graph objects and their unique ids
 
     Functions:
         update(): Sends any new data to relevant graph objects
 
         read_config(): Reads config file & returns interpreted version
+
+        interpret_data(): Parses data from drone
 
         add_graph(title): Starts tracking new data, title is used as unique id and subplot title
 
@@ -45,9 +56,9 @@ class GraphManager(object):
         self.graphs = {}  # Dictionary that holds the graph objects and their unique ids
 
         # Add desired graphs where they belong
-        [self.add_graph(wanted_graph) for wanted_graph in self.graph_settings.keys()]
+        [self.add_graph(wanted_graph) for wanted_graph in self.graph_settings['Desired Graphs'].keys()]
 
-        # For our current value generation system, to be removed in future
+        # REMOVE - For our current value generation system, to be removed in future
         self.temporary_iterator = 1
 
     # TODO
@@ -58,7 +69,7 @@ class GraphManager(object):
         Returns: Dictionary parsed from config file
         """
 
-        return {'Pitch': ['Pitch_x', 'Pitch_y'], 'Roll': ['Roll_x', 'Roll_y']}
+        return {'Desired Graphs': {'Pitch': ['Pitch_x', 'Pitch_y'], 'Roll': ['Roll_x', 'Roll_y']}}
 
     def add_graph(self, title):
         """
@@ -71,12 +82,15 @@ class GraphManager(object):
         self.desired_graphs.append(title)
 
         self.graphs[title] = Graph(
-            self.figure, title, self.graph_settings[title][0], self.graph_settings[title][1],
+            self.figure, title,
+            self.graph_settings['Desired Graphs'][title][0],
+            self.graph_settings['Desired Graphs'][title][1],
             len(self.graphs) % GraphManager.graphs_per_column + 1,
             len(self.graphs) / GraphManager.graphs_per_column + 1,
-            len(self.graph_settings.keys())
+            len(self.graph_settings['Desired Graphs'].keys())
         )
 
+        # REMOVE when better controller - Functionality demo
         self.graphs[title].update_target(.4)
 
     def add_tracker(self, graph, title, func):
@@ -93,39 +107,44 @@ class GraphManager(object):
 
         self.graphs[graph].add_analysis(title, func)
 
-    # TODO
-    def update(self, data):
+    def interpret_data(self, messy_data):
+        """
+        Use: Interpret data as it comes in from drone
+
+        Parameters:
+            messy_data: Data to be cleaned
+
+        Returns:
+            clean_data: Only the values in data that are also in desired_graphs
+                    # TODO -> may need separate desired_values from desired_graphs
+        """
+
+        clean_data = {}
+
+        [clean_data.update({key: value}) if key in self.desired_graphs else None for key, value in messy_data.items()]
+
+        # TODO REMOVE - Used for current value generation
+        for key, value in clean_data.items():
+            temp = [x + (10 * self.temporary_iterator) for x in value[0]]
+            clean_data[key] = [temp, value[1]]
+
+        self.temporary_iterator += 1
+
+        return clean_data
+
+    def update(self, incoming_data):
         """
         Use: To add new data to graphs
 
         Parameters:
-            data: Dictionary w/ all info sent from drone, needs to be parsed
+            incoming_data: Dictionary w/ all info sent from drone, gets parsed w/ interpret_data()
         """
 
-        # Pull dictionary from json
-
-        # new_data = self.read_json()
-
-        # new_data will be dictionary
-
-        # Pull relevant values based on config and send them
-
-        target_updates = data  # Will be changed when data parsing is done
-        self.graphs['Roll'].update_target(int(target_updates / 100))
-
-        new_data = {
-            'Pitch': [[1, 2, 3, 4, 5, 6, 7, 8], np.random.rand(8)],
-            'Yaw':   [[1, 2, 3, 4, 5, 6, 7, 8], np.random.rand(8)],
-            'Roll':  [[1, 2, 3, 4, 5, 6, 7, 8], np.random.rand(8)]
-        }
+        new_data = self.interpret_data(incoming_data)
 
         for key, value in new_data.items():
-            if key in self.desired_graphs:
-                self.graphs[key].update(
-                    pd.DataFrame({
-                        self.graphs[key].x_label: [x + (10 * self.temporary_iterator) for x in value[0]],
-                        self.graphs[key].y_label: value[1]
-                    })
-                )
-        
-        self.temporary_iterator += 1
+            self.graphs[key].update(pd.DataFrame({self.graphs[key].x_label: value[0], self.graphs[key].y_label: value[1]}))
+
+        # TODO REMOVE when better controller - Functionality demo
+        target_updates = incoming_data['Target_Update_Demo']  # Will be changed when data parsing is done
+        self.graphs['Roll'].update_target(int(target_updates / 100))
