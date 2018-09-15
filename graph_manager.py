@@ -2,7 +2,6 @@
 
 import matplotlib.pyplot as plt
 import pandas as pd
-import numpy as np
 
 from graph import Graph
 
@@ -93,9 +92,7 @@ class GraphManager(object):
         # REMOVE when better controller - Functionality demo
         self.graphs[title].update_target(.4)
 
-        def test(x):
-            return x/3
-        self.graphs[title].add_metric('testeroni', test)
+        self.graphs[title].add_metric('testeroni', lambda x: x / 3)
 
     # TODO - Implement
     def add_tracker(self, graph, title, func):
@@ -128,13 +125,6 @@ class GraphManager(object):
 
         [clean_data.update({key: value}) if key in self.desired_graphs else None for key, value in messy_data.items()]
 
-        # TODO REMOVE - Used for current value generation
-        for key, value in clean_data.items():
-            temp = [x + (10 * self.temporary_iterator) for x in value[0]]
-            clean_data[key] = [temp, value[1]]
-
-        self.temporary_iterator += 1
-
         return clean_data
 
     def update(self, incoming_data):
@@ -148,7 +138,7 @@ class GraphManager(object):
         new_data = self.interpret_data(incoming_data)
 
         for key, value in new_data.items():
-            self.graphs[key].update(pd.DataFrame({self.graphs[key].x_label: value[0], self.graphs[key].y_label: value[1]}))
+            self.graphs[key].update(pd.DataFrame({self.graphs[key].x_axis_label: value[0], self.graphs[key].y_axis_label: value[1]}))
 
         # TODO REMOVE when better controller - Functionality demo
         target_updates = incoming_data['Target_Update_Demo']  # Will be changed when data parsing is done

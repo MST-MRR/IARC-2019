@@ -16,9 +16,9 @@ class Graph(object):
 
     # Maybe use built in pandas/numpy data structure instead
     class Metric:
-        def __init__(self, x_label, y_label, name, func):
-            self.x_label = x_label
-            self.y_label = y_label
+        def __init__(self, x_axis_label, y_axis_label, name, func):
+            self.x_axis_label = x_axis_label
+            self.y_axis_label = y_axis_label
 
             # Init
             self.__name = name  # Name of metric
@@ -27,7 +27,7 @@ class Graph(object):
 
             # Change to map?
             # Create cache
-            self.__cache = pd.DataFrame({self.x_label: [], self.y_label: []})  # Stores generated values
+            self.__cache = pd.DataFrame({self.x_axis_label: [], self.y_axis_label: []})  # Stores generated values
 
         def get_name(self):
             return self.__name
@@ -42,12 +42,12 @@ class Graph(object):
             self.__cache = self.__cache.append(data, ignore_index=True)
 
         def generate_values(self, input_values):
-            generated_values = [self.__func(value) for value in input_values[self.y_label]]
+            generated_values = [self.__func(value) for value in input_values[self.y_axis_label]]
 
             # Add generated data to cache
-            self.set_cache(pd.DataFrame({self.x_label: input_values[self.x_label], self.y_label: generated_values}))
+            self.set_cache(pd.DataFrame({self.x_axis_label: input_values[self.x_axis_label], self.y_axis_label: generated_values}))
 
-    def __init__(self, figure, title, x_label, y_label, row, col, total_num, target=None, pan=300):
+    def __init__(self, figure, title, x_axis_label, y_label, row, col, total_num, target=None, pan=300):
         # Configuration settings
         self.config = {'main': ['blue', 'Main'], 'target': ['orange', 'Target']}
         self.get_available_color = iter(['red', 'yellow', 'green', 'cyan', 'black'])
@@ -60,22 +60,22 @@ class Graph(object):
         self.axis.set_title(self.title)
 
         # X and Y axis labels
-        self.x_label = x_label
-        self.y_label = y_label
+        self.x_axis_label = x_axis_label
+        self.y_axis_label = y_label
 
         # Set axis labels
-        #self.axis.set_xlabel(self.x_label)
-        self.axis.set_ylabel(self.y_label)
+        #self.axis.set_xlabel(self.x_axis_label)
+        self.axis.set_ylabel(self.y_axis_label)
 
         # Main data points
-        self.data = pd.DataFrame({self.x_label: [], self.y_label: []})
+        self.data = pd.DataFrame({self.x_axis_label: [], self.y_axis_label: []})
 
         # Optional variables
         self.target = target  # TODO - Turn into metric
         self.pan = pan
 
         # Desired metrics
-        self.metrics = [self.Metric(self.x_label, self.y_label, 'main', lambda x: x)]
+        self.metrics = [self.Metric(self.x_axis_label, self.y_axis_label, 'main', lambda x: x)]
 
     # TODO?
     def update(self, new_data):
@@ -105,7 +105,7 @@ class Graph(object):
 
         # Handle display panning
         if self.pan:
-            right = self.data.tail(1)[self.x_label].iloc[0]
+            right = self.data.tail(1)[self.x_axis_label].iloc[0]
             self.axis.set_xlim(left=right - self.pan, right=right+100)
 
     # TODO?
@@ -128,7 +128,7 @@ class Graph(object):
             warnings.simplefilter("ignore")
 
             # Plot line
-            data.plot(x=self.x_label, y=self.y_label, ax=self.axis, label=self.config[unique_id][1], color=self.config[unique_id][0])
+            data.plot(x=self.x_axis_label, y=self.y_axis_label, ax=self.axis, label=self.config[unique_id][1], color=self.config[unique_id][0])
 
         # Patch for redundant legend entries
         if self.config[unique_id][1] is not "_nolegend_": self.config[unique_id][1] = "_nolegend_"
@@ -160,15 +160,15 @@ class Graph(object):
                 self.axis.lines.remove(line)
 
         # TODO
-        # print(self.data[self.y_label].iloc[-1] if len(self.data[self.y_label]) > 0 else 0)
+        # print(self.data[self.y_axis_label].iloc[-1] if len(self.data[self.y_axis_label]) > 0 else 0)
 
         self.plot_line("target", pd.DataFrame(
             {
-                self.x_label: [
+                self.x_axis_label: [
                     # FIX
-                    self.data[self.y_label].iloc[-1] if len(self.data[self.y_label]) > 0 else 0,
+                    self.data[self.y_axis_label].iloc[-1] if len(self.data[self.y_axis_label]) > 0 else 0,
                     20000],
-                self.y_label: [self.target, self.target]
+                self.y_axis_label: [self.target, self.target]
             }
         ))
 
@@ -180,9 +180,7 @@ class Graph(object):
             title: Name of metric
             func: Function for metric to execute
         """
-        print(title)
-        print(func(2))
 
-        self.metrics.append(self.Metric(self.x_label, self.y_label, title, func))
+        self.metrics.append(self.Metric(self.x_axis_label, self.y_axis_label, title, func))
 
 

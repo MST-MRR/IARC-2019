@@ -8,6 +8,7 @@ import matplotlib.pyplot as plt  # plt.pause()
 
 import numpy as np  # random.rand
 
+import time
 
 def main():
     # Create Graph Manager Object
@@ -16,24 +17,25 @@ def main():
     i = 0
 
     # Demo Simulation Loop
-    while True:
-        i += 1
-
+    def loop(i):
         try:
             test_graph.update({
                 'Target_Update_Demo': i,
-                'Pitch': [[1, 2, 3, 4, 5, 6, 7, 8], np.random.rand(8)],
-                'Yaw': [[1, 2, 3, 4, 5, 6, 7, 8], np.random.rand(8)],
-                'Roll': [[1, 2, 3, 4, 5, 6, 7, 8], np.random.rand(8)]
+                'Pitch': [[i * 10 + v for v in range(8)], np.random.rand(8)],
+                'Yaw': [[i * 10 + v for v in range(8)], np.random.rand(8)],
+                'Roll': [[i * 10 + v for v in range(8)], np.random.rand(8)]
             })
 
             plt.pause(.05)
 
-        finally:
-            pass
-        #except Exception as e:
-        #    print("Quitting: {}".format(e))
-        #    break
+        except Exception as e:
+            print("Quitting: {}".format(e))
+            return False
+
+        return i+1
+
+    while i + 1:
+        i = loop(i)
 
     sys.exit()
 
