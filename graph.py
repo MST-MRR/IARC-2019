@@ -42,10 +42,10 @@ class Graph(object):
             self.__cache = self.__cache.append(data, ignore_index=True)
 
         def generate_values(self, input_values):
-            generated_values = [self.__func(value) for value in input_values[self.x_label]]
+            generated_values = [self.__func(value) for value in input_values[self.y_label]]
 
             # Add generated data to cache
-            self.set_cache(pd.DataFrame({self.x_label: generated_values, self.y_label: input_values[self.y_label]}))
+            self.set_cache(pd.DataFrame({self.x_label: input_values[self.x_label], self.y_label: generated_values}))
 
     def __init__(self, figure, title, x_label, y_label, row, col, total_num, target=None, pan=300):
         # Configuration settings
@@ -100,8 +100,8 @@ class Graph(object):
 
         for metric in self.metrics:
             if not metric.get_cache().empty:
-
-                self.plot_line(metric.get_name(), metric.get_cache()[:])
+                # TODO - Update panning to pan based on x axis
+                self.plot_line(metric.get_name(), metric.get_cache()[-self.pan:])
 
         # Handle display panning
         if self.pan:

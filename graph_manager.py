@@ -94,7 +94,7 @@ class GraphManager(object):
         self.graphs[title].update_target(.4)
 
         def test(x):
-            return x**2
+            return x/3
         self.graphs[title].add_metric('testeroni', test)
 
     # TODO - Implement
