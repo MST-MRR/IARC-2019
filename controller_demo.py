@@ -7,19 +7,20 @@ from graph_manager import GraphManager
 import matplotlib.pyplot as plt  # plt.pause()
 
 import numpy as np  # random.rand
-
-import time
-
+import traceback
+import logging
 
 def main():
     # Create Graph Manager Object
     test_graph = GraphManager()
 
     # Demo Simulation Loop
-    def loop(i):
-        values_to_pass = 8
+    i = 0
+    time_log = {}
+    while True:
+        i += 1
 
-        time_log = {}
+        values_to_pass = 8
 
         try:
             test_graph.update({
@@ -35,13 +36,8 @@ def main():
 
         except Exception as e:
             print("Quitting: {}".format(e))
-            return False
-
-        return i+1
-
-    i = 0
-    while i is not False:
-        i = loop(i)
+            logging.error((traceback.format_exc()))
+            break
 
     sys.exit()
 

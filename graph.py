@@ -16,12 +16,16 @@ class Graph(object):
 
     # Maybe use built in pandas/numpy data structure instead
     class Metric:
-        def __init__(self, x_axis_label, y_axis_label, name, func):
+        def __init__(self, x_axis_label, y_axis_label, name, color, func):
             self.x_axis_label = x_axis_label
             self.y_axis_label = y_axis_label
 
             # Init
             self.__name = name  # Name of metric
+
+            self.__legend = "{}{}".format(name[0:1].upper(), name[1:])
+
+            self.__color = color
 
             self.__func = func  # Function to generate values
 
@@ -32,16 +36,30 @@ class Graph(object):
         def get_name(self):
             return self.__name
 
+        def get_legend(self):
+            return self.__legend
+
+        def get_color(self):
+            return self.__color
+
         def get_func(self):
             return self.__func
 
         def get_cache(self):
             return self.__cache
 
+        def set_legend(self):
+            self.__legend = "_nolegend_"
+        
+        def set_func(self, func):
+            self.__func = func
+
         def set_cache(self, data):
             self.__cache = self.__cache.append(data, ignore_index=True)
 
         def generate_values(self, input_values):
+            # Turn x, y, target values into generator to access differently
+
             generated_values = [self.__func(value) for value in input_values[self.y_axis_label]]
 
             # Add generated data to cache
@@ -49,7 +67,7 @@ class Graph(object):
 
     def __init__(self, figure, title, x_axis_label, y_label, row, col, total_num, target=None, pan=300):
         # Configuration settings
-        self.config = {'main': ['blue', 'Main'], 'target': ['orange', 'Target']}
+        #self.config = {'main': ['blue', 'Main'], 'target': ['orange', 'Target']}
         self.get_available_color = iter(['red', 'yellow', 'green', 'cyan', 'black'])
 
         # Create & add subplot to figure
@@ -75,9 +93,11 @@ class Graph(object):
         self.pan = pan
 
         # Desired metrics
-        self.metrics = [self.Metric(self.x_axis_label, self.y_axis_label, 'main', lambda x: x)]
+        self.metrics = {
+            'main': self.Metric(self.x_axis_label, self.y_axis_label, 'main', 'blue', lambda x: x),
+            "target": self.Metric(self.x_axis_label, self.y_axis_label, "target", "orange", lambda x: self.target)
+        }
 
-    # TODO?
     def update(self, new_data):
         """
         Use: To add new data to graph
@@ -89,16 +109,10 @@ class Graph(object):
         # Add new data to data
         self.data = self.data.append(new_data, ignore_index=True)
 
-        # # How to update individual line?
-
-        # Only plot relevant data
-        #relevant_data = self.data.iloc[-300:]
-        #self.plot_line('main', relevant_data)
-
-        for metric in self.metrics:
+        for metric in self.metrics.values():
             metric.generate_values(new_data)
 
-        for metric in self.metrics:
+        for metric in self.metrics.values():
             if not metric.get_cache().empty:
                 # TODO - Update panning to pan based on x axis
                 self.plot_line(metric.get_name(), metric.get_cache()[-self.pan:])
@@ -110,15 +124,14 @@ class Graph(object):
 
     # TODO?
     def plot_line(self, unique_id, data, color=None):
-        # NOT TESTED
-        # Add a configuration if not already one
-        if unique_id not in self.config.keys():
-            self.config[unique_id] = [color if color else next(self.get_available_color), unique_id[0:1].upper() + unique_id[1:]]
+        # Add a configuration for metric if not already one
+        #if unique_id not in self.config.keys():
+        #    self.config[unique_id] = [color if color else next(self.get_available_color), unique_id[0:1].upper() + unique_id[1:]]
 
         #
         # Purge old line before setting new one
         for line in self.axis.lines:
-            if line.get_color() == self.config[unique_id][0]:
+            if line.get_color() == self.metrics[unique_id].get_color():
                 self.axis.lines.remove(line)
 
         #
@@ -128,10 +141,10 @@ class Graph(object):
             warnings.simplefilter("ignore")
 
             # Plot line
-            data.plot(x=self.x_axis_label, y=self.y_axis_label, ax=self.axis, label=self.config[unique_id][1], color=self.config[unique_id][0])
+            data.plot(x=self.x_axis_label, y=self.y_axis_label, ax=self.axis, label=self.metrics[unique_id].get_legend(), color=self.metrics[unique_id].get_color())
 
         # Patch for redundant legend entries
-        if self.config[unique_id][1] is not "_nolegend_": self.config[unique_id][1] = "_nolegend_"
+        self.metrics[unique_id].set_legend()
 
     # TODO
     def plot_target(self):
@@ -152,25 +165,27 @@ class Graph(object):
 
         self.target = new_target
 
+        self.metrics['target'].set_func(lambda x: self.target)
+
         # # # Cannot purge in future
 
         # Purge old target line ?
-        for line in self.axis.lines:
-            if line.get_color() == self.config['target'][0]:
-                self.axis.lines.remove(line)
+        #for line in self.axis.lines:
+         #   if line.get_color() == self.config['target'][0]:
+          #      self.axis.lines.remove(line)
 
         # TODO
         # print(self.data[self.y_axis_label].iloc[-1] if len(self.data[self.y_axis_label]) > 0 else 0)
 
-        self.plot_line("target", pd.DataFrame(
-            {
-                self.x_axis_label: [
-                    # FIX
-                    self.data[self.y_axis_label].iloc[-1] if len(self.data[self.y_axis_label]) > 0 else 0,
-                    20000],
-                self.y_axis_label: [self.target, self.target]
-            }
-        ))
+        #self.plot_line("target", pd.DataFrame(
+         #   {
+          #      self.x_axis_label: [
+           #         # FIX
+            #        self.data[self.y_axis_label].iloc[-1] if len(self.data[self.y_axis_label]) > 0 else 0,
+             #       20000],
+              #  self.y_axis_label: [self.target, self.target]
+            #}
+        #))
 
     def add_metric(self, title, func):
         """
@@ -181,6 +196,6 @@ class Graph(object):
             func: Function for metric to execute
         """
 
-        self.metrics.append(self.Metric(self.x_axis_label, self.y_axis_label, title, func))
+        self.metrics.update({title: self.Metric(self.x_axis_label, self.y_axis_label, title, next(self.get_available_color), func)})
 
 
