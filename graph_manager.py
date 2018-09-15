@@ -93,6 +93,11 @@ class GraphManager(object):
         # REMOVE when better controller - Functionality demo
         self.graphs[title].update_target(.4)
 
+        def test(x):
+            return x**2
+        self.graphs[title].add_metric('testeroni', test)
+
+    # TODO - Implement
     def add_tracker(self, graph, title, func):
         """
         Use: To add new tracker to specified graph
@@ -105,7 +110,7 @@ class GraphManager(object):
 
         assert graph in self.graphs.keys(), "Graph '{}' not available.".format(graph)
 
-        self.graphs[graph].add_analysis(title, func)
+        self.graphs[graph].add_metric(title, func)
 
     def interpret_data(self, messy_data):
         """

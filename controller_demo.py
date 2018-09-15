@@ -29,9 +29,11 @@ def main():
 
             plt.pause(.05)
 
-        except Exception as e:
-            print("Quitting: {}".format(e))
-            break
+        finally:
+            pass
+        #except Exception as e:
+        #    print("Quitting: {}".format(e))
+        #    break
 
     sys.exit()
 

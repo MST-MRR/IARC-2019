@@ -8,11 +8,44 @@ import pandas as pd
 class Graph(object):
     """
     Use:
-        To keep track of certain data points
-        Each lines unique identifier / type is noted by its color
+        To keep track of certain data points. Each line's unique id is its color
+
     Functions:
 
     """
+
+    # Maybe use built in pandas/numpy data structure instead
+    class Metric:
+        def __init__(self, x_label, y_label, name, func):
+            self.x_label = x_label
+            self.y_label = y_label
+
+            # Init
+            self.__name = name  # Name of metric
+
+            self.__func = func  # Function to generate values
+
+            # Change to map?
+            # Create cache
+            self.__cache = pd.DataFrame({self.x_label: [], self.y_label: []})  # Stores generated values
+
+        def get_name(self):
+            return self.__name
+
+        def get_func(self):
+            return self.__func
+
+        def get_cache(self):
+            return self.__cache
+
+        def set_cache(self, data):
+            self.__cache = self.__cache.append(data, ignore_index=True)
+
+        def generate_values(self, input_values):
+            generated_values = [self.__func(value) for value in input_values[self.x_label]]
+
+            # Add generated data to cache
+            self.set_cache(pd.DataFrame({self.x_label: generated_values, self.y_label: input_values[self.y_label]}))
 
     def __init__(self, figure, title, x_label, y_label, row, col, total_num, target=None, pan=300):
         # Configuration settings
@@ -34,12 +67,15 @@ class Graph(object):
         #self.axis.set_xlabel(self.x_label)
         self.axis.set_ylabel(self.y_label)
 
-        # Graph data
+        # Main data points
         self.data = pd.DataFrame({self.x_label: [], self.y_label: []})
 
         # Optional variables
-        self.target = target
+        self.target = target  # TODO - Turn into metric
         self.pan = pan
+
+        # Desired metrics
+        self.metrics = [self.Metric(self.x_label, self.y_label, 'main', lambda x: x)]
 
     # TODO?
     def update(self, new_data):
@@ -56,8 +92,16 @@ class Graph(object):
         # # How to update individual line?
 
         # Only plot relevant data
-        relevant_data = self.data.iloc[-300:]
-        self.plot_line('main', relevant_data)
+        #relevant_data = self.data.iloc[-300:]
+        #self.plot_line('main', relevant_data)
+
+        for metric in self.metrics:
+            metric.generate_values(new_data)
+
+        for metric in self.metrics:
+            if not metric.get_cache().empty:
+
+                self.plot_line(metric.get_name(), metric.get_cache()[:])
 
         # Handle display panning
         if self.pan:
@@ -128,15 +172,17 @@ class Graph(object):
             }
         ))
 
-    # TODO
-    def add_analysis(self, title, func):
+    def add_metric(self, title, func):
         """
-        Use: To add new tracker to graph
+        Use: To add new metric to graph
 
         Parameters:
-            title:
-            func:
+            title: Name of metric
+            func: Function for metric to execute
         """
+        print(title)
+        print(func(2))
 
-        pass
+        self.metrics.append(self.Metric(self.x_label, self.y_label, title, func))
+
 
