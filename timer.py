@@ -1,9 +1,10 @@
 # For timing individual functions
 
+# Source: https://medium.com/pythonhive/python-decorator-to-measure-the-execution-time-of-methods-fa04cb6bb36d
+
 from time import time
 
 
-# https://medium.com/pythonhive/python-decorator-to-measure-the-execution-time-of-methods-fa04cb6bb36d
 def timeit(method):
     def timed(*args, **kw):
         ts = time()

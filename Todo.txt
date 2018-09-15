@@ -7,6 +7,7 @@ Rolling Todos
 
 List
 - Make graphs bigger?
+- Allow more than one variable in metric
 - Fix slowdown associated w/ adding metrics -> May need more efficient data structures
 - Is there a need for the main data logging in each graph
 - Use getters and setters for basic encapsulation

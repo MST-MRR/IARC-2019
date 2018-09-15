@@ -1,25 +1,22 @@
-# For the graphs metric line
+# A trackable metric that can be plotted on a graph
 
 import pandas as pd
 
 
-# Maybe use built in pandas/numpy data structure instead
 class Metric:
     def __init__(self, x_axis_label, y_axis_label, name, color, func):
+
         self.x_axis_label = x_axis_label
         self.y_axis_label = y_axis_label
 
-        # Init
         self.__name = name  # Name of metric
 
-        self.__legend = "{}{}".format(name[0:1].upper(), name[1:])
+        self.__legend = "{}{}".format(name[0:1].upper(), name[1:])  # Legend entry key
 
-        self.__color = color
+        self.__color = color  # Line color
 
-        self.__func = func  # Function to generate values
+        self.__func = func  # Value generation function
 
-        # Change to map?
-        # Create cache
         self.__cache = pd.DataFrame({self.x_axis_label: [], self.y_axis_label: []})  # Stores generated values
 
     def get_name(self):
@@ -38,7 +35,7 @@ class Metric:
         return self.__cache
 
     def set_legend(self):
-        self.__legend = "_nolegend_"
+        if not self.__legend == "_nolegend_": self.__legend = "_nolegend_"
 
     def set_func(self, func):
         self.__func = func

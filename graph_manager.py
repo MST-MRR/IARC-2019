@@ -3,9 +3,9 @@
 import matplotlib.pyplot as plt
 import pandas as pd
 
-from graph import Graph
+from timer import timeit
 
-from timer import timeit  # times update
+from graph import Graph
 
 
 class GraphManager(object):
@@ -15,12 +15,10 @@ class GraphManager(object):
         Creates & manages individual graphs. What to plot / keep track of is set in the graph config file. Data comes
         in from GraphManager.update()
 
-    Variables:
+    Variables:  # TODO
         self.graph_settings:  Settings read in from the config file.  (self.read_config())
 
         self.figure: Figure that the subplots (Graph objects) go on.  (plt.figure())
-
-        self.desired_graphs: Graphs to plot
 
         self.graphs: Dictionary that holds all graph objects and their unique ids
 
@@ -52,15 +50,10 @@ class GraphManager(object):
 
         #
         # Initialize Graph Data Storage
-        self.desired_graphs = []  # The desired graphs (May be redundant depending on how data comes in)
-
         self.graphs = {}  # Dictionary that holds the graph objects and their unique ids
 
         # Add desired graphs where they belong
         [self.add_graph(wanted_graph) for wanted_graph in self.graph_settings['Desired Graphs'].keys()]
-
-        # REMOVE - For our current value generation system, to be removed in future
-        self.temporary_iterator = 1
 
     # TODO
     def read_config(self):
@@ -79,8 +72,6 @@ class GraphManager(object):
         Parameters:
             title: Unique id & subplot title
         """
-
-        self.desired_graphs.append(title)
 
         self.graphs[title] = Graph(
             self.figure, title,
@@ -119,13 +110,13 @@ class GraphManager(object):
             messy_data: Data to be cleaned
 
         Returns:
-            clean_data: Only the values in data that are also in desired_graphs
-                    # TODO -> may need separate desired_values from desired_graphs
+            clean_data: Only the values in data that are also in graphs.keys()
+                    # TODO -> may need separate desired_values from graphs.keys()
         """
 
         clean_data = {}
 
-        [clean_data.update({key: value}) if key in self.desired_graphs else None for key, value in messy_data.items()]
+        [clean_data.update({key: value}) if key in self.graphs.keys() else None for key, value in messy_data.items()]
 
         return clean_data
 
