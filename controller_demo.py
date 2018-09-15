@@ -10,21 +10,26 @@ import numpy as np  # random.rand
 
 import time
 
+
 def main():
     # Create Graph Manager Object
     test_graph = GraphManager()
 
-    i = 0
-
     # Demo Simulation Loop
     def loop(i):
+        values_to_pass = 8
+
+        time_log = {}
+
         try:
             test_graph.update({
                 'Target_Update_Demo': i,
-                'Pitch': [[i * 10 + v for v in range(8)], np.random.rand(8)],
-                'Yaw': [[i * 10 + v for v in range(8)], np.random.rand(8)],
-                'Roll': [[i * 10 + v for v in range(8)], np.random.rand(8)]
-            })
+                'Pitch': [[i * 10 + v for v in range(values_to_pass)], np.random.rand(values_to_pass)],
+                'Yaw': [[i * 10 + v for v in range(values_to_pass)], np.random.rand(values_to_pass)],
+                'Roll': [[i * 10 + v for v in range(values_to_pass)], np.random.rand(values_to_pass)]
+            }, log_time=time_log)
+
+            print(time_log)
 
             plt.pause(.05)
 
@@ -34,7 +39,8 @@ def main():
 
         return i+1
 
-    while i + 1:
+    i = 0
+    while i is not False:
         i = loop(i)
 
     sys.exit()

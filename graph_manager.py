@@ -5,6 +5,8 @@ import pandas as pd
 
 from graph import Graph
 
+from timer import timeit  # times update
+
 
 class GraphManager(object):
     """
@@ -127,7 +129,8 @@ class GraphManager(object):
 
         return clean_data
 
-    def update(self, incoming_data):
+    @timeit
+    def update(self, incoming_data, **kwargs):
         """
         Use: To add new data to graphs
 
