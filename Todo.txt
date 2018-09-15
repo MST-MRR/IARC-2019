@@ -11,8 +11,5 @@ List
 - Make wrapper function to request a graph w/ certain data over certain time
 - Assertions to catch possible errors before they get too deep -> ie requesting negative time
 - Interface for interacting w/ config file
--Analysis of data as it comes in
--Choose how much data to graph at a time
--Make the graphs interactive (i.e. can set the target while running with a GUI)
--Ability to pause? (what is the thought process on why this is needed?)
-
+- GUI for manipulating graph(if need more than built in functionality)
+- Ability to set breakpoints

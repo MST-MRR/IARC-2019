@@ -1,4 +1,4 @@
-# The graph manager, handles all graphs wanted by config file
+# The graph manager -> handles all graphs. Options in config file
 
 import matplotlib.pyplot as plt
 import pandas as pd
@@ -15,11 +15,13 @@ class GraphManager(object):
         Creates & manages 1+ individual graphs. What to plot / keep track of is set in the graph config file
 
     Functions:
-        update(): Sends any new data to relevant graphs
+        update(): Sends any new data to relevant graph objects
 
         read_config(): Reads config file & returns interpreted version
 
         add_graph(title): Starts tracking new data, title is used as unique id and subplot title
+
+        add_tracker(graph, title, func): Adds new tracker(line) to specified graph w/ specified metric
     """
 
     graphs_per_column = 3  # Formatting variable, how many graphs per column before loop
@@ -34,8 +36,7 @@ class GraphManager(object):
         plt.ion()  # Enable interactive graphs
         self.figure = plt.figure()  # Figure that the subplots (Graph objects) go on
 
-        # Create a buffer space between subplots to avoid overlap
-        self.figure.subplots_adjust(hspace=1)
+        self.figure.subplots_adjust(hspace=1)  # Create a buffer space between subplots to avoid overlap
 
         #
         # Initialize Graph Data Storage
@@ -43,12 +44,13 @@ class GraphManager(object):
 
         self.graphs = {}  # Dictionary that holds the graph objects and their unique ids
 
-        # Add desired graphs to where they belong
+        # Add desired graphs where they belong
         [self.add_graph(wanted_graph) for wanted_graph in self.graph_settings.keys()]
 
         # For our current value generation system, to be removed in future
         self.temporary_iterator = 1
 
+    # TODO
     def read_config(self):
         """
         Use: To read and interpret the graph config file
@@ -77,6 +79,21 @@ class GraphManager(object):
 
         self.graphs[title].update_target(.4)
 
+    def add_tracker(self, graph, title, func):
+        """
+        Use: To add new tracker to specified graph
+
+        Parameters:
+            graph: What graph to add tracker too
+            title: Title of tracker
+            func: Metric function to graph based on
+        """
+
+        assert graph in self.graphs.keys(), "Graph '{}' not available.".format(graph)
+
+        self.graphs[graph].add_analysis(title, func)
+
+    # TODO
     def update(self, data):
         """
         Use: To add new data to graphs

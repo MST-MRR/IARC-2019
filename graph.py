@@ -40,7 +40,8 @@ class Graph(object):
         # Optional variables
         self.target = target
         self.pan = pan
-        
+
+    # TODO?
     def update(self, new_data):
         """
         Use: To add new data to graph
@@ -63,6 +64,7 @@ class Graph(object):
             right = self.data.tail(1)[self.x_label].iloc[0]
             self.axis.set_xlim(left=right - self.pan, right=right+100)
 
+    # TODO?
     def plot_line(self, unique_id, data, color=None):
         # NOT TESTED
         # Add a configuration if not already one
@@ -87,6 +89,7 @@ class Graph(object):
         # Patch for redundant legend entries
         if self.config[unique_id][1] is not "_nolegend_": self.config[unique_id][1] = "_nolegend_"
 
+    # TODO
     def plot_target(self):
         # # Phase out # #
 
@@ -94,6 +97,7 @@ class Graph(object):
 
         if self.target: self.axis.axhline(y=self.target, xmin=0, xmax=100, color=self.config['target'][0])
 
+    # TODO
     def update_target(self, new_target):
         """
         Use: To update target value
@@ -111,7 +115,8 @@ class Graph(object):
             if line.get_color() == self.config['target'][0]:
                 self.axis.lines.remove(line)
 
-        print(self.data[self.y_label].iloc[-1] if len(self.data[self.y_label]) > 0 else 0)
+        # TODO
+        # print(self.data[self.y_label].iloc[-1] if len(self.data[self.y_label]) > 0 else 0)
 
         self.plot_line("target", pd.DataFrame(
             {
@@ -123,12 +128,14 @@ class Graph(object):
             }
         ))
 
-    def add_analysis(self, f):
+    # TODO
+    def add_analysis(self, title, func):
         """
         Use: To add new tracker to graph
 
         Parameters:
-            f:
+            title:
+            func:
         """
 
         pass
