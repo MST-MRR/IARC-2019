@@ -6,6 +6,7 @@ Rolling Todos
 - Test every single function to limits higher than we expect to actually happen -> make sure to test non-visual things
 
 List
+- Make graphs bigger?
 - Fix slowdown associated w/ adding metrics -> May need more efficient data structures
 - Is there a need for the main data logging in each graph
 - Use getters and setters for basic encapsulation
