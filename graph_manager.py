@@ -39,23 +39,22 @@ class GraphManager(object):
     def __init__(self):
 
         # Get Startup Data
-        self.graph_settings = self.read_config()
+        self.__graph_settings = self.read_config()
 
         #
         # Setup Matplot
         plt.ion()  # Enable interactive graphs
-        self.figure = plt.figure()  # Figure that the subplots (Graph objects) go on
+        self.__figure = plt.figure()  # Figure that the subplots (Graph objects) go on
 
-        self.figure.subplots_adjust(hspace=1)  # Create a buffer space between subplots to avoid overlap
+        self.get_figure().subplots_adjust(hspace=1)  # Create a buffer space between subplots to avoid overlap
 
         #
         # Initialize Graph Data Storage
-        self.graphs = {}  # Dictionary that holds the graph objects and their unique ids
+        self.__graphs = {}  # Dictionary that holds the graph objects and their unique ids
 
         # Add desired graphs where they belong
-        [self.add_graph(wanted_graph) for wanted_graph in self.graph_settings['Desired Graphs'].keys()]
+        [self.add_graph(wanted_graph) for wanted_graph in self.get_graph_settings()['Desired Graphs'].keys()]
 
-    # TODO
     def read_config(self):
         """
         Use: To read and interpret the graph config file
@@ -65,6 +64,24 @@ class GraphManager(object):
 
         return {'Desired Graphs': {'Pitch': ['Pitch_x', 'Pitch_y'], 'Roll': ['Roll_x', 'Roll_y']}}
 
+    def get_graph_settings(self, key=None, desired_list='items'):
+        """
+        Returns: self.__graph_settings
+        """
+        return self.__graph_settings
+
+    def get_figure(self):
+        """
+        Returns: self.__figure
+        """
+        return self.__figure
+
+    def get_graphs(self):
+        """
+        Returns: self.__graphs
+        """
+        return self.__graphs
+
     def add_graph(self, title):
         """
         Use: To begin tracking new data
@@ -73,19 +90,19 @@ class GraphManager(object):
             title: Unique id & subplot title
         """
 
-        self.graphs[title] = Graph(
-            self.figure, title,
-            self.graph_settings['Desired Graphs'][title][0],
-            self.graph_settings['Desired Graphs'][title][1],
-            len(self.graphs) % GraphManager.graphs_per_column + 1,
-            len(self.graphs) / GraphManager.graphs_per_column + 1,
-            len(self.graph_settings['Desired Graphs'].keys())
+        self.__graphs[title] = Graph(
+            self.get_figure(), title,
+            self.get_graph_settings()['Desired Graphs'][title][0],
+            self.get_graph_settings()['Desired Graphs'][title][1],
+            len(self.get_graphs()) % GraphManager.graphs_per_column + 1,
+            len(self.get_graphs()) / GraphManager.graphs_per_column + 1,
+            len(self.get_graph_settings()['Desired Graphs'])
         )
 
         # REMOVE when better controller - Functionality demo
-        self.graphs[title].update_target(.4)
+        self.get_graphs()[title].update_target(.4)
 
-        self.graphs[title].add_metric('testeroni', lambda x: x / 3)
+        self.get_graphs()[title].add_metric('testeroni', lambda x: x / 3)
 
     # TODO - Implement
     def add_tracker(self, graph, title, func):
@@ -116,7 +133,7 @@ class GraphManager(object):
 
         clean_data = {}
 
-        [clean_data.update({key: value}) if key in self.graphs.keys() else None for key, value in messy_data.items()]
+        [clean_data.update({key: value}) if key in self.get_graphs().keys() else None for key, value in messy_data.items()]
 
         return clean_data
 
@@ -132,8 +149,9 @@ class GraphManager(object):
         new_data = self.interpret_data(incoming_data)
 
         for key, value in new_data.items():
-            self.graphs[key].update(pd.DataFrame({self.graphs[key].x_axis_label: value[0], self.graphs[key].y_axis_label: value[1]}))
+            self.get_graphs()[key].update(pd.DataFrame(
+                {self.get_graphs()[key].get_x_axis_label(): value[0], self.get_graphs()[key].get_y_axis_label(): value[1]}))
 
         # TODO REMOVE when better controller - Functionality demo
         target_updates = incoming_data['Target_Update_Demo']  # Will be changed when data parsing is done
-        self.graphs['Roll'].update_target(int(target_updates / 100))
+        self.get_graphs()['Roll'].update_target(int(target_updates / 100))

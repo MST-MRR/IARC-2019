@@ -6,14 +6,11 @@ Rolling Todos
 - Test every single function to limits higher than we expect to actually happen -> make sure to test non-visual things
 
 List
-- Make graphs bigger?
 - Allow more than one variable in metric
-- Fix slowdown associated w/ adding metrics -> May need more efficient data structures
 - Is there a need for the main data logging in each graph
-- Use getters and setters for basic encapsulation
 - Config file as xml to determine what functions to use for extra data
 - Make wrapper function to request a graph w/ certain data over certain time
-- Assertions to catch possible errors before they get too deep -> ie requesting negative time
 - Interface for interacting w/ config file
 - GUI for manipulating graph(if need more than built in functionality)
 - Ability to set breakpoints
+- Save graph on exit

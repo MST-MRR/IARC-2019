@@ -21,22 +21,22 @@ class Graph(object):
         self.get_available_color = iter(['red', 'yellow', 'green', 'cyan', 'black', None])
 
         # Create & add subplot to figure
-        self.axis = figure.add_subplot(total_num, col, row)
+        self.__axis = figure.add_subplot(total_num, col, row)
 
         # Title of the graph & this objects unique identifier
-        self.title = title
-        self.axis.set_title(self.title)
+        self.__title = title
+        self.get_axis().set_title(self.get_title())
 
         # X and Y axis labels
-        self.x_axis_label = x_axis_label
-        self.y_axis_label = y_axis_label
+        self.__x_axis_label = x_axis_label
+        self.__y_axis_label = y_axis_label
 
         # Set axis labels
-        #self.axis.set_xlabel(self.x_axis_label)
-        self.axis.set_ylabel(self.y_axis_label)
+        #self.axis.set_xlabel(self.get_x_axis_label())
+        self.get_axis().set_ylabel(self.get_y_axis_label())
 
         # Main data points
-        self.data = pd.DataFrame({self.x_axis_label: [], self.y_axis_label: []})
+        #self.data = pd.DataFrame({self.get_x_axis_label(): [], self.get_y_axis_label(): []})
 
         # Misc variables
         self.target = target
@@ -49,6 +49,32 @@ class Graph(object):
         self.add_metric('main', lambda x: x, color='blue')
         self.add_metric('target', lambda x: self.target, color='orange')
 
+    def get_axis(self):
+        """
+        Returns: self.__axis
+        """
+
+        return self.__axis
+
+    def get_title(self):
+        """
+        Returns: self.__title
+        """
+
+    def get_x_axis_label(self):
+        """
+        Returns: self.__x_axis_label
+        """
+
+        return self.__x_axis_label
+
+    def get_y_axis_label(self):
+        """
+        Returns: self.__y_axis_label
+        """
+
+        return self.__y_axis_label
+
     def update(self, new_data):
         """
         Use: To add new data to graph
@@ -58,7 +84,7 @@ class Graph(object):
         """
 
         # Add new data to data
-        self.data = self.data.append(new_data, ignore_index=True)
+        #self.data = self.data.append(new_data, ignore_index=True)
 
         #
         # Generate new metric values
@@ -75,8 +101,11 @@ class Graph(object):
         #
         # Handle display panning
         if self.pan:
-            right = self.data.tail(1)[self.x_axis_label].iloc[0]
-            self.axis.set_xlim(left=right - self.pan, right=right+100)
+            #right = self.data.tail()[self.get_x_axis_label()].iloc[0]
+
+            right = new_data[self.get_x_axis_label()].iloc[-1]
+
+            self.get_axis().set_xlim(left=right - self.pan, right=right+100)
 
     def plot_line(self, unique_id, data):
         """
@@ -90,15 +119,15 @@ class Graph(object):
         assert unique_id in self.metrics.keys(), "'{}' is not currently being tracked!"
 
         # Purge old line before setting new one
-        for line in self.axis.lines:
+        for line in self.get_axis().lines:
             if line.get_color() == self.metrics[unique_id].get_color():
-                self.axis.lines.remove(line)
+                self.get_axis().lines.remove(line)
 
         #
         # Plot line
         with warnings.catch_warnings():
             warnings.simplefilter("ignore")  # Suppress label="_nolegend_" warning
-            data.plot(x=self.x_axis_label, y=self.y_axis_label, ax=self.axis,
+            data.plot(x=self.get_x_axis_label(), y=self.get_y_axis_label(), ax=self.get_axis(),
                       label=self.metrics[unique_id].get_legend(), color=self.metrics[unique_id].get_color())
 
         # Patch for redundant legend entries
@@ -126,7 +155,7 @@ class Graph(object):
             color: Specify line color. Default: get_available_color
         """
 
-        self.metrics.update({title: Metric(self.x_axis_label, self.y_axis_label, title,
+        self.metrics.update({title: Metric(self.get_x_axis_label(), self.get_y_axis_label(), title,
                                            color if color else next(self.get_available_color), func)})
 
         assert self.metrics[title].get_color, "Ran out of colors to give lines!"
