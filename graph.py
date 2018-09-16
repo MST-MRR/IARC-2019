@@ -61,6 +61,8 @@ class Graph(object):
         Returns: self.__title
         """
 
+        return self.__title
+
     def get_x_axis_label(self):
         """
         Returns: self.__x_axis_label

@@ -3,6 +3,8 @@
 import matplotlib.pyplot as plt
 import pandas as pd
 
+import xml.etree.ElementTree as ET  # https://www.geeksforgeeks.org/xml-parsing-python/
+
 from timer import timeit
 
 from graph import Graph
@@ -15,7 +17,7 @@ class GraphManager(object):
         Creates & manages individual graphs. What to plot / keep track of is set in the graph config file. Data comes
         in from GraphManager.update()
 
-    Variables:  # TODO
+    Variables:
         self.graph_settings:  Settings read in from the config file.  (self.read_config())
 
         self.figure: Figure that the subplots (Graph objects) go on.  (plt.figure())
@@ -33,6 +35,8 @@ class GraphManager(object):
 
         add_tracker(graph, title, func): Adds new tracker(line) to specified graph w/ specified metric
     """
+
+    config_filename = 'config.xml'
 
     graphs_per_column = 3  # Formatting variable, how many graphs per column before loop
 
@@ -62,7 +66,36 @@ class GraphManager(object):
         Returns: Dictionary parsed from config file
         """
 
-        return {'Desired Graphs': {'Pitch': ['Pitch_x', 'Pitch_y'], 'Roll': ['Roll_x', 'Roll_y']}}
+        # XML file structure
+        """
+        root
+            Data:
+                x: 1
+                y: 2
+
+     Currently only -v
+            Desired Graphs
+                Graph: Title, x_label, y_label
+                    Metrics
+                        Metric: Title, function
+                        Metric: Title, function
+                        
+                Graph: Title, x_label, y_label
+                    Metrics
+                        Metric: Title, funciton
+        """
+
+        # Get root
+        root = ET.parse(GraphManager.config_filename).getroot()
+
+        return_dict = {}
+
+        return_dict.update({'Desired Graphs': {}})
+
+        for graph in root.findall('graph'):
+            return_dict['Desired Graphs'].update({graph.get('title'): [graph.get('xlabel'), graph.get('ylabel')]})
+
+        return return_dict
 
     def get_graph_settings(self, key=None, desired_list='items'):
         """

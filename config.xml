@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<desiredgraphs>
+  <graph title="Pitch" xlabel="Pitch_x" ylabel="Pitch_y">
+
+  </graph>
+  <graph title="Roll" xlabel="Roll_x" ylabel="Roll_y">
+  
+  </graph>
+</desiredgraphs>
