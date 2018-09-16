@@ -1,9 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <desiredgraphs>
   <graph title="Pitch" xlabel="Pitch_x" ylabel="Pitch_y">
+    <metric title="main" func="x" color="blue"></metric>
+    <metric title="target" func="t" color="orange"></metric>
+
 
   </graph>
   <graph title="Roll" xlabel="Roll_x" ylabel="Roll_y">
-  
+    <metric title="main" func="x" color="blue"></metric>
+    <metric title="target" func="t" color="orange"></metric>
+    <metric title="testeroni" func="x/3" color="red"></metric>
   </graph>
 </desiredgraphs>

@@ -39,15 +39,11 @@ class Graph(object):
         #self.data = pd.DataFrame({self.get_x_axis_label(): [], self.get_y_axis_label(): []})
 
         # Misc variables
-        self.target = target
-        self.pan = pan
+        self.__target = target
+        self.__pan = pan
 
         # Tracked metrics
         self.metrics = {}
-
-        # Add standard metrics
-        self.add_metric('main', lambda x: x, color='blue')
-        self.add_metric('target', lambda x: self.target, color='orange')
 
     def get_axis(self):
         """
@@ -77,6 +73,20 @@ class Graph(object):
 
         return self.__y_axis_label
 
+    def get_target(self):
+        """
+        Returns: self.__target
+        """
+
+        return self.__target
+
+    def get_pan(self):
+        """
+        Returns: self.__pan
+        """
+
+        return self.__pan
+
     def update(self, new_data):
         """
         Use: To add new data to graph
@@ -91,23 +101,23 @@ class Graph(object):
         #
         # Generate new metric values
         for metric in self.metrics.values():
-            metric.generate_values(new_data)
+            metric.generate_values(self.get_target(), new_data)
 
         #
         # Render each metric
         for metric in self.metrics.values():
             if not metric.get_cache().empty:
                 # TODO - Update panning to pan based on x axis
-                self.plot_line(metric.get_name(), metric.get_cache()[-self.pan:])
+                self.plot_line(metric.get_name(), metric.get_cache()[-self.get_pan():])
 
         #
         # Handle display panning
-        if self.pan:
+        if self.get_pan():
             #right = self.data.tail()[self.get_x_axis_label()].iloc[0]
 
             right = new_data[self.get_x_axis_label()].iloc[-1]
 
-            self.get_axis().set_xlim(left=right - self.pan, right=right+100)
+            self.get_axis().set_xlim(left=right - self.get_pan(), right=right+100)
 
     def plot_line(self, unique_id, data):
         """
@@ -143,9 +153,7 @@ class Graph(object):
             new_target: New target value
         """
 
-        self.target = new_target
-
-        self.metrics['target'].set_func(lambda x: self.target)
+        self.__target = new_target
 
     def add_metric(self, title, func, color=None):
         """
@@ -158,6 +166,7 @@ class Graph(object):
         """
 
         self.metrics.update({title: Metric(self.get_x_axis_label(), self.get_y_axis_label(), title,
-                                           color if color else next(self.get_available_color), func)})
+                                           color if color else next(self.get_available_color),
+                                           lambda x, t: eval(func) if type(func) is str else func)})
 
         assert self.metrics[title].get_color, "Ran out of colors to give lines!"

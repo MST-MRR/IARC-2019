@@ -3,6 +3,7 @@ Rolling Todos
 - Test every single function to limits higher than we expect to actually happen -> make sure to test non-visual things
 
 List
+- Issue, parsing metric functionality from xml uses eval
 - BUG if you change the graph name, sometimes the x axis label dissapears and no data is graphed
 - Allow more than one variable in metric
 - Make wrapper function to request a graph w/ certain data over certain time

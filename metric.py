@@ -89,14 +89,15 @@ class Metric:
 
         self.__cache = self.__cache.append(data, ignore_index=True)
 
-    def generate_values(self, input_values):
+    def generate_values(self, target, input_values):
         """
 
         """
 
-        # Turn x, y, target values into generator to access differently
+        if not target:
+            target = 0
 
-        generated_values = [self.__func(value) for value in input_values[self.get_y_axis_label()]]
+        generated_values = [self.__func(value, target) for value in input_values[self.get_y_axis_label()]]
 
         # Add generated data to cache
         self.set_cache(

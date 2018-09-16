@@ -93,11 +93,16 @@ class GraphManager(object):
         return_dict.update({'Desired Graphs': {}})
 
         for graph in root.findall('graph'):
-            return_dict['Desired Graphs'].update({graph.get('title'): [graph.get('xlabel'), graph.get('ylabel')]})
+            return_dict['Desired Graphs'].update(
+                {graph.get('title'): [graph.get('xlabel'),
+                                      graph.get('ylabel'),
+                                      [[metric.get('title'), metric.get('func'), metric.get('color')] for metric in graph.findall('metric')]]
+            }
+            )
 
         return return_dict
 
-    def get_graph_settings(self, key=None, desired_list='items'):
+    def get_graph_settings(self):
         """
         Returns: self.__graph_settings
         """
@@ -132,13 +137,14 @@ class GraphManager(object):
             len(self.get_graph_settings()['Desired Graphs'])
         )
 
-        # REMOVE when better controller - Functionality demo
+        # Adds graph metrics read in from xml
+        for metric, func, color in self.get_graph_settings()['Desired Graphs'][title][2]:
+            self.add_tracker(title, metric, func, color)
+
+        # TODO REMOVE when better controller - Functionality demo
         self.get_graphs()[title].update_target(.4)
 
-        self.get_graphs()[title].add_metric('testeroni', lambda x: x / 3)
-
-    # TODO - Implement
-    def add_tracker(self, graph, title, func):
+    def add_tracker(self, graph, title, func, color=None):
         """
         Use: To add new tracker to specified graph
 
@@ -146,11 +152,12 @@ class GraphManager(object):
             graph: What graph to add tracker too
             title: Title of tracker
             func: Metric function to graph based on
+            color: Line color
         """
 
-        assert graph in self.graphs.keys(), "Graph '{}' not available.".format(graph)
+        assert graph in self.get_graphs().keys(), "Graph '{}' not available.".format(graph)
 
-        self.graphs[graph].add_metric(title, func)
+        self.get_graphs()[graph].add_metric(title, func, color)
 
     def interpret_data(self, messy_data):
         """
@@ -187,4 +194,4 @@ class GraphManager(object):
 
         # TODO REMOVE when better controller - Functionality demo
         target_updates = incoming_data['Target_Update_Demo']  # Will be changed when data parsing is done
-        self.get_graphs()['Roll'].update_target(int(target_updates / 100))
+        self.get_graphs()['Roll'].update_target(int(target_updates / 100) / 2)
