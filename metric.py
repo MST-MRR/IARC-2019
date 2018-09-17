@@ -19,6 +19,7 @@ class Metric:
 
         self.__cache = pd.DataFrame({self.get_x_axis_label(): [], self.get_y_axis_label(): []})  # Stores generated values
 
+
     def get_x_axis_label(self):
         """
 

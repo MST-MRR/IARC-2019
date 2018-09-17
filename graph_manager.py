@@ -73,7 +73,7 @@ class GraphManager(object):
                 x: 1
                 y: 2
 
-     Currently only -v
+     Currently only desired graphs
             Desired Graphs
                 Graph: Title, x_label, y_label
                     Metrics
@@ -88,19 +88,21 @@ class GraphManager(object):
         # Get root
         root = ET.parse(GraphManager.config_filename).getroot()
 
-        return_dict = {}
+        xml_dict = {}
 
-        return_dict.update({'Desired Graphs': {}})
+        xml_dict.update({'Desired Graphs': {}})
 
         for graph in root.findall('graph'):
-            return_dict['Desired Graphs'].update(
+            xml_dict['Desired Graphs'].update(
                 {graph.get('title'): [graph.get('xlabel'),
                                       graph.get('ylabel'),
-                                      [[metric.get('title'), metric.get('func'), metric.get('color')] for metric in graph.findall('metric')]]
-            }
+                                      [[metric.get('title'),
+                                        metric.get('func'),
+                                        metric.get('color')
+                                        ] for metric in graph.findall('metric')]]}
             )
 
-        return return_dict
+        return xml_dict
 
     def get_graph_settings(self):
         """

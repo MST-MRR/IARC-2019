@@ -107,7 +107,6 @@ class Graph(object):
         # Render each metric
         for metric in self.metrics.values():
             if not metric.get_cache().empty:
-                # TODO - Update panning to pan based on x axis
                 self.plot_line(metric.get_name(), metric.get_cache()[-self.get_pan():])
 
         #
@@ -137,6 +136,7 @@ class Graph(object):
 
         #
         # Plot line
+        # TODO - possible slowdown
         with warnings.catch_warnings():
             warnings.simplefilter("ignore")  # Suppress label="_nolegend_" warning
             data.plot(x=self.get_x_axis_label(), y=self.get_y_axis_label(), ax=self.get_axis(),
