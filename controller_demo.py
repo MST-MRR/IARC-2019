@@ -20,7 +20,7 @@ def main():
 
     # Demo Simulation Loop
     i = 0
-    time_log = {}
+
     while True:
         i += 1
 
@@ -30,9 +30,8 @@ def main():
                 'Pitch': [[i * 10 + v for v in range(values_to_pass)], random.rand(values_to_pass)],
                 'Yaw': [[i * 10 + v for v in range(values_to_pass)], random.rand(values_to_pass)],
                 'Roll': [[i * 10 + v for v in range(values_to_pass)], random.rand(values_to_pass)]
-            }, log_time=time_log)
+            })
 
-            print(time_log)
             pause(.05)
 
         except Exception as e:

@@ -9,6 +9,6 @@
   <graph title="Roll" data="roll" xlabel="Roll x" ylabel="Roll y">
     <metric title="main" func="x" color="blue"></metric>
     <metric title="target" func="t" color="orange"></metric>
-    <metric title="testeroni" func="x/3" color="red"></metric>
+    <metric title="testeroni" func="x/3"></metric>
   </graph>
 </desiredgraphs>

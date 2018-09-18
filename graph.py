@@ -130,6 +130,7 @@ class Graph(object):
         assert unique_id in self.metrics.keys(), "'{}' is not currently being tracked!"
 
         # Purge old line before setting new one
+        # TODO - possible slowdown
         for line in self.get_axis().lines:
             if line.get_color() == self.metrics[unique_id].get_color():
                 self.get_axis().lines.remove(line)

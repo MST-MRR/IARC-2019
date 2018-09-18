@@ -9,6 +9,8 @@ from timer import timeit
 
 from graph import Graph
 
+from timeit import default_timer as timer
+
 
 class GraphManager(object):
     """
@@ -93,13 +95,10 @@ class GraphManager(object):
         xml_dict.update({'Desired Graphs': {}})
 
         for graph in root.findall('graph'):
-            xml_dict['Desired Graphs'].update(
-                {graph.get('title'): [graph.get('xlabel'),
-                                      graph.get('ylabel'),
-                                      [[metric.get('title'),
-                                        metric.get('func'),
-                                        metric.get('color')
-                                        ] for metric in graph.findall('metric')]]}
+            xml_dict['Desired Graphs'].update({
+                graph.get('title'):
+                    [graph.get('xlabel'), graph.get('ylabel'),
+                     [[metric.get('title'), metric.get('func'), metric.get('color')] for metric in graph.findall('metric')]]}
             )
 
         return xml_dict
@@ -173,6 +172,35 @@ class GraphManager(object):
                     # TODO -> may need separate desired_values from graphs.keys()
         """
 
+        data_template = '''{
+            'altitude': self.altitude,
+            'airspeed': self._format3f(self.vehicle.airspeed),
+            'velocity_x': self._format3f(self.vehicle.velocity[0]),
+            'velocity_y': self._format3f(self.vehicle.velocity[1]),
+            'velocity_z': self._format3f(self.vehicle.velocity[2]),
+            'voltage': self.vehicle.battery.voltage,
+            'state': self.state,
+            'mode': self.vehicle.mode.name,
+            'armed': self.vehicle.armed,
+            'roll': self._format3f(math.degrees(self.vehicle.attitude.roll)),
+            'pitch': self._format3f(math.degrees(self.vehicle.attitude.pitch)),
+            'yaw': self._format3f(math.degrees(self.vehicle.attitude.yaw)),
+            'altitude_controller_output': self.pid_flight_controller.altitude_pid.output,
+            'altitude_rc_output': self.pid_flight_controller.altitude_pwm,
+            'target_altitude': self.pid_flight_controller.target_altitude,
+            'pitch_controller_output': self.pid_flight_controller.pitch_pid.output,
+            'pitch_rc_output': self.pid_flight_controller.pitch_pwm,
+            'target_pitch_velocity': self.pid_flight_controller.pitch_pid.SetPoint,
+            'roll_controller_output': self.pid_flight_controller.roll_pid.output,
+            'roll_rc_output': self.pid_flight_controller.roll_pwm,
+            'target_roll_velocity': self.pid_flight_controller.roll_pid.SetPoint,
+            'yaw_controller_output': self.pid_flight_controller.yaw_pid.output,
+            'yaw_rc_output': self.pid_flight_controller.yaw_pwm,
+            'target_yaw': self.pid_flight_controller.yaw_pid.SetPoint,
+            'color_image': self.color_image,
+            'depth_image': self.depth_image
+        } '''
+
         clean_data = {}
 
         [clean_data.update({key: value}) if key in self.get_graphs().keys() else None for key, value in messy_data.items()]
@@ -180,7 +208,8 @@ class GraphManager(object):
         return clean_data
 
     @timeit
-    def update(self, incoming_data, **kwargs):
+    #@timer
+    def update(self, incoming_data):
         """
         Use: To add new data to graphs
 
@@ -196,4 +225,4 @@ class GraphManager(object):
 
         # TODO REMOVE when better controller - Functionality demo
         target_updates = incoming_data['Target_Update_Demo']  # Will be changed when data parsing is done
-        self.get_graphs()['Roll'].update_target(int(target_updates / 100) / 2)
+        if 'Roll' in self.get_graphs(): self.get_graphs()['Roll'].update_target(int(target_updates / 100) / 2)
