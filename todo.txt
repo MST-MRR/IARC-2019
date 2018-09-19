@@ -1,0 +1,7 @@
+* TODO *
+
+- Isolate file IO functionality
+- Change how it gets values
+- Auto generate flight number of the day
+- Integrate w/ graphing
+- Data analysis tools
