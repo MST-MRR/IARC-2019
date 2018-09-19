@@ -25,7 +25,7 @@ def main():
         i += 1
 
         try:
-            test_graph.update({
+            test_graph.update({  # key and value not key and list!!!!!!!!!
                 'Target_Update_Demo': i,
                 'Pitch': [[i * 10 + v for v in range(values_to_pass)], random.rand(values_to_pass)],
                 'Yaw': [[i * 10 + v for v in range(values_to_pass)], random.rand(values_to_pass)],

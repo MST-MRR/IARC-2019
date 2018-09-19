@@ -3,6 +3,12 @@ Rolling Todos
 - Test every single function to limits higher than we expect to actually happen -> make sure to test non-visual things
 
 List
+1 set of 10 ms
+- async vs coroutines vs threads
+- double buffering + animaition functionality - matplot lib websited
+- conocate all metric dataframes
+- Separate thread to prepare data for plotting
+- May choose to discard values from buffer based on latency
 - Co-routines to process upcoming data while plotting to matplot
 - Possible text displays
 - Add bounds to memory usage for cache

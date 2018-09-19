@@ -61,14 +61,14 @@ class Graph(object):
 
     def get_x_axis_label(self):
         """
-        Returns: self.__x_axis_label
+        Returns: self._x_axis_label
         """
 
         return self.__x_axis_label
 
     def get_y_axis_label(self):
         """
-        Returns: self.__y_axis_label
+        Returns: self._y_axis_label
         """
 
         return self.__y_axis_label
@@ -99,13 +99,11 @@ class Graph(object):
         #self.data = self.data.append(new_data, ignore_index=True)
 
         #
-        # Generate new metric values
-        for metric in self.metrics.values():
-            metric.generate_values(self.get_target(), new_data)
-
-        #
         # Render each metric
         for metric in self.metrics.values():
+            # Generate new metric values
+            metric.generate_values(self.get_target(), new_data)
+
             if not metric.get_cache().empty:
                 self.plot_line(metric.get_name(), metric.get_cache()[-self.get_pan():])
 
@@ -127,7 +125,7 @@ class Graph(object):
             data: Data to plot
         """
 
-        assert unique_id in self.metrics.keys(), "'{}' is not currently being tracked!"
+        assert unique_id in self.metrics.keys(), "'{}' is not currently being tracked!".format(unique_id)
 
         # Purge old line before setting new one
         # TODO - possible slowdown

@@ -220,8 +220,10 @@ class GraphManager(object):
         new_data = self.interpret_data(incoming_data)
 
         for key, value in new_data.items():
-            self.get_graphs()[key].update(pd.DataFrame(
-                {self.get_graphs()[key].get_x_axis_label(): value[0], self.get_graphs()[key].get_y_axis_label(): value[1]}))
+            current_graph = self.get_graphs()[key]
+
+            current_graph.update(pd.DataFrame( # change to pass just raw values
+                {current_graph.get_x_axis_label(): value[0], current_graph.get_y_axis_label(): value[1]}))
 
         # TODO REMOVE when better controller - Functionality demo
         target_updates = incoming_data['Target_Update_Demo']  # Will be changed when data parsing is done
