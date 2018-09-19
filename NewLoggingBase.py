@@ -2,7 +2,8 @@
 import time
 import csv
 import os
-from math import trunc
+import random
+
 #tempCounter is how many data point to collect temporarily
 
 theTempCounter = int(input("How many data points? "))
@@ -30,20 +31,20 @@ class Logger:
             writer = csv.DictWriter(f, fieldnames=self.dataValues) #definng the headers
             writer.writeheader()
 
-    def Update(self):    
-
+    def Update(self,inputData):    
+             
             with open(self.directory,'a') as g:
                 currentTime = time.time()
                 timeFromStart = '%0.3f' % (currentTime - self.start)
-                airSpeed = 1#airSpeedInput
-                altitude = 2#altitudeInput
-                pitch = 3#pitchInput
-                roll = 4#rollInput
-                yaw = 5#yawInput
-                xVelocity = 6#xVelocityInput
-                yVelocity = 7#yVelocityInput
-                zVelocity = 8#zVelocityInput
-                voltage = 9#voltageInput
+                airSpeed = inputData['airspeed']#airSpeedInput
+                altitude = inputData['altitude']#altitudeInput
+                pitch = inputData['pitch']#pitchInput
+                roll = inputData['roll']#rollInput
+                yaw = inputData['yaw']#yawInput
+                xVelocity = inputData['velocity_x']#xVelocityInput
+                yVelocity = inputData['velocity_y']#yVelocityInput
+                zVelocity = inputData['velocity_z']#zVelocityInput
+                voltage = inputData['voltage']#voltageInput
 
                 writer = csv.DictWriter(g, fieldnames=self.dataValues)
                 writer.writerow({'secFromStart':timeFromStart,'airSpeed':airSpeed,'altitude':altitude,'pitch':pitch,'roll':roll,'yaw':yaw,'xVelocity':xVelocity,'yVelocity':yVelocity,'zVelocity':zVelocity,'voltage':voltage})
@@ -52,7 +53,19 @@ class Logger:
 
 my_logger = Logger()
 
-
+myData = {}
 while (x<theTempCounter):
-    my_logger.Update()
+    #make data dictionary here
+    myData = {
+        'airspeed' : random.randint(0,10),
+        'altitude' : random.randint(0,10),
+        'pitch' : random.randint(0,10),
+        'roll' : random.randint(0,10),
+        'yaw' : random.randint(0,10),
+        'velocity_x' : random.randint(0,10),
+        'velocity_y' : random.randint(0,10),
+        'velocity_z' : random.randint(0,10),
+        'voltage' : random.randint(0,10),
+    }
+    my_logger.Update(myData)
     x = x + 1
