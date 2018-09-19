@@ -30,28 +30,33 @@ class Logger:
             self.dataValues = ['secFromStart','airSpeed','altitude','pitch','roll','yaw','xVelocity','yVelocity','zVelocity','voltage'] #defining the headers
             writer = csv.DictWriter(f, fieldnames=self.dataValues) #definng the headers
             writer.writeheader()
+        self.g = open(self.directory,"a")
+    
+    def exit(self):
+        self.g.close()
 
     def Update(self,inputData):    
              
-            with open(self.directory,'a') as g:
                 currentTime = time.time()
-                timeFromStart = '%0.3f' % (currentTime - self.start)
-                airSpeed = inputData['airspeed']#airSpeedInput
-                altitude = inputData['altitude']#altitudeInput
-                pitch = inputData['pitch']#pitchInput
-                roll = inputData['roll']#rollInput
-                yaw = inputData['yaw']#yawInput
-                xVelocity = inputData['velocity_x']#xVelocityInput
-                yVelocity = inputData['velocity_y']#yVelocityInput
-                zVelocity = inputData['velocity_z']#zVelocityInput
-                voltage = inputData['voltage']#voltageInput
-
-                writer = csv.DictWriter(g, fieldnames=self.dataValues)
-                writer.writerow({'secFromStart':timeFromStart,'airSpeed':airSpeed,'altitude':altitude,'pitch':pitch,'roll':roll,'yaw':yaw,'xVelocity':xVelocity,'yVelocity':yVelocity,'zVelocity':zVelocity,'voltage':voltage})
+            
+                writer = csv.DictWriter(self.g, fieldnames=self.dataValues)
+                writer.writerow({
+                'secFromStart' : (currentTime - self.start),
+                'airSpeed' : inputData['airspeed'],
+                'altitude' : inputData['altitude'],
+                'pitch' : inputData['pitch'],
+                'roll' : inputData['roll'],
+                'yaw' : inputData['yaw'],
+                'xVelocity' : inputData['velocity_x'],
+                'yVelocity' : inputData['velocity_y'],
+                'zVelocity' : inputData['velocity_z'],
+                'voltage' : inputData['voltage']
+                })
                 #This is white the variable in the section titled at the left of the ':'
 
 
 my_logger = Logger()
+
 
 myData = {}
 while (x<theTempCounter):
@@ -69,3 +74,4 @@ while (x<theTempCounter):
     }
     my_logger.Update(myData)
     x = x + 1
+my_logger.exit()
