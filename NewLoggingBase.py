@@ -62,16 +62,17 @@ myData = {}
 while (x<theTempCounter):
     #make data dictionary here
     myData = {
-        'airspeed' : random.randint(0,10),
-        'altitude' : random.randint(0,10),
-        'pitch' : random.randint(0,10),
-        'roll' : random.randint(0,10),
-        'yaw' : random.randint(0,10),
-        'velocity_x' : random.randint(0,10),
-        'velocity_y' : random.randint(0,10),
-        'velocity_z' : random.randint(0,10),
-        'voltage' : random.randint(0,10),
+        'airspeed' : 1*x,
+        'altitude' : 2*x,
+        'pitch' : 3*x,
+        'roll' : 4*x,
+        'yaw' : 5*x,
+        'velocity_x' : 6*x,
+        'velocity_y' : 7*x,
+        'velocity_z' : 8*x,
+        'voltage' : 9*x,
     }
     my_logger.Update(myData)
+    time.sleep(0.0000000001)
     x = x + 1
 my_logger.exit()
