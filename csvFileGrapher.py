@@ -10,19 +10,27 @@ import matplotlib.dates as mdates
 
 #gets the file you want graphed through an explorer prompt
 root = Tk()
-root.filename =  filedialog.askopenfilename(initialdir = "/",title = "Select file",filetypes = (("csv files","*.csv"),("all files","*.*")))
+root.filename =  filedialog.askopenfilename(initialdir = "/",title = "Select file to Graph",filetypes = (("csv files","*.csv"),("all files","*.*")))
 fileToUse = root.filename
+
+root.settings = filedialog.askopenfilename(initialdir = "/",title = "Select the Graphing Config file",filetypes = (("csv files","*.csv"),("all files","*.*")))
+configFile = root.settings
 
 df = pd.read_csv(fileToUse)
 df.head()
 
-runTillStop = 'y'
-while(runTillStop == 'y'):
-    dataToPlot = input("What data value to plot? (use proper header!) ")
+with open(configFile, 'r') as s:
+    reader = csv.reader(s)
+    configList = list(reader)
+i = 0
+j = len(configList)
+while (i < j):
+    dataToPlot = configList[i]
     x = df['secFromStart']
     y = df[dataToPlot]
-    
+        
     plt.plot(x,y)
-    runTillStop = input("Graph another data set?(y/n) ")
+    i = i + 1
+
 
 plt.show()
