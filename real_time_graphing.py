@@ -45,22 +45,31 @@ def get_data():
     # Collect data coming in from network socket
     global data
     global times
+    global start_time
     new_data = fromSocket()
-    times.append(time.time())
+    times.append(time.time() - start_time)
     for keyword in tracked_data:
         data[keyword].append(new_data[keyword])
-    # Chose 0.01 because data (under ideal conditions) 
-    # will be coming in from socket at this speed
-    pause(0.01)
     
-
 def plot_data(frame, ax):
     # Plot data coming in
     global data
     global times
+    global check_time
+
     get_data()
+
     for line in ax.get_lines():
-        line.set_data(times, data[line.get_label()])
+        line.set_data(np.asarray(times), np.asarray(data[line.get_label()]))
+
+    ax.relim()
+    ax.autoscale(axis='y')
+
+    now = time.time()
+    if now - check_time > 5:  
+        most_current_time = times[-1]
+        check_time = now
+        ax.set_xlim(left=most_current_time - 1, right=most_current_time + 6)
     return ax.get_lines()
 
 
@@ -78,6 +87,10 @@ class Graph():
     def __init__(self, **kwargs):
         # TODO
         pass
+
+# Initializes figure for graphing
+def init():
+    pass
 
 # Initialize values to be used
 
@@ -117,8 +130,7 @@ data = {
 
 #tracked_data = []
 tracked_data = ['pitch', 'roll', 'yaw']
-
-start_time = time.time()
+#tracked_data = ['roll', 'yaw']
 
 fig = plt.figure()
 
@@ -131,12 +143,15 @@ ax.plot([], [], 'r-', color="blue", label="pitch")
 ax.plot([], [], 'r-', color="red", label="yaw")
 ax.plot([], [], 'r-', color="green", label="roll")
 
-plt.xlim(0, 1)
-plt.ylim(0, 1)
+ax.set_xlim(left=0, right=7)
+
 plt.xlabel('x')
 plt.title('test')
 
-line_ani = animation.FuncAnimation(fig, plot_data, None, fargs=(ax,),
+start_time = time.time()
+check_time = start_time
+
+line_ani = animation.FuncAnimation(fig, plot_data, fargs=(ax,),
                                    interval=10, blit=True)
 
 plt.show()
