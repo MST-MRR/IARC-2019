@@ -1,6 +1,7 @@
 import threading
 import time
 import numpy as np
+from math import ceil
 import matplotlib.pyplot as plt
 from matplotlib.pyplot import pause
 import matplotlib.animation as animation
@@ -73,7 +74,7 @@ def plot_data(frame, fig):
 
     for metric in tracked_data:
         func = metric.get_func()
-        x_val = func(data[metric.get_data_label()])
+        x_val = func(data[metric.get_data_stream()])
         new_data = metric.push_data(x_val)
 
         metric.get_line().set_data(np.asarray(times), np.asarray(new_data))
@@ -132,16 +133,31 @@ def read_config(fig):
 
     graphs = root.findall('graph')
 
-    nrows = 3
-    count = len(graphs)
-    ncols = int(count / nrows) + 1
+    # Constant value - do not change
+    max_rows = 3
 
-    index = 1
+    # Used to determine where to put each subplot
+    c = 0
+    r = 0
+
+    # Total number of subplots
+    count = len(graphs)
+
+    nrows = min(count, max_rows)
+    ncols = ceil(count / nrows)
+
     for graph in root.findall('graph'):
         title = graph.get('title')
+        # Determine where this subplot should go
+        index = (ncols*c) + r + 1
         # Make axis
         ax = fig.add_subplot(nrows, ncols, index)
-        index = index + 1
+        # Keep track of where next subplot should go
+        c = c + 1
+        if c / max_rows == 1:
+            c = 0
+            r = r + 1
+        # Configure the new axis
         ax.set_title(title)
         ax.set_xlabel(graph.get('xlabel'))
         ax.set_ylabel(graph.get('ylabel'))
@@ -149,9 +165,12 @@ def read_config(fig):
 
         for metric in graph.findall('metric'):
             # Make 2DLine
-            line, = ax.plot([], [], color=metric.get('color'), label=metric.get('title'))
-            func = metric.get('func')
-            newMetric = Metric(line, func, title)
+            m_color = metric.get('color')
+            m_label = metric.get('label')
+            m_data_stream = metric.get('data_stream')
+            m_func = metric.get('func')
+            m_line, = ax.plot([], [], color=m_color, label=m_label)
+            newMetric = Metric(m_line, m_func, m_label, m_data_stream)
             tracked_data.append(newMetric)
 
 """
@@ -204,23 +223,30 @@ class Graph():
 
 # Wraps around 2DLine object
 class Metric():
-    def __init__(self, line, func, data_label):
+    def __init__(self, line, func, label, data_stream):
         self.line = line
-        self.data_label = data_label
         self.func = lambda x: eval(func)
+        self.label = label
+        self.data_stream = data_stream
         self.data = []
 
-    def set_data_label(self, data_label):
-        self.data_label = data_label
+    def get_line(self):
+        return self.line
+
+    def set_label(self, label):
+        self.label = label
 
     def get_data_label(self):
-        return self.data_label
+        return self.label
 
     def get_func(self):
         return self.func
 
-    def get_line(self):
-        return self.line
+    def set_data_stream(self, data_stream):
+        self.data_stream = data_stream
+
+    def get_data_stream(self):
+        return self.data_stream
 
     def push_data(self, data_point):
         self.data.append(data_point)
@@ -288,7 +314,7 @@ fig = plt.figure()
 
 read_config(fig)
 
-fig.subplots_adjust(hspace=1)
+fig.subplots_adjust(hspace=1, wspace = 0.75)
 
 start_time = time.time()
 check_time = start_time
