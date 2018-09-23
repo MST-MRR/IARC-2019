@@ -1,27 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <desiredgraphs>
-  <graph title="Test1" xlabel="Pitch x" ylabel="Pitch y">
+  <graph title="Test1" xlabel="Seconds" ylabel="Pitch y">
     <metric label="main" data_stream="pitch" func="x" color="blue"></metric>
     <metric label="target" data_stream="target_pitch_velocity" func="x" color="orange"></metric>
   </graph>
-  <graph title="Test2" xlabel="Roll x" ylabel="Roll y">
+  <graph title="Test2" xlabel="Seconds" ylabel="Roll y">
     <metric label="main" data_stream="pitch" func="x" color="blue"></metric>
     <metric label="target" data_stream="target_roll_velocity" func="x" color="orange"></metric>
     <metric label="testeroni" data_stream="pitch" func="x/3" color="green"></metric>
-  </graph>
-  <graph title="Test3" xlabel="Roll x" ylabel="Roll y">
-    <metric label="main" data_stream="roll" func="x" color="blue"></metric>
-  </graph>
-  <graph title="Test4" xlabel="Roll x" ylabel="Roll y">
-    <metric label="main" data_stream="yaw" func="x" color="pink"></metric>
-  </graph>
-  <graph title="Test5" xlabel="Roll x" ylabel="Roll y">
-    <metric label="main" data_stream="velocity_x" func="x" color="green"></metric>
-  </graph>
-  <graph title="Test6" xlabel="Roll x" ylabel="Roll y">
-    <metric label="main" data_stream="altitude" func="x" color="yellow"></metric>
-  </graph>
-  <graph title="Test7" xlabel="Roll x" ylabel="Roll y">
-    <metric label="main" data_stream="pitch_rc_output" func="x" color="brown"></metric>
   </graph>
 </desiredgraphs>

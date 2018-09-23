@@ -81,7 +81,7 @@ def plot_data(frame, fig):
 
     # See if it is time to pan
     now = time.time()
-    if now - check_time > 5: 
+    if now - check_time > pan_width: 
         flag = True
         check_time = now
 
@@ -91,7 +91,8 @@ def plot_data(frame, fig):
         if flag:
             # Pan
             most_current_time = times[-1]
-            ax.set_xlim(left=most_current_time - 1, right=most_current_time + 6) 
+            ax.set_xlim(left=most_current_time - 1, right=most_current_time + pan_width + 1) 
+            fig.canvas.draw()
         
 
     return [metric.get_line() for metric in tracked_data]
@@ -108,21 +109,19 @@ def read_config(fig):
 
     # XML file structure
     """
-    root
-        Data:
-            x: 1
-            y: 2
-
-    Currently only desired graphs
-        Desired Graphs
-            Graph: Title, x_label, y_label
-                Metrics
-                    Metric: Title, function
-                    Metric: Title, function
-                    
-            Graph: Title, x_label, y_label
-                Metrics
-                    Metric: Title, funciton
+    <desiredgraphs>
+        <graph title="" xlabel="" ylabel="">
+            <metric label="" data_stream="" func="" color=""></metric>
+            ...
+            <metric label="" data_stream="" func="" color=""></metric>
+        </graph>
+        ...
+        <graph title="" xlabel="" ylabel="">
+            <metric label="" data_stream="" func="" color=""></metric>
+            ...
+            <metric label="" data_stream="" func="" color=""></metric>
+        </graph>
+    </desiredgraphs>
     """
 
     global tracked_data
@@ -257,7 +256,12 @@ class Metric():
 
 # Initializes figure for graphing
 def init():
-    global ax
+    global fig
+    for ax in fig.get_axes():
+        # Set xlims so that initial data is seen coming in
+        ax.set_xlim(left=0, right=pan_width+1)
+
+    return [metric.get_line() for metric in tracked_data]
     
 
 # ---------------------------------------------
@@ -273,38 +277,8 @@ times = []
 # Stored which data items we are interested in
 tracked_data = []
 
-# All the possible data values that cann be pulled from the
-# data stream. 
-"""
-data = {
-    'altitude': [],
-    'airspeed': [],
-    'velocity_x': [],
-    'velocity_y': [],
-    'velocity_z': [],
-    'voltage': [],
-    'state': [],
-    'mode': [],
-    'armed': [],
-    'roll': [],
-    'pitch': [],
-    'yaw': [],
-    'altitude_controller_output': [],
-    'altitude_rc_output': [],
-    'target_altitude': [],
-    'pitch_controller_output': [],
-    'pitch_rc_output': [],
-    'target_pitch_velocity': [],
-    'roll_controller_output': [],
-    'roll_rc_output': [],
-    'target_roll_velocity': [],
-    'yaw_controller_output': [],
-    'yaw_rc_output': [],
-    'target_yaw': [],
-    'color_image': [],
-    'depth_image': []
-}
-"""
+# How often to redraw xlims (Redrawing xlims is expensive)
+pan_width = 10
 
 # ---------------------------------------------
 # Set up figure and start animating
@@ -319,7 +293,7 @@ fig.subplots_adjust(hspace=1, wspace = 0.75)
 start_time = time.time()
 check_time = start_time
 
-line_ani = animation.FuncAnimation(fig, plot_data, fargs=(fig,),
+line_ani = animation.FuncAnimation(fig, plot_data, init_func = init, fargs=(fig,),
                                    interval=10, blit=True)
 
 plt.show()
