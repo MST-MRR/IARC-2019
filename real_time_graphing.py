@@ -4,11 +4,16 @@ import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.pyplot import pause
 import matplotlib.animation as animation
+import xml.etree.ElementTree as ET  # https://www.geeksforgeeks.org/xml-parsing-python/
+
+# ---------------------------------------------
+# Functions (core logic)
+# ---------------------------------------------
 
 # Thid function is purely for testing purposes and
 # will be replaced by whatever mechanism gets data
 # from the socket
-def fromSocket():
+def from_socket():
     gen = np.random.rand(26, 1)
     imaginary_data = {
         'altitude': gen[0, 0],
@@ -40,65 +45,211 @@ def fromSocket():
     }
     return imaginary_data
 
-
+"""
 def get_data():
     # Collect data coming in from network socket
     global data
     global times
     global start_time
-    new_data = fromSocket()
+    new_data = from_socket()
     times.append(time.time() - start_time)
-    for keyword in tracked_data:
-        data[keyword].append(new_data[keyword])
+    for item in tracked_data:
+        t = item.get_title()
+        data[t].append(new_data[t])
+"""
     
-def plot_data(frame, ax):
+def plot_data(frame, fig):
     # Plot data coming in
-    global data
+    #global data
     global times
+    global start_time
     global check_time
 
-    get_data()
+    # Used to determine whether to pan or not
+    flag = False
 
-    for line in ax.get_lines():
-        line.set_data(np.asarray(times), np.asarray(data[line.get_label()]))
+    data = from_socket()
+    times.append(time.time() - start_time)
 
-    ax.relim()
-    ax.autoscale(axis='y')
+    for metric in tracked_data:
+        func = metric.get_func()
+        x_val = func(data[metric.get_data_label()])
+        new_data = metric.push_data(x_val)
 
+        metric.get_line().set_data(np.asarray(times), np.asarray(new_data))
+
+    # See if it is time to pan
     now = time.time()
-    if now - check_time > 5:  
-        most_current_time = times[-1]
+    if now - check_time > 5: 
+        flag = True
         check_time = now
-        ax.set_xlim(left=most_current_time - 1, right=most_current_time + 6)
-    return ax.get_lines()
+
+    for ax in fig.get_axes():
+        ax.relim()
+        ax.autoscale(axis='y')
+        if flag:
+            # Pan
+            most_current_time = times[-1]
+            ax.set_xlim(left=most_current_time - 1, right=most_current_time + 6) 
+        
+
+    return [metric.get_line() for metric in tracked_data]
 
 
-def read_config():
+def read_config(fig):
     # Reads the config file and stores the resulting
     # graphs in desired_graphs
-    pass
+    """
+    Use: To read and interpret the graph config file
 
-def make_subplots():
+    Returns: Dictionary parsed from config file
+    """
+
+    # XML file structure
+    """
+    root
+        Data:
+            x: 1
+            y: 2
+
+    Currently only desired graphs
+        Desired Graphs
+            Graph: Title, x_label, y_label
+                Metrics
+                    Metric: Title, function
+                    Metric: Title, function
+                    
+            Graph: Title, x_label, y_label
+                Metrics
+                    Metric: Title, funciton
+    """
+
+    global tracked_data
+    global config_filename
+
+    # Get root
+    root = ET.parse(config_filename).getroot()
+
+    graphs = root.findall('graph')
+
+    nrows = 3
+    count = len(graphs)
+    ncols = int(count / nrows) + 1
+
+    index = 1
+    for graph in root.findall('graph'):
+        title = graph.get('title')
+        # Make axis
+        ax = fig.add_subplot(nrows, ncols, index)
+        index = index + 1
+        ax.set_title(title)
+        ax.set_xlabel(graph.get('xlabel'))
+        ax.set_ylabel(graph.get('ylabel'))
+        ax.set_xlim(left=0, right=7)
+
+        for metric in graph.findall('metric'):
+            # Make 2DLine
+            line, = ax.plot([], [], color=metric.get('color'), label=metric.get('title'))
+            func = metric.get('func')
+            newMetric = Metric(line, func, title)
+            tracked_data.append(newMetric)
+
+"""
+def make_subplots(fig):
     # Makes subplots according to configure information
-    pass
+    nrows = 3
+    count = len(tracked_data)
+    ncols = int(count / nrows)
 
-# Stores graph information
+    index = 1
+    for item in tracked_data:
+        # Make axis
+        ax = fig.add_subplot(nrows, ncols, index)
+        ax.set_label(item.get_title())
+        index = index + 1
+        for metric in item.get_metrics():
+            line = ax.plot([], [], color=metric.get_color(), label=metric.get_title()
+"""
+
+"""
+# Wraps around Axis object
 class Graph():
-    def __init__(self, **kwargs):
-        # TODO
+    def __init__(self):
+        self.lines = []
+        self.metrics = []
         pass
+
+    def set_title(self, title):
+        self.ax.set_title(title)
+
+    def get_title(self):
+        return self.ax.get_title()
+
+    def set_xlabel(self, xlabel):
+        self.ax.set_xlabel(xlabel)
+
+    def get_xlabel(self):
+        return self.ax.get_xlabel()
+
+    def set_ylabel(self, ylabel):
+        self.ax.set_ylabel(ylabel)
+
+    def get_ylabel(self):
+        return self.ax.get_ylabel()
+
+    def append_metric(self, line, func):
+        newMetric = Metric(line, func)
+        self.metrics.append(newMetric)
+"""
+
+# Wraps around 2DLine object
+class Metric():
+    def __init__(self, line, func, data_label):
+        self.line = line
+        self.data_label = data_label
+        self.func = lambda x: eval(func)
+        self.data = []
+
+    def set_data_label(self, data_label):
+        self.data_label = data_label
+
+    def get_data_label(self):
+        return self.data_label
+
+    def get_func(self):
+        return self.func
+
+    def get_line(self):
+        return self.line
+
+    def push_data(self, data_point):
+        self.data.append(data_point)
+        return self.data
+
+    def get_data(self):
+        return self.data
 
 # Initializes figure for graphing
 def init():
-    pass
+    global ax
+    
 
+# ---------------------------------------------
 # Initialize values to be used
+# ---------------------------------------------
+
+# Location of configuration file
+config_filename = 'config.xml'
 
 # Stores times corresponding to each data index
 times = []
 
+# Stored which data items we are interested in
+tracked_data = []
+
 # All the possible data values that cann be pulled from the
 # data stream. 
+"""
 data = {
     'altitude': [],
     'airspeed': [],
@@ -127,63 +278,25 @@ data = {
     'color_image': [],
     'depth_image': []
 }
+"""
 
-#tracked_data = []
-tracked_data = ['pitch', 'roll', 'yaw']
-#tracked_data = ['roll', 'yaw']
+# ---------------------------------------------
+# Set up figure and start animating
+# ---------------------------------------------
 
 fig = plt.figure()
 
-read_config()
+read_config(fig)
 
-make_subplots()
-
-ax = fig.subplots()
-ax.plot([], [], 'r-', color="blue", label="pitch")
-ax.plot([], [], 'r-', color="red", label="yaw")
-ax.plot([], [], 'r-', color="green", label="roll")
-
-ax.set_xlim(left=0, right=7)
-
-plt.xlabel('x')
-plt.title('test')
+fig.subplots_adjust(hspace=1)
 
 start_time = time.time()
 check_time = start_time
 
-line_ani = animation.FuncAnimation(fig, plot_data, fargs=(ax,),
+line_ani = animation.FuncAnimation(fig, plot_data, fargs=(fig,),
                                    interval=10, blit=True)
 
 plt.show()
 
 #threading.Thread(target=get_data).start()
 #threading.Thread(target=plot_data).start()
-
-
-# Graphing test program to be incorporated
-"""
-def update_line(num, data, ax):
-    for line in ax.get_lines():
-        gen = np.random.rand(2, 50)
-        data[0] = gen[0, :]
-        data[1] = gen[1, :]
-        line.set_data(np.asarray(data)[:, :])
-    return ax.get_lines()
-
-# Fixing random state for reproducibility
-np.random.seed(19680801)
-
-
-ax = fig.subplots()
-ax.plot([], [], 'r-', color="blue")
-ax.plot([], [], 'r-')
-ax.plot([], [], 'r-', color="green")
-
-plt.xlim(0, 1)
-plt.ylim(0, 1)
-plt.xlabel('x')
-plt.title('test')
-line_ani = animation.FuncAnimation(fig, update_line, None, fargs=(data, ax),
-                                   interval=10, blit=True)
-plt.show()
-"""
