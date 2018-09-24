@@ -1,105 +1,33 @@
-# A trackable metric that can be plotted on a graph
+# Wraps around 2DLine object
+class Metric():
+    def __init__(self, line, func, label, data_stream):
+        self.line = line
+        self.func = lambda x: eval(func)
+        self.label = label
+        self.data_stream = data_stream
+        self.data = []
 
-import pandas as pd
+    def get_line(self):
+        return self.line
 
+    def set_label(self, label):
+        self.label = label
 
-class Metric:
-    def __init__(self, x_axis_label, y_axis_label, name, color, func):
-
-        self._x_axis_label = x_axis_label
-        self._y_axis_label = y_axis_label
-
-        self._name = name  # Name of metric
-
-        self._legend = "{}{}".format(name[0:1].upper(), name[1:])  # Legend entry key
-
-        self._color = color  # Line color
-
-        self._func = func  # Value generation function
-
-        # change to buffer
-        self._buffer = pd.DataFrame({self.get_x_axis_label(): [], self.get_y_axis_label(): []})  # Stores generated values
-
-    def get_x_axis_label(self):
-        """
-
-        """
-
-        return self._x_axis_label
-
-    def get_y_axis_label(self):
-        """
-
-        """
-
-        return self._y_axis_label
-
-    def get_name(self):
-        """
-
-        """
-
-        return self._name
-
-    def get_legend(self):
-        """
-
-        """
-
-        return self._legend
-
-    def get_color(self):
-        """
-
-        """
-
-        return self._color
+    def get_data_label(self):
+        return self.label
 
     def get_func(self):
-        """
+        return self.func
 
-        """
+    def set_data_stream(self, data_stream):
+        self.data_stream = data_stream
 
-        return self._func
+    def get_data_stream(self):
+        return self.data_stream
 
-    def get_cache(self):
-        """
+    def push_data(self, data_point):
+        self.data.append(data_point)
+        return self.data
 
-        """
-
-        return self._buffer
-
-    def set_legend(self):
-        """
-
-        """
-
-        if not self._legend == "_nolegend_": self._legend = "_nolegend_"
-
-    def set_func(self, func):
-        """
-
-        """
-
-        self._func = func
-
-    def set_cache(self, data):
-        """
-
-        """
-
-        self._buffer = self._buffer.append(data, ignore_index=True)
-
-    def generate_values(self, target, input_values):
-        """
-
-        """
-
-        if not target:
-            target = 0
-
-        generated_values = [self._func(value, target) for value in input_values[self.get_y_axis_label()]]
-
-        # Add generated data to cache
-        self.set_cache(
-            pd.DataFrame({self.get_x_axis_label(): input_values[self.get_x_axis_label()], self.get_y_axis_label(): generated_values}))
+    def get_data(self):
+        return self.data

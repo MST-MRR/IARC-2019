@@ -1,11 +1,16 @@
-import threading
-import time
 import numpy as np
-from math import ceil
 import matplotlib.pyplot as plt
-from matplotlib.pyplot import pause
 import matplotlib.animation as animation
+from matplotlib.pyplot import pause
 import xml.etree.ElementTree as ET  # https://www.geeksforgeeks.org/xml-parsing-python/
+import threading
+
+# Utility
+import time
+from math import ceil
+
+# User-defined
+from metric import Metric
 
 # ---------------------------------------------
 # Functions (core logic)
@@ -46,22 +51,21 @@ def from_socket():
     }
     return imaginary_data
 
-"""
+# This function is not currently being called 
 def get_data():
-    # Collect data coming in from network socket
-    global data
     global times
     global start_time
+    # Should be a dictionary exactly like imaginary_data
     new_data = from_socket()
+    # This line should run as closely as possible to 
+    # when data is added to each metric
     times.append(time.time() - start_time)
-    for item in tracked_data:
-        t = item.get_title()
-        data[t].append(new_data[t])
-"""
+    for metric in tracked_data:
+        func = metric.get_func()
+        x_val = func(new_data[metric.get_data_stream()])
+        new_data = metric.push_data(x_val)
     
 def plot_data(frame, fig):
-    # Plot data coming in
-    #global data
     global times
     global start_time
     global check_time
@@ -69,10 +73,16 @@ def plot_data(frame, fig):
     # Used to determine whether to pan or not
     flag = False
 
+    # This will eventually happen in get_data.
+    # The reason it isn't right now is because
+    # we are unsure of how to run get_data in 
+    # a separate thread.
     data = from_socket()
     times.append(time.time() - start_time)
 
     for metric in tracked_data:
+        # Ideally, this will also happen in get_data so
+        # that there is nothing to bottleneck drawing speed
         func = metric.get_func()
         x_val = func(data[metric.get_data_stream()])
         new_data = metric.push_data(x_val)
@@ -92,6 +102,8 @@ def plot_data(frame, fig):
             # Pan
             most_current_time = times[-1]
             ax.set_xlim(left=most_current_time - 1, right=most_current_time + pan_width + 1) 
+            # This is an expensive call, but must be made if we want to
+            # update tick marks. See https://bit.ly/2OLAlJH
             fig.canvas.draw()
         
 
@@ -99,29 +111,11 @@ def plot_data(frame, fig):
 
 
 def read_config(fig):
-    # Reads the config file and stores the resulting
-    # graphs in desired_graphs
+    # Reads the config file makes subplots
     """
     Use: To read and interpret the graph config file
 
     Returns: Dictionary parsed from config file
-    """
-
-    # XML file structure
-    """
-    <desiredgraphs>
-        <graph title="" xlabel="" ylabel="">
-            <metric label="" data_stream="" func="" color=""></metric>
-            ...
-            <metric label="" data_stream="" func="" color=""></metric>
-        </graph>
-        ...
-        <graph title="" xlabel="" ylabel="">
-            <metric label="" data_stream="" func="" color=""></metric>
-            ...
-            <metric label="" data_stream="" func="" color=""></metric>
-        </graph>
-    </desiredgraphs>
     """
 
     global tracked_data
@@ -172,88 +166,6 @@ def read_config(fig):
             newMetric = Metric(m_line, m_func, m_label, m_data_stream)
             tracked_data.append(newMetric)
 
-"""
-def make_subplots(fig):
-    # Makes subplots according to configure information
-    nrows = 3
-    count = len(tracked_data)
-    ncols = int(count / nrows)
-
-    index = 1
-    for item in tracked_data:
-        # Make axis
-        ax = fig.add_subplot(nrows, ncols, index)
-        ax.set_label(item.get_title())
-        index = index + 1
-        for metric in item.get_metrics():
-            line = ax.plot([], [], color=metric.get_color(), label=metric.get_title()
-"""
-
-"""
-# Wraps around Axis object
-class Graph():
-    def __init__(self):
-        self.lines = []
-        self.metrics = []
-        pass
-
-    def set_title(self, title):
-        self.ax.set_title(title)
-
-    def get_title(self):
-        return self.ax.get_title()
-
-    def set_xlabel(self, xlabel):
-        self.ax.set_xlabel(xlabel)
-
-    def get_xlabel(self):
-        return self.ax.get_xlabel()
-
-    def set_ylabel(self, ylabel):
-        self.ax.set_ylabel(ylabel)
-
-    def get_ylabel(self):
-        return self.ax.get_ylabel()
-
-    def append_metric(self, line, func):
-        newMetric = Metric(line, func)
-        self.metrics.append(newMetric)
-"""
-
-# Wraps around 2DLine object
-class Metric():
-    def __init__(self, line, func, label, data_stream):
-        self.line = line
-        self.func = lambda x: eval(func)
-        self.label = label
-        self.data_stream = data_stream
-        self.data = []
-
-    def get_line(self):
-        return self.line
-
-    def set_label(self, label):
-        self.label = label
-
-    def get_data_label(self):
-        return self.label
-
-    def get_func(self):
-        return self.func
-
-    def set_data_stream(self, data_stream):
-        self.data_stream = data_stream
-
-    def get_data_stream(self):
-        return self.data_stream
-
-    def push_data(self, data_point):
-        self.data.append(data_point)
-        return self.data
-
-    def get_data(self):
-        return self.data
-
 # Initializes figure for graphing
 def init():
     global fig
@@ -262,7 +174,6 @@ def init():
         ax.set_xlim(left=0, right=pan_width+1)
 
     return [metric.get_line() for metric in tracked_data]
-    
 
 # ---------------------------------------------
 # Initialize values to be used
@@ -270,6 +181,23 @@ def init():
 
 # Location of configuration file
 config_filename = 'config.xml'
+
+# XML file structure
+"""
+<desiredgraphs>
+    <graph title="" xlabel="" ylabel="">
+        <metric label="" data_stream="" func="" color=""></metric>
+        ...
+        <metric label="" data_stream="" func="" color=""></metric>
+    </graph>
+    ...
+    <graph title="" xlabel="" ylabel="">
+        <metric label="" data_stream="" func="" color=""></metric>
+        ...
+        <metric label="" data_stream="" func="" color=""></metric>
+    </graph>
+</desiredgraphs>
+"""
 
 # Stores times corresponding to each data index
 times = []
@@ -288,6 +216,7 @@ fig = plt.figure()
 
 read_config(fig)
 
+# Avoid subplot overlap
 fig.subplots_adjust(hspace=1, wspace = 0.75)
 
 start_time = time.time()
