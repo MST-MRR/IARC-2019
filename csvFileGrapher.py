@@ -21,14 +21,23 @@ df.head()
 
 with open(configFile, 'r') as s:
     reader = csv.reader(s)
-    configList = list(reader)
+    configMainList = list(reader)
+
+configList = configMainList[0]
+intervalList = configMainList[1]
 i = 0
 j = len(configList)
+minLimit = float(intervalList[0])
+maxLimit = float(intervalList[1])
+
 while (i < j):
     dataToPlot = configList[i]
-    x = df['secFromStart']
-    y = df[dataToPlot]
-        
+    maxTime = df['secFromStart'] < maxLimit    
+    minTime = df['secFromStart'] > minLimit
+    new = df[maxTime & minTime] 
+    x = new['secFromStart']
+    y = new[dataToPlot]
+
     plt.plot(x,y)
     i = i + 1
 
