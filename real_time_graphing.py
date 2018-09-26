@@ -5,6 +5,8 @@ from matplotlib.pyplot import pause
 import xml.etree.ElementTree as ET  # https://www.geeksforgeeks.org/xml-parsing-python/
 import threading
 
+from timer import timeit
+
 # Utility
 import time
 from math import ceil
@@ -66,7 +68,9 @@ def get_data():
         x_val = func(new_data[metric.get_data_stream()])
         metric.push_data(x_val)
     data_count = data_count + 1
-    
+
+
+@timeit
 def plot_data(frame, fig):
     global times
     global start_time
@@ -110,10 +114,10 @@ def plot_data(frame, fig):
         if flag:
             # Pan
             most_current_time = times[-1]
-            ax.set_xlim(left=most_current_time - 1, right=most_current_time + pan_width + 1) 
+            ax.set_xlim(left=most_current_time - 1, right=most_current_time + pan_width + 1)
             # This is an expensive call, but must be made if we want to
             # update tick marks. See https://bit.ly/2OLAlJH
-            fig.canvas.draw()
+            #fig.canvas.draw()
         
     plot_count = plot_count + 1
     return [metric.get_line() for metric in tracked_data]
@@ -184,67 +188,69 @@ def init():
 
     return [metric.get_line() for metric in tracked_data]
 
-# ---------------------------------------------
-# Initialize values to be used
-# ---------------------------------------------
 
-# Location of configuration file
-config_filename = 'config.xml'
+if __name__ == '__main__':
+    # ---------------------------------------------
+    # Initialize values to be used
+    # ---------------------------------------------
 
-# XML file structure
-"""
-<desiredgraphs>
-    <graph title="" xlabel="" ylabel="">
-        <metric label="" data_stream="" func="" color=""></metric>
+    # Location of configuration file
+    config_filename = 'config.xml'
+
+    # XML file structure
+    """
+    <desiredgraphs>
+        <graph title="" xlabel="" ylabel="">
+            <metric label="" data_stream="" func="" color=""></metric>
+            ...
+            <metric label="" data_stream="" func="" color=""></metric>
+        </graph>
         ...
-        <metric label="" data_stream="" func="" color=""></metric>
-    </graph>
-    ...
-    <graph title="" xlabel="" ylabel="">
-        <metric label="" data_stream="" func="" color=""></metric>
-        ...
-        <metric label="" data_stream="" func="" color=""></metric>
-    </graph>
-</desiredgraphs>
-"""
+        <graph title="" xlabel="" ylabel="">
+            <metric label="" data_stream="" func="" color=""></metric>
+            ...
+            <metric label="" data_stream="" func="" color=""></metric>
+        </graph>
+    </desiredgraphs>
+    """
 
-# Stores times corresponding to each data index
-times = []
+    # Stores times corresponding to each data index
+    times = []
 
-# Stored which data items we are interested in
-tracked_data = []
+    # Stored which data items we are interested in
+    tracked_data = []
 
-# How often to redraw xlims (Redrawing xlims is expensive)
-pan_width = 10
+    # How often to redraw xlims (Redrawing xlims is expensive)
+    pan_width = 10
 
-plot_count = 0
-data_count = 0
+    plot_count = 0
+    data_count = 0
 
-# ---------------------------------------------
-# Set up figure and start animating
-# ---------------------------------------------
+    # ---------------------------------------------
+    # Set up figure and start animating
+    # ---------------------------------------------
 
-fig = plt.figure()
+    fig = plt.figure()
 
-read_config(fig)
+    read_config(fig)
 
-# Avoid subplot overlap
-fig.subplots_adjust(hspace=1, wspace = 0.75)
+    # Avoid subplot overlap
+    fig.subplots_adjust(hspace=1, wspace = 0.75)
 
-start_time = time.time()
-check_time = start_time
+    start_time = time.time()
+    check_time = start_time
 
-line_ani = animation.FuncAnimation(fig, plot_data, init_func = init, fargs=(fig,),
-                                   interval=10, blit=True)
+    line_ani = animation.FuncAnimation(fig, plot_data, init_func = init, fargs=(fig,),
+                                       interval=10, blit=True)
 
-plt.show()
+    plt.show()
 
-"""
-while True:
-    print ("got here")
-    get_data()
-    pause(0.5)
-"""
+    """
+    while True:
+        print ("got here")
+        get_data()
+        pause(0.5)
+    """
 
-#threading.Thread(target=get_data).start()
-#threading.Thread(target=plot_data).start()
+    #threading.Thread(target=get_data).start()
+    #threading.Thread(target=plot_data).start()
