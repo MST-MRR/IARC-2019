@@ -55,6 +55,7 @@ def from_socket():
 def get_data():
     global times
     global start_time
+    global data_count
     # Should be a dictionary exactly like imaginary_data
     new_data = from_socket()
     # This line should run as closely as possible to 
@@ -63,16 +64,24 @@ def get_data():
     for metric in tracked_data:
         func = metric.get_func()
         x_val = func(new_data[metric.get_data_stream()])
-        new_data = metric.push_data(x_val)
+        metric.push_data(x_val)
+    data_count = data_count + 1
     
 def plot_data(frame, fig):
     global times
     global start_time
     global check_time
+    global data_count
+    global plot_count
+
+    """
+    if plot_count == data_count:
+        return [metric.get_line() for metric in tracked_data]
+    """
 
     # Used to determine whether to pan or not
     flag = False
-
+  
     # This will eventually happen in get_data.
     # The reason it isn't right now is because
     # we are unsure of how to run get_data in 
@@ -106,7 +115,7 @@ def plot_data(frame, fig):
             # update tick marks. See https://bit.ly/2OLAlJH
             fig.canvas.draw()
         
-
+    plot_count = plot_count + 1
     return [metric.get_line() for metric in tracked_data]
 
 
@@ -208,6 +217,9 @@ tracked_data = []
 # How often to redraw xlims (Redrawing xlims is expensive)
 pan_width = 10
 
+plot_count = 0
+data_count = 0
+
 # ---------------------------------------------
 # Set up figure and start animating
 # ---------------------------------------------
@@ -226,6 +238,13 @@ line_ani = animation.FuncAnimation(fig, plot_data, init_func = init, fargs=(fig,
                                    interval=10, blit=True)
 
 plt.show()
+
+"""
+while True:
+    print ("got here")
+    get_data()
+    pause(0.5)
+"""
 
 #threading.Thread(target=get_data).start()
 #threading.Thread(target=plot_data).start()
