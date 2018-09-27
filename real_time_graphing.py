@@ -8,6 +8,12 @@ from xml.etree.ElementTree import parse as parse_xml
 
 import threading
 
+from multiprocessing import Queue
+
+import queue
+
+from time import sleep
+
 # Utility
 from time import time
 from timer import timeit
@@ -28,6 +34,10 @@ class xxxGrapherxxx:
         # How often to redraw xlims (Redrawing xlims is expensive)
         self.pan_width = 10
 
+        self.stop = threading.Event()
+
+        self.q = Queue()
+
         # Stored which data items we are interested in
         self.tracked_data = []
 
@@ -44,8 +54,14 @@ class xxxGrapherxxx:
 
         self.read_config()
 
+        reader_thread = threading.Thread(target=self.read_data, args=(self.q,))
+        processor_thread = threading.Thread(target=self.process_data, args=(self.q,))
+
         line_ani = animation.FuncAnimation(self.fig, self.plot_data,   # init_func=init, fargs=(self.fig,)
                                            interval=10, blit=True)
+
+        reader_thread.start()
+        processor_thread.start()
 
         for ax in self.fig.get_axes():
             # Set xlims so that initial data is seen coming in
@@ -57,6 +73,11 @@ class xxxGrapherxxx:
         self.fig.subplots_adjust(hspace=1, wspace=0.75)
 
         plt.show()
+
+        self.stop.set()
+
+        for thread in threads:
+            thread.join()
 
         # return [metric.get_line() for metric in self.tracked_data]
 
@@ -101,45 +122,57 @@ class xxxGrapherxxx:
 
         return imaginary_data
 
-    # This function is not currently being called
-    def get_data(self):
-        # Should be a dictionary exactly like imaginary_data
-        new_data = self.from_socket()
-        # This line should run as closely as possible to
-        # when data is added to each metric
-        self.times.append(time() - self.start_time)
-        for metric in self.tracked_data:
-            func = metric.get_func()
-            x_val = func(new_data[metric.get_data_stream()])
-            metric.push_data(x_val)
-        self.data_count += 1
+    # Reads data from network and puts it in a queue to be processed.
+    def read_data(self, q):
+        while not self.stop.is_set():
+            data = self.from_socket() # This line will change
+            q.put(data)
+            sleep(1e-1) # Anything smaller than this time causing trouble
+
+    # Processes data put into the queue.
+    def process_data(self, q):
+        while not self.stop.is_set():
+            try:
+                data = q.get(False, 1e-1) # Anything smaller than this time causing trouble
+                self.times.append(time() - self.start_time)
+                for metric in self.tracked_data:
+                    func = metric.get_func()
+                    x_val = func(data[metric.get_data_stream()])
+                    metric.push_data(x_val)
+                self.data_count += 1
+            except queue.Empty:
+                pass
 
     @timeit
     def plot_data(self, frame):
 
-        """
-        if plot_count == data_count:
-            return [metric.get_line() for metric in tracked_data]
-        """
+        # If there is no new data to plot, then exit the function.
+        # Note: the 0ms times come when this condition is met.
+        if self.plot_count == self.data_count:
+            return [metric.get_line() for metric in self.tracked_data]
 
         # Used to determine whether to pan or not
         flag = False
 
+        """
         # This will eventually happen in get_data.
         # The reason it isn't right now is because
         # we are unsure of how to run get_data in
         # a separate thread.
         data = self.from_socket()
         self.times.append(time() - self.start_time)
+        """
 
         for metric in self.tracked_data:
+            """
             # Ideally, this will also happen in get_data so
             # that there is nothing to bottleneck drawing speed
             func = metric.get_func()
             x_val = func(data[metric.get_data_stream()])
             new_data = metric.push_data(x_val)
+            """
 
-            metric.get_line().set_data(np.asarray(self.times), np.asarray(new_data))
+            metric.get_line().set_data(np.asarray(self.times), np.asarray(metric.get_data()))
 
         # See if it is time to pan
         now = time()
@@ -215,3 +248,5 @@ class xxxGrapherxxx:
 
 if __name__ == '__main__':
     test_object = xxxGrapherxxx()
+
+    

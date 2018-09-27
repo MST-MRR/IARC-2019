@@ -9,25 +9,5 @@
     <metric label="target" data_stream="target_roll_velocity" func="x" color="orange"></metric>
     <metric label="testeroni" data_stream="pitch" func="x/3" color="green"></metric>
   </graph>
-  <graph title="Test3" xlabel="Seconds" ylabel="Roll y">
-    <metric label="main" data_stream="pitch_rc_output" func="x" color="blue"></metric>
-  </graph>
-  <graph title="Test4" xlabel="Seconds" ylabel="Roll y">
-    <metric label="main" data_stream="altitude_rc_output" func="x" color="green"></metric>
-  </graph>
-  <graph title="Test5" xlabel="Seconds" ylabel="Roll y">
-    <metric label="main" data_stream="target_pitch_velocity" func="x" color="pink"></metric>
-  </graph>
-  <graph title="Test6" xlabel="Seconds" ylabel="Roll y">
-    <metric label="main" data_stream="pitch" func="x" color="orange"></metric>
-  </graph>
-  <graph title="Test7" xlabel="Seconds" ylabel="Roll y">
-    <metric label="main" data_stream="airspeed" func="x" color="brown"></metric>
-  </graph>
-  <graph title="Test8" xlabel="Seconds" ylabel="Roll y">
-    <metric label="main" data_stream="velocity_z" func="x" color="teal"></metric>
-  </graph>
-  <graph title="Test9" xlabel="Seconds" ylabel="Roll y">
-    <metric label="main" data_stream="color_image" func="x" color="blue"></metric>
-  </graph>
+  
 </desiredgraphs>
