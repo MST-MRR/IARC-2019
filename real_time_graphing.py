@@ -1,14 +1,16 @@
 import numpy as np
+
 import matplotlib.pyplot as plt
+
 import matplotlib.animation as animation
-from matplotlib.pyplot import pause
-import xml.etree.ElementTree as ET  # https://www.geeksforgeeks.org/xml-parsing-python/
+
+from xml.etree.ElementTree import parse as parse_xml
+
 import threading
 
-from timer import timeit
-
 # Utility
-import time
+from time import time
+from timer import timeit
 from math import ceil
 
 # User-defined
@@ -16,6 +18,12 @@ from metric import Metric
 
 
 class xxxGrapherxxx:
+    # Location of configuration file
+    config_filename = 'config.xml'
+
+    # Constant value - do not change
+    max_rows = 3
+
     def __init__(self):
         # How often to redraw xlims (Redrawing xlims is expensive)
         self.pan_width = 10
@@ -29,21 +37,24 @@ class xxxGrapherxxx:
         # Stores times corresponding to each data index
         self.times = []
 
-        self.check_time = self.start_time = time.time()
+        self.check_time = self.start_time = time()
 
         # Initializes figure for graphing
         self.fig = plt.figure()
-        for ax in self.fig.get_axes():
-            # Set xlims so that initial data is seen coming in
-            ax.set_xlim(left=0, right=pan_width + 1)
-
-        # Avoid subplot overlap
-        self.fig.subplots_adjust(hspace=1, wspace=0.75)
 
         self.read_config()
 
-        line_ani = animation.FuncAnimation(self.fig, self.plot_data,  # init_func=init, fargs=(self.fig,)
+        line_ani = animation.FuncAnimation(self.fig, self.plot_data,   # init_func=init, fargs=(self.fig,)
                                            interval=10, blit=True)
+
+        for ax in self.fig.get_axes():
+            # Set xlims so that initial data is seen coming in
+            ax.set_xlim(left=0, right=self.pan_width + 1)
+
+        # TODO - set pan width
+
+        # Avoid subplot overlap
+        self.fig.subplots_adjust(hspace=1, wspace=0.75)
 
         plt.show()
 
@@ -58,6 +69,7 @@ class xxxGrapherxxx:
     # from the socket
     def from_socket(self):
         gen = np.random.rand(26, 1)
+
         imaginary_data = {
             'altitude': gen[0, 0],
             'airspeed': gen[1, 0],
@@ -86,15 +98,16 @@ class xxxGrapherxxx:
             'color_image': gen[24, 0],
             'depth_image': gen[25, 0]
         }
+
         return imaginary_data
 
     # This function is not currently being called
     def get_data(self):
         # Should be a dictionary exactly like imaginary_data
-        new_data = from_socket()
+        new_data = self.from_socket()
         # This line should run as closely as possible to
         # when data is added to each metric
-        self.times.append(time.time() - self.start_time)
+        self.times.append(time() - self.start_time)
         for metric in self.tracked_data:
             func = metric.get_func()
             x_val = func(new_data[metric.get_data_stream()])
@@ -117,7 +130,7 @@ class xxxGrapherxxx:
         # we are unsure of how to run get_data in
         # a separate thread.
         data = self.from_socket()
-        self.times.append(time.time() - self.start_time)
+        self.times.append(time() - self.start_time)
 
         for metric in self.tracked_data:
             # Ideally, this will also happen in get_data so
@@ -129,7 +142,7 @@ class xxxGrapherxxx:
             metric.get_line().set_data(np.asarray(self.times), np.asarray(new_data))
 
         # See if it is time to pan
-        now = time.time()
+        now = time()
         if now - self.check_time > self.pan_width:
             flag = True
             self.check_time = now
@@ -141,106 +154,64 @@ class xxxGrapherxxx:
                 # Pan
                 most_current_time = self.times[-1]
                 ax.set_xlim(left=most_current_time - 1, right=most_current_time + self.pan_width + 1)
-                # This is an expensive call, but must be made if we want to
+
                 # update tick marks. See https://bit.ly/2OLAlJH
-                #fig.canvas.draw()
+                # fig.canvas.draw()  # This is an expensive call, but must be made if we want to
 
         self.plot_count += 1
         return [metric.get_line() for metric in self.tracked_data]
 
     def read_config(self):
-        # Reads the config file makes subplots
         """
         Use: To read and interpret the graph config file
 
         Returns: Dictionary parsed from config file
         """
-        global config_filename
 
-        # Get root
-        root = ET.parse(config_filename).getroot()
+        root = parse_xml(xxxGrapherxxx.config_filename).getroot()
 
         graphs = root.findall('graph')
 
-        # Constant value - do not change
-        max_rows = 3
-
         # Used to determine where to put each subplot
-        c = 0
-        r = 0
 
         # Total number of subplots
         count = len(graphs)
 
-        nrows = min(count, max_rows)
+        nrows = min(count, xxxGrapherxxx.max_rows)
         ncols = ceil(count / nrows)
 
+        i = 0
+
         for graph in root.findall('graph'):
-            title = graph.get('title')
+            i+=1
+
+            #column = int(count / xxxGrapherxxx.max_rows) + 1
+            #row = count % xxxGrapherxxx.max_rows + 1
+
             # Determine where this subplot should go
-            index = (ncols*c) + r + 1
+            #index = (ncols*column) + row + 1
             # Make axis
-            ax = self.fig.add_subplot(nrows, ncols, index)
+            ax = self.fig.add_subplot(nrows, ncols, i)
+
+            """
             # Keep track of where next subplot should go
-            c = c + 1
-            if c / max_rows == 1:
-                c = 0
-                r = r + 1
+            column += 1
+            if column / xxxGrapherxxx.max_rows == 1:
+                column = 0
+                row += 1"""
+
             # Configure the new axis
-            ax.set_title(title)
+            ax.set_title(graph.get('title'))
             ax.set_xlabel(graph.get('xlabel'))
             ax.set_ylabel(graph.get('ylabel'))
             ax.set_xlim(left=0, right=7)
 
             for metric in graph.findall('metric'):
                 # Make 2DLine
-                m_color = metric.get('color')
-                m_label = metric.get('label')
-                m_data_stream = metric.get('data_stream')
-                m_func = metric.get('func')
-                m_line, = ax.plot([], [], color=m_color, label=m_label)
-                newMetric = Metric(m_line, m_func, m_label, m_data_stream)
-                self.tracked_data.append(newMetric)
+                m_line, = ax.plot([], [], color=metric.get('color'), label=metric.get('label'))
+
+                self.tracked_data.append(Metric(m_line, metric.get('func'), metric.get('data_stream')))
 
 
 if __name__ == '__main__':
-    # ---------------------------------------------
-    # Initialize values to be used
-    # ---------------------------------------------
-
-    # Location of configuration file
-    config_filename = 'config.xml'
-
-    # XML file structure
-    """
-    <desiredgraphs>
-        <graph title="" xlabel="" ylabel="">
-            <metric label="" data_stream="" func="" color=""></metric>
-            ...
-            <metric label="" data_stream="" func="" color=""></metric>
-        </graph>
-        ...
-        <graph title="" xlabel="" ylabel="">
-            <metric label="" data_stream="" func="" color=""></metric>
-            ...
-            <metric label="" data_stream="" func="" color=""></metric>
-        </graph>
-    </desiredgraphs>
-    """
-
     test_object = xxxGrapherxxx()
-
-    # ---------------------------------------------
-    # Set up figure and start animating
-    # ---------------------------------------------
-
-    """
-    while True:
-        print ("got here")
-        get_data()
-        pause(0.5)
-    """
-
-    #threading.Thread(target=get_data).start()
-    #threading.Thread(target=plot_data).start()
-

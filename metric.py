@@ -1,9 +1,9 @@
 # Wraps around 2DLine object
 class Metric():
-    def __init__(self, line, func, label, data_stream):
+    def __init__(self, line, func, data_stream):
         self.line = line
         self.func = lambda x: eval(func)
-        self.label = label
+        self.label = line.get_label()
         self.data_stream = data_stream
         self.data = []
 
