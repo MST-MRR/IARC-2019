@@ -76,8 +76,8 @@ class xxxGrapherxxx:
 
         self.stop.set()
 
-        for thread in threads:
-            thread.join()
+        #for thread in threads:
+         #   thread.join()
 
         # return [metric.get_line() for metric in self.tracked_data]
 
@@ -136,9 +136,9 @@ class xxxGrapherxxx:
                 data = q.get(False, 1e-1) # Anything smaller than this time causing trouble
                 self.times.append(time() - self.start_time)
                 for metric in self.tracked_data:
-                    func = metric.get_func()
-                    x_val = func(data[metric.get_data_stream()])
-                    metric.push_data(x_val)
+                    func = metric.get_func
+                    x_val = func(data[metric.get_data_stream])
+                    metric.push_data = x_val
                 self.data_count += 1
             except queue.Empty:
                 pass
@@ -149,7 +149,7 @@ class xxxGrapherxxx:
         # If there is no new data to plot, then exit the function.
         # Note: the 0ms times come when this condition is met.
         if self.plot_count == self.data_count:
-            return [metric.get_line() for metric in self.tracked_data]
+            return [metric.get_line for metric in self.tracked_data]
 
         # Used to determine whether to pan or not
         flag = False
@@ -172,7 +172,7 @@ class xxxGrapherxxx:
             new_data = metric.push_data(x_val)
             """
 
-            metric.get_line().set_data(np.asarray(self.times), np.asarray(metric.get_data()))
+            metric.get_line.set_data(np.asarray(self.times), np.asarray(metric.get_data))
 
         # See if it is time to pan
         now = time()
@@ -192,7 +192,7 @@ class xxxGrapherxxx:
                 # fig.canvas.draw()  # This is an expensive call, but must be made if we want to
 
         self.plot_count += 1
-        return [metric.get_line() for metric in self.tracked_data]
+        return [metric.get_line for metric in self.tracked_data]
 
     def read_config(self):
         """
