@@ -34,9 +34,9 @@ class xxxGrapherxxx:
         # How often to redraw xlims (Redrawing xlims is expensive)
         self.pan_width = 10
 
-        self.stop = threading.Event()
+        self.thread_stop = threading.Event()
 
-        self.q = Queue()
+        self.thread_queue = Queue()
 
         # Stored which data items we are interested in
         self.tracked_data = []
@@ -54,14 +54,19 @@ class xxxGrapherxxx:
 
         self.read_config()
 
-        reader_thread = threading.Thread(target=self.read_data, args=(self.q,))
-        processor_thread = threading.Thread(target=self.process_data, args=(self.q,))
+        threads = {
+            'reader': threading.Thread(target=self.read_data, args=(self.thread_queue,)),
+            'processor': threading.Thread(target=self.process_data, args=(self.thread_queue,))
+        }
 
         line_ani = animation.FuncAnimation(self.fig, self.plot_data,   # init_func=init, fargs=(self.fig,)
                                            interval=10, blit=True)
 
-        reader_thread.start()
-        processor_thread.start()
+        # reader_thread.start()
+        # processor_thread.start()
+
+        for thread in threads.values():
+            thread.start()
 
         for ax in self.fig.get_axes():
             # Set xlims so that initial data is seen coming in
@@ -74,12 +79,11 @@ class xxxGrapherxxx:
 
         plt.show()
 
-        self.stop.set()
+        self.thread_stop.set()
 
-        #for thread in threads:
-         #   thread.join()
+        for thread in threads.values():
+            thread.join()
 
-        # return [metric.get_line() for metric in self.tracked_data]
 
     # ---------------------------------------------
     # Functions (core logic)
@@ -124,14 +128,14 @@ class xxxGrapherxxx:
 
     # Reads data from network and puts it in a queue to be processed.
     def read_data(self, q):
-        while not self.stop.is_set():
+        while not self.thread_stop.is_set():
             data = self.from_socket() # This line will change
             q.put(data)
             sleep(1e-1) # Anything smaller than this time causing trouble
 
     # Processes data put into the queue.
     def process_data(self, q):
-        while not self.stop.is_set():
+        while not self.thread_stop.is_set():
             try:
                 data = q.get(False, 1e-1) # Anything smaller than this time causing trouble
                 self.times.append(time() - self.start_time)
@@ -248,5 +252,3 @@ class xxxGrapherxxx:
 
 if __name__ == '__main__':
     test_object = xxxGrapherxxx()
-
-    
