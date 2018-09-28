@@ -84,7 +84,6 @@ class xxxGrapherxxx:
         for thread in threads.values():
             thread.join()
 
-
     # ---------------------------------------------
     # Functions (core logic)
     # ---------------------------------------------
@@ -92,7 +91,7 @@ class xxxGrapherxxx:
     # Thid function is purely for testing purposes and
     # will be replaced by whatever mechanism gets data
     # from the socket
-    def from_socket(self):
+    def get_demo_data(self):
         gen = np.random.rand(26, 1)
 
         imaginary_data = {
@@ -129,7 +128,7 @@ class xxxGrapherxxx:
     # Reads data from network and puts it in a queue to be processed.
     def read_data(self, q):
         while not self.thread_stop.is_set():
-            data = self.from_socket() # This line will change
+            data = self.get_demo_data() # This line will change
             q.put(data)
             sleep(1e-1) # Anything smaller than this time causing trouble
 
@@ -147,56 +146,75 @@ class xxxGrapherxxx:
             except queue.Empty:
                 pass
 
-    @timeit
     def plot_data(self, frame):
+        """
+        Use: Attempts to plot data
+
+        Args:
+            frame:
+
+        Returns: Line of each tracked metric
+        """
 
         # If there is no new data to plot, then exit the function.
-        # Note: the 0ms times come when this condition is met.
         if self.plot_count == self.data_count:
             return [metric.get_line for metric in self.tracked_data]
 
-        # Used to determine whether to pan or not
-        flag = False
-
-        """
-        # This will eventually happen in get_data.
-        # The reason it isn't right now is because
-        # we are unsure of how to run get_data in
-        # a separate thread.
-        data = self.from_socket()
-        self.times.append(time() - self.start_time)
-        """
-
-        for metric in self.tracked_data:
+        @timeit
+        def timed_plot(self, frame):
             """
-            # Ideally, this will also happen in get_data so
-            # that there is nothing to bottleneck drawing speed
-            func = metric.get_func()
-            x_val = func(data[metric.get_data_stream()])
-            new_data = metric.push_data(x_val)
+            Use: Actually plots data
+
+            Args:
+                frame:
+
+            Returns: Line of each tracked metric
             """
 
-            metric.get_line.set_data(np.asarray(self.times), np.asarray(metric.get_data))
+            # Used to determine whether to pan or not
+            flag = False
 
-        # See if it is time to pan
-        now = time()
-        if now - self.check_time > self.pan_width:
-            flag = True
-            self.check_time = now
+            """
+            # This will eventually happen in get_data.
+            # The reason it isn't right now is because
+            # we are unsure of how to run get_data in
+            # a separate thread.
+            data = self.from_socket()
+            self.times.append(time() - self.start_time)
+            """
 
-        for ax in self.fig.get_axes():
-            ax.relim()
-            ax.autoscale(axis='y')
-            if flag:
-                # Pan
-                most_current_time = self.times[-1]
-                ax.set_xlim(left=most_current_time - 1, right=most_current_time + self.pan_width + 1)
+            for metric in self.tracked_data:
+                """
+                # Ideally, this will also happen in get_data so
+                # that there is nothing to bottleneck drawing speed
+                func = metric.get_func()
+                x_val = func(data[metric.get_data_stream()])
+                new_data = metric.push_data(x_val)
+                """
 
-                # update tick marks. See https://bit.ly/2OLAlJH
-                # fig.canvas.draw()  # This is an expensive call, but must be made if we want to
+                metric.get_line.set_data(np.asarray(self.times), np.asarray(metric.get_data))
 
-        self.plot_count += 1
-        return [metric.get_line for metric in self.tracked_data]
+            # See if it is time to pan
+            now = time()
+            if now - self.check_time > self.pan_width:
+                flag = True
+                self.check_time = now
+
+            for ax in self.fig.get_axes():
+                ax.relim()
+                ax.autoscale(axis='y')
+                if flag:
+                    # Pan
+                    most_current_time = self.times[-1]
+                    ax.set_xlim(left=most_current_time - 1, right=most_current_time + self.pan_width + 1)
+
+                    # update tick marks. See https://bit.ly/2OLAlJH
+                    # fig.canvas.draw()  # This is an expensive call, but must be made if we want to
+
+            self.plot_count += 1
+            return [metric.get_line for metric in self.tracked_data]
+
+        return timed_plot(self, frame)
 
     def read_config(self):
         """
@@ -217,25 +235,13 @@ class xxxGrapherxxx:
         nrows = min(count, xxxGrapherxxx.max_rows)
         ncols = ceil(count / nrows)
 
-        i = 0
+        graph_id = 0
 
         for graph in root.findall('graph'):
-            i+=1
+            graph_id += 1
 
-            #column = int(count / xxxGrapherxxx.max_rows) + 1
-            #row = count % xxxGrapherxxx.max_rows + 1
-
-            # Determine where this subplot should go
-            #index = (ncols*column) + row + 1
             # Make axis
-            ax = self.fig.add_subplot(nrows, ncols, i)
-
-            """
-            # Keep track of where next subplot should go
-            column += 1
-            if column / xxxGrapherxxx.max_rows == 1:
-                column = 0
-                row += 1"""
+            ax = self.fig.add_subplot(nrows, ncols, graph_id)
 
             # Configure the new axis
             ax.set_title(graph.get('title'))
@@ -245,6 +251,9 @@ class xxxGrapherxxx:
 
             for metric in graph.findall('metric'):
                 # Make 2DLine
+
+                # TODO - Make ability to get multiple data streams [data_stream for metric.get?]
+
                 m_line, = ax.plot([], [], color=metric.get('color'), label=metric.get('label'))
 
                 self.tracked_data.append(Metric(m_line, metric.get('func'), metric.get('data_stream')))
