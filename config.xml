@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <desiredgraphs>
-  <graph title="Test1" xlabel="Seconds" ylabel="Pitch">
-    <metric label="main" data_stream="pitch" func="x" color="blue"></metric>
-    <metric label="target" data_stream="target_pitch_velocity" func="x" color="orange"></metric>
-    <metric label="text_test" output="text" data_stream="pitch" func="x * 3"></metric>
+  <graph title="Test 1" xlabel="Seconds" ylabel="Pitch">
+    <metric label="Main" data_stream="pitch" func="x" color="blue"></metric>
+    <metric label="Target" data_stream="target_pitch_velocity" func="x" color="orange"></metric>
+    <metric label="Text_test" output="text" data_stream="pitch" func="x * 3"></metric>
   </graph>
-  <graph title="Test2" xlabel="Seconds" ylabel="Roll">
-    <metric label="main" data_stream="pitch" func="x" color="blue"></metric>
-    <metric label="target" data_stream="target_roll_velocity" func="x" color="orange"></metric>
-    <metric label="testeroni" data_stream="pitch" func="x/3" color="green"></metric>
+  <graph title="Test 2" xlabel="Seconds" ylabel="Roll">
+    <metric label="Main" data_stream="pitch" func="x" color="blue"></metric>
+    <metric label="Target" data_stream="target_roll_velocity" func="x" color="orange"></metric>
+    <metric label="Testeroni" data_stream="pitch" func="x/3" color="green"></metric>
   </graph>
 </desiredgraphs>

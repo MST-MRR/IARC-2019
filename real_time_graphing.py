@@ -19,19 +19,17 @@ from metric import Metric
 
 
 class xxxGrapherxxx:
-    # Location of configuration file
-    config_filename = 'config.xml'
+    """
 
-    # Constant value - do not change
-    max_rows = 3
+
+    """
+
+    config_filename = 'config.xml'  # Location of configuration file
+
+    max_rows = 3  # Rows of subplots per column
 
     def __init__(self):
-        # How often to redraw xlims (Redrawing xlims is expensive)
         self.pan_width = 10
-
-        self.timesss = np.arange(1000)
-
-        self.showntimes = np.arange(self.pan_width)
 
         # Stored which data items we are interested in
         self.tracked_data = []
@@ -75,6 +73,11 @@ class xxxGrapherxxx:
             thread.join()
 
     def get_demo_data(self):
+        """
+
+
+        """
+
         gen = np.random.rand(26, 1)
 
         imaginary_data = {
@@ -108,15 +111,26 @@ class xxxGrapherxxx:
 
         return imaginary_data
 
-    # Reads data from network and puts it in a queue to be processed.
     def read_data(self, q):
+        """
+        Use: Reads data from network and puts it in a queue to be processed.
+
+        Parameters:
+            q: ?
+        """
+
         while not self.thread_stop.is_set():
             data = self.get_demo_data() # This line will change
             q.put(data)
             sleep(1e-1) # Anything smaller than this time causing trouble
 
-    # Processes data put into the queue.
     def process_data(self, q):
+        """
+        Use: Processes data put into the queue.
+
+        Parameters:
+            q: ?
+        """
         while not self.thread_stop.is_set():
             try:
                 data = q.get(False, 1e-1) # Anything smaller than this time causing trouble
@@ -144,9 +158,6 @@ class xxxGrapherxxx:
         if self.plot_count == self.data_count:
             return [metric.get_line for metric in self.tracked_data]
 
-        # Used to determine whether to pan or not
-        flag = False
-
         """
         # This will eventually happen in get_data.
         # The reason it isn't right now is because
@@ -167,32 +178,12 @@ class xxxGrapherxxx:
 
             metric.get_line.set_data(np.asarray(self.times), np.asarray(metric.get_data))
 
-        # See if it is time to pan
-        now = time()
-        if now - self.check_time > self.pan_width * 2:
-            flag = True
-            self.check_time = now
-
         for ax in self.fig.get_axes():
             ax.relim()
             ax.autoscale(axis='y')
 
             ax.set_xlim(int(self.times[-1]) - self.pan_width, int(self.times[-1]) + self.pan_width)
-            """
-            if flag:
-                # Pan
-                most_current_time = self.times[-1]
-                ax.set_xlim(left=most_current_time - 1, right=most_current_time + self.pan_width + 1)
 
-                #self.line.set_data(self.showntimes,
-                 #                  self.data[i:i + self.stepsize].mean() * np.ones(len(self.showntimes)))
-                print("{}, {}".format(int(most_current_time) - self.pan_width, int(most_current_time) + self.pan_width))
-                print(self.timesss[int(most_current_time) - self.pan_width:int(most_current_time) + self.pan_width])
-                ax.set_xticklabels(self.timesss[int(most_current_time) - self.pan_width:int(most_current_time) + self.pan_width])
-
-                # update tick marks. See https://bit.ly/2OLAlJH
-                # fig.canvas.draw()  # This is an expensive call, but must be made if we want to
-            """
         self.plot_count += 1
 
         return [metric.get_line for metric in self.tracked_data]
