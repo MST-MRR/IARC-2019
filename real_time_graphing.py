@@ -1,17 +1,12 @@
 import numpy as np
-
 import matplotlib.pyplot as plt
-
 import matplotlib.animation as animation
 
 from xml.etree.ElementTree import parse as parse_xml
 
 import threading
-
 from multiprocessing import Queue
-
 import queue
-
 from time import sleep
 
 # Utility
@@ -34,10 +29,6 @@ class xxxGrapherxxx:
         # How often to redraw xlims (Redrawing xlims is expensive)
         self.pan_width = 10
 
-        self.thread_stop = threading.Event()
-
-        self.thread_queue = Queue()
-
         # Stored which data items we are interested in
         self.tracked_data = []
 
@@ -54,16 +45,21 @@ class xxxGrapherxxx:
 
         self.read_config()
 
+        line_ani = animation.FuncAnimation(self.fig, self.plot_data,  # init_func=init, fargs=(self.fig,)
+                                           interval=10, blit=True)
+
+        # https://stackoverflow.com/questions/40536472/matplotlib-animation-panning-the-x-axis
+
+        # Threading
+
+        self.thread_stop = threading.Event()
+
+        self.thread_queue = Queue()
+
         threads = {
             'reader': threading.Thread(target=self.read_data, args=(self.thread_queue,)),
             'processor': threading.Thread(target=self.process_data, args=(self.thread_queue,))
         }
-
-        line_ani = animation.FuncAnimation(self.fig, self.plot_data,   # init_func=init, fargs=(self.fig,)
-                                           interval=10, blit=True)
-
-        # reader_thread.start()
-        # processor_thread.start()
 
         for thread in threads.values():
             thread.start()
@@ -166,6 +162,8 @@ class xxxGrapherxxx:
             Use: Actually plots data
 
             Args:
+                self:
+
                 frame:
 
             Returns: Line of each tracked metric
@@ -216,6 +214,7 @@ class xxxGrapherxxx:
 
         return timed_plot(self, frame)
 
+    @timeit
     def read_config(self):
         """
         Use: To read and interpret the graph config file
@@ -255,6 +254,8 @@ class xxxGrapherxxx:
                 # TODO - Make ability to get multiple data streams [data_stream for metric.get?]
 
                 m_line, = ax.plot([], [], color=metric.get('color'), label=metric.get('label'))
+
+                # [met.text for met in metric.findall('data_stream')]
 
                 self.tracked_data.append(Metric(m_line, metric.get('func'), metric.get('data_stream')))
 

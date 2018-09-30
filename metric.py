@@ -8,6 +8,7 @@ class Metric:
         self._label = line.get_label()
 
         self._func = lambda x: eval(func)
+        # Turn into function that takes a list of desired streams and distributes them to variables in func string
 
         self._data_stream = data_stream
 
