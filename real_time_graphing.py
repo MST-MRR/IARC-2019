@@ -45,8 +45,10 @@ class xxxGrapherxxx:
 
         self.read_config()
 
-        line_ani = animation.FuncAnimation(self.fig, self.plot_data,  # init_func=init, fargs=(self.fig,)
-                                           interval=10, blit=True)
+        #line_ani = animation.FuncAnimation(self.fig, self.plot_data,  # init_func=init, fargs=(self.fig,)
+        #                                   interval=10, blit=True)
+
+        self.ani = animation.FuncAnimation(self.fig, self.plot_data, blit=False, interval=60, repeat=False)
 
         # https://stackoverflow.com/questions/40536472/matplotlib-animation-panning-the-x-axis
 
@@ -64,9 +66,16 @@ class xxxGrapherxxx:
         for thread in threads.values():
             thread.start()
 
+        self.timesss = np.arange(1000)
+
         for ax in self.fig.get_axes():
-            # Set xlims so that initial data is seen coming in
+            self.stepsize = 10
+            self.showntimes = np.arange(self.stepsize)
+            ax.set_ylim([0, 10])
             ax.set_xlim(left=0, right=self.pan_width + 1)
+
+            # Set xlims so that initial data is seen coming in
+            #ax.set_xlim(left=0, right=self.pan_width + 1)
 
         # TODO - set pan width
 
@@ -205,6 +214,10 @@ class xxxGrapherxxx:
                     # Pan
                     most_current_time = self.times[-1]
                     ax.set_xlim(left=most_current_time - 1, right=most_current_time + self.pan_width + 1)
+
+                    #self.line.set_data(self.showntimes,
+                     #                  self.data[i:i + self.stepsize].mean() * np.ones(len(self.showntimes)))
+                    ax.set_xticklabels(self.timesss[int(most_current_time):int(most_current_time) + self.stepsize])
 
                     # update tick marks. See https://bit.ly/2OLAlJH
                     # fig.canvas.draw()  # This is an expensive call, but must be made if we want to
