@@ -74,6 +74,8 @@ class xxxGrapherxxx:
             ax.set_ylim([0, 10])
             ax.set_xlim(left=0, right=self.pan_width + 1)
 
+            ax.legend()
+
             # Set xlims so that initial data is seen coming in
             #ax.set_xlim(left=0, right=self.pan_width + 1)
 
