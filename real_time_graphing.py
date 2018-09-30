@@ -68,9 +68,9 @@ class xxxGrapherxxx:
 
         self.timesss = np.arange(1000)
 
+        self.showntimes = np.arange(self.pan_width)
+
         for ax in self.fig.get_axes():
-            self.stepsize = 10
-            self.showntimes = np.arange(self.stepsize)
             ax.set_ylim([0, 10])
             ax.set_xlim(left=0, right=self.pan_width + 1)
 
@@ -203,13 +203,16 @@ class xxxGrapherxxx:
 
             # See if it is time to pan
             now = time()
-            if now - self.check_time > self.pan_width:
+            if now - self.check_time > self.pan_width * 2:
                 flag = True
                 self.check_time = now
 
             for ax in self.fig.get_axes():
                 ax.relim()
                 ax.autoscale(axis='y')
+
+                ax.set_xlim(int(self.times[-1]) - self.pan_width, int(self.times[-1]) + self.pan_width)
+                """
                 if flag:
                     # Pan
                     most_current_time = self.times[-1]
@@ -217,12 +220,15 @@ class xxxGrapherxxx:
 
                     #self.line.set_data(self.showntimes,
                      #                  self.data[i:i + self.stepsize].mean() * np.ones(len(self.showntimes)))
-                    ax.set_xticklabels(self.timesss[int(most_current_time):int(most_current_time) + self.stepsize])
+                    print("{}, {}".format(int(most_current_time) - self.pan_width, int(most_current_time) + self.pan_width))
+                    print(self.timesss[int(most_current_time) - self.pan_width:int(most_current_time) + self.pan_width])
+                    ax.set_xticklabels(self.timesss[int(most_current_time) - self.pan_width:int(most_current_time) + self.pan_width])
 
                     # update tick marks. See https://bit.ly/2OLAlJH
                     # fig.canvas.draw()  # This is an expensive call, but must be made if we want to
-
+                """
             self.plot_count += 1
+
             return [metric.get_line for metric in self.tracked_data]
 
         return timed_plot(self, frame)
@@ -255,11 +261,13 @@ class xxxGrapherxxx:
             # Make axis
             ax = self.fig.add_subplot(nrows, ncols, graph_id)
 
+            ax.axis([0, 100, 0, 10])
+
             # Configure the new axis
             ax.set_title(graph.get('title'))
             ax.set_xlabel(graph.get('xlabel'))
             ax.set_ylabel(graph.get('ylabel'))
-            ax.set_xlim(left=0, right=7)
+            #ax.set_xlim(left=0, right=7)
 
             for metric in graph.findall('metric'):
                 # Make 2DLine
