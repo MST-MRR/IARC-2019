@@ -50,6 +50,7 @@ class xxxGrapherxxx:
         self.ani = animation.FuncAnimation(self.fig, self.plot_data, blit=False, interval=20, repeat=False) # interval=10, blit=True, repeat=default
 
         # Threading
+        self.sleep_time = 1e-1
 
         self.thread_stop = threading.Event()
 
@@ -122,7 +123,12 @@ class xxxGrapherxxx:
         while not self.thread_stop.is_set():
             data = self.get_demo_data() # This line will change
             q.put(data)
-            sleep(1e-1) # Anything smaller than this time causing trouble
+            if (self.data_count > self.plot_count):
+                self.sleep_time = self.sleep_time + 1e-5
+            elif (self.data_count == self.plot_count):
+                self.sleep_time = self.sleep_time - 1e-5
+            #print(self.sleep_time)
+            sleep(self.sleep_time) # Anything smaller than this time causing trouble
 
     def process_data(self, q):
         """
@@ -133,7 +139,7 @@ class xxxGrapherxxx:
         """
         while not self.thread_stop.is_set():
             try:
-                data = q.get(False, 1e-1) # Anything smaller than this time causing trouble
+                data = q.get(False, self.sleep_time) # Anything smaller than this time causing trouble
                 self.times.append(time() - self.start_time)
                 for metric in self.tracked_data:
                     func = metric.get_func
@@ -157,6 +163,7 @@ class xxxGrapherxxx:
         # If there is no new data to plot, then exit the function.
         if self.plot_count == self.data_count:
             return [metric.get_line for metric in self.tracked_data]
+
 
         """
         # This will eventually happen in get_data.
