@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <desiredgraphs>
-  <graph title="Test 1" xlabel="Seconds" ylabel="Pitch">
+  <graph title="Test 1" xlabel="Seconds" ylabel="Pitch" legend="no">
     <metric label="Main" data_stream="pitch" func="x" color="blue"></metric>
     <metric label="Target" data_stream="target_pitch_velocity" func="x" color="orange"></metric>
     <metric label="Text_test" output="text" data_stream="pitch" func="x * 3"></metric>
