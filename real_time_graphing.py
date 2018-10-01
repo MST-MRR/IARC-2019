@@ -18,7 +18,47 @@ from math import ceil
 from metric import Metric
 
 
-class xxxGrapherxxx:
+def get_demo_data():
+    """
+    Use: Generates random data.
+    Returns: Randomly generated data.
+    """
+
+    gen = np.random.rand(26, 1)
+
+    imaginary_data = {
+        'altitude': gen[0, 0],
+        'airspeed': gen[1, 0],
+        'velocity_x': gen[2, 0],
+        'velocity_y': gen[3, 0],
+        'velocity_z': gen[4, 0],
+        'voltage': gen[5, 0],
+        'state': gen[6, 0],
+        'mode': gen[7, 0],
+        'armed': gen[8, 0],
+        'roll': gen[9, 0],
+        'pitch': gen[10, 0],
+        'yaw': gen[11, 0],
+        'altitude_controller_output': gen[12, 0],
+        'altitude_rc_output': gen[13, 0],
+        'target_altitude': gen[14, 0],
+        'pitch_controller_output': gen[15, 0],
+        'pitch_rc_output': gen[16, 0],
+        'target_pitch_velocity': gen[17, 0],
+        'roll_controller_output': gen[18, 0],
+        'roll_rc_output': gen[19, 0],
+        'target_roll_velocity': gen[20, 0],
+        'yaw_controller_output': gen[21, 0],
+        'yaw_rc_output': gen[22, 0],
+        'target_yaw': gen[23, 0],
+        'color_image': gen[24, 0],
+        'depth_image': gen[25, 0]
+    }
+
+    return imaginary_data
+
+
+class RealTimeGraph:
     """
 
 
@@ -72,68 +112,29 @@ class xxxGrapherxxx:
         for thread in threads.values():
             thread.join()
 
-    def get_demo_data(self):
-        """
-
-
-        """
-
-        gen = np.random.rand(26, 1)
-
-        imaginary_data = {
-            'altitude': gen[0, 0],
-            'airspeed': gen[1, 0],
-            'velocity_x': gen[2, 0],
-            'velocity_y': gen[3, 0],
-            'velocity_z': gen[4, 0],
-            'voltage': gen[5, 0],
-            'state': gen[6, 0],
-            'mode': gen[7, 0],
-            'armed': gen[8, 0],
-            'roll': gen[9, 0],
-            'pitch': gen[10, 0],
-            'yaw': gen[11, 0],
-            'altitude_controller_output': gen[12, 0],
-            'altitude_rc_output': gen[13, 0],
-            'target_altitude': gen[14, 0],
-            'pitch_controller_output': gen[15, 0],
-            'pitch_rc_output': gen[16, 0],
-            'target_pitch_velocity': gen[17, 0],
-            'roll_controller_output': gen[18, 0],
-            'roll_rc_output': gen[19, 0],
-            'target_roll_velocity': gen[20, 0],
-            'yaw_controller_output': gen[21, 0],
-            'yaw_rc_output': gen[22, 0],
-            'target_yaw': gen[23, 0],
-            'color_image': gen[24, 0],
-            'depth_image': gen[25, 0]
-        }
-
-        return imaginary_data
-
-    def read_data(self, q):
+    def read_data(self, thread_queue):
         """
         Use: Reads data from network and puts it in a queue to be processed.
 
         Parameters:
-            q: ?
+            thread_queue: ?
         """
 
         while not self.thread_stop.is_set():
-            data = self.get_demo_data() # This line will change
-            q.put(data)
+            data = get_demo_data()
+            thread_queue.put(data)
             sleep(1e-1) # Anything smaller than this time causing trouble
 
-    def process_data(self, q):
+    def process_data(self, thread_queue):
         """
         Use: Processes data put into the queue.
 
         Parameters:
-            q: ?
+            thread_queue:
         """
         while not self.thread_stop.is_set():
             try:
-                data = q.get(False, 1e-1) # Anything smaller than this time causing trouble
+                data = thread_queue.get(False, 1e-1) # Anything smaller than this time causing trouble
                 self.times.append(time() - self.start_time)
                 for metric in self.tracked_data:
                     func = metric.get_func
@@ -180,9 +181,11 @@ class xxxGrapherxxx:
 
         for ax in self.fig.get_axes():
             ax.relim()
-            ax.autoscale(axis='y')
+            ax.autoscale(axis='y')  # breaks after about 10 mins w/ ValueError: shape mismatch: objects cannot be broadcast to a single shape
 
-            ax.set_xlim(int(self.times[-1]) - self.pan_width, int(self.times[-1]) + self.pan_width)
+            current_time = int(self.times[-1])
+
+            ax.set_xlim(current_time - self.pan_width, current_time + self.pan_width)
 
         self.plot_count += 1
 
@@ -196,14 +199,14 @@ class xxxGrapherxxx:
         Returns: Dictionary parsed from config file
         """
 
-        root = parse_xml(xxxGrapherxxx.config_filename).getroot()
+        root = parse_xml(RealTimeGraph.config_filename).getroot()
 
         graphs = root.findall('graph')
 
         # Total number of subplots
         count = len(graphs)
 
-        nrows = min(count, xxxGrapherxxx.max_rows)
+        nrows = min(count, RealTimeGraph.max_rows)
         ncols = ceil(count / nrows)
 
         graph_id = 0
@@ -234,8 +237,9 @@ class xxxGrapherxxx:
 
                     self.tracked_data.append(Metric(m_line, metric.get("func"), metric.get('data_stream')))
 
-            ax.legend()
+            if (graph.get('legend') if graph.get('legend') else 'yes') == 'yes':
+                ax.legend()
 
 
 if __name__ == '__main__':
-    test_object = xxxGrapherxxx()
+    test_object = RealTimeGraph()
