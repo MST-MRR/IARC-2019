@@ -2,20 +2,30 @@
 
 
 class Metric:
-    def __init__(self, line, func, data_stream):
+    def __init__(self, line, func=None, x_stream=None, y_stream=None, z_stream=None, xml_tag=None):
         self._line = line
 
         self._label = line.get_label()
 
-        if 'x' in func:
-            if 'y' in func:
-                self._func = lambda x, y: eval(func)
-            else:
-                self._func = lambda x: eval(func)
-        else:
-            self._func = lambda: eval(func)
+        if xml_tag is not None:
+            func = xml_tag.get("func")
 
-        self._data_stream = [data_stream, 'pitch' if 'y' in func else None, None]
+            x_stream = xml_tag.get('x_stream')
+
+            y_stream = xml_tag.get('y_stream')
+
+            z_stream = xml_tag.get('z_stream')
+
+        if 'z' not in func:
+            if 'y' not in func:
+                if 'x' not in func: self._func = lambda: eval(func)
+                else: self._func = lambda x: eval(func)
+            else: self._func = lambda x, y: eval(func)
+        else: self._func = lambda x, y, z: eval(func)
+
+        self._x_stream = x_stream
+        self._y_stream = y_stream
+        self._z_stream = z_stream
 
         self._data = []
 
@@ -36,12 +46,28 @@ class Metric:
         return self._func
 
     @property
-    def get_data_stream(self):
-        return self._data_stream
+    def get_x_stream(self):
+        return self._x_stream
 
-    @get_data_stream.setter
-    def set_data_stream(self, data_stream):
-        self._data_stream = data_stream
+    @property
+    def get_y_stream(self):
+        return self._y_stream
+
+    @property
+    def get_z_stream(self):
+        return self._z_stream
+
+    @get_x_stream.setter
+    def set_x_stream(self, stream):
+        self._x_stream = stream
+
+    @get_y_stream.setter
+    def set_y_stream(self, stream):
+        self._y_stream = stream
+
+    @get_z_stream.setter
+    def set_z_stream(self, stream):
+        self._z_stream = stream
 
     @property
     def get_data(self):

@@ -2,7 +2,7 @@
 
 from time import time
 
-debug_mode = True
+debug_mode = False
 
 
 def timeit(method):

@@ -1,19 +1,19 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <desiredgraphs>
   <graph title="Multivariable test" xlabel="Seconds" ylabel="x" legend="no">
-    <metric label="Main" data_stream="pitch" func="x" color="yellow"></metric>
-    <metric label="Main" data_stream="roll" func="x" color="red"></metric>
+    <metric label="Main" x_stream="pitch" func="x" color="yellow"></metric>
+    <metric label="Main" x_stream="roll" func="x" color="red"></metric>
 
-    <metric label="Main" data_stream="roll" func="x + (2*y)" color="blue"></metric>
+    <metric label="Main" x_stream="roll" y_stream="pitch" func="x + (2*y)" color="blue"></metric>
   </graph>
   <graph title="Test 1" xlabel="Seconds" ylabel="Pitch" legend="yes">
-    <metric label="Main" data_stream="pitch" func="x" color="blue"></metric>
-    <metric label="Target" data_stream="target_pitch_velocity" func="x" color="orange"></metric>
-    <metric label="Text_test" output="text" data_stream="pitch" func="x * 3"></metric>
+    <metric label="Main" x_stream="pitch" func="x" color="blue"></metric>
+    <metric label="Target" x_stream="target_pitch_velocity" func="x" color="orange"></metric>
+    <metric label="Text_test" output="text" x_stream="pitch" func="x * 3"></metric>
   </graph>
   <graph title="Test 2" xlabel="Seconds" ylabel="Roll">
-    <metric label="Main" data_stream="pitch" func="x" color="blue"></metric>
-    <metric label="Target" data_stream="target_roll_velocity" func="x" color="orange"></metric>
-    <metric label="Testeroni" data_stream="pitch" func="x/3" color="green"></metric>
+    <metric label="Main" x_stream="pitch" func="x" color="blue"></metric>
+    <metric label="Target" x_stream="target_roll_velocity" func="x" color="orange"></metric>
+    <metric label="Testeroni" x_stream="pitch" func="x/3" color="green"></metric>
   </graph>
 </desiredgraphs>

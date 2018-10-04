@@ -149,11 +149,12 @@ class RealTimeGraph:
                 for metric in self.tracked_data:
                     func = metric.get_func
 
-                    x = data[metric.get_data_stream[0]]
-                    y = data[metric.get_data_stream[1]] if metric.get_data_stream[1] else None
-                    z = data[metric.get_data_stream[2]] if metric.get_data_stream[2] else None
+                    x = data[metric.get_x_stream] if metric.get_x_stream else None
+                    y = data[metric.get_y_stream] if metric.get_y_stream else None
+                    z = data[metric.get_z_stream] if metric.get_z_stream else None
 
                     x_val = func(x, y, z) if z else (func(x, y) if y else func(x))
+
                     metric.push_data = x_val
                 self.data_count += 1
             except queue.Empty:
@@ -251,7 +252,7 @@ class RealTimeGraph:
 
                     # TODO - [met.text for met in metric.findall('data_stream')]
 
-                    self.tracked_data.append(Metric(m_line, metric.get("func"), metric.get('data_stream')))
+                    self.tracked_data.append(Metric(line=m_line, xml_tag=metric))
 
             if (graph.get('legend') if graph.get('legend') else 'yes') == 'yes':
                 ax.legend()
