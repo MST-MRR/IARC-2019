@@ -1,20 +1,15 @@
 import numpy as np
-import matplotlib.pyplot as plt
-import matplotlib.animation as animation
+from matplotlib import pyplot as plt, animation as animation
 
 from xml.etree.ElementTree import parse as parse_xml
 
 import threading
 from multiprocessing import Queue
 import queue
-from time import sleep
 
-# Utility
-from time import time
+from time import sleep, time
 from timer import timeit
-from math import ceil
 
-# User-defined
 from metric import Metric
 
 
@@ -68,8 +63,8 @@ class RealTimeGraph:
 
     max_rows = 3  # Rows of subplots per column
 
-    def __init__(self):
-        self.pan_width = 10
+    def __init__(self, pan_width=10):
+        self.pan_width = pan_width
 
         # Stored which data items we are interested in
         self.tracked_data = []
@@ -106,12 +101,71 @@ class RealTimeGraph:
 
         self.fig.subplots_adjust(hspace=1, wspace=0.75)  # Avoid subplot overlap
 
+        #
+        # Code stops here until matplot window closed
         plt.show()
 
+        #
+        # Cleanup
         self.thread_stop.set()
 
         for thread in threads.values():
             thread.join()
+
+    @timeit
+    def read_config(self):
+        """
+        Use: To read and interpret the graph config file
+
+        Returns: Dictionary parsed from config file
+        """
+
+        root = parse_xml(RealTimeGraph.config_filename).getroot()
+
+        # Total number of subplots
+        graph_count = len(root.findall('graph'))
+
+        nrows = min(graph_count, RealTimeGraph.max_rows)
+        ncols = int(graph_count / nrows) + (graph_count % nrows > 0)
+
+        def unique_color_generator(colors_taken):
+            color_list = ['blue', 'orange', 'red', 'green', 'yellow', 'black', 'Ran out of colors!']
+
+            seen = set(colors_taken)
+
+            for elem in color_list:
+                if elem not in seen:
+                    yield elem
+                    seen.add(elem)
+
+        for graph in root.findall('graph'):
+            color_gen = unique_color_generator([metric.get('color') for metric in graph.findall('metric')])
+
+            # Make axis
+            ax = self.fig.add_subplot(nrows, ncols, len(self.fig.get_axes()) + 1)
+
+            ax.axis([0, 100, 0, 10])
+
+            # Configure the new axis
+            ax.set_title(graph.get('title'))
+            ax.set_xlabel(graph.get('xlabel'))
+            ax.set_ylabel(graph.get('ylabel'))
+
+            for metric in graph.findall('metric'):
+                output = metric.get('output') if metric.get('output') else 'graph'
+
+                if output == 'text':
+                    ax.text(0, 0, metric.get('func'), fontsize=12)
+
+                elif output == 'graph':
+                    color = metric.get('color') if metric.get('color') else next(color_gen)
+
+                    m_line, = ax.plot([], [], color=color, label=metric.get('label'))
+
+                    self.tracked_data.append(Metric(line=m_line, xml_tag=metric))
+
+            if (graph.get('legend') if graph.get('legend') else 'yes') == 'yes':
+                ax.legend()
 
     def read_data(self, thread_queue):
         """
@@ -122,7 +176,7 @@ class RealTimeGraph:
         """
 
         while not self.thread_stop.is_set():
-            data = get_demo_data() # This line will change
+            data = get_demo_data()
             thread_queue.put(data)
 
             if self.data_count > self.plot_count:
@@ -132,7 +186,6 @@ class RealTimeGraph:
                 self.sleep_time = self.sleep_time - 1e-5
 
             sleep(self.sleep_time)
-
 
     def process_data(self, thread_queue):
         """
@@ -189,67 +242,6 @@ class RealTimeGraph:
         self.plot_count += 1
 
         return [metric.get_line for metric in self.tracked_data]
-
-    @timeit
-    def read_config(self):
-        """
-        Use: To read and interpret the graph config file
-
-        Returns: Dictionary parsed from config file
-        """
-
-        root = parse_xml(RealTimeGraph.config_filename).getroot()
-
-        graphs = root.findall('graph')
-
-        # Total number of subplots
-        count = len(graphs)
-
-        nrows = min(count, RealTimeGraph.max_rows)
-        ncols = ceil(count / nrows)
-
-        graph_id = 0
-
-        def unique_color_generator(colors_taken):
-            color_list = ['blue', 'orange', 'red', 'green', 'yellow', 'black', 'Ran out of colors!']
-
-            seen = set(colors_taken)
-
-            for elem in color_list:
-                if elem not in seen:
-                    yield elem
-                    seen.add(elem)
-
-        for graph in root.findall('graph'):
-            graph_id += 1
-
-            color_gen = unique_color_generator([metric.get('color') for metric in graph.findall('metric')])
-
-            # Make axis
-            ax = self.fig.add_subplot(nrows, ncols, graph_id)
-
-            ax.axis([0, 100, 0, 10])
-
-            # Configure the new axis
-            ax.set_title(graph.get('title'))
-            ax.set_xlabel(graph.get('xlabel'))
-            ax.set_ylabel(graph.get('ylabel'))
-
-            for metric in graph.findall('metric'):
-                output = metric.get('output') if metric.get('output') else 'graph'
-
-                if output == 'text':
-                    ax.text(0, 0, metric.get('func'), fontsize=12)
-
-                elif output == 'graph':
-                    color = metric.get('color') if metric.get('color') else next(color_gen)
-
-                    m_line, = ax.plot([], [], color=color, label=metric.get('label'))
-
-                    self.tracked_data.append(Metric(line=m_line, xml_tag=metric))
-
-            if (graph.get('legend') if graph.get('legend') else 'yes') == 'yes':
-                ax.legend()
 
 
 if __name__ == '__main__':

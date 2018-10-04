@@ -1,6 +1,4 @@
 List
 - May choose to discard values from buffer based on latency
-- Add bounds to memory usage for cache
-- Make wrapper function to request a graph w/ certain data over certain time & parse logging csv into dictionary
 - Ability to set breakpoints
-- Automatically generate colors if not given
+- Docstrings
