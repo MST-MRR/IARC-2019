@@ -124,11 +124,13 @@ class RealTimeGraph:
         while not self.thread_stop.is_set():
             data = get_demo_data() # This line will change
             thread_queue.put(data)
-            if (self.data_count > self.plot_count):
+
+            if self.data_count > self.plot_count:
                 self.sleep_time = self.sleep_time + 1e-5
-            elif (self.data_count == self.plot_count):
+
+            elif self.data_count == self.plot_count:
                 self.sleep_time = self.sleep_time - 1e-5
-            #print(self.sleep_time)
+
             sleep(self.sleep_time)
 
 
@@ -146,7 +148,12 @@ class RealTimeGraph:
                 self.times.append(time() - self.start_time)
                 for metric in self.tracked_data:
                     func = metric.get_func
-                    x_val = func(data[metric.get_data_stream])
+
+                    x = data[metric.get_data_stream[0]]
+                    y = data[metric.get_data_stream[1]] if metric.get_data_stream[1] else None
+                    z = data[metric.get_data_stream[2]] if metric.get_data_stream[2] else None
+
+                    x_val = func(x, y, z) if z else (func(x, y) if y else func(x))
                     metric.push_data = x_val
                 self.data_count += 1
             except queue.Empty:

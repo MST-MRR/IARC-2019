@@ -7,10 +7,15 @@ class Metric:
 
         self._label = line.get_label()
 
-        self._func = lambda x: eval(func)
-        # Turn into function that takes a list of desired streams and distributes them to variables in func string
+        if 'x' in func:
+            if 'y' in func:
+                self._func = lambda x, y: eval(func)
+            else:
+                self._func = lambda x: eval(func)
+        else:
+            self._func = lambda: eval(func)
 
-        self._data_stream = data_stream
+        self._data_stream = [data_stream, 'pitch' if 'y' in func else None, None]
 
         self._data = []
 
