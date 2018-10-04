@@ -175,25 +175,7 @@ class RealTimeGraph:
         if self.plot_count == self.data_count:
             return [metric.get_line for metric in self.tracked_data]
 
-
-        """
-        # This will eventually happen in get_data.
-        # The reason it isn't right now is because
-        # we are unsure of how to run get_data in
-        # a separate thread.
-        data = self.from_socket()
-        self.times.append(time() - self.start_time)
-        """
-
         for metric in self.tracked_data:
-            """
-            # Ideally, this will also happen in get_data so
-            # that there is nothing to bottleneck drawing speed
-            func = metric.get_func()
-            x_val = func(data[metric.get_data_stream()])
-            new_data = metric.push_data(x_val)
-            """
-
             metric.get_line.set_data(np.asarray(self.times), np.asarray(metric.get_data))
 
         for ax in self.fig.get_axes():
@@ -228,8 +210,20 @@ class RealTimeGraph:
 
         graph_id = 0
 
+        def unique_color_generator(colors_taken):
+            color_list = ['blue', 'orange', 'red', 'green', 'yellow', 'black', 'Ran out of colors!']
+
+            seen = set(colors_taken)
+
+            for elem in color_list:
+                if elem not in seen:
+                    yield elem
+                    seen.add(elem)
+
         for graph in root.findall('graph'):
             graph_id += 1
+
+            color_gen = unique_color_generator([metric.get('color') for metric in graph.findall('metric')])
 
             # Make axis
             ax = self.fig.add_subplot(nrows, ncols, graph_id)
@@ -248,9 +242,9 @@ class RealTimeGraph:
                     ax.text(0, 0, metric.get('func'), fontsize=12)
 
                 elif output == 'graph':
-                    m_line, = ax.plot([], [], color=metric.get('color'), label=metric.get('label'))
+                    color = metric.get('color') if metric.get('color') else next(color_gen)
 
-                    # TODO - [met.text for met in metric.findall('data_stream')]
+                    m_line, = ax.plot([], [], color=color, label=metric.get('label'))
 
                     self.tracked_data.append(Metric(line=m_line, xml_tag=metric))
 
