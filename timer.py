@@ -6,13 +6,26 @@ debug_mode = False
 
 
 def timeit(method):
+    """
+    Wrapper function that times function execution
+
+    Parameters
+    ----------
+    method: function
+        The function to be wrapped
+
+    Returns
+    -------
+    Function
+        The wrapped initial method
+    """
     def timed(*args, **kw):
-        ts = time()
+        time_start = time()
         result = method(*args, **kw)
-        te = time()
+        time_end = time()
 
         if debug_mode:
-            print("{}  {} ms".format(method.__name__, (te - ts) * 1000))
+            print("{}  {} ms".format(method.__name__, (time_start - time_end) * 1000))
 
         return result
 
