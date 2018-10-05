@@ -5,22 +5,26 @@ import csv
 
 def updateSettings():
     #using the csv for the GUI
-    Status_airSpeed = Update(check_air_speed)
-    Status_altitude = Update(check_altitude)
-    Status_pitch = Update(check_pitch)
-    Status_roll = Update(check_roll)
-    Status_yaw = Update(check_yaw)
-    Status_xVelocity = Update(check_xVelocity)
-    Status_yVelocity = Update(check_yVelocity)
-    Status_zVelocity = Update(check_zVelocity)
-    Status_voltage = Update(check_voltage)
-    filename = "C:/Users/jonat/Desktop/GUI_Settings.csv"
-    with open(filename, 'r') as g:
-        reader = csv.reader(g)
-        GUI_Settings_List = list(reader)
-    Status_List = [Status_airSpeed,Status_altitude,Status_pitch,Status_roll,Status_yaw,Status_xVelocity,Status_yVelocity,Status_zVelocity,Status_voltage]
-    for i in GUI_Settings_List:
-        GUI_Settings_List[i+2] = Status_List[i]
+    StatusDict = {
+    "Status_lowerTime" : lowerTime_chk.get(),
+    "Status_upperTime" : upperTime_chk.get(),
+    "Status_airSpeed" : Update(check_air_speed),
+    "Status_altitude" : Update(check_altitude),
+    "Status_pitch" : Update(check_pitch),
+    "Status_roll" : Update(check_roll),
+    "Status_yaw" : Update(check_yaw),
+    "Status_xVelocity" : Update(check_xVelocity),
+    "Status_yVelocity" : Update(check_yVelocity),
+    "Status_zVelocity" : Update(check_zVelocity),
+    "Status_voltage" : Update(check_voltage)
+    }
+    filename = "GUI_Settings.csv"
+    with open(filename, 'w') as g:
+        for key,value in StatusDict.items():
+            g.write(key + " = " + str(value)+"\n")
+        
+    #Status_List = [Status_lowerTime,Status_upperTime,Status_airSpeed,Status_altitude,Status_pitch,Status_roll,Status_yaw,Status_xVelocity,Status_yVelocity,Status_zVelocity,Status_voltage]
+
         
 
 #Defining the properties for the window
@@ -38,16 +42,16 @@ tab_control.add(tab2,text='After-The-Fact Graphing Settings')
 #defining what hte update button does
 def Update(variableName):
     if(variableName.get()):
-        return True
+        return 1
     else:
-        return False
+        return 0
 
 #defining a single graph section for tab 1
 name = "Graph1"
 grph_lbl= Label(tab1,text=name,font=("Arial Bold", 15))#grpah label
-grph_lbl.grid(column=0,row=0)
+grph_lbl.grid(column=0,row=0,columnspan=2)
 update_grph_btn= Button(tab1,text="Click to Update Section",command=updateSettings)#Button to update
-update_grph_btn.grid(column=1, row=0)
+update_grph_btn.grid(column=2,row=0,columnspan=2)
 
 #The variables to read if each are checked or not
 check_air_speed = BooleanVar()
@@ -79,6 +83,15 @@ zVelocity_chk= Checkbutton(tab1,text="zVelocity",var=check_zVelocity)
 zVelocity_chk.grid(column=7, row=1)
 voltage_chk= Checkbutton(tab1,text="Voltage",var=check_voltage)
 voltage_chk.grid(column=8, row=1)
+lowerTime_lbl= Label(tab1, text="Time interval(seconds) Lower:")
+lowerTime_lbl.grid(column=0, row=2,columnspan=2)
+lowerTime_chk= Entry(tab1,width=5)
+lowerTime_chk.grid(column=2, row=2)
+upperTime_lbl= Label(tab1, text="Upper:")
+upperTime_lbl.grid(column=3, row=2)
+upperTime_chk= Entry(tab1,width=5)
+upperTime_chk.grid(column=4, row=2)
+
 
 
 tab_control.pack(expand=1, fill='both')#should be near the end?

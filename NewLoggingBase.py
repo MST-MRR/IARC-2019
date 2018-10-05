@@ -6,7 +6,7 @@ import random
 
 #tempCounter is how many data point to collect temporarily
 
-theTempCounter = int(input("How many data points? "))
+theTempCounter = int(input("How long to log in seconds? "))
 x = 0
 
 class Logger:
@@ -38,7 +38,7 @@ class Logger:
     def Update(self,inputData):#updates the file with the new data
              
                 currentTime = time.time()
-
+                stopWhile = currentTime - self.start
                 if (self.lastTime != currentTime):
                     writer = csv.DictWriter(self.g, fieldnames=self.dataValues)
                     writer.writerow({
@@ -53,6 +53,7 @@ class Logger:
                     'zVelocity' : inputData['velocity_z'],
                     'voltage' : inputData['voltage']
                     })
+                    return stopWhile
                     #This is white the variable in the section titled at the left of the ':'
 
                 self.lastTime = currentTime
@@ -65,16 +66,17 @@ myData = {}
 while (x<theTempCounter):#main loop
     #make data dictionary here
     myData = {
-        'airspeed' : 1*x,
-        'altitude' : 2*x,
-        'pitch' : 3*x,
-        'roll' : 4*x,
-        'yaw' : 5*x,
-        'velocity_x' : 6*x,
-        'velocity_y' : 7*x,
-        'velocity_z' : 8*x,
-        'voltage' : 9*x,
+        'airspeed' : 1*random.randint(1,10),
+        'altitude' : 2*random.randint(1,10),
+        'pitch' : 3*random.randint(1,10),
+        'roll' : 4*random.randint(1,10),
+        'yaw' : 5*random.randint(1,10),
+        'velocity_x' : 6*random.randint(1,10),
+        'velocity_y' : 7*random.randint(1,10),
+        'velocity_z' : 8*random.randint(1,10),
+        'voltage' : 9*random.randint(1,10),
     }
-    my_logger.Update(myData)
-    x = x + 1
+    x = my_logger.Update(myData)
+    time.sleep(.00001)
+
 my_logger.exit()
