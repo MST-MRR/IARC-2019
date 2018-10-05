@@ -19,7 +19,7 @@ class Logger:
         dailyFlight = 1
 
         while(i<1):
-            self.directory = 'C:/Users/jonat/Desktop/MultiRotor_Logging/{}_Flight_Num_{}.csv'.format(newDate,str(dailyFlight))
+            self.directory = '{}_Flight_Num_{}.csv'.format(newDate,str(dailyFlight))
             if not os.path.exists(self.directory): #checks to see if the path already exists
                 open(self.directory,'a').close #if it doesn't exist it makes it
                 i = 5

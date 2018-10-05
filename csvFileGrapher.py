@@ -1,45 +1,62 @@
-
 import csv
-import os
+
 from tkinter import filedialog
 from tkinter import Tk
+
 import pandas as pd
 import matplotlib.pyplot as plt
-import matplotlib.dates as mdates
 
 
-#gets the file you want graphed through an explorer prompt
-root = Tk()
-root.filename =  filedialog.askopenfilename(initialdir = "/",title = "Select file to Graph",filetypes = (("csv files","*.csv"),("all files","*.*")))
-fileToUse = root.filename
-#pick the file for the settings
-root.settings = filedialog.askopenfilename(initialdir = "/",title = "Select the Graphing Config file",filetypes = (("csv files","*.csv"),("all files","*.*")))
-configFile = root.settings
+def make_whole_graph():
+    """
+    Use:
+    """
 
-df = pd.read_csv(fileToUse)
-df.head()
+    #
+    # Get startup data
+    root = Tk()  # Create tkinter window
 
-with open(configFile, 'r') as s:#makes the config file into a list of lists
-    reader = csv.reader(s)
-    configMainList = list(reader)
+    # Select data to graph through explorer prompt
+    data_file = filedialog.askopenfilename(
+        title="Select file to Graph", filetypes=(("csv files", "*.csv"), ("all files", "*.*"))
+    )
 
-configList = configMainList[0] #pulls the first list of which headers to graph together
-intervalList = configMainList[1] #pulls the second list of what time interval to graph
-i = 0
-j = len(configList)
-minLimit = float(intervalList[0])#gets the min and max limts for graphing
-maxLimit = float(intervalList[1])
+    # pick the file for the settings
+    config_file = filedialog.askopenfilename(
+        title="Select the Graphing Config file", filetypes=(("csv files", "*.csv"), ("all files", "*.*"))
+    )
 
-while (i < j):#plots each data point based on the other settings
-    dataToPlot = configList[i]
-    maxTime = df['secFromStart'] < maxLimit    
-    minTime = df['secFromStart'] > minLimit
-    new = df[maxTime & minTime] 
-    x = new['secFromStart']
-    y = new[dataToPlot]
+    root.destroy()  # Close the tkinter window
 
-    plt.plot(x,y)
-    i = i + 1
+    #
+    # Read data & config
+    df = pd.read_csv(data_file)  # Read data
 
-plt.legend()
-plt.show()#Show the plot
+    with open(config_file, 'r') as file:
+        data_to_plot, relevant_intervals  = list(csv.reader(file))  # Read config file
+
+    #
+    # Get ready to plot data
+    minLimit = float(relevant_intervals[0])  # gets the min and max limts for graphing
+    maxLimit = float(relevant_intervals[1])
+
+    #
+    # Plot data
+    for dataToPlot in data_to_plot:  # plots each data point based on the other settings
+        maxTime = df['secFromStart'] < maxLimit
+        minTime = df['secFromStart'] > minLimit
+
+        new = df[maxTime & minTime]
+
+        x = new['secFromStart']
+        y = new[dataToPlot]
+
+        plt.plot(x, y)
+
+    plt.legend()  # Enable legend
+
+    plt.show()  # Show the matplotlib plot
+
+
+if __name__ == '__main__':
+    make_whole_graph()
