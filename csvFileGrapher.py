@@ -9,7 +9,7 @@ import matplotlib.pyplot as plt
 
 def make_whole_graph():
     """
-    Use:
+    Builds graph from logging files.
     """
 
     #

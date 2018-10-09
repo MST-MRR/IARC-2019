@@ -10,7 +10,9 @@ theTempCounter = int(input("How long to log in seconds? "))
 x = 0
 
 class Logger:
-
+    """
+    Object that can be sent data to be logged
+    """
     def __init__(self):
         i = 0
         self.lastTime = 0
@@ -33,50 +35,62 @@ class Logger:
         self.g = open(self.directory,"a")#Open the file in appending to add the new data
     
     def exit(self):#defines the funtion to close the file
+        """
+        Closes file that was logging data.
+        """
+
         self.g.close()
 
-    def Update(self,inputData):#updates the file with the new data
-             
-                currentTime = time.time()
-                stopWhile = currentTime - self.start
-                if (self.lastTime != currentTime):
-                    writer = csv.DictWriter(self.g, fieldnames=self.dataValues)
-                    writer.writerow({
-                    'secFromStart' : (currentTime - self.start),#the time stamp for the data
-                    'airSpeed' : inputData['airspeed'], #the headers to store
-                    'altitude' : inputData['altitude'],
-                    'pitch' : inputData['pitch'],
-                    'roll' : inputData['roll'],
-                    'yaw' : inputData['yaw'],
-                    'xVelocity' : inputData['velocity_x'],
-                    'yVelocity' : inputData['velocity_y'],
-                    'zVelocity' : inputData['velocity_z'],
-                    'voltage' : inputData['voltage']
-                    })
-                    return stopWhile
-                    #This is white the variable in the section titled at the left of the ':'
+    def Update(self, inputData):  # updates the file with the new data
+        """
+        Send new data to be logged.
 
-                self.lastTime = currentTime
+        Parameters
+        ----------
+        inputData: dict
+            Stream of new data to be logged
+        """
+        currentTime = time.time()
+        stopWhile = currentTime - self.start
+        if (self.lastTime != currentTime):
+            writer = csv.DictWriter(self.g, fieldnames=self.dataValues)
+            writer.writerow({
+            'secFromStart' : (currentTime - self.start),#the time stamp for the data
+            'airSpeed' : inputData['airspeed'], #the headers to store
+            'altitude' : inputData['altitude'],
+            'pitch' : inputData['pitch'],
+            'roll' : inputData['roll'],
+            'yaw' : inputData['yaw'],
+            'xVelocity' : inputData['velocity_x'],
+            'yVelocity' : inputData['velocity_y'],
+            'zVelocity' : inputData['velocity_z'],
+            'voltage' : inputData['voltage']
+            })
+            return stopWhile
+            #This is white the variable in the section titled at the left of the ':'
+
+        self.lastTime = currentTime
 
 
-my_logger = Logger()
+if __name__ == '__main__':
+    my_logger = Logger()
 
+    myData = {}
 
-myData = {}
-while (x<theTempCounter):#main loop
-    #make data dictionary here
-    myData = {
-        'airspeed' : 1*random.randint(1,10),
-        'altitude' : 2*random.randint(1,10),
-        'pitch' : 3*random.randint(1,10),
-        'roll' : 4*random.randint(1,10),
-        'yaw' : 5*random.randint(1,10),
-        'velocity_x' : 6*random.randint(1,10),
-        'velocity_y' : 7*random.randint(1,10),
-        'velocity_z' : 8*random.randint(1,10),
-        'voltage' : 9*random.randint(1,10),
-    }
-    x = my_logger.Update(myData)
-    time.sleep(.00001)
+    while x < theTempCounter:  # main loop
+        #make data dictionary here
+        myData = {
+            'airspeed' : 1*random.randint(1,10),
+            'altitude' : 2*random.randint(1,10),
+            'pitch' : 3*random.randint(1,10),
+            'roll' : 4*random.randint(1,10),
+            'yaw' : 5*random.randint(1,10),
+            'velocity_x' : 6*random.randint(1,10),
+            'velocity_y' : 7*random.randint(1,10),
+            'velocity_z' : 8*random.randint(1,10),
+            'voltage' : 9*random.randint(1,10),
+        }
+        x = my_logger.Update(myData)
+        time.sleep(.00001)
 
-my_logger.exit()
+    my_logger.exit()
