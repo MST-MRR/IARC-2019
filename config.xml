@@ -9,7 +9,6 @@
   <graph title="Test 1" xlabel="Seconds" ylabel="Pitch" legend="no">
     <metric label="Main" x_stream="pitch" func="x"></metric>
     <metric label="Target" x_stream="target_pitch_velocity" func="x"></metric>
-    <metric label="Text_test" output="text" x_stream="pitch" func="x * 3"></metric>
   </graph>
   <graph title="Test 2" xlabel="Seconds" ylabel="Roll">
     <metric label="Main" x_stream="pitch" func="x" color="blue"></metric>

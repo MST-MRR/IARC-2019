@@ -1,4 +1,5 @@
-List
-- May choose to discard values from buffer based on latency
-- Ability to set breakpoints
-- Docstrings
+- Implement text displays
+
+- Not sure how to discard values.
+
+- Double check safety checks before the metric function is evaluated(in metric init).
