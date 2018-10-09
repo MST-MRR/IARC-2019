@@ -76,6 +76,7 @@ class RealTimeGraph:
     max_rows = 3  # Rows of subplots per column
 
     def __init__(self, pan_width=10):
+
         self.pan_width = abs(pan_width)
 
         # Stored which data items we are interested in
@@ -90,7 +91,7 @@ class RealTimeGraph:
         self.check_time = self.start_time = time()
 
         # Initializes figure for graphing
-        self.fig = plt.figure()
+        self.fig = plt.figure(figsize=(8, 6))
 
         self.read_config()
 
@@ -167,17 +168,11 @@ class RealTimeGraph:
             ax.set_ylabel(graph.get('ylabel'))
 
             for metric in graph.findall('metric'):
-                output = metric.get('output') if metric.get('output') else 'graph'
+                color = metric.get('color') if metric.get('color') else next(color_gen)
 
-                if output == 'text':
-                    ax.text(0, 0, metric.get('func'), fontsize=12)
+                m_line, = ax.plot([], [], color=color, label=metric.get('label'))
 
-                elif output == 'graph':
-                    color = metric.get('color') if metric.get('color') else next(color_gen)
-
-                    m_line, = ax.plot([], [], color=color, label=metric.get('label'))
-
-                    self.tracked_data.append(Metric(line=m_line, xml_tag=metric))
+                self.tracked_data.append(Metric(line=m_line, xml_tag=metric))
 
             if (graph.get('legend') if graph.get('legend') else 'yes') == 'yes':
                 ax.legend()
@@ -258,8 +253,8 @@ class RealTimeGraph:
             metric.get_line.set_data(np.asarray(self.times), np.asarray(metric.get_data))
 
         for ax in self.fig.get_axes():
-            ax.relim()
-            ax.autoscale(axis='y')  # breaks after about 10 mins w/ ValueError: shape mismatch: objects cannot be broadcast to a single shape
+            #ax.relim()
+            #ax.autoscale(axis='y') # ValueError: shape mismatch: objects cannot be broadcast to a single shape
 
             current_time = int(self.times[-1])
 
