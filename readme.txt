@@ -5,6 +5,10 @@ to whichever metrics requested specific data streams and the processed data is s
 in the metric's data list is what will be graphed. These three functions, read, process and plot, all happen
 concurrently in multiple threads that start when the others are 'sleeping'.
 
+When creating a grapher object there is 2 optional parameters:
+    pan_width: (int, default 10) Time in seconds to display graph in the past. This is essentially the x limit.
+    y_lim: (tuple(int, int), default (0, 10)) The
+
 To interface with the grapher, you need to edit the config.xml file(In the future a GUI will edit the xml for you).
 Everything that you want the grapher to read should be within the 'desiredgraphs' tag meaning after <desiredgraphs> and
 before </desiredgraphs>. Each subplot(Must be at least 1) is denoted with a <graph> tag. These subplots hold the

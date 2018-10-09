@@ -253,8 +253,11 @@ class RealTimeGraph:
             metric.get_line.set_data(np.asarray(self.times), np.asarray(metric.get_data))
 
         for ax in self.fig.get_axes():
-            #ax.relim()
-            #ax.autoscale(axis='y') # ValueError: shape mismatch: objects cannot be broadcast to a single shape
+            try:
+                ax.relim()
+                ax.autoscale(axis='y')
+            except ValueError as e:
+                print("Caught '{}'!\nPast 10 times: {}\nPast 10 outputs: {}".format(e, self.times[-10:], metric.get_data[-10:]))
 
             current_time = int(self.times[-1])
 
