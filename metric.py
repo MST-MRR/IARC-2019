@@ -36,6 +36,9 @@ class Metric:
             z_stream = xml_tag.get('z_stream')
 
         # Func safety check
+        for letter in func:
+            assert letter in '0123456789 xyz()+-*/%poworand<=>!absintfloat', \
+                "{}: Determined to be potentially unsafe at letter {}.".format(func, letter)
 
         if 'x' in func:
             assert x_stream, "X in function but no x_stream!"
