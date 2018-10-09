@@ -22,6 +22,8 @@ class Metric:
     """
 
     def __init__(self, line, func=None, x_stream=None, y_stream=None, z_stream=None, xml_tag=None):
+        assert func or xml_tag is not None, "No function given to metric!"
+
         self._line = line
 
         self._label = line.get_label()
@@ -33,12 +35,32 @@ class Metric:
             y_stream = xml_tag.get('y_stream')
             z_stream = xml_tag.get('z_stream')
 
-        if 'z' not in func:
-            if 'y' not in func:
-                if 'x' not in func: self._func = lambda: eval(func)
-                else: self._func = lambda x: eval(func)
-            else: self._func = lambda x, y: eval(func)
-        else: self._func = lambda x, y, z: eval(func)
+        # Func safety check
+
+        if 'x' in func:
+            assert x_stream, "X in function but no x_stream!"
+
+            if 'y' in func:
+                assert y_stream, "Y in function but no y_stream!"
+
+                if 'z' in func:
+                    assert z_stream, "Z in function but no z_stream!"
+
+                    self._func = lambda x, y, z: eval(func)
+                else: self._func = lambda x, y: eval(func)
+            else: self._func = lambda x: eval(func)
+        else: self._func = lambda: eval(func)
+
+        possible_data_streams = [
+            'altitude', 'airspeed', 'velocity_x', 'velocity_y', 'velocity_z', 'voltage', 'state', 'mode', 'armed',
+            'roll', 'pitch', 'yaw', 'altitude_controller_output', 'altitude_rc_output', 'target_altitude',
+            'pitch_controller_output', 'pitch_rc_output', 'target_pitch_velocity', 'roll_controller_output',
+            'roll_rc_output', 'target_roll_velocity', 'yaw_controller_output', 'yaw_rc_output', 'target_yaw',
+            'color_image', 'depth_image', None]
+
+        assert x_stream in possible_data_streams, "Invalid x_stream!"
+        assert y_stream in possible_data_streams, "Invalid y_stream!"
+        assert z_stream in possible_data_streams, "Invalid z_stream!"
 
         self._x_stream = x_stream
         self._y_stream = y_stream

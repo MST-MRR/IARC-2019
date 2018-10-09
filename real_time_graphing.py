@@ -76,7 +76,7 @@ class RealTimeGraph:
     max_rows = 3  # Rows of subplots per column
 
     def __init__(self, pan_width=10):
-        self.pan_width = pan_width
+        self.pan_width = abs(pan_width)
 
         # Stored which data items we are interested in
         self.tracked_data = []
@@ -94,7 +94,7 @@ class RealTimeGraph:
 
         self.read_config()
 
-        self.ani = animation.FuncAnimation(self.fig, self.plot_data, blit=False, interval=20, repeat=False) # interval=10, blit=True, repeat=default
+        self.ani = animation.FuncAnimation(self.fig, self.plot_data, blit=False, interval=20, repeat=False)
 
         # Threading
         self.sleep_time = 1e-1
