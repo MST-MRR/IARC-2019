@@ -6,6 +6,7 @@ from pymavlink import mavutil
 
 vehicle = None
 enabled = False
+real = False
 
 def periodic():
     global enabled
@@ -52,34 +53,50 @@ def periodic():
 
 def main():
     global enabled
+    global vehicle
+    global real
     connect()
 
     arm()
 
     print "Taking off"
     takeoffAlt = 3
+
     vehicle.simple_takeoff(takeoffAlt)
 
     while True:
-        print " Altitude: ", vehicle.location.global_relative_frame.alt
+        #print vehicle.mode
+        #print vehicle.armed
+        if (not real):
+            altitude = vehicle.location.global_relative_frame.alt
+        else:
+            altitude = vehicle.rangefinder.distance
+        print " Altitude: ", altitude
         # Break and return from function just below target altitude.
-        if vehicle.location.global_relative_frame.alt >= takeoffAlt * 0.94:
+        #Periodic.fly(0.0, 0.0, takeoffAlt)
+        #Periodic.send_ned_velocity(0.0, 0.0, 0.5)
+
+        if altitude >= takeoffAlt * 0.94:
             print "Reached target altitude"
             break
         time.sleep(0.5)
     print "Takeoff complete"
 
-
     periodic()
 
     print "Landing"
-    vehicle.mode = dronekit.VehicleMode("LAND")
+    while (altitude > 0.03):
+        vehicle.mode = dronekit.VehicleMode("LAND")
     time.sleep(8)
 
 def connect():
     global vehicle
+    global real
 
-    vehicle = dronekit.connect('tcp:127.0.0.1:5762', wait_ready=True)  # SITL (Simulator)
+    if (not real):
+        vehicle = dronekit.connect('tcp:127.0.0.1:5762', wait_ready=True)  # SITL (Simulator)
+    else:
+        vehicle = dronekit.connect('/dev/serial/by-id/usb-3D_Robotics_PX4_FMU_v2.x_0-if00', wait_ready=True)
     print "connected"
 
 def arm():
@@ -88,17 +105,18 @@ def arm():
     enabled = True
     Periodic.init()
     Periodic.setVehicle(vehicle, mavutil.mavlink.MAV_FRAME_LOCAL_NED)
+    vehicle.mode = dronekit.VehicleMode("GUIDED")
 
     print "Basic pre-arm checks"
     # Don't try to arm until autopilot is ready
-    while not vehicle.is_armable:
-        print " Waiting for vehicle to initialise..."
-        time.sleep(1)
+    #while not vehicle.is_armable:
+        #print " Waiting for vehicle to initialise..."
+        #vehicle.armed = True
+        #time.sleep(1)
 
     print "Arming motors"
     # Copter should arm in GUIDED mode
-    vehicle.mode    = dronekit.VehicleMode("GUIDED")
-    vehicle.armed   = True
+    vehicle.armed = True
 
     # Confirm vehicle armed before attempting to take off
     while not vehicle.armed:
