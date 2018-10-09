@@ -15,8 +15,12 @@ from metric import Metric
 
 def get_demo_data():
     """
-    Use: Generates random data.
-    Returns: Randomly generated data.
+    Generates random data in the format the grapher will receive data.
+
+    Returns
+    -------
+    dict
+        Keys of data streams w/ randomly generated data.
     """
 
     gen = np.random.rand(26, 1)
@@ -55,8 +59,16 @@ def get_demo_data():
 
 class RealTimeGraph:
     """
+    Description
 
+    Parameters
+    ----------
+    pan_width: int
+        Time in seconds to display previous data
 
+    Raises
+    ------
+    ?
     """
 
     config_filename = 'config.xml'  # Location of configuration file
@@ -115,9 +127,12 @@ class RealTimeGraph:
     @timeit
     def read_config(self):
         """
-        Use: To read and interpret the graph config file
+        Reads and interprets the graph config file
 
-        Returns: Dictionary parsed from config file
+        Returns
+        -------
+        dict
+            Parsed config file
         """
 
         root = parse_xml(RealTimeGraph.config_filename).getroot()
@@ -169,10 +184,12 @@ class RealTimeGraph:
 
     def read_data(self, thread_queue):
         """
-        Use: Reads data from network and puts it in a queue to be processed.
+        Reads data from network and puts it in a queue to be processed.
 
-        Parameters:
-            thread_queue: ?
+        Parameters
+        ----------
+        thread_queue: Thread queue
+            Thread queue
         """
 
         while not self.thread_stop.is_set():
@@ -189,11 +206,14 @@ class RealTimeGraph:
 
     def process_data(self, thread_queue):
         """
-        Use: Processes data put into the queue.
+        Processes data put into the queue.
 
-        Parameters:
-            thread_queue:
+        Parameters
+        ----------
+        thread_queue: Thread queue
+            Thread queue
         """
+
         while not self.thread_stop.is_set():
             try:
                 data = thread_queue.get(False, self.sleep_time) 
@@ -216,12 +236,18 @@ class RealTimeGraph:
     @timeit
     def plot_data(self, frame):
         """
-        Use: Attempts to plot data
+        Plots data
 
-        Args:
-            frame:
+        Parameters
+        ----------
+        frame:
+            Arbitrary variable, animation function sends frame in by default.
 
-        Returns: Line of each tracked metric
+        Returns
+        -------
+        list
+            Line of each tracked metric
+
         """
 
         # If there is no new data to plot, then exit the function.
