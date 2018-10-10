@@ -26,9 +26,12 @@ class Logger:
         #
         # Setup directory name
         date = time.strftime('%x').replace('/', '_')  # Gets today's date & sets / to _ as not mess up the directory
-        daily_flight = max([int(element.split('Flight_Num_')[1].split('.csv')[0]) if 'Flight_Num' in element else 0 for element in os.listdir()]) + 1
 
-        self.directory = '{}_Flight_Num_{}.csv'.format(date, str(daily_flight))
+        file_name_start = '{}_Flight_Num_'.format(date)
+
+        daily_flight = max([int(element.split(file_name_start)[1].split('.csv')[0]) if file_name_start in element else 0 for element in os.listdir()]) + 1
+
+        self.directory = '{}{}.csv'.format(file_name_start, str(daily_flight))
         """        
         while os.path.exists(self.directory):
             daily_flight += 1
