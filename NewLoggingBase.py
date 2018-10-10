@@ -1,19 +1,20 @@
-
 import time
 import csv
 import os
 import random
 
-#tempCounter is how many data point to collect temporarily
-
-theTempCounter = int(input("How long to log in seconds? "))
-x = 0
 
 class Logger:
     """
     Object that can be sent data to be logged
     """
-    def __init__(self):
+    def __init__(self, desired_data=None):
+        self.desired_data = ['airspeed', 'altitude', 'pitch', 'roll', 'yaw', 'velocity_x', 'velocity_y',
+                             'velocity_z', 'voltage'] if not desired_data else desired_data
+
+        self.dataValues = ['secFromStart'] + self.desired_data
+        # ['secFromStart', 'airSpeed', 'altitude', 'pitch', 'roll', 'yaw', 'xVelocity', 'yVelocity', 'zVelocity', 'voltage']  # defining the headers
+
         i = 0
         self.lastTime = 0
         date = time.strftime('%x') #Gets todays date
@@ -29,7 +30,7 @@ class Logger:
                 dailyFlight = dailyFlight + 1
         self.start = time.time()#gets initial time
         with open(self.directory,"w") as f:#opens the file to write the headers
-            self.dataValues = ['secFromStart','airSpeed','altitude','pitch','roll','yaw','xVelocity','yVelocity','zVelocity','voltage'] #defining the headers
+
             writer = csv.DictWriter(f, fieldnames=self.dataValues) #definng the headers
             writer.writeheader()
         self.g = open(self.directory,"a")#Open the file in appending to add the new data
@@ -51,21 +52,29 @@ class Logger:
             Stream of new data to be logged
         """
         currentTime = time.time()
+
         stopWhile = currentTime - self.start
-        if (self.lastTime != currentTime):
+
+        if self.lastTime != currentTime:
             writer = csv.DictWriter(self.g, fieldnames=self.dataValues)
-            writer.writerow({
-            'secFromStart' : (currentTime - self.start),#the time stamp for the data
-            'airSpeed' : inputData['airspeed'], #the headers to store
-            'altitude' : inputData['altitude'],
-            'pitch' : inputData['pitch'],
-            'roll' : inputData['roll'],
-            'yaw' : inputData['yaw'],
-            'xVelocity' : inputData['velocity_x'],
-            'yVelocity' : inputData['velocity_y'],
-            'zVelocity' : inputData['velocity_z'],
-            'voltage' : inputData['voltage']
-            })
+
+            dict_to_write = {'secFromStart': (currentTime - self.start)}
+
+            for element in self.desired_data:
+                dict_to_write[element] = inputData[element]
+
+            writer.writerow(dict_to_write)
+            """
+                'airSpeed' : inputData['airspeed'],
+                'altitude' : inputData['altitude'],
+                'pitch' : inputData['pitch'],
+                'roll' : inputData['roll'],
+                'yaw' : inputData['yaw'],
+                'xVelocity' : inputData['velocity_x'],
+                'yVelocity' : inputData['velocity_y'],
+                'zVelocity' : inputData['velocity_z'],
+                'voltage' : inputData['voltage']
+            """
             return stopWhile
             #This is white the variable in the section titled at the left of the ':'
 
@@ -73,12 +82,14 @@ class Logger:
 
 
 if __name__ == '__main__':
+    # tempCounter is how many data point to collect temporarily
+
+    theTempCounter = int(input("How long to log in seconds? "))
+    x = 0
+
     my_logger = Logger()
 
-    myData = {}
-
     while x < theTempCounter:  # main loop
-        #make data dictionary here
         myData = {
             'airspeed' : 1*random.randint(1,10),
             'altitude' : 2*random.randint(1,10),
@@ -90,6 +101,7 @@ if __name__ == '__main__':
             'velocity_z' : 8*random.randint(1,10),
             'voltage' : 9*random.randint(1,10),
         }
+
         x = my_logger.Update(myData)
         time.sleep(.00001)
 
