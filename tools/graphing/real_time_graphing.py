@@ -121,7 +121,7 @@ class RealTimeGraph:
                     # Coords are percent
                     text = ax.text(i * (1 / len(graph.findall('metric'))), 0, 'matplotlib', transform=plt.gcf().transFigure)
 
-                    self.tracked_data.append(Metric(line=text, label=metric.get('label'), xml_tag=metric))
+                    self.tracked_data.append(Metric(output=text, label=metric.get('label'), xml_tag=metric))
                     i += 1
 
             else:
@@ -142,7 +142,7 @@ class RealTimeGraph:
 
                     m_line, = ax.plot([], [], color=color, label=metric.get('label'))
 
-                    self.tracked_data.append(Metric(line=m_line, xml_tag=metric))
+                    self.tracked_data.append(Metric(output=m_line, xml_tag=metric))
 
                 if graph.get('legend') == 'yes' or not graph.get('legend'):
                     ax.legend()
@@ -225,13 +225,13 @@ class RealTimeGraph:
 
         # If there is no new data to plot, then exit the function.
         if self.plot_count == self.data_count:
-            return [metric.line for metric in self.tracked_data]
+            return [metric.output for metric in self.tracked_data]
 
         for metric in self.tracked_data:
             try:
-                metric.line.set_data(np.asarray(self.times), np.asarray(metric.data))
+                metric.output.set_data(np.asarray(self.times), np.asarray(metric.data))
             except AttributeError:
-                metric.line.set_text("{}: {}".format(metric.label, str(metric.data[-1])[:5]))
+                metric.output.set_text("{}: {}".format(metric.label, str(metric.data[-1])[:5]))
 
         for ax in self.fig.get_axes():
             try:
@@ -246,7 +246,7 @@ class RealTimeGraph:
 
         self.plot_count += 1
 
-        return [metric.line for metric in self.tracked_data]
+        return [metric.output for metric in self.tracked_data]
 
 
 if __name__ == '__main__':

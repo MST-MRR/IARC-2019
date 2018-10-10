@@ -7,25 +7,25 @@ class Metric:
 
     Parameters
     ----------
-    line: axis
-        The animation line to plot data on
+    output: Line2D(plt animation) or text(plt/ax.text)
+        Where to output data
     func: string, optional A
         The function, as string, to generate values(takes variables x, y, z corresponding to data streams)
     x_stream: string, optional A
-        Data stream for x variable in function
+        Data from drone to serve as x variable in function
     y_stream: string, optional
-        Data stream for y variable in function
+        Data from drone to serve as y variable in function
     z_stream: string, optional
-        Data stream for z variable in function
+        Data from drone to serve as z variable in function
     xml_tag: xml element object, optional B
         The whole metric tag parsed from config to be parsed in metric
     """
 
-    def __init__(self, line, label=None, func=None, x_stream=None, y_stream=None, z_stream=None, xml_tag=None):
-        self._line = line
+    def __init__(self, output, label=None, func=None, x_stream=None, y_stream=None, z_stream=None, xml_tag=None):
+        self._output = output
 
         try:
-            self._label = line.label() if not label else label
+            self._label = output.label() if not label else label
         except AttributeError:
             self._label = None
             
@@ -84,7 +84,7 @@ class Metric:
         self._data = []
 
     @property
-    def line(self):
+    def output(self):
         """
         Line getter.
 
@@ -94,7 +94,7 @@ class Metric:
             The animation line where this metrics data will be plotted
         """
 
-        return self._line
+        return self._output
 
     @property
     def label(self):
