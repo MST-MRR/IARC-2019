@@ -8,7 +8,6 @@ from multiprocessing import Queue
 import queue
 
 from time import sleep, time
-from timer import timeit
 
 from metric import Metric
 
@@ -128,7 +127,6 @@ class RealTimeGraph:
         for thread in threads.values():
             thread.join()
 
-    @timeit
     def read_config(self):
         """
         Reads and interprets the graph config file
@@ -250,7 +248,6 @@ class RealTimeGraph:
             except queue.Empty:
                 pass
 
-    @timeit
     def plot_data(self, frame):
         """
         Plots data
