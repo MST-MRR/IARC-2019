@@ -185,7 +185,7 @@ class RealTimeGraph:
 
                     self.tracked_data.append(Metric(line=m_line, xml_tag=metric))
 
-                if (graph.get('legend') if graph.get('legend') else 'yes') == 'yes':
+                if graph.get('legend') == 'yes' or not graph.get('legend'):
                     ax.legend()
 
     def read_data(self, thread_queue):
@@ -235,15 +235,15 @@ class RealTimeGraph:
                     pass
 
                 for metric in self.tracked_data:
-                    func = metric.get_func
+                    func = metric.func
 
-                    x = data[metric.get_x_stream] if metric.get_x_stream else None
-                    y = data[metric.get_y_stream] if metric.get_y_stream else None
-                    z = data[metric.get_z_stream] if metric.get_z_stream else None
+                    x = data[metric.x_stream] if metric.x_stream else None
+                    y = data[metric.y_stream] if metric.y_stream else None
+                    z = data[metric.z_stream] if metric.z_stream else None
 
                     x_val = func(x, y, z) if z else (func(x, y) if y else func(x))
 
-                    metric.push_data = x_val
+                    metric.push_data(x_val)
                 self.data_count += 1
             except queue.Empty:
                 pass
@@ -266,20 +266,20 @@ class RealTimeGraph:
 
         # If there is no new data to plot, then exit the function.
         if self.plot_count == self.data_count:
-            return [metric.get_line for metric in self.tracked_data]
+            return [metric.line for metric in self.tracked_data]
 
         for metric in self.tracked_data:
             try:
-                metric.get_line.set_data(np.asarray(self.times), np.asarray(metric.get_data))
+                metric.line.set_data(np.asarray(self.times), np.asarray(metric.data))
             except AttributeError:
-                metric.get_line.set_text("{}: {}".format(metric.get_label, str(metric.get_data[-1])[:5]))
+                metric.line.set_text("{}: {}".format(metric.label, str(metric.data[-1])[:5]))
 
         for ax in self.fig.get_axes():
             try:
                 ax.relim()
                 ax.autoscale(axis='y')
             except ValueError as e:
-                print("Caught '{}'!\nPast 10 times: {}\nPast 10 outputs: {}".format(e, self.times[-10:], metric.get_data[-10:]))
+                print("Caught '{}'!\nPast 10 times: {}\nPast 10 outputs: {}".format(e, self.times[-10:], metric.data[-10:]))
 
             current_time = int(self.times[-1])
 
@@ -287,7 +287,7 @@ class RealTimeGraph:
 
         self.plot_count += 1
 
-        return [metric.get_line for metric in self.tracked_data]
+        return [metric.line for metric in self.tracked_data]
 
 
 if __name__ == '__main__':

@@ -10,7 +10,7 @@ class Metric:
     line: axis
         The animation line to plot data on
     func: string, optional A
-        The function to generate values(takes variables x, y, z corresponding to data streams)
+        The function, as string, to generate values(takes variables x, y, z corresponding to data streams)
     x_stream: string, optional A
         Data stream for x variable in function
     y_stream: string, optional
@@ -24,16 +24,19 @@ class Metric:
     def __init__(self, line, label=None, func=None, x_stream=None, y_stream=None, z_stream=None, xml_tag=None):
         self._line = line
 
-        self._label = line.get_label() if not label else label
-
+        try:
+            self._label = line.label() if not label else label
+        except AttributeError:
+            self._label = None
+            
         #
         # Process xml tag
         if xml_tag is not None:
             func = xml_tag.get("func")
 
-            x_stream = xml_tag.get('x_stream')
-            y_stream = xml_tag.get('y_stream')
-            z_stream = xml_tag.get('z_stream')
+            if not x_stream: x_stream = xml_tag.get('x_stream')
+            if not y_stream: y_stream = xml_tag.get('y_stream')
+            if not z_stream: z_stream = xml_tag.get('z_stream')
 
         #
         # Set func
@@ -81,7 +84,7 @@ class Metric:
         self._data = []
 
     @property
-    def get_line(self):
+    def line(self):
         """
         Line getter.
 
@@ -94,7 +97,7 @@ class Metric:
         return self._line
 
     @property
-    def get_label(self):
+    def label(self):
         """
         Label getter.
 
@@ -106,7 +109,7 @@ class Metric:
 
         return self._label
 
-    @get_label.setter
+    @label.setter
     def set_label(self, label):
         """
         Label setter.
@@ -120,7 +123,7 @@ class Metric:
         self._label = label
 
     @property
-    def get_func(self):
+    def func(self):
         """
         Func getter.
 
@@ -133,7 +136,7 @@ class Metric:
         return self._func
 
     @property
-    def get_x_stream(self):
+    def x_stream(self):
         """
         x_stream getter.
 
@@ -146,7 +149,7 @@ class Metric:
         return self._x_stream
 
     @property
-    def get_y_stream(self):
+    def y_stream(self):
         """
         y_stream getter.
 
@@ -159,7 +162,7 @@ class Metric:
         return self._y_stream
 
     @property
-    def get_z_stream(self):
+    def z_stream(self):
         """
         z_stream getter.
 
@@ -171,7 +174,7 @@ class Metric:
 
         return self._z_stream
 
-    @get_x_stream.setter
+    @x_stream.setter
     def set_x_stream(self, stream):
         """
         x_stream setter.
@@ -184,7 +187,7 @@ class Metric:
 
         self._x_stream = stream
 
-    @get_y_stream.setter
+    @y_stream.setter
     def set_y_stream(self, stream):
         """
         y_stream setter.
@@ -197,7 +200,7 @@ class Metric:
 
         self._y_stream = stream
 
-    @get_z_stream.setter
+    @z_stream.setter
     def set_z_stream(self, stream):
         """
         z_stream setter.
@@ -211,7 +214,7 @@ class Metric:
         self._z_stream = stream
 
     @property
-    def get_data(self):
+    def data(self):
         """
         Data getter.
 
@@ -223,7 +226,6 @@ class Metric:
 
         return self._data
 
-    @get_data.setter
     def push_data(self, data_point):
         """
         Data setter.
