@@ -92,6 +92,7 @@ class RealTimeGraph:
 
         # Initializes figure for graphing
         self.fig = plt.figure(figsize=(8, 6))
+        self.fig.canvas.set_window_title('Real Time Graphing')
 
         self.read_config()
 
@@ -139,7 +140,7 @@ class RealTimeGraph:
         root = parse_xml(RealTimeGraph.config_filename).getroot()
 
         # Total number of subplots
-        graph_count = len(root.findall('graph'))
+        graph_count = [graph.get("output") == 'text' for graph in root.findall('graph')].count(False)
 
         nrows = min(graph_count, RealTimeGraph.max_rows)
         ncols = int(graph_count / nrows) + (graph_count % nrows > 0)
@@ -155,27 +156,37 @@ class RealTimeGraph:
                     seen.add(elem)
 
         for graph in root.findall('graph'):
-            color_gen = unique_color_generator([metric.get('color') for metric in graph.findall('metric')])
+            if graph.get('output') == 'text':
+                i = 0
+                for metric in graph.findall('metric'):
+                    # Coords are percent
+                    text = ax.text(i * (1 / len(graph.findall('metric'))), 0, 'matplotlib', transform=plt.gcf().transFigure)
 
-            # Make axis
-            ax = self.fig.add_subplot(nrows, ncols, len(self.fig.get_axes()) + 1)
+                    self.tracked_data.append(Metric(line=text, label=metric.get('label'), xml_tag=metric))
+                    i += 1
 
-            ax.axis([0, 100, 0, 10])
+            else:
+                color_gen = unique_color_generator([metric.get('color') for metric in graph.findall('metric')])
 
-            # Configure the new axis
-            ax.set_title(graph.get('title'))
-            ax.set_xlabel(graph.get('xlabel'))
-            ax.set_ylabel(graph.get('ylabel'))
+                # Make axis
+                ax = self.fig.add_subplot(nrows, ncols, len(self.fig.get_axes()) + 1)
 
-            for metric in graph.findall('metric'):
-                color = metric.get('color') if metric.get('color') else next(color_gen)
+                ax.axis([0, 100, 0, 10])
 
-                m_line, = ax.plot([], [], color=color, label=metric.get('label'))
+                # Configure the new axis
+                ax.set_title(graph.get('title'))
+                ax.set_xlabel(graph.get('xlabel'))
+                ax.set_ylabel(graph.get('ylabel'))
 
-                self.tracked_data.append(Metric(line=m_line, xml_tag=metric))
+                for metric in graph.findall('metric'):
+                    color = metric.get('color') if metric.get('color') else next(color_gen)
 
-            if (graph.get('legend') if graph.get('legend') else 'yes') == 'yes':
-                ax.legend()
+                    m_line, = ax.plot([], [], color=color, label=metric.get('label'))
+
+                    self.tracked_data.append(Metric(line=m_line, xml_tag=metric))
+
+                if (graph.get('legend') if graph.get('legend') else 'yes') == 'yes':
+                    ax.legend()
 
     def read_data(self, thread_queue):
         """
@@ -191,6 +202,10 @@ class RealTimeGraph:
             data = get_demo_data()
             thread_queue.put(data)
 
+            # TODO Ensure data frequency else display text of possible poor data
+            # TODO Make it recognize if points so distant there is probably something wrong
+
+            # Adjust sleep times
             if self.data_count > self.plot_count:
                 self.sleep_time = self.sleep_time + 1e-5
 
@@ -228,6 +243,8 @@ class RealTimeGraph:
             except queue.Empty:
                 pass
 
+
+
     @timeit
     def plot_data(self, frame):
         """
@@ -250,7 +267,10 @@ class RealTimeGraph:
             return [metric.get_line for metric in self.tracked_data]
 
         for metric in self.tracked_data:
-            metric.get_line.set_data(np.asarray(self.times), np.asarray(metric.get_data))
+            try:
+                metric.get_line.set_data(np.asarray(self.times), np.asarray(metric.get_data))
+            except AttributeError:
+                metric.get_line.set_text("{}: {}".format(metric.get_label, str(metric.get_data[-1])[:5]))
 
         for ax in self.fig.get_axes():
             try:

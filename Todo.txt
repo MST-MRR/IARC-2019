@@ -1,12 +1,1 @@
-- Implement text displays
-
-- Not sure how to discard values.
-
-
-
-- Sometimes get error after long time -> ValueError: shape mismatch: objects cannot be broadcast to a single shape
-  Used to break autoscale but not anymore.
-
-- Double check safety checks before the metric function is evaluated(in metric init).
-
-- Make sure get_data function is how it should be
+- Sometimes get error after 10min+ -> ValueError: shape mismatch: objects cannot be broadcast to a single shape

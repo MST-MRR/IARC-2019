@@ -14,4 +14,10 @@
     <metric label="Target" x_stream="target_roll_velocity" func="x"/>
     <metric label="Testeroni" x_stream="pitch" func="x/3"/>
   </graph>
+  <graph output="text">
+    <metric label="voltage" x_stream="voltage" func="x"/>
+    <metric label="TARGET" x_stream="voltage" func="x"/>
+    <metric label="Test 1" x_stream="voltage" func="x"/>
+    <metric label="Test 2" x_stream="voltage" func="x is .3"/>
+  </graph>
 </desiredgraphs>

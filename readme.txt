@@ -15,14 +15,17 @@ before </desiredgraphs>. Each subplot(Must be at least 1) is denoted with a <gra
 individual metrics that take in and process the data.
 Subplot settings:
     title: (optional) The title of the graph.
+    output: (optional) If output is set to 'text', every metric will be displayed at bottom in text form(should only be
+                        one of these at a time.
     xlabel: (optional) The x axis label.
     ylabel: (optional) The y axis label.
     legend: (optional, default='yes') Whether or not to display a legend on the subplot, must be yes to make true.
 
 Metric settings:
-    label: (optional) Title of metric that appears on legend.
+    line: Either the animation line or a piece of text.
+    label: (optional, taken from line if is one) Title of metric that appears on legend.
     func: Function to generate data for graph. Can use variables x, y, z(if a data stream is set for that variable).
-            Can make use of primitive python math functions ie +, -, *, /, (), max, min...
+            Can make use of primitive python math functions ie +, -, *, /, (), max, min... To use boolean must TODO -------------------------------------- >< dont work and must use is
     x_stream: (optional) The data stream to be sent to x variable.
     y_stream: (optional) The data stream to be sent to y variable(x variable must be set first!).
     z_stream: (optional) The data stream to be sent to z variable(x & y variables must be set first!).

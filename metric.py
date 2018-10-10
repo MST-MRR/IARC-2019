@@ -21,13 +21,13 @@ class Metric:
         The whole metric tag parsed from config to be parsed in metric
     """
 
-    def __init__(self, line, func=None, x_stream=None, y_stream=None, z_stream=None, xml_tag=None):
-        assert func or xml_tag is not None, "No function given to metric!"
-
+    def __init__(self, line, label=None, func=None, x_stream=None, y_stream=None, z_stream=None, xml_tag=None):
         self._line = line
 
-        self._label = line.get_label()
+        self._label = line.get_label() if not label else label
 
+        #
+        # Process xml tag
         if xml_tag is not None:
             func = xml_tag.get("func")
 
@@ -35,11 +35,16 @@ class Metric:
             y_stream = xml_tag.get('y_stream')
             z_stream = xml_tag.get('z_stream')
 
+        #
+        # Set func
+        assert func is not None, "No function given to metric!"
+
         # Func safety check
         for letter in func:
-            assert letter in '0123456789 xyz()+-*/%poworand<=>!absintfloat', \
-                "{}: Determined to be potentially unsafe at letter {}.".format(func, letter)
+            assert letter in '.0123456789 xyz()+-*/%orand<is>!absintfloat', \
+                "{}: Determined to be potentially unsafe at letter '{}'.".format(func, letter)
 
+        # Init func
         if 'x' in func:
             assert x_stream, "X in function but no x_stream!"
 
@@ -54,6 +59,8 @@ class Metric:
             else: self._func = lambda x: eval(func)
         else: self._func = lambda: eval(func)
 
+        #
+        # Set data streams
         possible_data_streams = [
             'altitude', 'airspeed', 'velocity_x', 'velocity_y', 'velocity_z', 'voltage', 'state', 'mode', 'armed',
             'roll', 'pitch', 'yaw', 'altitude_controller_output', 'altitude_rc_output', 'target_altitude',
@@ -69,6 +76,8 @@ class Metric:
         self._y_stream = y_stream
         self._z_stream = z_stream
 
+        #
+        # Create data storage
         self._data = []
 
     @property
