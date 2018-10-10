@@ -75,6 +75,8 @@ class RealTimeGraph:
 
     max_rows = 3  # Rows of subplots per column
 
+    data_freq_warning = .5  # If time values are this far apart warn the user
+
     def __init__(self, pan_width=10):
 
         self.pan_width = abs(pan_width)
@@ -202,9 +204,6 @@ class RealTimeGraph:
             data = get_demo_data()
             thread_queue.put(data)
 
-            # TODO Ensure data frequency else display text of possible poor data
-            # TODO Make it recognize if points so distant there is probably something wrong
-
             # Adjust sleep times
             if self.data_count > self.plot_count:
                 self.sleep_time = self.sleep_time + 1e-5
@@ -226,9 +225,17 @@ class RealTimeGraph:
 
         while not self.thread_stop.is_set():
             try:
-                data = thread_queue.get(False, self.sleep_time) 
+                data = thread_queue.get(False, self.sleep_time)
 
                 self.times.append(time() - self.start_time)
+
+                # Checks data frequency to see if poor quality
+                try:
+                    if self.times[-1] > self.times[-2] + RealTimeGraph.data_freq_warning:
+                        print("Data quality: Sucks")
+                except IndexError:
+                    pass
+
                 for metric in self.tracked_data:
                     func = metric.get_func
 
@@ -242,8 +249,6 @@ class RealTimeGraph:
                 self.data_count += 1
             except queue.Empty:
                 pass
-
-
 
     @timeit
     def plot_data(self, frame):
