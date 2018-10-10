@@ -28,9 +28,6 @@ class GUI:
         self.update_Name_btn = Button(self.tab1,text="Click to change Name",command=self.ChangeName)
         self.update_Name_btn.grid(column=2,row=0,columnspan=2)
 
-
-
-
     def updateSettings(self):
         #using the csv for the GUI
         StatusDict = {
