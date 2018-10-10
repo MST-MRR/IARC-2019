@@ -25,7 +25,7 @@ Metric settings:
     line: Either the animation line or a piece of text.
     label: (optional, taken from line if is one) Title of metric that appears on legend.
     func: Function to generate data for graph. Can use variables x, y, z(if a data stream is set for that variable).
-            Can make use of primitive python math functions ie +, -, *, /, (), max, min... To use boolean must TODO -------------------------------------- >< dont work and must use is
+            Can make use of primitive python math functions ie +, -, *, /, (), max, min...
     x_stream: (optional) The data stream to be sent to x variable.
     y_stream: (optional) The data stream to be sent to y variable(x variable must be set first!).
     z_stream: (optional) The data stream to be sent to z variable(x & y variables must be set first!).

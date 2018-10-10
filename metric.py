@@ -41,7 +41,7 @@ class Metric:
 
         # Func safety check
         for letter in func:
-            assert letter in '.0123456789 xyz()+-*/%orand<is>!absintfloat', \
+            assert letter in '.0123456789 xyz()+-*/%absintfloat', \
                 "{}: Determined to be potentially unsafe at letter '{}'.".format(func, letter)
 
         # Init func

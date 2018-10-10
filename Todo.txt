@@ -1,1 +1,3 @@
 - Sometimes get error after 10min+ -> ValueError: shape mismatch: objects cannot be broadcast to a single shape
+
+- Add boolean support without security errors
