@@ -95,7 +95,7 @@ class RealTimeGraph:
         self.fig = plt.figure(figsize=(8, 6))
         self.fig.canvas.set_window_title('Real Time Graphing')
 
-        self.read_config()
+        self.parse_config()
 
         self.ani = animation.FuncAnimation(self.fig, self.plot_data, blit=False, interval=20, repeat=False)
 
@@ -127,7 +127,7 @@ class RealTimeGraph:
         for thread in threads.values():
             thread.join()
 
-    def read_config(self):
+    def parse_config(self):
         """
         Reads and interprets the graph config file
 
