@@ -158,7 +158,7 @@ class RealTimeGraph:
         """
 
         while not self.thread_stop.is_set():
-            data = get_demo_data()
+            data = get_demo_data()  # TODO - Update
             thread_queue.put(data)
 
             # Adjust sleep times
@@ -181,7 +181,7 @@ class RealTimeGraph:
         """
 
         while not self.thread_stop.is_set():
-            try:
+            while not thread_queue.empty():
                 data = thread_queue.get(False, self.sleep_time)
 
                 self.times.append(time() - self.start_time)
@@ -204,8 +204,6 @@ class RealTimeGraph:
 
                     metric.push_data(x_val)
                 self.data_count += 1
-            except queue.Empty:
-                pass
 
     def plot_data(self, frame):
         """

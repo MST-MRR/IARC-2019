@@ -40,7 +40,7 @@ class Metric:
 
         #
         # Set func
-        assert func is not None, "No function given to metric!"
+        assert func is not None, "No function given to metric from xml or as argument!"
 
         # Func safety check
         for letter in func:
