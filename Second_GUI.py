@@ -57,6 +57,20 @@ class GUI:
             
         #Status_List = [Status_lowerTime,Status_upperTime,Status_airSpeed,Status_altitude,Status_pitch,Status_roll,Status_yaw,Status_xVelocity,Status_yVelocity,Status_zVelocity,Status_voltage]
 
+    def generate_check_boxes(self, tab, row):
+        check_box_settings = ["Air Speed", "Altitude", "Pitch", "Roll", "Yaw", "xVelocity", "yVelocity", "zVelocity",
+                              "Voltage"]
+
+        i = 0
+
+        # Chose this format because I don't think we will ever care about individual checkboxes values, only quick
+        # iteration through the list to save
+        for key in check_box_settings:
+            self.check_box_values.append(BooleanVar())
+            self.check_boxes.append(Checkbutton(self.tab1, text=key, var=self.check_box_values[i]))
+
+            self.check_boxes[-1].grid(column=i, row=1)
+            i += 1
             
     def __init__(self):
         #Defining the properties for the window
@@ -113,32 +127,11 @@ class GUI:
         # Setup check mark buttons
 
         # Each requires tab, text, variable, grid x & y
-        self.air_speed_chk= Checkbutton(self.tab1,text="Air Speed",var=self.check_air_speed)
-        self.air_speed_chk.grid(column=0, row=1)
 
-        self.altitude_chk= Checkbutton(self.tab1,text="Altitude",var=self.check_altitude)
-        self.altitude_chk.grid(column=1, row=1)
+        self.check_boxes = []
+        self.check_box_values = []
 
-        self.pitch_chk= Checkbutton(self.tab1,text="Pitch",var=self.check_pitch)
-        self.pitch_chk.grid(column=2, row=1)
-
-        self.roll_chk= Checkbutton(self.tab1,text="Roll",var=self.check_roll)
-        self.roll_chk.grid(column=3, row=1)
-
-        self.yaw_chk= Checkbutton(self.tab1,text="Yaw",var=self.check_yaw)
-        self.yaw_chk.grid(column=4, row=1)
-
-        self.xVelocity_chk= Checkbutton(self.tab1,text="xVelocity",var=self.check_xVelocity)
-        self.xVelocity_chk.grid(column=5, row=1)
-
-        self.yVelocity_chk= Checkbutton(self.tab1,text="yVelocity",var=self.check_yVelocity)
-        self.yVelocity_chk.grid(column=6, row=1)
-
-        self.zVelocity_chk= Checkbutton(self.tab1,text="zVelocity",var=self.check_zVelocity)
-        self.zVelocity_chk.grid(column=7, row=1)
-
-        self.voltage_chk= Checkbutton(self.tab1,text="Voltage",var=self.check_voltage)
-        self.voltage_chk.grid(column=8, row=1)
+        self.generate_check_boxes(self.tab1, row=1)
 
         #
         # Time interval settings
