@@ -1,46 +1,52 @@
-
 from tkinter import *
 from tkinter import ttk
 import csv
 
 
 class GraphSettings:
-    def __init__(self, tab):
+    rows_per_graph = 3
+
+    def __init__(self, tab, graph_num):
         self.tab = tab
 
+        self.graph_num = graph_num
+
+        self.row_offset = self.graph_num * GraphSettings.rows_per_graph
+
+        self.name = "Graph{}".format(self.graph_num)
+
         # Header - Graph name
-        self.name = "Graph1"
         self.grph_lbl = Label(self.tab, text=self.name, font=("Arial Bold", 15))  # graph label
-        self.grph_lbl.grid(column=0, row=0, columnspan=2)
+        self.grph_lbl.grid(column=0, row=self.row_offset, columnspan=2)
 
         # Update header
         self.update_Name_btn = Button(self.tab, text="Click to change Name", command=self.ChangeName)
-        self.update_Name_btn.grid(column=2, row=0, columnspan=2)
+        self.update_Name_btn.grid(column=2, row=self.row_offset, columnspan=2)
 
         #
         # Setup check mark buttons
         self.check_boxes = []
         self.check_box_values = {}
 
-        self.generate_check_boxes(self.tab, 1)
+        self.generate_check_boxes(self.tab, self.row_offset + 1)
 
         #
         # Time interval settings
         self.lowerTime_lbl = Label(self.tab, text="Time interval(seconds) Lower:")
-        self.lowerTime_lbl.grid(column=0, row=2, columnspan=2)
+        self.lowerTime_lbl.grid(column=0, row=self.row_offset + 2, columnspan=2)
 
         self.lowerTime_chk = Entry(self.tab, width=5)
-        self.lowerTime_chk.grid(column=2, row=2)
+        self.lowerTime_chk.grid(column=2, row=self.row_offset + 2)
 
         self.upperTime_lbl = Label(self.tab, text="Upper:")
-        self.upperTime_lbl.grid(column=3, row=2)
+        self.upperTime_lbl.grid(column=3, row=self.row_offset + 2)
 
         self.upperTime_chk = Entry(self.tab, width=5)
-        self.upperTime_chk.grid(column=4, row=2)
+        self.upperTime_chk.grid(column=4, row=self.row_offset + 2)
 
         update_grph_btn = Button(self.tab, text="Click to Update Section",
                                  command=self.updateSettings)  # Button to update
-        update_grph_btn.grid(column=4, row=0, columnspan=2)
+        update_grph_btn.grid(column=4, row=self.row_offset, columnspan=2)
 
     def updateSettings(self):
         # using the csv for the GUI
@@ -73,12 +79,12 @@ class GraphSettings:
         self.grph_lbl.destroy()
 
         self.newName_box = Entry(self.tab, width=20)
-        self.newName_box.grid(column=0, row=0, columnspan=2)
+        self.newName_box.grid(column=0, row=self.row_offset, columnspan=2)
 
         self.update_Name_btn.destroy()
 
         self.submit_btn = Button(self.tab, text="Submit", command=self.RealChange)
-        self.submit_btn.grid(column=2, row=0, columnspan=2)
+        self.submit_btn.grid(column=2, row=self.row_offset, columnspan=2)
 
     def RealChange(self):
         self.name = self.newName_box.get()
@@ -87,10 +93,10 @@ class GraphSettings:
         self.submit_btn.destroy()
 
         self.grph_lbl= Label(self.tab, text=self.name, font=("Arial Bold", 15))#graph label
-        self.grph_lbl.grid(column=0, row=0, columnspan=2)
+        self.grph_lbl.grid(column=0, row=self.row_offset, columnspan=2)
 
         self.update_Name_btn = Button(self.tab, text="Click to change Name", command=self.ChangeName)
-        self.update_Name_btn.grid(column=2, row=0, columnspan=2)
+        self.update_Name_btn.grid(column=2, row=self.row_offset, columnspan=2)
 
 
 class GUI:
@@ -115,7 +121,9 @@ class GUI:
         #
         # Per graph implementation
         self.graphs = []
-        self.graphs.append(GraphSettings(self.tab1))
+
+        for i in range(2):
+            self.graphs.append(GraphSettings(self.tab1, i))
 
         #
         # Display window
