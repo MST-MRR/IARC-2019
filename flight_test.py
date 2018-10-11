@@ -108,4 +108,48 @@ def to_quaternion(roll = 0.0, pitch = 0.0, yaw = 0.0):
 
     return [w, x, y, z]
 
+
+def arm_and_takeoff_nogps(aTargetAltitude):
+    """
+    Arms vehicle and fly to aTargetAltitude without GPS data.
+    """
+
+    ##### CONSTANTS #####
+    DEFAULT_TAKEOFF_THRUST = 0.7
+    SMOOTH_TAKEOFF_THRUST = 0.6
+
+    print("Basic pre-arm checks")
+    # Don't let the user try to arm until autopilot is ready
+    # If you need to disable the arming check,
+    # just comment it with your own responsibility.
+    while not vehicle.is_armable:
+        print(" Waiting for vehicle to initialise...")
+        time.sleep(1)
+
+
+    print("Arming motors")
+    # Copter should arm in GUIDED_NOGPS mode
+    vehicle.mode = VehicleMode("GUIDED_NOGPS")
+    vehicle.armed = True
+
+    while not vehicle.armed:
+        print(" Waiting for arming...")
+        vehicle.armed = True
+        time.sleep(1)
+
+    print("Taking off!")
+
+    thrust = DEFAULT_TAKEOFF_THRUST
+    while True:
+        current_altitude = vehicle.location.global_relative_frame.alt
+        print(" Altitude: %f  Desired: %f" %
+              (current_altitude, aTargetAltitude))
+        if current_altitude >= aTargetAltitude*0.95: # Trigger just below target alt.
+            print("Reached target altitude")
+            break
+        elif current_altitude >= aTargetAltitude*0.6:
+            thrust = SMOOTH_TAKEOFF_THRUST
+        set_attitude(thrust = thrust)
+        time.sleep(0.2)
+
 test_flight()
