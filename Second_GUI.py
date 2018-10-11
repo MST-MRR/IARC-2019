@@ -34,22 +34,12 @@ class GUI:
         self.update_Name_btn.grid(column=2,row=0,columnspan=2)
 
     def updateSettings(self):
-        #using the csv for the GUI
+        # using the csv for the GUI
 
-        StatusDict = {
-            "Status_GraphName" : self.name,
-            "Status_lowerTime" : self.lowerTime_chk.get(),
-            "Status_upperTime" : self.upperTime_chk.get(),
-            "Status_airSpeed" : self.Update(self.check_air_speed),
-            "Status_altitude" : self.Update(self.check_altitude),
-            "Status_pitch" : self.Update(self.check_pitch),
-            "Status_roll" : self.Update(self.check_roll),
-            "Status_yaw" : self.Update(self.check_yaw),
-            "Status_xVelocity" : self.Update(self.check_xVelocity),
-            "Status_yVelocity" : self.Update(self.check_yVelocity),
-            "Status_zVelocity" : self.Update(self.check_zVelocity),
-            "Status_voltage" : self.Update(self.check_voltage)
-        }
+        StatusDict = {"Status_GraphName" : self.name, "Status_lowerTime" : self.lowerTime_chk.get(),
+                      "Status_upperTime" : self.upperTime_chk.get()}
+
+        StatusDict.update({"Status_{}".format(key): self.Update(value) for key, value in self.check_box_values.items()})
 
         with open(GUI.settings_file, 'w') as g:
             for key, value in StatusDict.items():
@@ -66,10 +56,12 @@ class GUI:
         # Chose this format because I don't think we will ever care about individual checkboxes values, only quick
         # iteration through the list to save
         for key in check_box_settings:
-            self.check_box_values.append(BooleanVar())
-            self.check_boxes.append(Checkbutton(self.tab1, text=key, var=self.check_box_values[i]))
+            reference_key = key
 
-            self.check_boxes[-1].grid(column=i, row=1)
+            self.check_box_values.update({reference_key: BooleanVar()})
+            self.check_boxes.append(Checkbutton(tab, text=key, var=self.check_box_values[reference_key]))
+
+            self.check_boxes[-1].grid(column=i, row=row)
             i += 1
             
     def __init__(self):
@@ -110,6 +102,7 @@ class GUI:
         update_grph_btn= Button(self.tab1,text="Click to Update Section",command=self.updateSettings)#Button to update
         update_grph_btn.grid(column=4,row=0,columnspan=2)
 
+        """
         #The variables to read if each are checked or not
         self.check_air_speed = BooleanVar()
         self.check_altitude = BooleanVar()
@@ -120,6 +113,7 @@ class GUI:
         self.check_yVelocity = BooleanVar()
         self.check_zVelocity = BooleanVar()
         self.check_voltage = BooleanVar()
+        """
 
         #All the check mark Buttons
 
@@ -129,9 +123,9 @@ class GUI:
         # Each requires tab, text, variable, grid x & y
 
         self.check_boxes = []
-        self.check_box_values = []
+        self.check_box_values = {}
 
-        self.generate_check_boxes(self.tab1, row=1)
+        self.generate_check_boxes(self.tab1, 1)
 
         #
         # Time interval settings
