@@ -33,28 +33,15 @@ def test_flight():
     ''' This is a generic flight testing function that does something.
     '''
     vehicle = connect()
-    arm(vehicle)
 
     print("Taking off")
     aTargetAltitude = 1
     thrust = DEFAULT_TAKEOFF_THRUST
 
+    arm_and_takeoff_nogps(vehicle, 2)
 
-    # Here is the Main Loop
-    while True:
-        current_altitude = vehicle.location.global_relative_frame.alt # Get the drone's current altitude
-        print(" Altitude: %f  Desired: %f" % (current_altitude, aTargetAltitude))
-
-        if current_altitude >= aTargetAltitude*0.95: # Trigger just below target alt.
-            print("Reached target altitude")
-            thrust = 0.5
-            break
-        elif current_altitude >= aTargetAltitude*0.6:
-            thrust = SMOOTH_TAKEOFF_THRUST
-        set_attitude(vehicle, roll_angle = -5, thrust = thrust)
-        time.sleep(0.2)
-
-    vehicle.VehicleMode = VehicleMode("LAND")
+    while (not vehicle.mode == VehicleMode("LAND")):
+        vehicle.mode = VehicleMode("LAND")
 
 def set_attitude(vehicle, roll_angle = 0.0, pitch_angle = 0.0, yaw_rate = 0.0, thrust = 0.5, duration = 0):
     """
@@ -109,7 +96,7 @@ def to_quaternion(roll = 0.0, pitch = 0.0, yaw = 0.0):
     return [w, x, y, z]
 
 
-def arm_and_takeoff_nogps(aTargetAltitude):
+def arm_and_takeoff_nogps(vehicle, aTargetAltitude):
     """
     Arms vehicle and fly to aTargetAltitude without GPS data.
     """
@@ -122,10 +109,11 @@ def arm_and_takeoff_nogps(aTargetAltitude):
     # Don't let the user try to arm until autopilot is ready
     # If you need to disable the arming check,
     # just comment it with your own responsibility.
+    '''
     while not vehicle.is_armable:
         print(" Waiting for vehicle to initialise...")
         time.sleep(1)
-
+    '''
 
     print("Arming motors")
     # Copter should arm in GUIDED_NOGPS mode
@@ -149,7 +137,7 @@ def arm_and_takeoff_nogps(aTargetAltitude):
             break
         elif current_altitude >= aTargetAltitude*0.6:
             thrust = SMOOTH_TAKEOFF_THRUST
-        set_attitude(thrust = thrust)
+        set_attitude(vehicle, thrust = thrust)
         time.sleep(0.2)
 
 test_flight()
