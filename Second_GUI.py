@@ -44,9 +44,6 @@ class GraphSettings:
         self.upperTime_chk = Entry(self.tab, width=5)
         self.upperTime_chk.grid(column=4, row=self.row_offset + 2)
 
-        self.update_grph_btn = Button(self.tab, text="Click to Update Section", command=self.updateSettings)
-        self.update_grph_btn.grid(column=4, row=self.row_offset, columnspan=2)
-
     def updateSettings(self):
         # using the csv for the GUI
 
@@ -122,9 +119,31 @@ class GUI:
             self.graphs.append(GraphSettings(self.tab1, i))
 
         #
+        # Update Button
+        self.update_grph_btn = Button(self.tab1, text="Click to Update Section",
+                                 command=self.super_update)  # Button to update
+        self.update_grph_btn.grid(column=4, row=0, columnspan=2)
+
+        #
         # Display window
         tab_control.pack(expand=1, fill='both')#should be near the end?
         window.mainloop()#this needs to be at the end
+
+
+
+    def super_update(self):
+        # using the csv for the GUI
+        with open(GUI.settings_file, 'w') as g:
+            for graph in self.graphs:
+                StatusDict = {"Status_GraphName": graph.name, "Status_lowerTime": graph.lowerTime_chk.get(),
+                            "Status_upperTime": graph.upperTime_chk.get()}
+
+                StatusDict.update({"Status_{}".format(key): 1 if value.get() else 0 for key, value in graph.check_box_values.items()})
+
+            
+                for key, value in StatusDict.items():
+                    g.write("{} = {}\n".format(key, str(value)))
+
 
 
 if __name__ == "__main__":
