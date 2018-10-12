@@ -7,8 +7,6 @@ class GraphSettings:
     rows_per_graph = 3
 
     def __init__(self, tab, graph_num):
-        self.set_name = False
-
         self.tab = tab
 
         self.graph_num = graph_num
@@ -22,7 +20,7 @@ class GraphSettings:
         self.grph_lbl.grid(column=0, row=self.row_offset, columnspan=2)
 
         # Update header
-        self.update_Name_btn = Button(self.tab, text="Click to change Name", command=self.ChangeName)
+        self.update_Name_btn = Button(self.tab, text="Change Name", command=self.ChangeName)
         self.update_Name_btn.grid(column=2, row=self.row_offset, columnspan=2)
 
         #
@@ -46,8 +44,7 @@ class GraphSettings:
         self.upperTime_chk = Entry(self.tab, width=5)
         self.upperTime_chk.grid(column=4, row=self.row_offset + 2)
 
-        self.update_grph_btn = Button(self.tab, text="Click to Update Section",
-                                 command=self.updateSettings)  # Button to update
+        self.update_grph_btn = Button(self.tab, text="Click to Update Section", command=self.updateSettings)
         self.update_grph_btn.grid(column=4, row=self.row_offset, columnspan=2)
 
     def updateSettings(self):
@@ -78,17 +75,15 @@ class GraphSettings:
             i += 1
 
     def ChangeName(self):
-        if self.set_name:
+        if isinstance(self.grph_lbl, Entry):
             self.name = self.grph_lbl.get()
 
             self.grph_lbl.destroy()
-            self.submit_btn.destroy()
 
             self.grph_lbl = Label(self.tab, text=self.name, font=("Arial Bold", 15))  # graph label
             self.grph_lbl.grid(column=0, row=self.row_offset, columnspan=2)
 
-            self.update_Name_btn = Button(self.tab, text="Click to change Name", command=self.ChangeName)
-            self.update_Name_btn.grid(column=2, row=self.row_offset, columnspan=2)
+            self.update_Name_btn['text'] = "Change Name"
 
         else:
             self.grph_lbl.destroy()
@@ -96,15 +91,11 @@ class GraphSettings:
             self.grph_lbl = Entry(self.tab, width=20)
             self.grph_lbl.grid(column=0, row=self.row_offset, columnspan=2)
 
-            self.update_Name_btn.destroy()
-
-            self.submit_btn = Button(self.tab, text="Submit", command=self.ChangeName)
-            self.submit_btn.grid(column=2, row=self.row_offset, columnspan=2)
-
-        self.set_name = not self.set_name
+            self.update_Name_btn['text'] = "Submit"
 
 
 class GUI:
+    # TODO - respond to change in graph
     settings_file = "GUI_Settings.csv"
 
     def __init__(self):
