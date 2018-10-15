@@ -1,5 +1,7 @@
 # Wraps around 2DLine object
 
+from math import *
+
 
 class Metric:
     """
@@ -44,7 +46,7 @@ class Metric:
 
         # Func safety check
         for letter in func:
-            assert letter in '.0123456789 xyz()+-*/%absintfloat', \
+            assert letter in '.0123456789 xyz()+-*/%absintfloatsincostanh', \
                 "{}: Determined to be potentially unsafe at letter '{}'.".format(func, letter)
 
         # Init func
