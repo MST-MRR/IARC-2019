@@ -26,6 +26,8 @@ class GraphSettings:
 
         self.row_offset = self.graph_num * GraphSettings.rows_per_graph
 
+        self.height = GraphSettings.rows_per_graph
+
         self.name = "Graph{}".format(self.graph_num)
 
         #
@@ -58,13 +60,10 @@ class GraphSettings:
 
         self.items['upperTime_chk'] = Entry(self.tab, width=5)
 
-        self.set_grid()
-
     def set_grid(self, row_offset=None):
         if row_offset: self.row_offset = row_offset
 
         rolling_offset = self.row_offset  # If checkboxes take extra lines, the lines underneath will drop one
-                            # TODO - Make way to communicate this to below graphs
 
         for key, value in self.items.items():
             if key in self.item_locations:
@@ -81,6 +80,8 @@ class GraphSettings:
                 else:
                     value.grid(column=grid_values[0], row=rolling_offset + grid_values[1],
                                columnspan=grid_values[2] if len(grid_values) > 2 else 1)
+
+        self.height = rolling_offset + 3
 
     def generate_check_boxes(self, tab, row):
         check_box_settings = ["Air Speed", "Altitude", "Pitch", "Roll", "Yaw", "xVelocity", "yVelocity", "zVelocity",
@@ -113,6 +114,7 @@ class GraphSettings:
 
 
 class GUI:
+
     # Config output files
     settings_file = "GUI_Settings.csv"
 
@@ -141,7 +143,7 @@ class GUI:
         # Create initial graphs
         self.graphs = [GraphSettings(self.tab1, i) for i in range(2)]
 
-        self.graphs[0].set_grid(12)
+        self.update_offsets()
 
         #
         # Global Buttons
@@ -157,6 +159,18 @@ class GUI:
         # Display window
         tab_control.pack(expand=1, fill='both')#should be near the end?
         window.mainloop()#this needs to be at the end
+
+    def update_offsets(self):
+        curr_offset = 0
+
+        for graph in self.graphs:
+            graph.row_offset = curr_offset
+
+            graph.set_grid()
+
+            print(graph.height)
+
+            curr_offset += graph.height
 
     def save(self):
         # using the csv for the GUI
