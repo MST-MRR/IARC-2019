@@ -4,7 +4,9 @@ import csv
 
 
 class GraphSettings:
-    rows_per_graph = 3
+    rows_per_graph = 3  # Baseline how many rows per graph
+
+    checkbox_width = 3  # How many checkboxes allowed per line
 
     def __init__(self, tab, graph_num):
         # TODO - Work on design of gui
@@ -29,7 +31,8 @@ class GraphSettings:
         #
         # Items
         self.item_locations = {'grph_lbl': (0, 0, 2), 'update_Name_btn': (2, 0, 2), 'lowerTime_lbl': (0, 2, 2),
-                                'lowerTime_chk': (2, 2), 'upperTime_lbl': (3, 2), 'upperTime_chk': (4, 2)}
+                                'lowerTime_chk': (2, 2), 'upperTime_lbl': (3, 2), 'upperTime_chk': (4, 2),
+                                'check_boxes': (1)}
 
         self.items = dict()
 
@@ -57,28 +60,37 @@ class GraphSettings:
 
         self.set_grid()
 
-    def set_grid(self):
+    def set_grid(self, row_offset=None):
+        if row_offset: self.row_offset = row_offset
+
+        rolling_offset = self.row_offset  # If checkboxes take extra lines, the lines underneath will drop one
+                            # TODO - Make way to communicate this to below graphs
+
         for key, value in self.items.items():
             if key in self.item_locations:
                 grid_values = self.item_locations[key]
 
-                value.grid(column=grid_values[0], row=self.row_offset + grid_values[1],
-                           columnspan=grid_values[2] if len(grid_values) > 2 else 1)
+                if type(value) is list:
+                    i = 0
+                    for value_value in value:
+                        if int(i / GraphSettings.checkbox_width) == i / GraphSettings.checkbox_width and i / GraphSettings.checkbox_width > 0:
+                            rolling_offset += 1
+
+                        value_value.grid(column=i % GraphSettings.checkbox_width, row=rolling_offset + grid_values)
+                        i += 1
+                else:
+                    value.grid(column=grid_values[0], row=rolling_offset + grid_values[1],
+                               columnspan=grid_values[2] if len(grid_values) > 2 else 1)
 
     def generate_check_boxes(self, tab, row):
         check_box_settings = ["Air Speed", "Altitude", "Pitch", "Roll", "Yaw", "xVelocity", "yVelocity", "zVelocity",
                               "Voltage"]
-
-        i = 0
 
         # Chose this format because I don't think we will ever care about individual checkboxes values, only quick
         # iteration through the list to save
         for key in check_box_settings:
             self.check_box_values.update({key: BooleanVar()})
             self.items['check_boxes'].append(Checkbutton(tab, text=key, var=self.check_box_values[key]))
-
-            self.items['check_boxes'][-1].grid(column=i, row=row)
-            i += 1
 
     def ChangeName(self):
         if isinstance(self.grph_lbl, Entry):
@@ -128,6 +140,8 @@ class GUI:
         #
         # Create initial graphs
         self.graphs = [GraphSettings(self.tab1, i) for i in range(2)]
+
+        self.graphs[0].set_grid(12)
 
         #
         # Global Buttons
