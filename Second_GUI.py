@@ -179,8 +179,8 @@ class GUI:
         # using the csv for the GUI
         with open(GUI.settings_file, 'w') as g:
             for graph in self.graphs:
-                output = {"Status_GraphName": graph.name, "Status_lowerTime": graph.lowerTime_chk.get(),
-                          "Status_upperTime": graph.upperTime_chk.get()}
+                output = {"Status_GraphName": graph.name, "Status_lowerTime": graph.items['lowerTime_chk'].get(),
+                          "Status_upperTime": graph.items['upperTime_chk'].get()}
 
                 output.update({"Status_{}".format(key): 1 if value.get() else 0 for key, value in graph.check_box_values.items()})
 
