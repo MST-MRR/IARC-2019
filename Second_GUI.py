@@ -17,7 +17,7 @@ class GraphSettings:
 
         # TODO - Pull possible(hardcoded) metrics from file and put into checkboxes
 
-        # TODO - Make checkboxes get pushed down a line if necessary
+        # TODO - Add metric button
 
         #
         # Settings
@@ -32,25 +32,23 @@ class GraphSettings:
 
         #
         # Items
-        self.item_locations = {'grph_lbl': (0, 0, 2), 'update_Name_btn': (2, 0, 2), 'lowerTime_lbl': (0, 2, 2),
-                                'lowerTime_chk': (2, 2), 'upperTime_lbl': (3, 2), 'upperTime_chk': (4, 2),
-                                'check_boxes': (1)}
+        self.item_locations = {'title': (0, 0, 2), 'update_title': (2, 0, 2), 'lowerTime_lbl': (0, 2, 2),
+                               'lowerTime_chk': (2, 2), 'upperTime_lbl': (3, 2), 'upperTime_chk': (4, 2),
+                               'check_boxes': (1)}
 
         self.items = dict()
 
-        self.items['grph_lbl'] = Label(self.tab, text=self.name, font=("Arial Bold", 15))  # graph label
+        # Header
+        self.items['title'] = Label(self.tab, text=self.name, font=("Arial Bold", 15))
 
-        # Update header
-        self.items['update_Name_btn'] = Button(self.tab, text="Change Name", command=self.ChangeName)
+        self.items['update_title'] = Button(self.tab, text="Change Name", command=self.update_title)
 
-        #
         # Setup check mark buttons
         self.items['check_boxes'] = []
         self.check_box_values = {}
 
-        self.generate_check_boxes(self.tab, self.row_offset + 1)
+        self.generate_check_boxes()
 
-        #
         # Time interval settings
         self.items['lowerTime_lbl'] = Label(self.tab, text="Time interval(seconds) Lower:")
 
@@ -70,47 +68,48 @@ class GraphSettings:
                 grid_values = self.item_locations[key]
 
                 if type(value) is list:
-                    i = 0
-                    for value_value in value:
-                        if int(i / GraphSettings.checkbox_width) == i / GraphSettings.checkbox_width and i / GraphSettings.checkbox_width > 0:
-                            rolling_offset += 1
+                    for i in range(len(value)):
+                        value[i].grid(column=i % GraphSettings.checkbox_width,
+                                      row=rolling_offset + grid_values + int(i / GraphSettings.checkbox_width))
 
-                        value_value.grid(column=i % GraphSettings.checkbox_width, row=rolling_offset + grid_values)
-                        i += 1
+                    rolling_offset += int(len(value) / GraphSettings.checkbox_width)
                 else:
                     value.grid(column=grid_values[0], row=rolling_offset + grid_values[1],
                                columnspan=grid_values[2] if len(grid_values) > 2 else 1)
 
-        self.height = rolling_offset + 3
+        self.height = rolling_offset + GraphSettings.rows_per_graph
 
-    def generate_check_boxes(self, tab, row):
-        check_box_settings = ["Air Speed", "Altitude", "Pitch", "Roll", "Yaw", "xVelocity", "yVelocity", "zVelocity",
+    def pull_check_box_settings(self):
+        return ["Air Speed", "Altitude", "Pitch", "Roll", "Yaw", "xVelocity", "yVelocity", "zVelocity",
                               "Voltage"]
+
+    def generate_check_boxes(self):
+        check_box_settings = self.pull_check_box_settings()
 
         # Chose this format because I don't think we will ever care about individual checkboxes values, only quick
         # iteration through the list to save
         for key in check_box_settings:
             self.check_box_values.update({key: BooleanVar()})
-            self.items['check_boxes'].append(Checkbutton(tab, text=key, var=self.check_box_values[key]))
+            self.items['check_boxes'].append(Checkbutton(self.tab, text=key, var=self.check_box_values[key]))
 
-    def ChangeName(self):
-        if isinstance(self.grph_lbl, Entry):
-            self.name = self.grph_lbl.get()
+    def update_title(self):
+        if isinstance(self.items['title'], Entry):
+            self.name = self.items['title'].get()
 
-            self.grph_lbl.destroy()
+            self.items['title'].destroy()
 
-            self.grph_lbl = Label(self.tab, text=self.name, font=("Arial Bold", 15))  # graph label
-            self.grph_lbl.grid(column=0, row=self.row_offset, columnspan=2)
+            self.items['title'] = Label(self.tab, text=self.name, font=("Arial Bold", 15))  # graph label
 
-            self.update_Name_btn['text'] = "Change Name"
+            self.items['update_title']['text'] = "Change Name"
 
         else:
-            self.grph_lbl.destroy()
+            self.items['title'].destroy()
 
-            self.grph_lbl = Entry(self.tab, width=20)
-            self.grph_lbl.grid(column=0, row=self.row_offset, columnspan=2)
+            self.items['title'] = Entry(self.tab, width=20)
 
-            self.update_Name_btn['text'] = "Submit"
+            self.items['update_title']['text'] = "Submit"
+
+        self.set_grid()
 
 
 class GUI:
@@ -119,7 +118,7 @@ class GUI:
     settings_file = "GUI_Settings.csv"
 
     def __init__(self):
-        # TODO - pull old settings into window if possible
+        # TODO - pull old settings into window
 
         #
         # Window setup
@@ -129,12 +128,15 @@ class GUI:
 
         #
         # Separate tabs
-        tab_control = ttk.Notebook(window)
+        self.tab_control = ttk.Notebook(window)
 
-        self.tab1 = ttk.Frame(tab_control)
-        self.tab2 = ttk.Frame(tab_control)
-        tab_control.add(self.tab1, text='Live Graphing Settings')
-        tab_control.add(self.tab2, text='After-The-Fact Graphing Settings')
+        self.tab1 = ttk.Frame(self.tab_control)
+        self.tab2 = ttk.Frame(self.tab_control)
+
+        self.tab_control.add(self.tab1, text='Live Graphing Settings')
+        self.tab_control.add(self.tab2, text='After-The-Fact Graphing Settings')
+
+        self.tab_control.pack(expand=1, fill='both')
 
         # TODO - Make know what tab is currently being looked at and save to according file & apply global functions
         #           only to that tab
@@ -157,18 +159,13 @@ class GUI:
 
         #
         # Display window
-        tab_control.pack(expand=1, fill='both')#should be near the end?
-        window.mainloop()#this needs to be at the end
+        window.mainloop()
 
     def update_offsets(self):
         curr_offset = 0
 
         for graph in self.graphs:
-            graph.row_offset = curr_offset
-
-            graph.set_grid()
-
-            print(graph.height)
+            graph.set_grid(curr_offset)
 
             curr_offset += graph.height
 
@@ -176,12 +173,12 @@ class GUI:
         # using the csv for the GUI
         with open(GUI.settings_file, 'w') as g:
             for graph in self.graphs:
-                StatusDict = {"Status_GraphName": graph.name, "Status_lowerTime": graph.lowerTime_chk.get(),
-                              "Status_upperTime": graph.upperTime_chk.get()}
+                output = {"Status_GraphName": graph.name, "Status_lowerTime": graph.lowerTime_chk.get(),
+                          "Status_upperTime": graph.upperTime_chk.get()}
 
-                StatusDict.update({"Status_{}".format(key): 1 if value.get() else 0 for key, value in graph.check_box_values.items()})
+                output.update({"Status_{}".format(key): 1 if value.get() else 0 for key, value in graph.check_box_values.items()})
 
-                for key, value in StatusDict.items():
+                for key, value in output.items():
                     g.write("{} = {}\n".format(key, str(value)))
 
                 g.write("\n")
