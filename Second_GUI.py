@@ -31,12 +31,15 @@ class GraphSettings:
         self.name = "Graph{}".format(self.graph_num)
 
         #
-        # Items
+        # Item config
         self.item_locations = {'title': (0, 0, 2), 'update_title': (2, 0, 2), 'lowerTime_lbl': (0, 2, 2),
                                'lowerTime_chk': (2, 2), 'upperTime_lbl': (3, 2), 'upperTime_chk': (4, 2),
                                'check_boxes': (1)}
 
         self.items = dict()
+
+        def add_item(name, loc):
+            pass
 
         # Header
         self.items['title'] = Label(self.tab, text=self.name, font=("Arial Bold", 15))
@@ -72,7 +75,7 @@ class GraphSettings:
                         value[i].grid(column=i % GraphSettings.checkbox_width,
                                       row=rolling_offset + grid_values + int(i / GraphSettings.checkbox_width))
 
-                    rolling_offset += int(len(value) / GraphSettings.checkbox_width)
+                    rolling_offset += int(len(value) / GraphSettings.checkbox_width) - 1
                 else:
                     value.grid(column=grid_values[0], row=rolling_offset + grid_values[1],
                                columnspan=grid_values[2] if len(grid_values) > 2 else 1)
@@ -80,14 +83,11 @@ class GraphSettings:
         self.height = rolling_offset + GraphSettings.rows_per_graph
 
     def pull_check_box_settings(self):
-        return ["Air Speed", "Altitude", "Pitch", "Roll", "Yaw", "xVelocity", "yVelocity", "zVelocity",
-                              "Voltage"]
+        return ["Air Speed", "Altitude", "Pitch", "Roll", "Yaw", "xVelocity", "yVelocity", "zVelocity", "Voltage"]
 
     def generate_check_boxes(self):
         check_box_settings = self.pull_check_box_settings()
 
-        # Chose this format because I don't think we will ever care about individual checkboxes values, only quick
-        # iteration through the list to save
         for key in check_box_settings:
             self.check_box_values.update({key: BooleanVar()})
             self.items['check_boxes'].append(Checkbutton(self.tab, text=key, var=self.check_box_values[key]))
@@ -125,6 +125,9 @@ class GUI:
         window = Tk()
         window.title("Multirotor Robot Data Graphing Tool")
         window.geometry('750x500')
+
+        icon = PhotoImage(file='ninja_icon.gif')
+        window.tk.call('wm', 'iconphoto', window._w, icon)
 
         #
         # Separate tabs
@@ -170,6 +173,9 @@ class GUI:
             curr_offset += graph.height
 
     def save(self):
+
+        # TODO - Format saving into xml
+
         # using the csv for the GUI
         with open(GUI.settings_file, 'w') as g:
             for graph in self.graphs:
