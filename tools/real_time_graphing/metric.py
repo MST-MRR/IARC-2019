@@ -1,4 +1,4 @@
-# Wraps around 2DLine object
+# Wraps around 2DLine/plt.text object
 
 from math import *
 
@@ -11,34 +11,30 @@ class Metric:
     ----------
     output: Line2D(plt animation) or text(plt/ax.text)
         Where to output data
-    func: string, optional A
+    func: string
         The function, as string, to generate values(takes variables x, y, z corresponding to data streams)
-    x_stream: string, optional A
+    x_stream: string, optional unless x used in func
         Data from drone to serve as x variable in function
-    y_stream: string, optional
+    y_stream: string, optional unless y used in func
         Data from drone to serve as y variable in function
-    z_stream: string, optional
+    z_stream: string, optional unless z used in func
         Data from drone to serve as z variable in function
-    xml_tag: xml element object, optional B
-        The whole metric tag parsed from config to be parsed in metric
     """
 
-    def __init__(self, output, label=None, func=None, x_stream=None, y_stream=None, z_stream=None, xml_tag=None):
+    possible_data_streams = [
+        'altitude', 'airspeed', 'velocity_x', 'velocity_y', 'velocity_z', 'voltage', 'state', 'mode', 'armed',
+        'roll', 'pitch', 'yaw', 'altitude_controller_output', 'altitude_rc_output', 'target_altitude',
+        'pitch_controller_output', 'pitch_rc_output', 'target_pitch_velocity', 'roll_controller_output',
+        'roll_rc_output', 'target_roll_velocity', 'yaw_controller_output', 'yaw_rc_output', 'target_yaw',
+        'color_image', 'depth_image', None]
+
+    def __init__(self, output, label=None, func=None, x_stream=None, y_stream=None, z_stream=None):
         self._output = output
 
         try:
             self._label = output.label() if not label else label
         except AttributeError:
-            self._label = None
-            
-        #
-        # Process xml tag
-        if xml_tag is not None:
-            func = xml_tag.get("func")
-
-            if not x_stream: x_stream = xml_tag.get('x_stream')
-            if not y_stream: y_stream = xml_tag.get('y_stream')
-            if not z_stream: z_stream = xml_tag.get('z_stream')
+            self._label = label
 
         #
         # Set func
@@ -53,36 +49,29 @@ class Metric:
         # Init func
         if 'x' in func:
             assert x_stream, "X in function but no x_stream!"
+            assert x_stream in Metric.possible_data_streams, "Invalid x_stream!"
 
             if 'y' in func:
                 assert y_stream, "Y in function but no y_stream!"
+                assert y_stream in Metric.possible_data_streams, "Invalid y_stream!"
 
                 if 'z' in func:
                     assert z_stream, "Z in function but no z_stream!"
+                    assert z_stream in Metric.possible_data_streams, "Invalid z_stream!"
 
                     self._func = lambda x, y, z: eval(func)
-                else: self._func = lambda x, y: eval(func)
-            else: self._func = lambda x: eval(func)
-        else: self._func = lambda: eval(func)
+                else:
+                    self._func = lambda x, y: eval(func)
+            else:
+                self._func = lambda x: eval(func)
+        else:
+            self._func = lambda: eval(func)
 
-        #
         # Set data streams
-        possible_data_streams = [
-            'altitude', 'airspeed', 'velocity_x', 'velocity_y', 'velocity_z', 'voltage', 'state', 'mode', 'armed',
-            'roll', 'pitch', 'yaw', 'altitude_controller_output', 'altitude_rc_output', 'target_altitude',
-            'pitch_controller_output', 'pitch_rc_output', 'target_pitch_velocity', 'roll_controller_output',
-            'roll_rc_output', 'target_roll_velocity', 'yaw_controller_output', 'yaw_rc_output', 'target_yaw',
-            'color_image', 'depth_image', None]
-
-        assert x_stream in possible_data_streams, "Invalid x_stream!"
-        assert y_stream in possible_data_streams, "Invalid y_stream!"
-        assert z_stream in possible_data_streams, "Invalid z_stream!"
-
         self._x_stream = x_stream
         self._y_stream = y_stream
         self._z_stream = z_stream
 
-        #
         # Create data storage
         self._data = []
 
