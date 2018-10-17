@@ -10,7 +10,6 @@ from metric import Metric
 
 from demo_data_gen import get_demo_data
 
-# Is this safe?
 import os, sys
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from file_io import file_io
@@ -22,7 +21,7 @@ class RealTimeGraph:
 
     Parameters
     ----------
-    data_func: func
+    get_data: func
         Function data reader will call to get data
 
     pan_width: int
@@ -35,8 +34,8 @@ class RealTimeGraph:
 
     data_freq_warning = .5  # If time values are this far apart warn the user
 
-    def __init__(self, data_func=get_demo_data, pan_width=10):
-        self.data_func = data_func
+    def __init__(self, get_data=get_demo_data, pan_width=10):
+        self.get_data = get_data
         self.pan_width = abs(pan_width)
 
         # Stored which data items we are interested in
@@ -51,7 +50,7 @@ class RealTimeGraph:
         self.check_time = self.start_time = time()
 
         # Initializes figure for real_time_graphing
-        plt.rcParams['toolbar'] = 'None'
+        plt.rcParams['toolbar'] = 'None'  # Disable matplot toolbar
 
         self.fig = plt.figure(figsize=(8, 6))
         self.fig.canvas.set_window_title('Real Time Graphing')
@@ -163,7 +162,7 @@ class RealTimeGraph:
         """
 
         while not self.thread_stop.is_set():
-            data = self.data_func()
+            data = self.get_data()
             thread_queue.put(data)
 
             # Adjust sleep times
