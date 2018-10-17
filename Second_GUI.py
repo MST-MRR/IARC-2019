@@ -1,5 +1,6 @@
 from tkinter import *
 from tkinter import ttk
+from tkinter import filedialog
 import csv
 
 
@@ -130,6 +131,16 @@ class GUI:
         window.tk.call('wm', 'iconphoto', window._w, icon)
 
         #
+        # Menu Making
+        self.bar = Menu(window)
+        self.bar.add_command(label='Pick a file',command=GUI.pick_graphing_file)
+        self.bar.add_command(label="Add new graph")
+        self.bar.add_command(label="Delete Last Graph")
+        self.bar.add_command(label="Reset Selections")
+        #self.bar.add_command(label="Copy Settings to both tabs?") #not sure how to implement this
+
+
+        #
         # Separate tabs
         self.tab_control = ttk.Notebook(window)
 
@@ -162,7 +173,13 @@ class GUI:
 
         #
         # Display window
+        window.config(menu=self.bar)
         window.mainloop()
+
+    def pick_graphing_file():
+        self.data_file = filedialog.askopenfilename(
+        title="Select file to Graph", filetypes=(("csv files", "*.csv"), ("all files", "*.*"))
+        )
 
     def update_offsets(self):
         curr_offset = 0
