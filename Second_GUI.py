@@ -32,34 +32,38 @@ class GraphSettings:
 
         #
         # Item config
-        self.item_locations = {'title': (0, 0, 2), 'update_title': (2, 0, 2), 'lowerTime_lbl': (0, 2, 2),
-                               'lowerTime_chk': (2, 2), 'upperTime_lbl': (3, 2), 'upperTime_chk': (4, 2),
-                               'check_boxes': (1)}
+        self.item_locations = {}
 
         self.items = dict()
 
-        def add_item(name, loc):
-            pass
+        def add_item(name, loc, obj):
+            self.items[name] = obj
+
+            self.item_locations[name] = loc
 
         # Header
-        self.items['title'] = Label(self.tab, text=self.name, font=("Arial Bold", 15))
+        add_item('title', (0, 0, 2), Label(self.tab, text=self.name, font=("Arial Bold", 15)))
 
-        self.items['update_title'] = Button(self.tab, text="Change Name", command=self.update_title)
+        add_item('update_title', (2, 0, 2), Button(self.tab, text="Change Name", command=self.update_title))
 
         # Setup check mark buttons
         self.items['check_boxes'] = []
         self.check_box_values = {}
 
-        self.generate_check_boxes()
+        check_box_settings = self.pull_check_box_settings()
+
+        self.check_box_values.update({key: BooleanVar() for key in check_box_settings})
+
+        add_item('check_boxes', (1), [Checkbutton(self.tab, text=key, var=self.check_box_values[key]) for key in check_box_settings])
 
         # Time interval settings
-        self.items['lowerTime_lbl'] = Label(self.tab, text="Time interval(seconds) Lower:")
+        add_item('lowerTime_lbl', (0, 2, 2), Label(self.tab, text="Time interval(seconds) Lower:"))
 
-        self.items['lowerTime_chk'] = Entry(self.tab, width=5)
+        add_item('lowerTime_chk', (2, 2), Entry(self.tab, width=5))
 
-        self.items['upperTime_lbl'] = Label(self.tab, text="Upper:")
+        add_item('upperTime_lbl', (3, 2), Label(self.tab, text="Upper:"))
 
-        self.items['upperTime_chk'] = Entry(self.tab, width=5)
+        add_item('upperTime_chk', (4, 2), Entry(self.tab, width=5))
 
     def set_grid(self, row_offset=None):
         if row_offset: self.row_offset = row_offset
@@ -85,20 +89,13 @@ class GraphSettings:
     def pull_check_box_settings(self):
         return ["Air Speed", "Altitude", "Pitch", "Roll", "Yaw", "xVelocity", "yVelocity", "zVelocity", "Voltage"]
 
-    def generate_check_boxes(self):
-        check_box_settings = self.pull_check_box_settings()
-
-        for key in check_box_settings:
-            self.check_box_values.update({key: BooleanVar()})
-            self.items['check_boxes'].append(Checkbutton(self.tab, text=key, var=self.check_box_values[key]))
-
     def update_title(self):
         if isinstance(self.items['title'], Entry):
             self.name = self.items['title'].get()
 
             self.items['title'].destroy()
 
-            self.items['title'] = Label(self.tab, text=self.name, font=("Arial Bold", 15))  # graph label
+            self.items['title'] = Label(self.tab, text=self.name, font=("Arial Bold", 15))
 
             self.items['update_title']['text'] = "Change Name"
 
