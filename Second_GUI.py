@@ -7,7 +7,7 @@ import csv
 class GraphSettings:
     rows_per_graph = 3  # Baseline how many rows per graph
 
-    checkbox_width = 3  # How many checkboxes allowed per line
+    checkbox_width = 6  # How many checkboxes allowed per line
 
     def __init__(self, tab, graph_num):
         # TODO - Work on design of gui
@@ -47,7 +47,7 @@ class GraphSettings:
 
         add_item('update_title', (2, 0, 2), Button(self.tab, text="Change Name", command=self.update_title))
 
-        # Setup check mark buttons
+        # Check Boxes
         self.items['check_boxes'] = []
         self.check_box_values = {}
 
@@ -77,10 +77,10 @@ class GraphSettings:
 
                 if type(value) is list:
                     for i in range(len(value)):
-                        value[i].grid(column=i % GraphSettings.checkbox_width,
+                        value[i].grid(sticky="W", column=i % GraphSettings.checkbox_width,
                                       row=rolling_offset + grid_values + int(i / GraphSettings.checkbox_width))
 
-                    rolling_offset += int(len(value) / GraphSettings.checkbox_width) - 1
+                    rolling_offset += int(len(value) / GraphSettings.checkbox_width)
                 else:
                     value.grid(column=grid_values[0], row=rolling_offset + grid_values[1],
                                columnspan=grid_values[2] if len(grid_values) > 2 else 1)
@@ -142,12 +142,11 @@ class GUI:
         #
         # Separate tabs
         self.tab_control = ttk.Notebook(window)
+        self.tabs = []
 
-        self.tab1 = ttk.Frame(self.tab_control)
-        self.tab2 = ttk.Frame(self.tab_control)
-
-        self.tab_control.add(self.tab1, text='Live Graphing Settings')
-        self.tab_control.add(self.tab2, text='After-The-Fact Graphing Settings')
+        for text in ['Live Graphing Settings', 'After-The-Fact Graphing Settings']:
+            self.tabs.append(ttk.Frame(self.tab_control))
+            self.tab_control.add(self.tabs[-1], text=text)
 
         self.tab_control.pack(expand=1, fill='both')
 
@@ -156,19 +155,23 @@ class GUI:
 
         #
         # Create initial graphs
-        self.graphs = [GraphSettings(self.tab1, i) for i in range(2)]
+        self.graphs = [GraphSettings(self.tab, i) for i in range(2)]
 
         self.update_offsets()
 
         #
         # Global Buttons
-        self.update_grph_btn = Button(self.tab1, text="Click to Update Section", command=self.save)
+        self.update_grph_btn = Button(self.tab, text="Click to Update Section", command=self.save)
         self.update_grph_btn.grid(column=4, row=0, columnspan=2)
 
         #
         # Display window
         window.config(menu=self.bar)
         window.mainloop()
+
+    @property
+    def tab(self):
+        return self.tabs[self.tab_control.index("current")]
 
     def toggle_sharing(self):
         print(self.sharing_settings)
