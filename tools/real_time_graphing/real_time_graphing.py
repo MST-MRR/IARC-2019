@@ -10,7 +10,6 @@ from time import sleep, time
 
 from metric import Metric
 
-
 from demo_data_gen import get_demo_data
 
 
@@ -49,6 +48,8 @@ class RealTimeGraph:
         self.check_time = self.start_time = time()
 
         # Initializes figure for real_time_graphing
+        plt.rcParams['toolbar'] = 'None'
+
         self.fig = plt.figure(figsize=(8, 6))
         self.fig.canvas.set_window_title('Real Time Graphing')
 
@@ -117,7 +118,7 @@ class RealTimeGraph:
                 i = 0
                 for metric in graph.findall('metric'):
                     # Coords are percent
-                    text = ax.text(i * (1 / len(graph.findall('metric'))), 0, 'matplotlib', transform=plt.gcf().transFigure)
+                    text = ax.text(i * (1 / len(graph.findall('metric'))) + .01, .01, 'matplotlib', transform=plt.gcf().transFigure)
 
                     self.tracked_data.append(Metric(output=text, label=metric.get('label'), xml_tag=metric))
                     i += 1
