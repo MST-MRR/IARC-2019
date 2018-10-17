@@ -137,7 +137,7 @@ class GUI:
         self.bar.add_command(label="Delete Last Graph")
         self.bar.add_command(label="Reset Selections")
         self.bar.add_checkbutton(label="Copy Settings to both tabs?", var = self.sharing_settings, command=self.toggle_sharing) #not sure how to implement this
-
+        # Make copy settings toggleable by highlighting background differently
 
         #
         # Separate tabs
@@ -165,11 +165,6 @@ class GUI:
         self.update_grph_btn = Button(self.tab1, text="Click to Update Section", command=self.save)
         self.update_grph_btn.grid(column=4, row=0, columnspan=2)
 
-        # TODO - add more global buttons
-        # Reset button
-        # Push data to other tab button
-        # Add graph button
-
         #
         # Display window
         window.config(menu=self.bar)
@@ -180,7 +175,7 @@ class GUI:
 
     def pick_graphing_file(self):
         self.data_file = filedialog.askopenfilename(
-        title="Select file to Graph", filetypes=(("csv files", "*.csv"), ("all files", "*.*"))
+            title="Select file to Graph", filetypes=(("csv files", "*.csv"), ("all files", "*.*"))
         )
 
     def update_offsets(self):
