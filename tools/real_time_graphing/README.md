@@ -1,22 +1,14 @@
-# Real Time Graphing - IARC-2019
-The grapher manages 1+ individual metrics which are just things that take in specific data streams and process them to
-be displayed on the graph. The metrics can be displayed on different graphs but the processing is done on a per metric
-basis. Data comes in through read_data which pulls whatever new data has come in from the drone. That data is then sent
-to whichever metrics requested specific data streams and the processed data is saved in the metric's data list. The data
-in the metric's data list is what will be graphed. These three functions, read, process and plot, all happen
-concurrently in multiple threads that start when the others are 'sleeping'.
-
+# Real Time Graphing IARC-2019
+## Installation
 When creating a grapher object there is 2 optional parameters:
 ```
+    get_data: (func, default get_demo_data) The function to be called to get data.
     pan_width: (int, default 10) Time in seconds to display graph in the past. This is essentially the x limit.
-    y_lim: (tuple(int, int), default (0, 10)) The
 ```
 
-## Subplot
-To interface with the grapher, you need to edit the config.xml file(In the future a GUI will edit the xml for you).
-Everything that you want the grapher to read should be within the 'desiredgraphs' tag meaning after <desiredgraphs> and
-before </desiredgraphs>. Each subplot(Must be at least 1) is denoted with a <graph> tag. These subplots hold the
-individual metrics that take in and process the data.
+## Configuration
+There is a configuration file located in the same folder as real_time_graphing.py.
+You may edit the config file by hand or using the config editor GUI.
 
 Subplot settings:
 ```
@@ -26,11 +18,7 @@ Subplot settings:
     xlabel: (optional) The x axis label.
     ylabel: (optional) The y axis label.
     legend: (optional, default='yes') Whether or not to display a legend on the subplot, must be yes to make true.
-
 ```
-
-
-## Metric
 Metric settings:
 
 ```
@@ -45,8 +33,7 @@ Metric settings:
             subplot basis. Color generator currently only can generate 6 unique colors so if you have more than 6
             metrics on a plot you may need to manually set colors.
 ```
-
-Your choices of data_streams are:
+Choices of data_streams are:
 ```
     'roll', 'pitch', 'yaw', 'target_altitude', 'target_roll_velocity',
     'target_pitch_velocity', 'altitude', 'airspeed', 'velocity_x', 
@@ -56,3 +43,7 @@ Your choices of data_streams are:
     'roll_rc_output', 'yaw_controller_output', 'yaw_rc_output', 
     'target_yaw', 'color_image', 'depth_image'
 ```
+## Operating
+This tool is only for the real time graphing, pulling data from the drone. If you wish to plot data from csv files, there is a csv graphing tool.
+## Troubleshooting
+If you have issues or suggestions, message Cole Dieckhaus or Thomas McKanna on slack or email cole - csdhv9@mst.edu.
