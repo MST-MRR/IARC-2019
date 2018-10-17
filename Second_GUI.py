@@ -132,12 +132,14 @@ class GUI:
 
         #
         # Menu Making
+        self.sharing_settings = 0
+        self.sharing_color = "green"
         self.bar = Menu(window)
-        self.bar.add_command(label='Pick a file',command=GUI.pick_graphing_file)
+        self.bar.add_command(label='Pick a file',command=self.pick_graphing_file)
         self.bar.add_command(label="Add new graph")
         self.bar.add_command(label="Delete Last Graph")
         self.bar.add_command(label="Reset Selections")
-        #self.bar.add_command(label="Copy Settings to both tabs?") #not sure how to implement this
+        self.bar.add_checkbutton(label="Copy Settings to both tabs?", var = self.sharing_settings, command=self.toggle_sharing) #not sure how to implement this
 
 
         #
@@ -176,7 +178,10 @@ class GUI:
         window.config(menu=self.bar)
         window.mainloop()
 
-    def pick_graphing_file():
+    def toggle_sharing(self):
+        print(self.sharing_settings)
+
+    def pick_graphing_file(self):
         self.data_file = filedialog.askopenfilename(
         title="Select file to Graph", filetypes=(("csv files", "*.csv"), ("all files", "*.*"))
         )
