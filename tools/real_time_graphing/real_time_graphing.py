@@ -1,8 +1,6 @@
 import numpy as np
 from matplotlib import pyplot as plt, animation as animation
 
-from xml.etree.ElementTree import parse as parse_xml
-
 import threading
 from multiprocessing import Queue
 
@@ -11,6 +9,11 @@ from time import sleep, time
 from metric import Metric
 
 from demo_data_gen import get_demo_data
+
+# Is this safe?
+import os, sys
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+from file_io import file_io
 
 
 class RealTimeGraph:
@@ -87,7 +90,7 @@ class RealTimeGraph:
 
     def parse_config(self):
         # TODO - Make file-io read the config and send in an object to be read here
-
+        # TODO - Update docstring
         """
         Reads and interprets the graph config file
 
@@ -97,10 +100,10 @@ class RealTimeGraph:
             Parsed config file
         """
 
-        root = parse_xml(RealTimeGraph.config_filename).getroot()
+        output = file_io.parse_config(RealTimeGraph.config_filename)
 
         # Total number of subplots
-        graph_count = [graph.get("output") == 'text' for graph in root.findall('graph')].count(False)
+        graph_count = [graph["output"] == 'text' for graph in output].count(False)
 
         nrows = min(graph_count, RealTimeGraph.max_rows)
         ncols = int(graph_count / nrows) + (graph_count % nrows > 0)
@@ -115,18 +118,20 @@ class RealTimeGraph:
                     yield elem
                     seen.add(elem)
 
-        for graph in root.findall('graph'):
-            if graph.get('output') == 'text':
+        for graph in output:
+            if graph['output'] == 'text':
                 i = 0
-                for metric in graph.findall('metric'):
+                for metric in graph['metrics']:
                     # Coords are percent
-                    text = ax.text(i * (1 / len(graph.findall('metric'))) + .01, .01, 'matplotlib', transform=plt.gcf().transFigure)
+                    text = ax.text(i * (1 / len(graph['metrics'])) + .01, .01, 'matplotlib', transform=plt.gcf().transFigure)
 
-                    self.tracked_data.append(Metric(output=text, label=metric.get('label'), xml_tag=metric))
+                    self.tracked_data.append(Metric(output=text, label=metric['label'], func=metric['func'],
+                                                    x_stream=metric['x_stream'], y_stream=metric['y_stream'],
+                                                    z_stream=metric['z_stream']))
                     i += 1
 
             else:
-                color_gen = unique_color_generator([metric.get('color') for metric in graph.findall('metric')])
+                color_gen = unique_color_generator([metric['color'] for metric in graph['metrics']])
 
                 # Make axis
                 ax = self.fig.add_subplot(nrows, ncols, len(self.fig.get_axes()) + 1)
@@ -134,18 +139,19 @@ class RealTimeGraph:
                 ax.axis([0, 100, 0, 10])
 
                 # Configure the new axis
-                ax.set_title(graph.get('title'))
-                ax.set_xlabel(graph.get('xlabel'))
-                ax.set_ylabel(graph.get('ylabel'))
+                ax.set_title(graph['title'])
+                ax.set_xlabel(graph['xlabel'])
+                ax.set_ylabel(graph['ylabel'])
 
-                for metric in graph.findall('metric'):
-                    color = metric.get('color') if metric.get('color') else next(color_gen)
+                for metric in graph['metrics']:
+                    color = metric['color'] if metric['color'] else next(color_gen)
 
-                    m_line, = ax.plot([], [], color=color, label=metric.get('label'))
+                    m_line, = ax.plot([], [], color=color, label=metric['label'])
 
-                    self.tracked_data.append(Metric(output=m_line, xml_tag=metric))
+                    self.tracked_data.append(Metric(output=m_line, func=metric['func'], x_stream=metric['x_stream'],
+                                                    y_stream=metric['y_stream'], z_stream=metric['z_stream']))
 
-                if graph.get('legend') == 'yes' or not graph.get('legend'):
+                if graph['legend'] == 'yes' or not graph['legend']:
                     ax.legend()
 
     def read_data(self, thread_queue):

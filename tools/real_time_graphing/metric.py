@@ -19,26 +19,15 @@ class Metric:
         Data from drone to serve as y variable in function
     z_stream: string, optional
         Data from drone to serve as z variable in function
-    xml_tag: xml element object, optional B
-        The whole metric tag parsed from config to be parsed in metric
     """
 
-    def __init__(self, output, label=None, func=None, x_stream=None, y_stream=None, z_stream=None, xml_tag=None):
+    def __init__(self, output, label=None, func=None, x_stream=None, y_stream=None, z_stream=None):
         self._output = output
 
         try:
             self._label = output.label() if not label else label
         except AttributeError:
             self._label = None
-            
-        #
-        # Process xml tag
-        if xml_tag is not None:
-            func = xml_tag.get("func")
-
-            if not x_stream: x_stream = xml_tag.get('x_stream')
-            if not y_stream: y_stream = xml_tag.get('y_stream')
-            if not z_stream: z_stream = xml_tag.get('z_stream')
 
         #
         # Set func
