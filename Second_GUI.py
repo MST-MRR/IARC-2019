@@ -1,7 +1,6 @@
 from tkinter import *
 from tkinter import ttk
 from tkinter import filedialog
-import csv
 
 
 class GraphSettings:
@@ -56,6 +55,9 @@ class GraphSettings:
 
         self.add_item('upperTime_chk', (4, 2), Entry(self.tab, width=5))
 
+    def set_values(self):
+        pass
+
     def delete(self):
         for key, value in self.items.items():
             if type(value) is list:
@@ -66,11 +68,11 @@ class GraphSettings:
 
     def add_item(self, name, loc, obj):
         self.items[name] = obj
-
         self.item_locations[name] = loc
 
     def pull_check_box_settings(self):
         # TODO - Pull possible(hardcoded) metrics from file and put into checkboxes
+        # TODO - Pull in as label: datastreams, func
         return ["Air Speed", "Altitude", "Pitch", "Roll", "Yaw", "xVelocity", "yVelocity", "zVelocity", "Voltage"]
 
     def set_grid(self, row_offset=None):
@@ -145,11 +147,13 @@ class GUI:
         self.menu_bar.add_command(label="Add new graph", command=self.add_graph)
         self.menu_bar.add_command(label="Delete Last Graph", command=self.delete_graph)
 
+        self.menu_bar.add_command(label="Pull old config")
+
         self.menu_bar.add_command(label="Reset Selections")
 
         self.menu_bar.add_command(label="Save", command=self.save)
 
-        self.menu_bar.add_checkbutton(label="Copy Settings to both tabs?", var=self.sharing_settings, command=self.toggle_sharing) #not sure how to implement this
+        self.menu_bar.add_checkbutton(label="Share tab settings", var=self.sharing_settings, command=self.toggle_sharing) #not sure how to implement this
         # TODO - Make copy settings toggleable by highlighting background differently
 
         #
@@ -165,7 +169,7 @@ class GUI:
 
         #
         # Create initial graphs
-        self.graphs = []
+        self.graphs = [[], []]
         for i in range(2): self.add_graph()
 
         self.update()
@@ -179,23 +183,29 @@ class GUI:
     def tab(self):
         return self.tabs[self.tab_control.index("current")]
 
-    def add_graph(self):
-        graph = GraphSettings(self.tab, len(self.graphs))
+    @property
+    def tab_id(self):
+        return self.tab_control.index("current")
+
+    def add_graph(self, section=None):
+        section = section if section else self.tab_id
+
+        graph = GraphSettings(self.tab, len(self.graphs[section]))
 
         graph.add_item('delete', (9, -1), Button(self.tab, text="Delete", command=lambda: self.delete_graph(graph)))  # TODO - Fix -1 thing
 
-        self.graphs.append(graph)
+        self.graphs[section].append(graph)
 
         self.update()
 
     def delete_graph(self, graph=None):
-        if len(self.graphs) is 0: return
+        if len(self.graphs[self.tab_id]) is 0: return
 
-        if not graph: graph = self.graphs[-1]
+        if not graph: graph = self.graphs[self.tab_id][-1]
 
         graph.delete()
 
-        self.graphs.remove(graph)
+        self.graphs[self.tab_id].remove(graph)
 
         self.update()
 
@@ -212,18 +222,21 @@ class GUI:
     def update(self):
         curr_offset = 0
 
-        for graph in self.graphs:
-            graph.set_grid(curr_offset)
+        for frame in self.graphs:
+            for graph in frame:
+                graph.set_grid(curr_offset)
 
-            curr_offset += graph.height
+                curr_offset += graph.height
 
-    def save(self):
+    def save(self, section=None):
+
+        section = section if section else self.tab_id
 
         # TODO - Format saving into xml
 
         # using the csv for the GUI
         with open(GUI.settings_file, 'w') as g:
-            for graph in self.graphs:
+            for graph in self.graphs[section]:
                 output = {"Status_GraphName": graph.name, "Status_lowerTime": graph.items['lowerTime_chk'].get(),
                           "Status_upperTime": graph.items['upperTime_chk'].get()}
 
