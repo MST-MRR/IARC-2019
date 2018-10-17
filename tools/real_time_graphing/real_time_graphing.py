@@ -89,10 +89,8 @@ class RealTimeGraph:
             thread.join()
 
     def parse_config(self):
-        # TODO - Make file-io read the config and send in an object to be read here
-        # TODO - Update docstring
         """
-        Reads and interprets the graph config file
+        Interprets the graph config file
 
         Returns
         -------

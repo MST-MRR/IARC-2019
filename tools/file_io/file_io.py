@@ -12,8 +12,9 @@ def parse_config(filename):
 
     Returns
     -------
-    list of dicts
-        Parsed data in format # TODO -----------------------------------------
+    list of parsed graphs
+        Parsed data in format [{graph}, {graph}]. The graph dictionary includes output, legend, title, xlabel, ylabel
+        and metrics. Metrics is a list of dictionaries including label, color, func, x_stream, y_stream and z_stream.
     """
 
     output = []
@@ -45,5 +46,4 @@ def parse_config(filename):
                 'z_stream': metric.get('z_stream')
             })
 
-    print(output)
     return output
