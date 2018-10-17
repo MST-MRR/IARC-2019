@@ -5,7 +5,6 @@ from xml.etree.ElementTree import parse as parse_xml
 
 import threading
 from multiprocessing import Queue
-import queue
 
 from time import sleep, time
 
@@ -21,12 +20,11 @@ class RealTimeGraph:
 
     Parameters
     ----------
+    data_func: func
+        Function data reader will call to get data
+
     pan_width: int
         Time in seconds to display previous data
-
-    Raises
-    ------
-    ?
     """
 
     config_filename = 'config.xml'  # Location of configuration file
@@ -35,8 +33,8 @@ class RealTimeGraph:
 
     data_freq_warning = .5  # If time values are this far apart warn the user
 
-    def __init__(self, pan_width=10):
-
+    def __init__(self, data_func=get_demo_data, pan_width=10):
+        self.data_func = data_func
         self.pan_width = abs(pan_width)
 
         # Stored which data items we are interested in
@@ -158,7 +156,7 @@ class RealTimeGraph:
         """
 
         while not self.thread_stop.is_set():
-            data = get_demo_data()  # TODO - Update
+            data = self.data_func()
             thread_queue.put(data)
 
             # Adjust sleep times
