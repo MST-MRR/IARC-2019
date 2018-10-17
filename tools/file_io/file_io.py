@@ -1,11 +1,9 @@
 import xml.etree.ElementTree as ET
-from xml.dom import minidom
+from xml.dom.minidom import parseString
 
 
 def xml_to_string(xml_tag):
-    rough_string = ET.tostring(xml_tag, 'utf-8')
-    reparsed = minidom.parseString(rough_string)
-    return reparsed.toprettyxml(indent="  ")
+    return parseString(ET.tostring(xml_tag)).toprettyxml(indent="  ")
 
 
 def parse_config(filename):
@@ -37,7 +35,7 @@ def parse_config(filename):
             'xlabel': graph.get('xlabel'),
             'ylabel': graph.get('ylabel'),
 
-            'metrics': []
+            'metric': []
         })
 
         for metric in graph.findall('metric'):
@@ -75,7 +73,7 @@ def write_config(filename, data):
         curr_graph = ET.SubElement(desiredgraphs, 'graph', {key: value for key, value in graph.items() if type(value) is not list and value})
         for key, lst in [(key, value) for key, value in graph.items() if type(value) is list and value]:
             for item in lst:
-                curr_item = ET.SubElement(curr_graph, key, {key: value for key, value in item.items() if value})
+                ET.SubElement(curr_graph, key, {key: value for key, value in item.items() if value})
 
     with open(filename, 'w') as g:
         g.write(xml_to_string(desiredgraphs))
