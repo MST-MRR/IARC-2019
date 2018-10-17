@@ -1,10 +1,12 @@
 from tkinter import *
 from tkinter import ttk, filedialog
 
-from xml_parser import XML_Parser
+from file_io import File_IO
 
 
 class GraphSettings:
+    init_settings_filename = "Nope.txt"
+
     rows_per_graph = 3  # Baseline how many rows per graph
 
     checkbox_width = 6  # How many checkboxes allowed per line
@@ -26,6 +28,10 @@ class GraphSettings:
 
         self.name = "Graph{}".format(self.graph_num)
 
+        # Pull settings from hardcoded file
+
+        check_box_settings = self.read_init_settings()
+
         #
         # Item config
         self.item_locations = {}
@@ -41,8 +47,6 @@ class GraphSettings:
         self.items['check_boxes'] = []
         self.check_box_values = {}
 
-        check_box_settings = self.pull_check_box_settings()
-
         self.check_box_values.update({key: BooleanVar() for key in check_box_settings})
 
         self.add_item('check_boxes', (1), [Checkbutton(self.tab, text=key, var=self.check_box_values[key]) for key in check_box_settings])
@@ -56,6 +60,9 @@ class GraphSettings:
 
         self.add_item('upperTime_chk', (4, 2), Entry(self.tab, width=5))
 
+    def read_init_settings(self):
+        return File_IO().read(self.init_settings_filename)
+
     def set_values(self):
         pass
 
@@ -67,14 +74,11 @@ class GraphSettings:
             else:
                 value.destroy()
 
+        return self
+
     def add_item(self, name, loc, obj):
         self.items[name] = obj
         self.item_locations[name] = loc
-
-    def pull_check_box_settings(self):
-        # TODO - Pull possible(hardcoded) metrics from file and put into checkboxes
-        # TODO - Pull in as label: datastreams, func
-        return ["Air Speed", "Altitude", "Pitch", "Roll", "Yaw", "xVelocity", "yVelocity", "zVelocity", "Voltage"]
 
     def set_grid(self, row_offset=None):
         if row_offset: self.row_offset = row_offset
@@ -182,31 +186,30 @@ class GUI:
 
     @property
     def tab(self):
-        return self.tabs[self.tab_control.index("current")]
+        return self.tabs[self.tab_id]
 
     @property
     def tab_id(self):
         return self.tab_control.index("current")
 
     def add_graph(self, section=None):
-        section = section if section else self.tab_id
+        if not section: section = self.tab_id
 
         graph = GraphSettings(self.tab, len(self.graphs[section]))
 
-        graph.add_item('delete', (9, -1), Button(self.tab, text="Delete", command=lambda: self.delete_graph(graph)))  # TODO - Fix -1 thing
+        graph.add_item('delete', (9, -1), Button(self.tab, text="Delete", command=lambda: self.delete_graph(graph=graph)))  # TODO - Fix -1 thing
 
         self.graphs[section].append(graph)
 
         self.update()
 
-    def delete_graph(self, graph=None):
+    def delete_graph(self, section=None, graph=None):
         if len(self.graphs[self.tab_id]) is 0: return
 
-        if not graph: graph = self.graphs[self.tab_id][-1]
+        if not section: section = self.tab_id
+        if not graph: graph = self.graphs[section][-1]
 
-        graph.delete()
-
-        self.graphs[self.tab_id].remove(graph)
+        self.graphs[self.tab_id].remove(graph.delete())
 
         self.update()
 
@@ -230,12 +233,7 @@ class GUI:
                 curr_offset += graph.height
 
     def save(self, section=None):
-
-        section = section if section else self.tab_id
-
-        # TODO - Format saving into xml
-
-        writer = XML_Parser()
+        if not section: section = self.tab_id
 
         total_output = []
         for graph in self.graphs[section]:
@@ -247,7 +245,7 @@ class GUI:
 
             total_output.append(output)
 
-        writer.write(GUI.settings_file, total_output)
+        File_IO().write(GUI.settings_file, total_output)
 
 
 if __name__ == "__main__":
