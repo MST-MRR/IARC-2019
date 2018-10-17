@@ -6,13 +6,11 @@ from multiprocessing import Queue
 
 from time import sleep, time
 
-from metric import Metric
+from tools.real_time_graphing.metric import Metric
 
-from demo_data_gen import get_demo_data
+from tools.file_io import file_io
 
-import os, sys
-sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-from file_io import file_io
+from tools.real_time_graphing.demo_data_gen import get_demo_data
 
 
 class RealTimeGraph:
