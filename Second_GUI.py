@@ -141,8 +141,10 @@ class GUI:
         self.menu_bar = Menu(window)
 
         self.menu_bar.add_command(label='Pick a file', command=self.pick_graphing_file)
-        self.menu_bar.add_command(label="Add new graph")
-        self.menu_bar.add_command(label="Delete Last Graph")
+
+        self.menu_bar.add_command(label="Add new graph", command=self.add_graph)
+        self.menu_bar.add_command(label="Delete Last Graph", command=self.delete_graph)
+
         self.menu_bar.add_command(label="Reset Selections")
 
         self.menu_bar.add_command(label="Save", command=self.save)
@@ -180,13 +182,19 @@ class GUI:
     def add_graph(self):
         graph = GraphSettings(self.tab, len(self.graphs))
 
-        graph.add_item('delete', (9, -1), Button(self.tab, text="Delete", command=lambda: self.delete(graph)))  # TODO - Fix -1 thing
+        graph.add_item('delete', (9, -1), Button(self.tab, text="Delete", command=lambda: self.delete_graph(graph)))  # TODO - Fix -1 thing
 
         self.graphs.append(graph)
 
-    def delete(self, graph):
+        self.update()
+
+    def delete_graph(self, graph=None):
+        if len(self.graphs) is 0: return
+
+        if not graph: graph = self.graphs[-1]
+
         graph.delete()
-        
+
         self.graphs.remove(graph)
 
         self.update()
