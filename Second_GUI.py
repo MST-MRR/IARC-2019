@@ -10,13 +10,8 @@ class GraphSettings:
     checkbox_width = 6  # How many checkboxes allowed per line
 
     def __init__(self, tab, graph_num):
-        # TODO - Work on design of gui
-
-        # TODO - Delete graph button
 
         # TODO - Way to input custom functions - Add dynamic metrics
-
-        # TODO - Pull possible(hardcoded) metrics from file and put into checkboxes
 
         # TODO - Add metric button
 
@@ -37,15 +32,10 @@ class GraphSettings:
 
         self.items = dict()
 
-        def add_item(name, loc, obj):
-            self.items[name] = obj
-
-            self.item_locations[name] = loc
-
         # Header
-        add_item('title', (0, 0, 2), Label(self.tab, text=self.name, font=("Arial Bold", 15)))
+        self.add_item('title', (0, 0, 2), Label(self.tab, text=self.name, font=("Arial Bold", 15)))
 
-        add_item('update_title', (2, 0, 2), Button(self.tab, text="Change Name", command=self.update_title))
+        self.add_item('update_title', (2, 0, 2), Button(self.tab, text="Change Name", command=self.update_title))
 
         # Check Boxes
         self.items['check_boxes'] = []
@@ -55,16 +45,33 @@ class GraphSettings:
 
         self.check_box_values.update({key: BooleanVar() for key in check_box_settings})
 
-        add_item('check_boxes', (1), [Checkbutton(self.tab, text=key, var=self.check_box_values[key]) for key in check_box_settings])
+        self.add_item('check_boxes', (1), [Checkbutton(self.tab, text=key, var=self.check_box_values[key]) for key in check_box_settings])
 
         # Time interval settings
-        add_item('lowerTime_lbl', (0, 2, 2), Label(self.tab, text="Time interval(seconds) Lower:"))
+        self.add_item('lowerTime_lbl', (0, 2, 2), Label(self.tab, text="Time interval(seconds) Lower:"))
 
-        add_item('lowerTime_chk', (2, 2), Entry(self.tab, width=5))
+        self.add_item('lowerTime_chk', (2, 2), Entry(self.tab, width=5))
 
-        add_item('upperTime_lbl', (3, 2), Label(self.tab, text="Upper:"))
+        self.add_item('upperTime_lbl', (3, 2), Label(self.tab, text="Upper:"))
 
-        add_item('upperTime_chk', (4, 2), Entry(self.tab, width=5))
+        self.add_item('upperTime_chk', (4, 2), Entry(self.tab, width=5))
+
+    def delete(self):
+        for key, value in self.items.items():
+            if type(value) is list:
+                for item in value:
+                    item.destroy()
+            else:
+                value.destroy()
+
+    def add_item(self, name, loc, obj):
+        self.items[name] = obj
+
+        self.item_locations[name] = loc
+
+    def pull_check_box_settings(self):
+        # TODO - Pull possible(hardcoded) metrics from file and put into checkboxes
+        return ["Air Speed", "Altitude", "Pitch", "Roll", "Yaw", "xVelocity", "yVelocity", "zVelocity", "Voltage"]
 
     def set_grid(self, row_offset=None):
         if row_offset: self.row_offset = row_offset
@@ -86,9 +93,6 @@ class GraphSettings:
                                columnspan=grid_values[2] if len(grid_values) > 2 else 1)
 
         self.height = rolling_offset + GraphSettings.rows_per_graph
-
-    def pull_check_box_settings(self):
-        return ["Air Speed", "Altitude", "Pitch", "Roll", "Yaw", "xVelocity", "yVelocity", "zVelocity", "Voltage"]
 
     def update_title(self):
         if isinstance(self.items['title'], Entry):
@@ -118,6 +122,8 @@ class GUI:
     def __init__(self):
         # TODO - pull old settings into window
 
+        self.data_file = None
+
         #
         # Window setup
         window = Tk()
@@ -130,14 +136,19 @@ class GUI:
         #
         # Menu Making
         self.sharing_settings = 0
-        self.sharing_color = "green"
-        self.bar = Menu(window)
-        self.bar.add_command(label='Pick a file',command=self.pick_graphing_file)
-        self.bar.add_command(label="Add new graph")
-        self.bar.add_command(label="Delete Last Graph")
-        self.bar.add_command(label="Reset Selections")
-        self.bar.add_checkbutton(label="Copy Settings to both tabs?", var = self.sharing_settings, command=self.toggle_sharing) #not sure how to implement this
-        # Make copy settings toggleable by highlighting background differently
+        #self.sharing_color = "green"
+
+        self.menu_bar = Menu(window)
+
+        self.menu_bar.add_command(label='Pick a file', command=self.pick_graphing_file)
+        self.menu_bar.add_command(label="Add new graph")
+        self.menu_bar.add_command(label="Delete Last Graph")
+        self.menu_bar.add_command(label="Reset Selections")
+
+        self.menu_bar.add_command(label="Save", command=self.save)
+
+        self.menu_bar.add_checkbutton(label="Copy Settings to both tabs?", var=self.sharing_settings, command=self.toggle_sharing) #not sure how to implement this
+        # TODO - Make copy settings toggleable by highlighting background differently
 
         #
         # Separate tabs
@@ -150,30 +161,39 @@ class GUI:
 
         self.tab_control.pack(expand=1, fill='both')
 
-        # TODO - Make know what tab is currently being looked at and save to according file & apply global functions
-        #           only to that tab
-
         #
         # Create initial graphs
-        self.graphs = [GraphSettings(self.tab, i) for i in range(2)]
+        self.graphs = []
+        for i in range(2): self.add_graph()
 
-        self.update_offsets()
-
-        #
-        # Global Buttons
-        self.update_grph_btn = Button(self.tab, text="Click to Update Section", command=self.save)
-        self.update_grph_btn.grid(column=4, row=0, columnspan=2)
+        self.update()
 
         #
         # Display window
-        window.config(menu=self.bar)
+        window.config(menu=self.menu_bar)
         window.mainloop()
 
     @property
     def tab(self):
         return self.tabs[self.tab_control.index("current")]
 
+    def add_graph(self):
+        graph = GraphSettings(self.tab, len(self.graphs))
+
+        graph.add_item('delete', (9, -1), Button(self.tab, text="Delete", command=lambda: self.delete(graph)))  # TODO - Fix -1 thing
+
+        self.graphs.append(graph)
+
+    def delete(self, graph):
+        graph.delete()
+        
+        self.graphs.remove(graph)
+
+        self.update()
+
     def toggle_sharing(self):
+        # TODO - Make share settings to both config(tabs)
+
         print(self.sharing_settings)
 
     def pick_graphing_file(self):
@@ -181,7 +201,7 @@ class GUI:
             title="Select file to Graph", filetypes=(("csv files", "*.csv"), ("all files", "*.*"))
         )
 
-    def update_offsets(self):
+    def update(self):
         curr_offset = 0
 
         for graph in self.graphs:
