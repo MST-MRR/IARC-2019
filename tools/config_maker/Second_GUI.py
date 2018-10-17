@@ -1,7 +1,7 @@
 from tkinter import *
 from tkinter import ttk, filedialog
 
-from tools.file_io.file_io import File_IO
+from tools.file_io.file_io import possible_metrics, write_config
 
 
 class GraphSettings:
@@ -61,7 +61,7 @@ class GraphSettings:
         self.add_item('upperTime_chk', (4, 2), Entry(self.tab, width=5))
 
     def read_init_settings(self):
-        return File_IO().read(self.init_settings_filename)
+        return possible_metrics(self.init_settings_filename)
 
     def set_values(self):
         pass
@@ -245,7 +245,7 @@ class GUI:
 
             total_output.append(output)
 
-        File_IO().write(GUI.settings_file, total_output)
+        write_config(GUI.settings_file, total_output)
 
 
 if __name__ == "__main__":
