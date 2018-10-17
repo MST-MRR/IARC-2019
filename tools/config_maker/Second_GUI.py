@@ -1,7 +1,7 @@
 from tkinter import *
 from tkinter import ttk, filedialog
 
-from file_io import File_IO
+from tools.file_io.file_io import File_IO
 
 
 class GraphSettings:
@@ -137,7 +137,7 @@ class GUI:
         window.title("Multirotor Robot Data Graphing Tool")
         window.geometry('750x500')
 
-        icon = PhotoImage(file='ninja_icon.gif')
+        icon = PhotoImage(file='../../ninja_icon.gif')
         window.tk.call('wm', 'iconphoto', window._w, icon)
 
         #
