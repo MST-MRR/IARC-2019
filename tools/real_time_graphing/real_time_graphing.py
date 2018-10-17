@@ -48,7 +48,7 @@ class RealTimeGraph:
 
         self.check_time = self.start_time = time()
 
-        # Initializes figure for graphing
+        # Initializes figure for real_time_graphing
         self.fig = plt.figure(figsize=(8, 6))
         self.fig.canvas.set_window_title('Real Time Graphing')
 
