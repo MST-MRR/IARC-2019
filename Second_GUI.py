@@ -1,6 +1,7 @@
 from tkinter import *
-from tkinter import ttk
-from tkinter import filedialog
+from tkinter import ttk, filedialog
+
+from xml_parser import XML_Parser
 
 
 class GraphSettings:
@@ -234,18 +235,19 @@ class GUI:
 
         # TODO - Format saving into xml
 
-        # using the csv for the GUI
-        with open(GUI.settings_file, 'w') as g:
-            for graph in self.graphs[section]:
-                output = {"Status_GraphName": graph.name, "Status_lowerTime": graph.items['lowerTime_chk'].get(),
-                          "Status_upperTime": graph.items['upperTime_chk'].get()}
+        writer = XML_Parser()
 
-                output.update({"Status_{}".format(key): 1 if value.get() else 0 for key, value in graph.check_box_values.items()})
+        total_output = []
+        for graph in self.graphs[section]:
+            output = {"Status_GraphName": graph.name, "Status_lowerTime": graph.items['lowerTime_chk'].get(),
+                      "Status_upperTime": graph.items['upperTime_chk'].get()}
 
-                for key, value in output.items():
-                    g.write("{} = {}\n".format(key, str(value)))
+            output.update(
+                {"Status_{}".format(key): 1 if value.get() else 0 for key, value in graph.check_box_values.items()})
 
-                g.write("\n")
+            total_output.append(output)
+
+        writer.write(GUI.settings_file, total_output)
 
 
 if __name__ == "__main__":
