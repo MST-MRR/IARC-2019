@@ -59,14 +59,9 @@ def possible_metrics(filename):
 
     raw_data = parse_config(filename)
 
-    # Look through all graphs pull metrics
-    metrics = dict()
-
-    for graph in raw_data:
-        for metric in graph['metric']:
-            func = metric['func'] if metric['func'] else 'x'
-
-            metrics.update({metric['label']: [(metric['x_stream'], metric['y_stream'], metric['z_stream']), func]})
+    metrics = {
+        metric['label']: [(metric['x_stream'], metric['y_stream'], metric['z_stream']), metric['func']]
+        for graph in raw_data for metric in graph['metric']}
 
     # TODO - If cant open, send coded in values of possible data streams in metric.py
 

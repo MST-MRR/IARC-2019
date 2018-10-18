@@ -3,6 +3,8 @@ from tkinter import ttk, filedialog
 
 from tools.file_io.file_io import possible_metrics, write_config
 
+from tools.real_time_graphing.metric import Metric
+
 
 class GraphSettings:
     init_settings_filename = "usable_metrics.xml"
@@ -45,11 +47,13 @@ class GraphSettings:
 
         # Check Boxes
         self.items['check_boxes'] = []
-        self.check_box_values = {}
+        self.check_box_values = {}  # TODO - Change to list of Metrics
 
-        self.check_box_values.update({key: BooleanVar() for key in check_box_settings})
+        self.check_box_values.update({
+            Metric(None, label=key, func=value[1], x_stream=value[0][0], y_stream=value[0][1], z_stream=value[0][2]):
+                BooleanVar() for key, value in check_box_settings.items()})
 
-        self.add_item('check_boxes', (1), [Checkbutton(self.tab, text=key, var=self.check_box_values[key]) for key in check_box_settings])
+        self.add_item('check_boxes', (1), [Checkbutton(self.tab, text=key.label, var=self.check_box_values[key]) for key in self.check_box_values])
 
         # Time interval settings
         self.add_item('lowerTime_lbl', (0, 2, 2), Label(self.tab, text="Time interval(seconds) Lower:"))
@@ -192,6 +196,23 @@ class GUI:
     def tab_id(self):
         return self.tab_control.index("current")
 
+    """ Work in progress 
+    class GraphStorage:
+        def __init__(self, tab_controller):
+            self.tab_controller
+        
+        @property
+        def curr(self):
+            return self.graphs[self.tab_control.index("current")]
+
+        def __getitem__(self, item):
+            return self.graphs[item]
+        
+        def append(self, value):
+            self.graphs.curr.append(value)
+            self.update()
+    """
+
     def add_graph(self, section=None):
         if not section: section = self.tab_id
 
@@ -236,6 +257,7 @@ class GUI:
         if not section: section = self.tab_id
 
         total_output = []
+        """
         for graph in self.graphs[section]:
             output = {"Status_GraphName": graph.name, "Status_lowerTime": graph.items['lowerTime_chk'].get(),
                       "Status_upperTime": graph.items['upperTime_chk'].get()}
@@ -244,6 +266,23 @@ class GUI:
                 {"Status_{}".format(key): 1 if value.get() else 0 for key, value in graph.check_box_values.items()})
 
             total_output.append(output)
+        """
+        # Looking for list of dicts of graphs w/ all tags containing list of dicts of metrics
+        for graph in self.graphs[section]:
+            output = {"title": graph.name, "lower_time": graph.items['lowerTime_chk'].get(),
+                      "upper_time": graph.items['upperTime_chk'].get(), 'metric': []}
+
+            for metric, value in graph.check_box_values.items():
+                if value.get():
+                    output['metric'].append({'label': metric.label, 'func': 'x',
+                                        'x_stream': metric.x_stream, 'y_stream': metric.y_stream,
+                                        'z_stream': metric.z_stream})
+
+            total_output.append(output)
+
+        # Realtime grapher should assume x and y label if not given and have more colors
+        # Graph -> title, x_label, y_label
+        # Needs label, func, streams
 
         write_config(GUI.settings_file, total_output)
 
