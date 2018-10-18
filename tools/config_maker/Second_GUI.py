@@ -126,9 +126,65 @@ class GraphSettings:
 
 
 class GUI:
+    settings_file = "GUI_Settings.csv"  # Config output
 
-    # Config output files
-    settings_file = "GUI_Settings.csv"
+    class GraphStorage:
+        def __init__(self, tab_controller, tabs):
+            self._tab_controller = tab_controller
+
+            self._tabs = tabs
+
+            self._graphs = [[], []]
+
+        @property
+        def tab(self):
+            return self._tabs[self.tab_id]
+
+        @property
+        def tab_id(self):
+            return self._tab_controller.index("current")
+
+        @property
+        def curr(self):
+            return self._graphs[self.tab_id]
+
+        def __getitem__(self, item):
+            return self._graphs[item]
+
+        def append(self, value):
+            self._graphs.curr.append(value)
+            self.update()
+
+        def add(self, section=None):
+            if not section: section = self.tab_id
+
+            graph = GraphSettings(self.tab, len(self._graphs[section]))
+
+            graph.add_item('delete', (9, -1), Button(self.tab, text="Delete", command=lambda: self.delete(
+                graph=graph)))  # TODO - Fix -1 thing
+
+            self.curr.append(graph)
+
+            self.update()
+
+        def delete(self, section=None, graph=None):
+            if len(self._graphs[self.tab_id]) is 0: return
+
+            if not section: section = self.tab_id
+            if not graph: graph = self._graphs[section][-1]
+
+            self.curr.remove(graph.delete())
+
+            self.update()
+
+        def update(self):
+            curr_offset = 0
+
+            for frame in self._graphs:
+                for graph in frame:
+                    graph.set_grid(curr_offset)
+
+                    curr_offset += graph.height
 
     def __init__(self):
         # TODO - pull old settings into window
@@ -145,27 +201,6 @@ class GUI:
         window.tk.call('wm', 'iconphoto', window._w, icon)
 
         #
-        # Menu Making
-        self.sharing_settings = 0
-        #self.sharing_color = "green"
-
-        self.menu_bar = Menu(window)
-
-        self.menu_bar.add_command(label='Pick a file', command=self.pick_graphing_file)
-
-        self.menu_bar.add_command(label="Add new graph", command=self.add_graph)
-        self.menu_bar.add_command(label="Delete Last Graph", command=self.delete_graph)
-
-        self.menu_bar.add_command(label="Pull old config")
-
-        self.menu_bar.add_command(label="Reset Selections")
-
-        self.menu_bar.add_command(label="Save", command=self.save)
-
-        self.menu_bar.add_checkbutton(label="Share tab settings", var=self.sharing_settings, command=self.toggle_sharing) #not sure how to implement this
-        # TODO - Make copy settings toggleable by highlighting background differently
-
-        #
         # Separate tabs
         self.tab_control = ttk.Notebook(window)
         self.tabs = []
@@ -178,10 +213,30 @@ class GUI:
 
         #
         # Create initial graphs
-        self.graphs = [[], []]
-        for i in range(2): self.add_graph()
+        self.graphs = GUI.GraphStorage(self.tab_control, self.tabs)
+        for i in range(2): self.graphs.add()
 
-        self.update()
+        #
+        # Menu Making
+        self.sharing_settings = 0
+        # self.sharing_color = "green"
+
+        self.menu_bar = Menu(window)
+
+        self.menu_bar.add_command(label='Pick a file', command=self.pick_graphing_file)
+
+        self.menu_bar.add_command(label="Add new graph", command=self.graphs.add)
+        self.menu_bar.add_command(label="Delete Last Graph", command=self.graphs.delete)
+
+        self.menu_bar.add_command(label="Pull old config")
+
+        self.menu_bar.add_command(label="Reset Selections")
+
+        self.menu_bar.add_command(label="Save", command=self.save)
+
+        self.menu_bar.add_checkbutton(label="Share tab settings", var=self.sharing_settings,
+                                      command=self.toggle_sharing)  # not sure how to implement this
+        # TODO - Make copy settings toggleable by highlighting background differently
 
         #
         # Display window
@@ -196,44 +251,6 @@ class GUI:
     def tab_id(self):
         return self.tab_control.index("current")
 
-    """ Work in progress 
-    class GraphStorage:
-        def __init__(self, tab_controller):
-            self.tab_controller
-        
-        @property
-        def curr(self):
-            return self.graphs[self.tab_control.index("current")]
-
-        def __getitem__(self, item):
-            return self.graphs[item]
-        
-        def append(self, value):
-            self.graphs.curr.append(value)
-            self.update()
-    """
-
-    def add_graph(self, section=None):
-        if not section: section = self.tab_id
-
-        graph = GraphSettings(self.tab, len(self.graphs[section]))
-
-        graph.add_item('delete', (9, -1), Button(self.tab, text="Delete", command=lambda: self.delete_graph(graph=graph)))  # TODO - Fix -1 thing
-
-        self.graphs[section].append(graph)
-
-        self.update()
-
-    def delete_graph(self, section=None, graph=None):
-        if len(self.graphs[self.tab_id]) is 0: return
-
-        if not section: section = self.tab_id
-        if not graph: graph = self.graphs[section][-1]
-
-        self.graphs[self.tab_id].remove(graph.delete())
-
-        self.update()
-
     def toggle_sharing(self):
         # TODO - Make share settings to both config(tabs)
 
@@ -243,15 +260,6 @@ class GUI:
         self.data_file = filedialog.askopenfilename(
             title="Select file to Graph", filetypes=(("csv files", "*.csv"), ("all files", "*.*"))
         )
-
-    def update(self):
-        curr_offset = 0
-
-        for frame in self.graphs:
-            for graph in frame:
-                graph.set_grid(curr_offset)
-
-                curr_offset += graph.height
 
     def save(self, section=None):
         if not section: section = self.tab_id
