@@ -39,7 +39,7 @@ def parse_config(filename):
         })
 
         for metric in graph.findall('metric'):
-            output[-1]['metrics'].append({
+            output[-1]['metric'].append({
                 'label': metric.get('label'),
 
                 'color': metric.get('color'),
@@ -55,18 +55,26 @@ def parse_config(filename):
 
 
 def possible_metrics(filename):
-    # TODO - Pull possible(hardcoded) metrics from file and put into checkboxes
-    # TODO - Pull in as label: datastreams, func
+    # {label: [(x_stream, y_stream, z_stream), func]}
 
-    # Parse -> parse_config(filename)
+    raw_data = parse_config(filename)
 
-    return ["Air Speed", "Altitude", "Pitch", "Roll", "Yaw", "xVelocity", "yVelocity", "zVelocity", "Voltage"]
+    # Look through all graphs pull metrics
+    metrics = dict()
+
+    for graph in raw_data:
+        for metric in graph['metric']:
+            func = metric['func'] if metric['func'] else 'x'
+
+            metrics.update({metric['label']: [(metric['x_stream'], metric['y_stream'], metric['z_stream']), func]})
+
+    # TODO - If cant open, send coded in values of possible data streams in metric.py
+
+    return metrics
 
 
 def write_config(filename, data):
-
-    #
-    # Encode graph
+    # Encode data
     desiredgraphs = ET.Element('desiredgraphs')
 
     for graph in data:
@@ -75,9 +83,19 @@ def write_config(filename, data):
             for item in lst:
                 ET.SubElement(curr_graph, key, {key: value for key, value in item.items() if value})
 
+    # Write
     with open(filename, 'w') as g:
         g.write(xml_to_string(desiredgraphs))
 
 
 if __name__ == '__main__':
-    write_config('test_config2.xml', parse_config('test_config1.xml'))
+    def test_parse_config():
+        print(parse_config('test_config1.xml'))
+
+    def test_write_config():
+        write_config('test_config2.xml', parse_config('test_config1.xml'))
+
+    def test_possible_metrics():
+        print(possible_metrics('test_config1.xml'))
+
+    test_possible_metrics()

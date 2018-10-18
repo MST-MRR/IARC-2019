@@ -5,7 +5,7 @@ from tools.file_io.file_io import possible_metrics, write_config
 
 
 class GraphSettings:
-    init_settings_filename = "Nope.txt"
+    init_settings_filename = "usable_metrics.xml"
 
     rows_per_graph = 3  # Baseline how many rows per graph
 
