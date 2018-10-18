@@ -274,7 +274,7 @@ class GUI:
 
             for metric, value in graph.check_box_values.items():
                 if value.get():
-                    output['metric'].append({'label': metric.label, 'func': 'x',
+                    output['metric'].append({'label': metric.label, 'func': metric.raw_func,
                                         'x_stream': metric.x_stream, 'y_stream': metric.y_stream,
                                         'z_stream': metric.z_stream})
 
