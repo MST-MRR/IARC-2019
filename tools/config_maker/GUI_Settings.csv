@@ -1,0 +1,10 @@
+<?xml version="1.0" ?>
+<desiredgraphs>
+  <graph lower_time="3" title="Graph0" upper_time="3">
+    <metric func="x" label="Velocity_x" x_stream="velocity_x"/>
+  </graph>
+  <graph lower_time="33" title="Graph1" upper_time="3">
+    <metric func="x" label="Velocity_x" x_stream="velocity_x"/>
+  </graph>
+  <graph title="Graph2"/>
+</desiredgraphs>
