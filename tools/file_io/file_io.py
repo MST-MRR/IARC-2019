@@ -9,10 +9,12 @@ def xml_to_string(xml_tag):
 def parse_config(filename):
     """
     Reads xml config file and returns parsed data.
+
     Parameters
     ----------
     filename: str
         Filename of desired config file.
+
     Returns
     -------
     list of parsed graphs

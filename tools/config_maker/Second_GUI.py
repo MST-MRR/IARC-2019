@@ -15,10 +15,6 @@ class GraphSettings:
 
     def __init__(self, tab, graph_num):
 
-        # TODO - Way to input custom functions - Add dynamic metrics
-
-        # TODO - Add metric button
-
         #
         # Settings
         self.tab = tab
@@ -47,11 +43,9 @@ class GraphSettings:
 
         # Check Boxes
         self.items['check_boxes'] = []
-        self.check_box_values = {}  # TODO - Change to list of Metrics
-
-        self.check_box_values.update({
+        self.check_box_values = {
             Metric(None, label=key, func=value[1], x_stream=value[0][0], y_stream=value[0][1], z_stream=value[0][2]):
-                BooleanVar() for key, value in check_box_settings.items()})
+                BooleanVar() for key, value in check_box_settings.items()}
 
         self.add_item('check_boxes', (1), [Checkbutton(self.tab, text=key.label, var=self.check_box_values[key]) for key in self.check_box_values])
 
@@ -68,6 +62,17 @@ class GraphSettings:
         return possible_metrics(self.init_settings_filename)
 
     def set_values(self):
+        pass
+
+    def add_check_box(self):
+        # # TODO - Way to input custom functions - Add dynamic metrics
+
+        # # TODO - Add metric button
+
+        # self.check_box_values.update(
+        # {Metric(None, label=key, func=value[1], x_stream=value[0][0], y_stream=value[0][1], z_stream=value[0][2]): BooleanVar()})
+
+        # Need to add the tk checkbutton too!
         pass
 
     def delete(self):
@@ -187,7 +192,7 @@ class GUI:
                     curr_offset += graph.height
 
     def __init__(self):
-        # TODO - pull old settings into window
+        # # TODO - pull old settings into window
 
         self.data_file = None
 
@@ -202,7 +207,7 @@ class GUI:
 
         #
         # Separate tabs
-        self.tab_control = ttk.Notebook(window)
+        self.tab_control = ttk.Notebook(window)  # TODO - Could maybe just put in GraphStorage
         self.tabs = []
 
         for text in ['Live Graphing Settings', 'After-The-Fact Graphing Settings']:
@@ -236,61 +241,39 @@ class GUI:
 
         self.menu_bar.add_checkbutton(label="Share tab settings", var=self.sharing_settings,
                                       command=self.toggle_sharing)  # not sure how to implement this
-        # TODO - Make copy settings toggleable by highlighting background differently
+
+        # # TODO - Make copy settings toggleable by highlighting background differently
 
         #
         # Display window
         window.config(menu=self.menu_bar)
         window.mainloop()
 
-    @property
-    def tab(self):
-        return self.tabs[self.tab_id]
-
-    @property
-    def tab_id(self):
-        return self.tab_control.index("current")
-
     def toggle_sharing(self):
-        # TODO - Make share settings to both config(tabs)
+        # # TODO - Make share settings to both config(tabs)
 
         print(self.sharing_settings)
 
     def pick_graphing_file(self):
+        # # TODO - How to save this data?
+        # # TODO - Make data get read and used
+
         self.data_file = filedialog.askopenfilename(
             title="Select file to Graph", filetypes=(("csv files", "*.csv"), ("all files", "*.*"))
         )
 
     def save(self, section=None):
-        if not section: section = self.tab_id
+        # # TODO - Chose where to save based on tab !
 
-        total_output = []
-        """
-        for graph in self.graphs[section]:
-            output = {"Status_GraphName": graph.name, "Status_lowerTime": graph.items['lowerTime_chk'].get(),
-                      "Status_upperTime": graph.items['upperTime_chk'].get()}
+        graphs = self.graphs[section] if section else self.graphs.curr
 
-            output.update(
-                {"Status_{}".format(key): 1 if value.get() else 0 for key, value in graph.check_box_values.items()})
-
-            total_output.append(output)
-        """
-        # Looking for list of dicts of graphs w/ all tags containing list of dicts of metrics
-        for graph in self.graphs[section]:
-            output = {"title": graph.name, "lower_time": graph.items['lowerTime_chk'].get(),
-                      "upper_time": graph.items['upperTime_chk'].get(), 'metric': []}
-
-            for metric, value in graph.check_box_values.items():
-                if value.get():
-                    output['metric'].append({'label': metric.label, 'func': metric.raw_func,
-                                        'x_stream': metric.x_stream, 'y_stream': metric.y_stream,
-                                        'z_stream': metric.z_stream})
-
-            total_output.append(output)
-
-        # Realtime grapher should assume x and y label if not given and have more colors
-        # Graph -> title, x_label, y_label
-        # Needs label, func, streams
+        total_output = [
+            {'title': graph.name, 'lower_time': graph.items['lowerTime_chk'].get(),
+             'upper_time': graph.items['upperTime_chk'].get(),
+             'metric': [{'label': metric.label, 'func': metric.raw_func, 'x_stream': metric.x_stream,
+                         'y_stream': metric.y_stream, 'z_stream': metric.z_stream}
+                        for metric, value in graph.check_box_values.items() if value.get()]}
+            for graph in graphs]
 
         write_config(GUI.settings_file, total_output)
 
