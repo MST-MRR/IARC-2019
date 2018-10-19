@@ -28,7 +28,7 @@ class GraphSettings:
 
         # Pull settings from hardcoded file
 
-        check_box_settings = self.read_init_settings()
+        check_box_settings = self.read_available_metrics()
 
         #
         # Item config
@@ -58,7 +58,7 @@ class GraphSettings:
 
         self.add_item('upperTime_chk', (4, 2), Entry(self.tab, width=5))
 
-    def read_init_settings(self):
+    def read_available_metrics(self):
         return possible_metrics(self.init_settings_filename)
 
     def set_values(self):
@@ -93,6 +93,8 @@ class GraphSettings:
         if row_offset: self.row_offset = row_offset
 
         rolling_offset = self.row_offset  # If checkboxes take extra lines, the lines underneath will drop one
+
+        # # TODO - Needs to be sorted by column, row too?
 
         for key, value in self.items.items():
             if key in self.item_locations:
@@ -131,7 +133,7 @@ class GraphSettings:
 
 
 class GUI:
-    settings_file = "GUI_Settings.csv"  # Config output
+    settings_file = "GUI_Settings.xml"  # Config output
 
     class GraphStorage:
         def __init__(self, tab_controller, tabs):
