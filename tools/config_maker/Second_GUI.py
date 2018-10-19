@@ -213,16 +213,12 @@ class GUI:
         window.title("Multirotor Robot Data Graphing Tool")
         window.geometry('750x500')
 
-<<<<<<< HEAD
-        icon = PhotoImage(file='ninja_icon.gif')
-        window.tk.call('wm', 'iconphoto', window._w, icon)
-=======
         try:
-            icon = PhotoImage(file='../../ninja_icon.gif')
+            icon = PhotoImage(file='ninja_icon.gif')
             window.tk.call('wm', 'iconphoto', window._w, icon)
+
         except TclError:
             print("Failed to open icon")
->>>>>>> 276cea5ca651fa65224d078a7691c887692c716b
 
         #
         # Separate tabs
