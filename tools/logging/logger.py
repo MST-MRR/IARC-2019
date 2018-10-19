@@ -32,13 +32,6 @@ class Logger:
         daily_flight = max([int(element.split(file_name_start)[1].split('.csv')[0]) if file_name_start in element else 0 for element in os.listdir()]) + 1
 
         self.directory = '{}{}.csv'.format(file_name_start, str(daily_flight))
-        """        
-        while os.path.exists(self.directory):
-            daily_flight += 1
-            self.directory = '{}_Flight_Num_{}.csv'.format(date, str(daily_flight))
-
-            if daily_flight > 1000: break
-        """
 
         #
         # Create file
