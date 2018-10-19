@@ -28,7 +28,7 @@ class GraphSettings:
 
         # Pull settings from hardcoded file
 
-        check_box_settings = self.read_init_settings()
+        check_box_settings = self.read_available_metrics()
 
         #
         # Item config
@@ -43,11 +43,11 @@ class GraphSettings:
 
         # Check Boxes
         self.items['check_boxes'] = []
-        self.check_box_values = {
-            Metric(None, label=key, func=value[1], x_stream=value[0][0], y_stream=value[0][1], z_stream=value[0][2]):
-                BooleanVar() for key, value in check_box_settings.items()}
+        self.check_box_values = [
+            Metric(BooleanVar(), label=key, func=value[1], x_stream=value[0][0], y_stream=value[0][1], z_stream=value[0][2])
+                 for key, value in check_box_settings.items()]
 
-        self.add_item('check_boxes', (1), [Checkbutton(self.tab, text=key.label, var=self.check_box_values[key]) for key in self.check_box_values])
+        self.add_item('check_boxes', (1), [Checkbutton(self.tab, text=metric.label, var=metric.output) for metric in self.check_box_values])
 
         # Time interval settings
         self.add_item('lowerTime_lbl', (0, 2, 2), Label(self.tab, text="Time interval(seconds) Lower:", borderwidth=1))
@@ -58,7 +58,7 @@ class GraphSettings:
 
         self.add_item('upperTime_chk', (4, 2), Entry(self.tab, width=5))
 
-    def read_init_settings(self):
+    def read_available_metrics(self):
         return possible_metrics(self.init_settings_filename)
 
     def set_values(self):
@@ -100,6 +100,8 @@ class GraphSettings:
 
         rolling_offset = self.row_offset  # If checkboxes take extra lines, the lines underneath will drop one
 
+        # # TODO - Needs to be sorted by column, row too?
+
         for key, value in self.items.items():
             if key in self.item_locations:
                 grid_values = self.item_locations[key]
@@ -140,7 +142,7 @@ class GraphSettings:
 
 
 class GUI:
-    settings_file = "GUI_Settings.csv"  # Config output
+    settings_file = "GUI_Settings.xml"  # Config output
 
     class GraphStorage:
         def __init__(self, tab_controller, tabs):
@@ -211,8 +213,16 @@ class GUI:
         window.title("Multirotor Robot Data Graphing Tool")
         window.geometry('750x500')
 
+<<<<<<< HEAD
         icon = PhotoImage(file='ninja_icon.gif')
         window.tk.call('wm', 'iconphoto', window._w, icon)
+=======
+        try:
+            icon = PhotoImage(file='../../ninja_icon.gif')
+            window.tk.call('wm', 'iconphoto', window._w, icon)
+        except TclError:
+            print("Failed to open icon")
+>>>>>>> 276cea5ca651fa65224d078a7691c887692c716b
 
         #
         # Separate tabs
@@ -281,7 +291,7 @@ class GUI:
              'upper_time': graph.items['upperTime_chk'].get(),
              'metric': [{'label': metric.label, 'func': metric.raw_func, 'x_stream': metric.x_stream,
                          'y_stream': metric.y_stream, 'z_stream': metric.z_stream}
-                        for metric, value in graph.check_box_values.items() if value.get()]}
+                        for metric in graph.check_box_values if metric.output.get()]}
             for graph in graphs]
 
         write_config(GUI.settings_file, total_output)
