@@ -4,6 +4,8 @@ import math
 import os
 from pymavlink import mavutil
 from dronekit import VehicleMode
+import threading
+
 
 # Constants
 MAINTAIN_ALTITUDE_THRUST = 0.5
@@ -12,7 +14,7 @@ SMOOTH_TAKEOFF_THRUST = 0.6
 
 
 def connect():
-    # Connect to the drone -- TODO: Put in its own function
+    # Connect to the drone
     return dronekit.connect("tcp:127.0.0.1:5762", wait_ready=True)
     print("\n Connected")
 
@@ -29,19 +31,34 @@ def arm(vehicle):
         print("Waiting till armed")
         time.sleep(1)
 
-def test_flight():
+def test_flight(vehicle):
     ''' This is a generic flight testing function that does something.
     '''
-    vehicle = connect()
-
     print("Taking off")
-    aTargetAltitude = 1
-    thrust = DEFAULT_TAKEOFF_THRUST
-
     arm_and_takeoff_nogps(vehicle, 2)
 
+    print("Hold for 15 seconds")
+    set_attitude(vehicle, duration = 15)
+    print("IMPORTANT~~~~~~~~~~~~~~~~")
+    print(vehicle.location.local_frame)
+    print("Move a little for 10 seconds")
+    #set_attitude(vehicle, roll_angle=-1, duration=10)
+
+    print("Move a little back for 10 seconds")
+    set_attitude(vehicle, roll_angle=1, duration=10)
+
+    print("Landing")
     while (not vehicle.mode == VehicleMode("LAND")):
         vehicle.mode = VehicleMode("LAND")
+
+    return True
+
+def print_info(threadName, vehicle, exitflag):
+    while exitflag:
+        print("VEHICLE ALTITUDE: ", vehicle.location.global_relative_frame.alt)
+        print "Attitude: %s" % vehicle.attitude
+        print "Velocity: %s" % vehicle.velocity
+        time.sleep(1)
 
 def set_attitude(vehicle, roll_angle = 0.0, pitch_angle = 0.0, yaw_rate = 0.0, thrust = 0.5, duration = 0):
     """
@@ -117,7 +134,7 @@ def arm_and_takeoff_nogps(vehicle, aTargetAltitude):
 
     print("Arming motors")
     # Copter should arm in GUIDED_NOGPS mode
-    vehicle.mode = VehicleMode("GUIDED_NOGPS")
+    vehicle.mode = VehicleMode("GUIDED")
     vehicle.armed = True
 
     while not vehicle.armed:
@@ -140,4 +157,44 @@ def arm_and_takeoff_nogps(vehicle, aTargetAltitude):
         set_attitude(vehicle, thrust = thrust)
         time.sleep(0.2)
 
-test_flight()
+def get_info():
+    return {'roll':5 ,'pitch':7}
+
+class infoThread (threading.Thread):
+    def __init__(self, threadID, name, vehicle):
+        threading.Thread.__init__(self)
+        self.threadID = threadID
+        self.name = name
+        self.vehicle = vehicle
+        self.exitflag = True
+    def run(self):
+      print "Starting " + self.name
+      print_info(self.name, self.vehicle, self.exitflag)
+      print "Exiting " + self.name
+    def stop(self):
+        self.exitflag = False
+
+class testThread(threading.Thread):
+    def __init(self, threadID, name, vehicle):
+        threading.Thread.__init__(self)
+        self.threadID = threadID
+        self.name = name
+        self.vehicle = vehicle
+        self.status = False
+    def run(self):
+        self.status = test_flight(vehicle)
+
+
+vehicle = connect()
+
+#thread1 = infoThread(1, "Thread-1", vehicle)
+#thread1.start()
+thread2 = testThread(2, "Thread-2" , vehicle)
+thread2.start()
+while True:
+    try:
+        if thread2.status:
+            #thread1.stop()
+            break;
+    except KeyboardInterrupt:
+        break;
