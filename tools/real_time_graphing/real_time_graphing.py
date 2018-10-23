@@ -26,7 +26,7 @@ class RealTimeGraph:
         Time in seconds to display previous data
     """
 
-    config_filename = 'config.xml'  # Location of configuration file
+    config_filename = ['tools/real_time_graphing/config.xml', 'config.xml']  # Location of configuration file
 
     max_rows = 3  # Rows of subplots per column
 
@@ -53,6 +53,8 @@ class RealTimeGraph:
         self.fig = plt.figure(figsize=(8, 6))
         self.fig.canvas.set_window_title('Real Time Graphing')
 
+        self.fig.subplots_adjust(hspace=1, wspace=0.75)  # Avoid subplot overlap
+
         self.parse_config()
 
         self.ani = animation.FuncAnimation(self.fig, self.plot_data, blit=False, interval=20, repeat=False)
@@ -72,10 +74,6 @@ class RealTimeGraph:
         for thread in threads.values():
             thread.start()
 
-        self.fig.subplots_adjust(hspace=1, wspace=0.75)  # Avoid subplot overlap
-
-        #
-        # Code stops here until matplot window closed
         plt.show()
 
         #
@@ -95,7 +93,11 @@ class RealTimeGraph:
             Parsed config file
         """
 
-        output = file_io.parse_config(RealTimeGraph.config_filename)
+        for filename in RealTimeGraph.config_filename:
+            try:
+                output = file_io.parse_config(filename)
+            except IOError:
+                pass
 
         # Total number of subplots
         graph_count = [graph["output"] == 'text' for graph in output].count(False)
@@ -208,6 +210,7 @@ class RealTimeGraph:
                 self.data_count += 1
 
     def plot_data(self, frame):
+        print "Plotting"
         """
         Plots data
 
