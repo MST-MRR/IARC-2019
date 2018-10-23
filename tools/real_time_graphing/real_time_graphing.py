@@ -32,7 +32,7 @@ class RealTimeGraph:
 
     data_freq_warning = .5  # If time values are this far apart warn the user
 
-    def __init__(self, get_data=get_demo_data, pan_width=10):
+    def __init__(self, get_data=get_demo_data, pan_width=10, **kwargs):
         self.get_data = get_data
         self.pan_width = abs(pan_width)
 
@@ -60,9 +60,9 @@ class RealTimeGraph:
         self.ani = animation.FuncAnimation(self.fig, self.plot_data, blit=False, interval=20, repeat=False)
 
         # Threading
-        self.sleep_time = 1e-1
+        self.sleep_time = kwargs['sleep_time'] if 'sleep_time' in kwargs.keys() else 1e-1
 
-        self.thread_stop = threading.Event()
+        self.thread_stop = kwargs['thread_stop'] if 'thread_stop' in kwargs.keys() else threading.Event()
 
         self.thread_queue = Queue()
 
