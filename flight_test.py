@@ -39,14 +39,14 @@ def test_flight(vehicle):
 
     print("Hold for 15 seconds")
     set_attitude(vehicle, duration = 15)
-    print("IMPORTANT~~~~~~~~~~~~~~~~")
-    print(vehicle.location.local_frame)
-    print("Move a little for 10 seconds")
+    #print("IMPORTANT~~~~~~~~~~~~~~~~")
+    #print(vehicle.location.local_frame)
+    #print("Move a little for 10 seconds")
     #set_attitude(vehicle, roll_angle=-1, duration=10)
 
-    print("Move a little back for 10 seconds")
-    set_attitude(vehicle, roll_angle=1, duration=10)
-
+    #print("Move a little back for 10 seconds")
+    #set_attitude(vehicle, roll_angle=1, duration=10)
+    
     print("Landing")
     while (not vehicle.mode == VehicleMode("LAND")):
         vehicle.mode = VehicleMode("LAND")
@@ -160,6 +160,30 @@ def arm_and_takeoff_nogps(vehicle, aTargetAltitude):
 def get_info():
     return {'roll':5 ,'pitch':7}
 
+def send_global_velocity(velocity_x, velocity_y, velocity_z, duration, vehicle):
+    """
+    Move vehicle in direction based on specified velocity vectors.
+    """
+    msg = vehicle.message_factory.set_position_target_global_int_encode(
+        0,       # time_boot_ms (not used)
+        0, 0,    # target system, target component
+        mavutil.mavlink.MAV_FRAME_GLOBAL_RELATIVE_ALT_INT, # frame
+        0b0000111111000111, # type_mask (only speeds enabled)
+        0, # lat_int - X Position in WGS84 frame in 1e7 * meters
+        0, # lon_int - Y Position in WGS84 frame in 1e7 * meters
+        0, # alt - Altitude in meters in AMSL altitude(not WGS84 if absolute or relative)
+        # altitude above terrain if GLOBAL_TERRAIN_ALT_INT
+        velocity_x, # X velocity in NED frame in m/s
+        velocity_y, # Y velocity in NED frame in m/s
+        velocity_z, # Z velocity in NED frame in m/s
+        0, 0, 0, # afx, afy, afz acceleration (not supported yet, ignored in GCS_Mavlink)
+        0, 0)    # yaw, yaw_rate (not supported yet, ignored in GCS_Mavlink)
+
+    # send command to vehicle on 1 Hz cycle
+    for x in range(0,duration):
+        vehicle.send_mavlink(msg)
+        time.sleep(1)
+
 class infoThread (threading.Thread):
     def __init__(self, threadID, name, vehicle):
         threading.Thread.__init__(self)
@@ -175,7 +199,7 @@ class infoThread (threading.Thread):
         self.exitflag = False
 
 class testThread(threading.Thread):
-    def __init(self, threadID, name, vehicle):
+    def __init__(self, threadID, name, vehicle):
         threading.Thread.__init__(self)
         self.threadID = threadID
         self.name = name
