@@ -5,6 +5,8 @@ import os
 from pymavlink import mavutil
 from dronekit import VehicleMode
 import threading
+import temp_rtg_controller
+import matplotlib
 
 
 # Constants
@@ -210,7 +212,9 @@ class testThread(threading.Thread):
 
 
 vehicle = connect()
-
+thread_stop = threading.Event()
+graph1 = temp_rtg_controller.DemoRTGController()
+graphthread = threading.Thread(target=graph1.create_graph, args=(thread_stop,))
 #thread1 = infoThread(1, "Thread-1", vehicle)
 #thread1.start()
 thread2 = testThread(2, "Thread-2" , vehicle)
