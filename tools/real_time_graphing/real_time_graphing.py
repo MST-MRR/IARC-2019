@@ -210,7 +210,6 @@ class RealTimeGraph:
                 self.data_count += 1
 
     def plot_data(self, frame):
-        print "Plotting"
         """
         Plots data
 

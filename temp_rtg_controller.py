@@ -10,8 +10,6 @@ from time import sleep
 
 class DemoRTGController:
     def __init__(self):
-        # TODO - Currently the thread system in rtg seems to be breaking dis
-
         self.data = Queue()
 
         self.graph = None
