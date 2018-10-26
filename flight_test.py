@@ -39,8 +39,8 @@ def test_flight(vehicle):
     print("Taking off")
     arm_and_takeoff_nogps(vehicle, 2)
 
-    print("Hold for 15 seconds")
-    set_attitude(vehicle, duration = 15)
+    print("Hold for 5 seconds")
+    set_attitude(vehicle, duration = 5)
     #print("IMPORTANT~~~~~~~~~~~~~~~~")
     #print(vehicle.location.local_frame)
     #print("Move a little for 10 seconds")
@@ -48,7 +48,15 @@ def test_flight(vehicle):
 
     #print("Move a little back for 10 seconds")
     #set_attitude(vehicle, roll_angle=1, duration=10)
-    
+    send_global_velocity(-1, 0, 0, 5, vehicle)
+    set_attitude(vehicle, duration = 5)
+    send_global_velocity(0,-1, 0, 5, vehicle)
+    set_attitude(vehicle, duration = 5)
+    send_global_velocity(1, 0, 0, 5, vehicle)
+    set_attitude(vehicle, duration = 5)
+    send_global_velocity(0, 1, 0, 5, vehicle)
+    set_attitude(vehicle, duration = 5)
+
     print("Landing")
     while (not vehicle.mode == VehicleMode("LAND")):
         vehicle.mode = VehicleMode("LAND")
@@ -219,6 +227,8 @@ graphthread = threading.Thread(target=graph1.create_graph, args=(thread_stop,))
 #thread1.start()
 thread2 = testThread(2, "Thread-2" , vehicle)
 thread2.start()
+#graphthread.start()
+
 while True:
     try:
         if thread2.status:
