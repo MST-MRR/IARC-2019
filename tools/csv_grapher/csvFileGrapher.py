@@ -42,21 +42,23 @@ def make_whole_graph():
     with open(config_file, 'r') as file:
         data_to_plot, relevant_intervals = list(csv.reader(file))  # Read config file
 
+    # TODO - improve below - concise
+
     #
     # Get ready to plot data
-    minLimit = float(relevant_intervals[0])  # gets the min and max limts for graphing
-    maxLimit = float(relevant_intervals[1])
+    min_time_limit = float(relevant_intervals[0])  # gets the min and max limts for graphing
+    max_time_limit = float(relevant_intervals[1])
+
+    rows_below_max = df['secFromStart'] < max_time_limit
+    rows_above_min = df['secFromStart'] > min_time_limit
+
+    data = df[rows_below_max & rows_above_min]
 
     #
     # Plot data
-    for dataToPlot in data_to_plot:  # plots each data point based on the other settings
-        maxTime = df['secFromStart'] < maxLimit
-        minTime = df['secFromStart'] > minLimit
-
-        new = df[maxTime & minTime]
-
-        x = new['secFromStart']
-        y = new[dataToPlot]
+    for column in data_to_plot:  # plots each data point based on the other settings
+        x = data['secFromStart']
+        y = data[column]
 
         plt.plot(x, y)
 
