@@ -1,0 +1,9 @@
+<?xml version="1.0" ?>
+<desiredgraphs>
+  <graph lower_time="0" title="csvFileGrapher" upper_time=".1">
+    <!--<metric func="x" label="Target_yaw" x_stream="target_yaw"/>-->
+    <metric func="x" label="Velocity_x" x_stream="velocity_x"/>
+    <metric func="x" label="Velocity_y" x_stream="velocity_y"/>\
+    <metric func="x" label="Velocity_z" x_stream="velocity_z"/>
+  </graph>
+</desiredgraphs>
