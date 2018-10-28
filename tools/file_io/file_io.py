@@ -37,6 +37,9 @@ def parse_config(filename):
             'xlabel': graph.get('xlabel'),
             'ylabel': graph.get('ylabel'),
 
+            'lower_time': graph.get('lower_time'),
+            'upper_time': graph.get('upper_time'),
+
             'metric': []
         })
 
