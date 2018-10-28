@@ -17,23 +17,30 @@ def make_whole_graph():
     root = Tk()  # Create tkinter window
 
     # Select data to graph through explorer prompt
+    # TODO - From config??
+
     data_file = filedialog.askopenfilename(
         title="Select file to Graph", filetypes=(("csv files", "*.csv"), ("all files", "*.*"))
     )
 
     # pick the file for the settings
+    # TODO - By default?
+
     config_file = filedialog.askopenfilename(
         title="Select the Graphing Config file", filetypes=(("csv files", "*.csv"), ("all files", "*.*"))
     )
 
     root.destroy()  # Close the tkinter window
 
+
+    # TODO - make read data file generally
+
     #
     # Read data & config
     df = pd.read_csv(data_file)  # Read data
 
     with open(config_file, 'r') as file:
-        data_to_plot, relevant_intervals  = list(csv.reader(file))  # Read config file
+        data_to_plot, relevant_intervals = list(csv.reader(file))  # Read config file
 
     #
     # Get ready to plot data

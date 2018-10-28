@@ -1,144 +1,66 @@
 from tkinter import *
 from tkinter import ttk, filedialog
 
-from tools.file_io.file_io import possible_metrics, write_config
+from tools.config_maker.graph_node import GraphNode
 
-from tools.real_time_graphing.metric import Metric
+from tools.file_io.file_io import write_config
 
 
-class GraphSettings:
-    init_settings_filename = "tools/config_maker/usable_metrics.xml"
+# https://gist.github.com/EugeneBakin/76c8f9bcec5b390e45df
+# TODO -------- make work? Maybe make this create a frame and canvas and buttons get put on frame grid
 
-    rows_per_graph = 3  # Baseline how many rows per graph
+class VerticalScrolledFrame(Frame):
+    """A pure Tkinter scrollable frame that actually works!
+    * Use the 'interior' attribute to place widgets inside the scrollable frame
+    * Construct and pack/place/grid normally
+    * This frame only allows vertical scrolling
+    """
+    def __init__(self, parent, *args, **kw):
+        Frame.__init__(self, parent, *args, **kw)
 
-    checkbox_width = 6  # How many checkboxes allowed per line
+        # create a canvas object and a vertical scrollbar for scrolling it
+        vscrollbar = Scrollbar(self, orient=VERTICAL)
 
-    def __init__(self, tab, graph_num):
+        # TODO - Make scrollbar align right without using pack
 
-        #
-        # Settings
-        self.tab = tab
-        self.graph_num = graph_num
+        #vscrollbar.pack(fill=Y, side=RIGHT, expand=FALSE)
 
-        self.row_offset = self.graph_num * GraphSettings.rows_per_graph
+        vscrollbar.grid(column=10, rowspan=10)
 
-        self.height = GraphSettings.rows_per_graph
+        canvas = Canvas(self, bd=0, highlightthickness=0,
+                        yscrollcommand=vscrollbar.set)
 
-        self.name = "Graph{}".format(self.graph_num)
+        # TODO - Separate canvas and scrollbar?, sticky?
+        #canvas.pack(side=LEFT, fill=BOTH, expand=TRUE)
+        #canvas.grid(column=0)
 
-        # Pull settings from hardcoded file
+        vscrollbar.config(command=canvas.yview)
 
-        check_box_settings = self.read_available_metrics()
+        # reset the view
+        canvas.xview_moveto(0)
+        canvas.yview_moveto(0)
 
-        #
-        # Item config
-        self.item_locations = {}
+        # create a frame inside the canvas which will be scrolled with it
+        self.interior = interior = Frame(canvas)
+        interior_id = canvas.create_window(0, 0, window=interior,
+                                           anchor=NW)
 
-        self.items = dict()
+        # track changes to the canvas and frame width and sync them,
+        # also updating the scrollbar
+        def _configure_interior(event):
+            # update the scrollbars to match the size of the inner frame
+            size = (interior.winfo_reqwidth(), interior.winfo_reqheight())
+            canvas.config(scrollregion="0 0 %s %s" % size)
+            if interior.winfo_reqwidth() != canvas.winfo_width():
+                # update the canvas's width to fit the inner frame
+                canvas.config(width=interior.winfo_reqwidth())
+        interior.bind('<Configure>', _configure_interior)
 
-        # Header
-        self.add_item('title', (0, 0, 2), Label(self.tab, text=self.name, font=("Arial Bold", 15), borderwidth=1))
-
-        self.add_item('update_title', (2, 0, 2), Button(self.tab, text="Change Name", command=self.update_title, bd=2))
-
-        # Check Boxes
-        self.items['check_boxes'] = []
-        self.check_box_values = [
-            Metric(BooleanVar(), label=key, func=value[1], x_stream=value[0][0], y_stream=value[0][1], z_stream=value[0][2])
-                 for key, value in check_box_settings.items()]
-
-        self.add_item('check_boxes', (1), [Checkbutton(self.tab, text=metric.label, var=metric.output) for metric in self.check_box_values])
-
-        # Time interval settings
-        self.add_item('lowerTime_lbl', (0, 2, 2), Label(self.tab, text="Time interval(seconds) Lower:", borderwidth=1))
-
-        self.add_item('lowerTime_chk', (2, 2), Entry(self.tab, width=5))
-
-        self.add_item('upperTime_lbl', (3, 2), Label(self.tab, text="Upper:", borderwidth=1))
-
-        self.add_item('upperTime_chk', (4, 2), Entry(self.tab, width=5))
-
-    def read_available_metrics(self):
-        return possible_metrics(self.init_settings_filename)
-
-    def set_values(self):
-        pass
-
-    def add_check_box(self):
-        # # TODO - Way to input custom functions - Add dynamic metrics
-
-        # # TODO - Add metric button
-
-        # self.check_box_values.update(
-        # {Metric(None, label=key, func=value[1], x_stream=value[0][0], y_stream=value[0][1], z_stream=value[0][2]): BooleanVar()})
-
-        # Need to add the tk checkbutton too!
-        pass
-
-    def delete(self):
-        for key, value in self.items.items():
-            if type(value) is list:
-                for item in value:
-                    item.destroy()
-            else:
-                value.destroy()
-
-        return self
-
-    def add_item(self, name, loc, obj):
-        if type(obj) is list:
-            for item in obj:
-                item.configure(background="#66AA33")
-        elif not type(obj) is Entry:
-            obj.configure(background="#66AA33")
-        
-        self.items[name] = obj
-        self.item_locations[name] = loc
-
-    def set_grid(self, row_offset=None):
-        if row_offset: self.row_offset = row_offset
-
-        rolling_offset = self.row_offset  # If checkboxes take extra lines, the lines underneath will drop one
-
-        # # TODO - Needs to be sorted by column, row too?
-
-        for key, value in self.items.items():
-            if key in self.item_locations:
-                grid_values = self.item_locations[key]
-
-                if type(value) is list:
-                    for i in range(len(value)):
-                        value[i].grid(sticky="W", column=i % GraphSettings.checkbox_width,
-                                      row=rolling_offset + grid_values + int(i / GraphSettings.checkbox_width))
-
-                    rolling_offset += int(len(value) / GraphSettings.checkbox_width)
-                else:
-                    value.grid(column=grid_values[0], row=rolling_offset + grid_values[1],
-                               columnspan=grid_values[2] if len(grid_values) > 2 else 1)
-
-        self.height = rolling_offset + GraphSettings.rows_per_graph
-
-    def update_title(self):
-        """
-        Allows you to update the name of the graph
-        """
-        if isinstance(self.items['title'], Entry):
-            self.name = self.items['title'].get()
-
-            self.items['title'].destroy()
-
-            self.items['title'] = Label(self.tab, text=self.name, font=("Arial Bold", 15), bg="#66AA33", borderwidth=1)
-
-            self.items['update_title']['text'] = "Change Name"
-
-        else:
-            self.items['title'].destroy()
-
-            self.items['title'] = Entry(self.tab, width=20)
-
-            self.items['update_title']['text'] = "Submit"
-
-        self.set_grid()
+        def _configure_canvas(event):
+            if interior.winfo_reqwidth() != canvas.winfo_width():
+                # update the inner frame's width to fill the canvas
+                canvas.itemconfigure(interior_id, width=canvas.winfo_width())
+        canvas.bind('<Configure>', _configure_canvas)
 
 
 class GUI:
@@ -174,7 +96,7 @@ class GUI:
         def add(self, section=None):
             if not section: section = self.tab_id
 
-            graph = GraphSettings(self.tab, len(self._graphs[section]))
+            graph = GraphNode(self.tab, len(self._graphs[section]))
 
             graph.add_item('delete', (9, -1), Button(self.tab, text="Delete", command=lambda: self.delete(
                 graph=graph), bd=2))  # TODO - Fix -1 thing
@@ -226,7 +148,7 @@ class GUI:
         self.tabs = []
 
         for text in ['Live Graphing Settings', 'After-The-Fact Graphing Settings']:
-            self.tabs.append(Frame(self.tab_control, bg="#66AA33"))
+            self.tabs.append(VerticalScrolledFrame(self.tab_control, bg="#66AA33"))
             self.tab_control.add(self.tabs[-1], text=text)
 
         self.tab_control.pack(expand=1, fill='both')
