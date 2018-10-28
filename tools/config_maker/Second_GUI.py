@@ -1,7 +1,7 @@
 from tkinter import *
 from tkinter import ttk, filedialog
 
-from tools.config_maker.scroll_frame import VerticalScrolledFrame
+#from tools.config_maker.scroll_frame import VerticalScrolledFrame
 from tools.config_maker.graph_storage import GraphStorage
 
 from tools.file_io.file_io import write_config
@@ -34,7 +34,7 @@ class GUI:
         self.tabs = []
 
         for text in ['Live Graphing Settings', 'After-The-Fact Graphing Settings']:
-            self.tabs.append(VerticalScrolledFrame(self.tab_control, bg="#66AA33"))
+            self.tabs.append(Frame(self.tab_control, bg="#66AA33"))
             self.tab_control.add(self.tabs[-1], text=text)
 
         self.tab_control.pack(expand=1, fill='both')
