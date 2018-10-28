@@ -19,8 +19,8 @@ class Logger:
         # Setup dict w/ headers matched to desired data stream
         self.desired_data = {'secFromStart': None}
         self.desired_data.update(
-            {'airSpeed': 'airspeed',  'altitude': 'altitude', 'pitch': 'pitch', 'roll': 'roll', 'yaw': 'yaw',
-             'xVelocity': 'velocity_x', 'yVelocity': 'velocity_y', 'zVelocity': 'velocity_z', 'voltage': 'voltage'}
+            {'airspeed': 'airspeed',  'altitude': 'altitude', 'pitch': 'pitch', 'roll': 'roll', 'yaw': 'yaw',
+             'velocity_x': 'velocity_x', 'velocity_y': 'velocity_y', 'velocity_z': 'velocity_z', 'voltage': 'voltage'}
             if not desired_data else desired_data)
 
         #
@@ -79,7 +79,7 @@ if __name__ == '__main__':
     stopWhile = 0
 
     my_logger = Logger({'airSpeed': 'airspeed',  'altitude': 'altitude', 'pitch': 'pitch', 'roll': 'roll', 'yaw': 'yaw',
-             'xVelocity': 'velocity_x', 'yVelocity': 'velocity_y', 'zVelocity': 'velocity_z',
+             'velocity_x': 'velocity_x', 'velocity_y': 'velocity_y', 'velocity_z': 'velocity_z',
             'voltage': 'voltage'})
 
     func = lambda: random.randint(1, 10)
