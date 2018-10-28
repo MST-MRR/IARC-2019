@@ -33,7 +33,7 @@ def make_whole_graph():
     # TODO - By default?
 
     config_file = filedialog.askopenfilename(
-        title="Select the Graphing Config file", filetypes=(("csv files", "*.csv"), ("all files", "*.*"))
+        title="Select the Graphing Config file", filetypes=(("xml files", "*.xml"), ("csv files", "*.csv"), ("all files", "*.*"))
     )
 
     root.destroy()  # Close the tkinter window
