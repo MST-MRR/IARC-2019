@@ -6,6 +6,8 @@ from tkinter import Tk
 import pandas as pd
 import matplotlib.pyplot as plt
 
+from tools.file_io.file_io import parse_config
+
 
 def make_whole_graph():
     """
@@ -18,6 +20,10 @@ def make_whole_graph():
 
     # Select data to graph through explorer prompt
     # TODO - From config??
+
+    #
+    #
+    # TODO - Make read in associated files based on config -> if only one config file read it
 
     data_file = filedialog.askopenfilename(
         title="Select file to Graph", filetypes=(("csv files", "*.csv"), ("all files", "*.*"))
@@ -39,8 +45,13 @@ def make_whole_graph():
     # Read data & config
     df = pd.read_csv(data_file)  # Read data
 
-    with open(config_file, 'r') as file:
-        data_to_plot, relevant_intervals = list(csv.reader(file))  # Read config file
+    #with open(config_file, 'r') as file:
+     #   data_to_plot, relevant_intervals = list(csv.reader(file))  # Read config file
+
+    config = parse_config(config_file)
+    data_to_plot = [metric['x_stream'] for metric in config[0]['metric']]
+    relevant_intervals = [config[0]['lower_time'], config[0]['upper_time']]
+    print(relevant_intervals)
 
     # TODO - improve below - concise
 
@@ -57,10 +68,7 @@ def make_whole_graph():
     #
     # Plot data
     for column in data_to_plot:  # plots each data point based on the other settings
-        x = data['secFromStart']
-        y = data[column]
-
-        plt.plot(x, y)
+        plt.plot(data['secFromStart'], data[column])  # x, y
 
     plt.legend()  # Enable legend
 
