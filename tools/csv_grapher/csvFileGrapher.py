@@ -45,15 +45,10 @@ def make_whole_graph():
     # Read data & config
     df = pd.read_csv(data_file)  # Read data
 
-    #with open(config_file, 'r') as file:
-     #   data_to_plot, relevant_intervals = list(csv.reader(file))  # Read config file
-
     config = parse_config(config_file)
+
     data_to_plot = [metric['x_stream'] for metric in config[0]['metric']]
     relevant_intervals = [config[0]['lower_time'], config[0]['upper_time']]
-    print(relevant_intervals)
-
-    # TODO - improve below - concise
 
     #
     # Get ready to plot data
