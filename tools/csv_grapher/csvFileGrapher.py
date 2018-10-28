@@ -20,15 +20,13 @@ def make_whole_graph():
 
     # TODO - Make able to create multiple graphs
 
-    # TODO - From config??
-
     # TODO - Way to start of zoomed
 
     # TODO - Make read in associated files based on config -> if only one config file read it
 
     # TODO - make read data file generally? maybe need to make config generator handle this
 
-    # TODO - By default?
+    # TODO - Folder for configs and data????
 
     # Select config & data to graph through explorer prompt
     config_file = filedialog.askopenfilename(
