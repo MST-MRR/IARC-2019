@@ -7,12 +7,27 @@ from tools.config_maker.graph_storage import GraphStorage
 from tools.file_io.file_io import write_config
 
 
+# TODO - pull old settings into window
+
+# TODO - Way to save what file you want graphed
+
+# TODO - Make share settings to both config(tabs)
+
+# TODO - Fix file_io problems based on where program is called from
+
+# TODO - add var for icon filename
+
+# TODO - put tab creation in GraphStorage?
+
+# # TODO - Make copy settings toggleable by highlighting button background differently
+
+# # TODO - Chose where to save based on tab ! and set variable to set it
+
+
 class GUI:
-    settings_file = "GUI_Settings.xml"  # Config output
+    settings_file = "GUI_Settings.xml"  # Config output file
 
     def __init__(self):
-        # # TODO - pull old settings into window
-
         self.data_file = None
 
         #
@@ -30,7 +45,7 @@ class GUI:
 
         #
         # Separate tabs
-        self.tab_control = ttk.Notebook(window)  # TODO - Could maybe just put in GraphStorage
+        self.tab_control = ttk.Notebook(window)
         self.tabs = []
 
         for text in ['Live Graphing Settings', 'After-The-Fact Graphing Settings']:
@@ -63,9 +78,7 @@ class GUI:
         self.menu_bar.add_command(label="Save", command=self.save)
 
         self.menu_bar.add_checkbutton(label="Share tab settings", var=self.sharing_settings,
-                                      command=self.toggle_sharing)  # not sure how to implement this
-
-        # # TODO - Make copy settings toggleable by highlighting background differently
+                                      command=self.toggle_sharing)
 
         #
         # Display window
@@ -73,8 +86,6 @@ class GUI:
         window.mainloop()
 
     def toggle_sharing(self):
-        # # TODO - Make share settings to both config(tabs)
-
         print(self.sharing_settings)
 
     def pick_graphing_file(self):
@@ -86,8 +97,6 @@ class GUI:
         )
 
     def save(self, section=None):
-        # # TODO - Chose where to save based on tab !
-
         graphs = self.graphs[section] if section else self.graphs.curr
 
         total_output = [

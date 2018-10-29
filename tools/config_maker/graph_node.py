@@ -5,6 +5,13 @@ from tools.file_io.file_io import possible_metrics
 from tools.real_time_graphing.metric import Metric
 
 
+# TODO - Way to input custom functions - Add dynamic metrics
+
+# TODO - Add metric button
+
+# TODO - Sort items before doing set grid as to not get undefined behavior
+
+
 class GraphNode:
     init_settings_filename = ["tools/config_maker/usable_metrics.xml", "usable_metrics.xml"]
 
@@ -68,10 +75,6 @@ class GraphNode:
         pass
 
     def add_check_box(self):
-        # # TODO - Way to input custom functions - Add dynamic metrics
-
-        # # TODO - Add metric button
-
         # self.check_box_values.update(
         # {Metric(None, label=key, func=value[1], x_stream=value[0][0], y_stream=value[0][1], z_stream=value[0][2]): BooleanVar()})
 
@@ -102,8 +105,6 @@ class GraphNode:
         if row_offset: self.row_offset = row_offset
 
         rolling_offset = self.row_offset  # If checkboxes take extra lines, the lines underneath will drop one
-
-        # # TODO - Needs to be sorted by column, row too?
 
         for key, value in self.items.items():
             if key in self.item_locations:

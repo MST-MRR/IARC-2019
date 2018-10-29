@@ -20,11 +20,8 @@ def make_whole_graph():
 
     # TODO - Make able to create multiple graphs
 
-    # TODO - Way to start of zoomed
-
     # TODO - Make read in associated files based on config -> if only one config file read it
-
-    # TODO - make read data file generally? maybe need to make config generator handle this
+    # TODO - allow for config maker to craft configs for multiple file types
 
     # TODO - Folder for configs and data????
 
