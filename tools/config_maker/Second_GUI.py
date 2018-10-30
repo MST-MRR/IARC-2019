@@ -15,17 +15,18 @@ from tools.file_io.file_io import write_config
 
 # TODO - Fix file_io problems based on where program is called from
 
-# TODO - add var for icon filename
-
 # TODO - put tab creation in GraphStorage?
 
 # # TODO - Make copy settings toggleable by highlighting button background differently
 
 # # TODO - Chose where to save based on tab ! and set variable to set it
 
+# TODO - File_io detect where program is being called from and add necessary directories
 
 class GUI:
     settings_file = "Flight_Num.xml"  # Config output file
+
+    icon_file = 'ninja_icon.gif'
 
     def __init__(self):
         self.data_file = None
@@ -37,7 +38,7 @@ class GUI:
         window.geometry('750x500')
 
         try:
-            icon = PhotoImage(file='ninja_icon.gif')
+            icon = PhotoImage(file=GUI.icon_file)
             window.tk.call('wm', 'iconphoto', window._w, icon)
 
         except TclError:
