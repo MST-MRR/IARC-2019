@@ -18,12 +18,9 @@ def make_whole_graph():
     # Get startup data
     root = Tk()  # Create tkinter window
 
-    # TODO - Make able to create multiple graphs
-
     # TODO - Make read in associated files based on config -> if only one config file read it
     # TODO - allow for config maker to craft configs for multiple file types
 
-    # TODO - Folder for configs and data????
 
     # Select config & data to graph through explorer prompt
     config_file = filedialog.askopenfilename(
@@ -41,24 +38,32 @@ def make_whole_graph():
     # Read data & config
     raw_data = pd.read_csv(data_file)
 
-    config = parse_config(config_file)[0]
+    config = parse_config(config_file)
 
-    columns_to_plot = [metric['x_stream'] for metric in config['metric']]
+    fig = plt.figure()
 
-    #
-    # Prepare data
-    min_time_limit = float(config['lower_time']) if config['lower_time'] else 0
-    max_time_limit = float(config['upper_time']) if config['upper_time'] else 100000
+    for i, graph in enumerate(config):
+        columns_to_plot = [metric['x_stream'] for metric in graph['metric']]
 
-    rows_below_max = raw_data['secFromStart'] < max_time_limit
-    rows_above_min = raw_data['secFromStart'] > min_time_limit
+        #
+        # Prepare data
+        min_time_limit = float(graph['lower_time']) if graph['lower_time'] else 0
+        max_time_limit = float(graph['upper_time']) if graph['upper_time'] else 100000
 
-    parsed_data = raw_data[rows_below_max & rows_above_min]
+        rows_below_max = raw_data['secFromStart'] < max_time_limit
+        rows_above_min = raw_data['secFromStart'] > min_time_limit
 
-    #
-    # Plot data
-    for column in columns_to_plot:
-        plt.plot(parsed_data['secFromStart'], parsed_data[column])  # x, y
+        parsed_data = raw_data[rows_below_max & rows_above_min]
+
+        graphs_per_col = 3
+        print(len(config))
+
+        ax = fig.add_subplot(min(graphs_per_col, len(config)), len(config) // graphs_per_col + 1, i + 1)
+
+        #
+        # Plot data
+        for column in columns_to_plot:
+            ax.plot(parsed_data['secFromStart'], parsed_data[column])  # x, y
 
     plt.legend()  # Enable legend
 
