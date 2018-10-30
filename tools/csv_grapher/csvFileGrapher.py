@@ -1,5 +1,3 @@
-import csv
-
 from tkinter import filedialog
 from tkinter import Tk
 
@@ -54,7 +52,6 @@ def make_whole_graph():
         parsed_data = raw_data[rows_below_max & rows_above_min]
 
         graphs_per_col = 3
-        print(len(config))
 
         ax = fig.add_subplot(min(graphs_per_col, len(config)), len(config) // graphs_per_col + 1, i + 1)
 
