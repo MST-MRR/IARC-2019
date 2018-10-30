@@ -18,18 +18,16 @@ def make_whole_graph():
     # Get startup data
     root = Tk()  # Create tkinter window
 
-    # TODO - Make read in associated files based on config -> if only one config file read it
-    # TODO - allow for config maker to craft configs for multiple file types
-
-
     # Select config & data to graph through explorer prompt
     config_file = filedialog.askopenfilename(
         title="Select the Graphing Config file",
         filetypes=(("xml files", "*.xml"), ("csv files", "*.csv"), ("all files", "*.*"))
     )
 
+    file_type_wanted = "*{}*.csv".format(config_file.replace(".xml", "").split("/")[-1])
+
     data_file = filedialog.askopenfilename(
-        title="Select file to Graph", filetypes=(("csv files", "*.csv"), ("all files", "*.*"))
+        title="Select file to Graph", filetypes=((file_type_wanted, file_type_wanted), ("csv files", "*.csv"), ("all files", "*.*"))
     )
 
     root.destroy()  # Close the tkinter window
@@ -65,7 +63,7 @@ def make_whole_graph():
         for column in columns_to_plot:
             ax.plot(parsed_data['secFromStart'], parsed_data[column])  # x, y
 
-    plt.legend()  # Enable legend
+        plt.legend()  # Enable legend
 
     plt.show()  # Show the matplotlib plot
 

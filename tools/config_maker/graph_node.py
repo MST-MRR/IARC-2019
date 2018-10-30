@@ -102,6 +102,8 @@ class GraphNode:
         self.item_locations[name] = loc
 
     def set_grid(self, row_offset=None):
+        # TODO - Sort items by row & column
+
         if row_offset: self.row_offset = row_offset
 
         rolling_offset = self.row_offset  # If checkboxes take extra lines, the lines underneath will drop one

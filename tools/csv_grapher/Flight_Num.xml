@@ -1,5 +1,5 @@
 <?xml version="1.0" ?>
-<desiredgraphs>
+<desiredgraphs file_extension="_Flight_Num_">
   <graph lower_time="1" title="Graph0" upper_time="1.2">
     <metric func="x" label="Airspeed" x_stream="airspeed"/>
     <metric func="x" label="Target_roll_velocity" x_stream="roll"/>

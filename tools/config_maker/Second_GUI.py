@@ -25,7 +25,7 @@ from tools.file_io.file_io import write_config
 
 
 class GUI:
-    settings_file = "GUI_Settings.xml"  # Config output file
+    settings_file = "Flight_Num.xml"  # Config output file
 
     def __init__(self):
         self.data_file = None
