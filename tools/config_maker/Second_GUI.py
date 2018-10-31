@@ -1,8 +1,7 @@
 from tkinter import *
-from tkinter import ttk, filedialog
+from tkinter import filedialog
 
-#from tools.config_maker.scroll_frame import VerticalScrolledFrame
-from tools.config_maker.graph_storage import GraphStorage
+from tools.config_maker.tab_manager import TabManager
 
 from tools.file_io.file_io import write_config
 
@@ -15,11 +14,15 @@ from tools.file_io.file_io import write_config
 
 # TODO - Fix file_io problems based on where program is called from
 
-# TODO - put tab creation in GraphStorage?
+# TODO - put tab creation in TabManager?
 
 # # TODO - Make copy settings toggleable by highlighting button background differently
 
 # # TODO - Chose where to save based on tab ! and set variable to set it
+
+# TODO - Errors adding nodes in tab 2 too fast gets stacking
+
+# TODO - Adding a ton of graphs in the second one then switching back gets stacking
 
 # TODO - File_io detect where program is being called from and add necessary directories
 
@@ -45,19 +48,8 @@ class GUI:
             print("Failed to open icon")
 
         #
-        # Separate tabs
-        self.tab_control = ttk.Notebook(window)
-        self.tabs = []
-
-        for text in ['Live Graphing Settings', 'After-The-Fact Graphing Settings']:
-            self.tabs.append(Frame(self.tab_control, bg="#66AA33"))
-            self.tab_control.add(self.tabs[-1], text=text)
-
-        self.tab_control.pack(expand=1, fill='both')
-
-        #
         # Create initial graphs
-        self.graphs = GraphStorage(self.tab_control, self.tabs)
+        self.graphs = TabManager(window)
         for i in range(2): self.graphs.add()
 
         #

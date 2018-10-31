@@ -1,13 +1,21 @@
-from tkinter import *
+from tkinter import Frame, Button
+from tkinter.ttk import Notebook
+
+#from tools.config_maker.scroll_frame import VerticalScrolledFrame
 
 from tools.config_maker.graph_node import GraphNode
 
 
-class GraphStorage:
-    def __init__(self, tab_controller, tabs):
-        self._tab_controller = tab_controller
+class TabManager:
+    def __init__(self, window):
+        self._tab_controller = Notebook(window)
+        self._tabs = []
 
-        self._tabs = tabs
+        for text in ['Live Graphing Settings', 'After-The-Fact Graphing Settings']:
+            self._tabs.append(Frame(self._tab_controller, bg="#66AA33"))
+            self._tab_controller.add(self._tabs[-1], text=text)
+
+        self._tab_controller.pack(expand=1, fill='both')
 
         self._graphs = [[], []]
 
