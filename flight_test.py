@@ -2,6 +2,7 @@ import dronekit
 import time
 import math
 import os
+import sys
 from pymavlink import mavutil
 from dronekit import VehicleMode
 import threading
@@ -156,7 +157,7 @@ def arm_and_takeoff_nogps(vehicle, aTargetAltitude):
 
     thrust = DEFAULT_TAKEOFF_THRUST
     while True:
-        current_altitude = vehicle.location.global_relative_frame.alt
+        current_altitude = vehicle.rangefinder.distance
         print(" Altitude: %f  Desired: %f" %
               (current_altitude, aTargetAltitude))
         if current_altitude >= aTargetAltitude*0.95: # Trigger just below target alt.
@@ -223,16 +224,17 @@ vehicle = connect()
 thread_stop = threading.Event()
 graph1 = temp_rtg_controller.DemoRTGController()
 graphthread = threading.Thread(target=graph1.create_graph, args=(thread_stop,))
-#thread1 = infoThread(1, "Thread-1", vehicle)
-#thread1.start()
+thread1 = infoThread(1, "Thread-1", vehicle)
+thread1.start()
 thread2 = testThread(2, "Thread-2" , vehicle)
 thread2.start()
-#graphthread.start()
+thread1.daemon = True
+thread2.daemon = True
+graphthread.start()
 
 while True:
     try:
-        if thread2.status:
-            #thread1.stop()
-            break;
+        pass
     except KeyboardInterrupt:
-        break;
+        sys.exit()
+        break
