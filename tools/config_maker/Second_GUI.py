@@ -7,18 +7,15 @@ from tools.file_io.file_io import write_config
 
 
 # TODO - pull old settings into window
+# TODO - Make share settings to both config(tabs)
+
+# TODO - Make copy settings toggleable by highlighting button background differently
 
 # TODO - Way to save what file you want graphed
 
-# TODO - Make share settings to both config(tabs)
-
 # TODO - Fix file_io problems based on where program is called from
 
-# TODO - put tab creation in TabManager?
-
-# # TODO - Make copy settings toggleable by highlighting button background differently
-
-# # TODO - Chose where to save based on tab ! and set variable to set it
+# TODO - Chose where to save based on tab ! and set variable to set it
 
 # TODO - Errors adding nodes in tab 2 too fast gets stacking
 
@@ -26,10 +23,11 @@ from tools.file_io.file_io import write_config
 
 # TODO - File_io detect where program is being called from and add necessary directories
 
+
 class GUI:
     settings_file = "Flight_Num.xml"  # Config output file
 
-    icon_file = 'ninja_icon.gif'
+    icon_file = '../../ninja_icon.gif'
 
     def __init__(self):
         self.data_file = None
@@ -97,7 +95,7 @@ class GUI:
              'upper_time': graph.items['upperTime_chk'].get(),
              'metric': [{'label': metric.label, 'func': metric.raw_func, 'x_stream': metric.x_stream,
                          'y_stream': metric.y_stream, 'z_stream': metric.z_stream}
-                        for metric in graph.check_box_values if metric.output.get()]}
+                        for metric in graph.check_box_values.values() if metric.output.get()]}
             for graph in graphs]
 
         write_config(GUI.settings_file, total_output)

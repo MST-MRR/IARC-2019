@@ -19,7 +19,7 @@ class GraphNode:
 
     checkbox_width = 6  # How many checkboxes allowed per line
 
-    def __init__(self, tab, graph_num):
+    def __init__(self, tab, graph_num, values=None):
 
         #
         # Settings
@@ -48,12 +48,12 @@ class GraphNode:
         self.add_item('update_title', (2, 0, 2), Button(self.tab, text="Change Name", command=self.update_title, bd=2))
 
         # Check Boxes
-        self.items['check_boxes'] = []
-        self.check_box_values = [
-            Metric(BooleanVar(), label=key, func=value[1], x_stream=value[0][0], y_stream=value[0][1], z_stream=value[0][2])
-            for key, value in check_box_settings.items()]
+        self.items['check_boxes'] = {}
+        self.check_box_values = {
+            key: Metric(BooleanVar(), label=key, func=value[1], x_stream=value[0][0], y_stream=value[0][1], z_stream=value[0][2])
+            for key, value in check_box_settings.items()}
 
-        self.add_item('check_boxes', (1), [Checkbutton(self.tab, text=metric.label, var=metric.output) for metric in self.check_box_values])
+        self.add_item('check_boxes', (1), {metric.label: Checkbutton(self.tab, text=metric.label, var=metric.output) for metric in self.check_box_values.values()})
 
         # Time interval settings
         self.add_item('lowerTime_lbl', (0, 2, 2), Label(self.tab, text="Time interval(seconds) Lower:", borderwidth=1))
@@ -64,6 +64,8 @@ class GraphNode:
 
         self.add_item('upperTime_chk', (4, 2), Entry(self.tab, width=5))
 
+        if values: self.set_values(values)
+
     def read_available_metrics(self):
         for filename in GraphNode.init_settings_filename:
             try:
@@ -71,8 +73,17 @@ class GraphNode:
             except FileNotFoundError:
                 pass
 
-    def set_values(self):
-        pass
+    def set_values(self, values):
+        for name, value in values.items():
+            if name in self.items:
+                if isinstance(self.items[name], Label):
+                    self.items[name]['text'] = value
+                elif isinstance(self.items[name], Entry):
+                    self.items[name].insert(20, value)
+                else:
+                    self.items[name].set(value)
+            elif name in self.check_box_values.keys():
+                self.check_box_values[name].output.set(value)
 
     def add_check_box(self):
         # self.check_box_values.update(
@@ -83,8 +94,8 @@ class GraphNode:
 
     def delete(self):
         for key, value in self.items.items():
-            if type(value) is list:
-                for item in value:
+            if type(value) is dict:
+                for item in value.values():
                     item.destroy()
             else:
                 value.destroy()
@@ -92,8 +103,8 @@ class GraphNode:
         return self
 
     def add_item(self, name, loc, obj):
-        if type(obj) is list:
-            for item in obj:
+        if type(obj) is dict:
+            for item in obj.values():
                 item.configure(background="#66AA33")
         elif not type(obj) is Entry:
             obj.configure(background="#66AA33")
@@ -112,9 +123,9 @@ class GraphNode:
             if key in self.item_locations:
                 grid_values = self.item_locations[key]
 
-                if type(value) is list:
-                    for i in range(len(value)):
-                        value[i].grid(sticky="W", column=i % GraphNode.checkbox_width,
+                if type(value) is dict:
+                    for i, key in enumerate(value.keys()):
+                        value[key].grid(sticky="W", column=i % GraphNode.checkbox_width,
                                       row=rolling_offset + grid_values + int(i / GraphNode.checkbox_width))
 
                     rolling_offset += int(len(value) / GraphNode.checkbox_width)
