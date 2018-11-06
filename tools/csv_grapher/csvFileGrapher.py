@@ -9,9 +9,7 @@ from tools.file_io.file_io import parse_config
 
 def make_whole_graph():
     """
-    Builds graph from logging files.
-
-    Needs:
+    Builds graph from csv files.
     """
 
     #
@@ -24,10 +22,10 @@ def make_whole_graph():
         filetypes=(("xml files", "*.xml"), ("csv files", "*.csv"), ("all files", "*.*"))
     )
 
-    file_type_wanted = "*{}*.csv".format(config_file.replace(".xml", "").split("/")[-1])
+    # TODO - file_type_wanted = "*{}*.csv".format(config_file.replace(".xml", "").split("/")[-1])
 
     data_file = filedialog.askopenfilename(
-        title="Select file to Graph", filetypes=((file_type_wanted, file_type_wanted), ("csv files", "*.csv"), ("all files", "*.*"))
+        title="Select file to Graph", filetypes=(("csv files", "*.csv"), ("all files", "*.*"))  # (file_type_wanted, file_type_wanted)
     )
 
     root.destroy()  # Close the tkinter window

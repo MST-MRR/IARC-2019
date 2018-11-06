@@ -18,12 +18,25 @@ from tools.real_time_graphing.metric import Metric
 
 # TODO - Catch error if get_data(tab_manager) is called while title is a textbox rather than a label
 
+# TODO - Class for creating and manipulating items
+
 # TODO - Should be a visual representation of a graph on the XML config files that can be interacted with.
 # TODO - Should make use of the graph tags template and metric class
 
 class GraphNode:
     """
+    Setting for an individual graph.
 
+    Parameters
+    ----------
+    tab: tkinter.Frame
+        Frame that the node should be displayed on.
+
+    graph_num: number
+        Index of GraphNode on current tab
+
+    values: dict, default=None
+        Any initial values that should be set. {Item name: value}
     """
 
     init_settings_filename = ["tools/config_maker/usable_metrics.xml", "usable_metrics.xml"]
@@ -32,38 +45,8 @@ class GraphNode:
 
     checkbox_width = 6  # How many checkboxes allowed per line
 
-    # TODO - NOT FOR BASE WORKING
-    class ItemList:
-        """
-        TODO - Data structure to make it easy to mess with the items
-        TODO - No control functionality should be handled here
-        """
-
-        def __init__(self):
-            self.item_locations = {}
-            self._items = {}
-
-        @property
-        def items(self):
-            return self._items
-
-        def __getitem__(self, item):
-            return self._items[item]
-
-        def __setitem__(self, key, value):
-            self._items[key] = value
-
-        def add_item(self, name, loc, obj):
-            if type(obj) is dict:
-                for item in obj.values():
-                    item.configure(background="#66AA33")
-            elif not type(obj) is Entry:
-                obj.configure(background="#66AA33")
-
-            self._items[name] = obj
-            self.item_locations[name] = loc
-
     def __init__(self, tab, graph_num, values=None):
+
         #
         # Settings
         self.tab = tab
@@ -80,12 +63,15 @@ class GraphNode:
 
         #
         # Item config
-        self.items = GraphNode.ItemList()
+        self.item_locations = {}
+        self.items = {}
+
+        # self.items = GraphNode.ItemList()
 
         # Header
-        self.items.add_item('title', (0, 0, 2), Label(self.tab, text=name, font=("Arial Bold", 15), borderwidth=1))
+        self.add_item('title', (0, 0, 2), Label(self.tab, text=name, font=("Arial Bold", 15), borderwidth=1))
 
-        self.items.add_item('update_title', (2, 0, 2), Button(self.tab, text="Change Name", command=self.update_title, bd=2))
+        self.add_item('update_title', (2, 0, 2), Button(self.tab, text="Change Name", command=self.update_title, bd=2))
 
         # Check Boxes
         self.items['check_boxes'] = {}
@@ -93,28 +79,51 @@ class GraphNode:
             key: Metric(BooleanVar(), label=key, func=value[1], x_stream=value[0][0], y_stream=value[0][1], z_stream=value[0][2])
             for key, value in check_box_settings.items()}
 
-        self.items.add_item('check_boxes', (1), {metric.label: Checkbutton(self.tab, text=metric.label, var=metric.output) for metric in self.check_box_values.values()})
+        self.add_item('check_boxes', (1), {metric.label: Checkbutton(self.tab, text=metric.label, var=metric.output) for metric in self.check_box_values.values()})
 
         # Time interval settings
-        self.items.add_item('lowerTime_lbl', (0, 2, 2), Label(self.tab, text="Time interval(seconds) Lower:", borderwidth=1))
+        self.add_item('lowerTime_lbl', (0, 2, 2), Label(self.tab, text="Time interval(seconds) Lower:", borderwidth=1))
 
-        self.items.add_item('lowerTime_chk', (2, 2), Entry(self.tab, width=5))
+        self.add_item('lowerTime_chk', (2, 2), Entry(self.tab, width=5))
 
-        self.items.add_item('upperTime_lbl', (3, 2), Label(self.tab, text="Upper:", borderwidth=1))
+        self.add_item('upperTime_lbl', (3, 2), Label(self.tab, text="Upper:", borderwidth=1))
 
-        self.items.add_item('upperTime_chk', (4, 2), Entry(self.tab, width=5))
+        self.add_item('upperTime_chk', (4, 2), Entry(self.tab, width=5))
 
         if values: self.set_values(values)
 
-    def read_available_metrics(self):
+    @staticmethod
+    def read_available_metrics():
+        """
+        Default metrics to display, read from GraphNode.init_settings_filename
+
+        Returns
+        -------
+        dict of possible metrics and the metrics data.
+        """
+
         for filename in GraphNode.init_settings_filename:
             try:
                 return possible_metrics(filename)
             except FileNotFoundError:
                 pass
 
+    def add_item(self, name, loc, obj):
+        if type(obj) is dict:
+            for item in obj.values():
+                item.configure(background="#66AA33")
+        elif not type(obj) is Entry:
+            obj.configure(background="#66AA33")
+
+        self.items[name] = obj
+        self.item_locations[name] = loc
+
     # TODO - not done need for base working
     def add_check_box(self):
+        """
+        Add checkbox/metric to be selected
+        """
+
         # self.check_box_values.update(
         # {Metric(None, label=key, func=value[1], x_stream=value[0][0], y_stream=value[0][1], z_stream=value[0][2]): BooleanVar()})
 
@@ -122,6 +131,14 @@ class GraphNode:
         pass
 
     def delete(self):
+        """
+        Deletes all tkinter items in node.
+
+        Returns
+        -------
+        Self object so it can be deleted with all of its stuff in one line
+        """
+
         for value in self.items.values():
             if type(value) is dict:
                 for item in value.values():
@@ -132,13 +149,22 @@ class GraphNode:
         return self
 
     def set_grid(self, row_offset=None):
+        """
+        Every button/item has a grid based location and this places every item to that grid space
+
+        Parameters
+        ----------
+        row_offset: number, default=None
+            How many rows this graph_node should start down from top of frame
+        """
+
         if row_offset: self.row_offset = row_offset
 
         rolling_offset = self.row_offset  # If checkboxes take extra lines, the lines underneath will drop one
 
-        for key, value in self.items.items.items():
-            if key in self.items.item_locations.keys():
-                grid_values = self.items.item_locations[key]
+        for key, value in self.items.items():
+            if key in self.item_locations.keys():
+                grid_values = self.item_locations[key]
 
                 if type(value) is dict:
                     for i, key in enumerate(value.keys()):
@@ -157,6 +183,7 @@ class GraphNode:
         """
         Allows you to update the name of the graph
         """
+
         if isinstance(self.items['title'], Entry):
             name = self.items['title'].get()
 
@@ -191,7 +218,7 @@ class GraphNode:
         self.reset('check_boxes')
 
         for name, value in values.items():
-            if name in self.items.items:
+            if name in self.items:
                 if isinstance(self.items[name], Label):
                     self.items[name]['text'] = value
                 elif isinstance(self.items[name], Entry):

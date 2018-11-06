@@ -3,6 +3,9 @@ from xml.dom.minidom import parseString
 
 
 def xml_to_string(xml_tag):
+    """
+    Makes xml objects into string formatted in a readable way
+    """
     return parseString(ET.tostring(xml_tag)).toprettyxml(indent="  ")
 
 
@@ -60,6 +63,19 @@ def parse_config(filename):
 
 
 def possible_metrics(filename):
+    """
+    Returns list of possible metrics and their data.
+
+    Parameters
+    ----------
+    filename: str
+        Filename to read possible metrics from.
+
+    Returns
+    -------
+    List of possible metrics. List of dictionaries.
+    """
+
     # {label: [(x_stream, y_stream, z_stream), func]}
 
     raw_data = parse_config(filename)
@@ -68,12 +84,22 @@ def possible_metrics(filename):
         metric['label']: [(metric['x_stream'], metric['y_stream'], metric['z_stream']), metric['func']]
         for graph in raw_data for metric in graph['metric']}
 
-    # TODO - If cant open, send coded in values of possible data streams in metric.py
-
     return metrics
 
 
 def write_config(filename, data):
+    """
+    Writes config file in xml format.
+
+    Parameters
+    ----------
+    filename: str
+        Filename to be saved as.
+
+    data: list of dictionaries
+        List of graphs and all of their data.
+    """
+
     # Encode data
     desiredgraphs = ET.Element('desiredgraphs')
 

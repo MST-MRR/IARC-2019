@@ -5,10 +5,12 @@ from tools.config_maker.tab_manager import TabManager
 from tools.file_io.file_io import write_config
 
 # BASE WORKING
-# TODO - Base working version to push, create separate branch for tools
-# TODO - Add ipc to base working version
-# TODO - Base working version include documentation & functionality for -> logger, csvgrapher, file_io and config maker
-# TODO - Base working will have to have file_io issues fixed
+# TODO - file_io issues
+
+# TODO - Fix file_io problems based on where program is called from
+# TODO - File_io detect where program is being called from and add necessary directories
+
+# TODO - Rename self.graphs
 
 # Future
 # TODO - Make clear what data each tool needs
@@ -17,17 +19,11 @@ from tools.file_io.file_io import write_config
 
 # TODO - pull old settings into window <- function that share data setting uses also to parse out relevant parts
 
-# TODO - Way to save what file you want graphed
-# TODO - Chose where to save based on tab ! and set variable to set it
-
-# TODO - Fix file_io problems based on where program is called from
-# TODO - File_io detect where program is being called from and add necessary directories
-
 # TODO - Finish menu
 
 # TODO - Tab configurations to set names, disable parts for each
 
-# TODO - Should save be put in tabs
+# TODO - Should save function be put in tab manager
 
 # TODO - Add all configuration stuff here
 
@@ -36,9 +32,10 @@ from tools.file_io.file_io import write_config
 # TODO - Handles interactions with other tools ie fileio
 # TODO - Parent directory should be found here and sent to other classes
 
+
 class GUI:
     """
-
+    GUI to edit and create config files for all tools.
     """
 
     icon_file = '../../ninja_icon.gif'
@@ -79,6 +76,15 @@ class GUI:
         window.mainloop()
 
     def save(self, section=None):
+        """
+        Save tab data into config file.
+
+        Parameters
+        ----------
+        section: number, default=None
+            Tab index to save, if not default use current tab.
+        """
+
         filename = filedialog.asksaveasfilename(
             title="Save config as...", defaultextension=".xml", filetypes=(("xml file", "*.xml"),("All Files", "*.*")))
 

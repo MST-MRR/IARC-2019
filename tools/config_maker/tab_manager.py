@@ -5,15 +5,21 @@ from tkinter.ttk import Notebook
 
 from tools.config_maker.graph_node import GraphNode
 
-
+# Future
 # TODO -> should get data be put in graph node
 # TODO - Hold no customization except what will never change
 # TODO - An interface to interact with tabs and the graph nodes contained within
 # TODO - Should only manage graph nodes
 
+
 class TabManager:
     """
+    Interface for interacting with tabs.
 
+    Parameters
+    ----------
+    window: tkinter window
+        Window tabs should be placed in.
     """
 
     def __init__(self, window):
@@ -31,47 +37,100 @@ class TabManager:
     # Tab functions
     @property
     def tab(self):
+        """
+        Current tab frame getter
+
+        Returns
+        -------
+        Frame of current tab.
+        """
+
         return self._tabs[self.tab_id]
 
     @property
     def tab_id(self):
+        """
+        Current tab index getter
+
+        Returns
+        -------
+        Index of current tab.
+        """
+
         return self._tab_controller.index("current")
 
     @property
-    def curr(self):
+    def curr_tab_graphs(self):
+        """
+        Current tab graphs getter
+
+        Returns
+        -------
+        List of graphs from current tab.
+        """
+
         return self._graphs[self.tab_id]
 
     def __getitem__(self, item):
+        """
+        Current tab graphs getter. Operator[].
+
+        Returns
+        -------
+        List of graphs from current tab.
+        """
+
         return self._graphs[item]
 
     # GraphNode functions
-    def append(self, value):
-        self._graphs.curr.append(value)
-        self.update()
-
     def add(self, section=None):
+        """
+        Add graph to tab
+
+        Parameters
+        ----------
+        section: number, default=None
+            Tab index to add graph into, if none section=current tab id.
+        """
+
         if not section: section = self.tab_id
 
-        graph = GraphNode(self.tab, len(self._graphs[section]), values={'lowerTime_chk': 'xxx', 'Pitch': True})
+        graph = GraphNode(self.tab, len(self._graphs[section]))
 
-        graph.items.add_item('delete', (9, 0), Button(self.tab, text="Delete", command=lambda: self.delete(
+        graph.add_item('delete', (9, 0), Button(self.tab, text="Delete", command=lambda: self.delete(
             graph=graph), bd=2))
 
-        self.curr.append(graph)
+        self.curr_tab_graphs.append(graph)
 
         self.update()
 
     def delete(self, section=None, graph=None):
+        """
+        Delete graph from tab.
+
+        Parameters
+        ----------
+        section: number, default=None
+            Tab index to delete graph from, if none section=current tab id.
+
+        graph: number, default=None
+            Graph index to delete, if none graph=last graph index.
+        """
+
         if len(self._graphs[self.tab_id]) is 0: return
 
         if not section: section = self.tab_id
         if not graph: graph = self._graphs[section][-1]
 
-        self.curr.remove(graph.delete())
+        self.curr_tab_graphs.remove(graph.delete())
 
         self.update()
 
     def update(self):
+        """
+        Updates all graphs position based on above graphs height
+        """
+
         for frame in self._graphs:
             curr_offset = 0
             for graph in frame:
@@ -80,7 +139,19 @@ class TabManager:
                 curr_offset += graph.height
 
     def get_data(self, tab_id=None):
-        cur_graph = self._graphs[tab_id] if tab_id else self.curr
+        """
+        Get all data from selected tab
+
+        Parameters
+        ----------
+        tab_id: number, default=None
+            Tab index to get data from, if none tab_id=current tab id.
+
+        Returns
+        -------
+        Data of tab in form of dictionary
+        """
+        cur_graph = self._graphs[tab_id] if tab_id else self.curr_tab_graphs
 
         return [
             {'title': graph.items['title']['text'], 'lower_time': graph.items['lowerTime_chk'].get(),
@@ -93,9 +164,6 @@ class TabManager:
 
 
     # TODO - NOT FOR BASE WORKING
-
-    #
-    # TODO - how to classify
     def share_settings(self, base_tab_id=None, dest_tab_id=None):
         # Get all values -> same as save
         # Format and send to other tab
@@ -115,7 +183,6 @@ class TabManager:
                     tab[i].set_values(val)
 
     # TODO - NOT FOR BASE WORKING
-
     def pick_graphing_file(self):
         # # TODO - How to save this data?
         # # TODO - Make data get read and used
