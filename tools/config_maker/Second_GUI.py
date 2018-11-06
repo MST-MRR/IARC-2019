@@ -12,15 +12,9 @@ from tools.file_io.file_io import write_config
 # TODO - Make copy settings toggleable by highlighting button background differently
 
 # TODO - Way to save what file you want graphed
-
-# TODO - Fix file_io problems based on where program is called from
-
 # TODO - Chose where to save based on tab ! and set variable to set it
 
-# TODO - Errors adding nodes in tab 2 too fast gets stacking
-
-# TODO - Adding a ton of graphs in the second one then switching back gets stacking
-
+# TODO - Fix file_io problems based on where program is called from
 # TODO - File_io detect where program is being called from and add necessary directories
 
 

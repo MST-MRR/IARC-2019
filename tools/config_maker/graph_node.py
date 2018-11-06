@@ -93,7 +93,7 @@ class GraphNode:
         pass
 
     def delete(self):
-        for key, value in self.items.items():
+        for value in self.items.values():
             if type(value) is dict:
                 for item in value.values():
                     item.destroy()

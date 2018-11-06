@@ -61,9 +61,8 @@ class TabManager:
         self.update()
 
     def update(self):
-        curr_offset = 0
-
         for frame in self._graphs:
+            curr_offset = 0
             for graph in frame:
                 graph.set_grid(curr_offset)
 
