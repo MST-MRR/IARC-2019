@@ -43,7 +43,7 @@ class TabManager:
 
         graph = GraphNode(self.tab, len(self._graphs[section]), values={'lowerTime_chk': 'xxx', 'Pitch': True})
 
-        graph.add_item('delete', (9, 0), Button(self.tab, text="Delete", command=lambda: self.delete(
+        graph.items.add_item('delete', (9, 0), Button(self.tab, text="Delete", command=lambda: self.delete(
             graph=graph), bd=2))
 
         self.curr.append(graph)

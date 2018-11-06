@@ -42,6 +42,7 @@ class GUI:
 
         # Tabs
         self.graphs = TabManager(window)
+        self.graphs.add()
 
         # Top Menu
         self.menu_bar = Menu(window, fg="#66AA33")

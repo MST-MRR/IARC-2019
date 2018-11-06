@@ -24,8 +24,32 @@ class GraphNode:
 
     checkbox_width = 6  # How many checkboxes allowed per line
 
-    def __init__(self, tab, graph_num, values=None):
+    class ItemList:
+        def __init__(self):
+            self.item_locations = {}
+            self._items = {}
 
+        @property
+        def items(self):
+            return self._items
+
+        def __getitem__(self, item):
+            return self._items[item]
+
+        def __setitem__(self, key, value):
+            self._items[key] = value
+
+        def add_item(self, name, loc, obj):
+            if type(obj) is dict:
+                for item in obj.values():
+                    item.configure(background="#66AA33")
+            elif not type(obj) is Entry:
+                obj.configure(background="#66AA33")
+
+            self._items[name] = obj
+            self.item_locations[name] = loc
+
+    def __init__(self, tab, graph_num, values=None):
         #
         # Settings
         self.tab = tab
@@ -38,19 +62,16 @@ class GraphNode:
         name = "Graph{}".format(self.graph_num)
 
         # Pull settings from hardcoded file
-
         check_box_settings = self.read_available_metrics()
 
         #
         # Item config
-        self.item_locations = {}
-
-        self.items = dict()
+        self.items = GraphNode.ItemList()
 
         # Header
-        self.add_item('title', (0, 0, 2), Label(self.tab, text=name, font=("Arial Bold", 15), borderwidth=1))
+        self.items.add_item('title', (0, 0, 2), Label(self.tab, text=name, font=("Arial Bold", 15), borderwidth=1))
 
-        self.add_item('update_title', (2, 0, 2), Button(self.tab, text="Change Name", command=self.update_title, bd=2))
+        self.items.add_item('update_title', (2, 0, 2), Button(self.tab, text="Change Name", command=self.update_title, bd=2))
 
         # Check Boxes
         self.items['check_boxes'] = {}
@@ -58,16 +79,16 @@ class GraphNode:
             key: Metric(BooleanVar(), label=key, func=value[1], x_stream=value[0][0], y_stream=value[0][1], z_stream=value[0][2])
             for key, value in check_box_settings.items()}
 
-        self.add_item('check_boxes', (1), {metric.label: Checkbutton(self.tab, text=metric.label, var=metric.output) for metric in self.check_box_values.values()})
+        self.items.add_item('check_boxes', (1), {metric.label: Checkbutton(self.tab, text=metric.label, var=metric.output) for metric in self.check_box_values.values()})
 
         # Time interval settings
-        self.add_item('lowerTime_lbl', (0, 2, 2), Label(self.tab, text="Time interval(seconds) Lower:", borderwidth=1))
+        self.items.add_item('lowerTime_lbl', (0, 2, 2), Label(self.tab, text="Time interval(seconds) Lower:", borderwidth=1))
 
-        self.add_item('lowerTime_chk', (2, 2), Entry(self.tab, width=5))
+        self.items.add_item('lowerTime_chk', (2, 2), Entry(self.tab, width=5))
 
-        self.add_item('upperTime_lbl', (3, 2), Label(self.tab, text="Upper:", borderwidth=1))
+        self.items.add_item('upperTime_lbl', (3, 2), Label(self.tab, text="Upper:", borderwidth=1))
 
-        self.add_item('upperTime_chk', (4, 2), Entry(self.tab, width=5))
+        self.items.add_item('upperTime_chk', (4, 2), Entry(self.tab, width=5))
 
         if values: self.set_values(values)
 
@@ -92,7 +113,7 @@ class GraphNode:
         self.reset('check_boxes')
 
         for name, value in values.items():
-            if name in self.items:
+            if name in self.items.items:
                 if isinstance(self.items[name], Label):
                     self.items[name]['text'] = value
                 elif isinstance(self.items[name], Entry):
@@ -119,24 +140,16 @@ class GraphNode:
 
         return self
 
-    def add_item(self, name, loc, obj):
-        if type(obj) is dict:
-            for item in obj.values():
-                item.configure(background="#66AA33")
-        elif not type(obj) is Entry:
-            obj.configure(background="#66AA33")
 
-        self.items[name] = obj
-        self.item_locations[name] = loc
 
     def set_grid(self, row_offset=None):
         if row_offset: self.row_offset = row_offset
 
         rolling_offset = self.row_offset  # If checkboxes take extra lines, the lines underneath will drop one
 
-        for key, value in self.items.items():
-            if key in self.item_locations:
-                grid_values = self.item_locations[key]
+        for key, value in self.items.items.items():
+            if key in self.items.item_locations.keys():
+                grid_values = self.items.item_locations[key]
 
                 if type(value) is dict:
                     for i, key in enumerate(value.keys()):
