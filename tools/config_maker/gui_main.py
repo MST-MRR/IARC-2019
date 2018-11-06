@@ -40,24 +40,25 @@ class GUI:
 
     def __init__(self):
         # Window setup
-        window = Tk()
-        window.title("Multirotor Robot Data Graphing Tool")
-        window.geometry('750x500')
+        self.window = Tk()
+        self.window.title("Multirotor Robot Data Graphing Tool")
+        self.window.geometry('750x500')
+        self.window.protocol("WM_DELETE_WINDOW", self.close_window)
 
         try:
             icon = PhotoImage(file=GUI.icon_file)
-            window.tk.call('wm', 'iconphoto', window._w, icon)
+            self.window.tk.call('wm', 'iconphoto', self.window._w, icon)
 
         except TclError:
             print("Failed to open icon")
 
         # Tabs
-        self.graph_manager = TabManager(window)
+        self.graph_manager = TabManager(self.window)
         self.graph_manager.add_graph()
 
         # Top Menu
-        self.menu_bar = Menu(window, fg="#66AA33")
-        window.config(menu=self.menu_bar)
+        self.menu_bar = Menu(self.window, fg="#66AA33")
+        self.window.config(menu=self.menu_bar)
 
         # TODO - self.menu_bar.add_command(label='Pick a file', command=self.graphs.pick_graphing_file)
 
@@ -71,7 +72,14 @@ class GUI:
         # TODO - self.menu_bar.add_checkbutton(label="Share tab settings", command=self.graphs.share_settings)
 
         # Display window
-        window.mainloop()
+        self.window.mainloop()
+
+    def close_window(self):
+        """
+        A custom close function.
+        """
+
+        self.window.destroy()
 
     def save(self, section=None):
         """
