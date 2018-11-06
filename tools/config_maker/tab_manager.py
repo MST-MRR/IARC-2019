@@ -7,13 +7,13 @@ from tools.config_maker.graph_node import GraphNode
 
 
 # TODO -> should get data be put in graph node
-
+# TODO - Hold no customization except what will never change
+# TODO - An interface to interact with tabs and the graph nodes contained within
+# TODO - Should only manage graph nodes
 
 class TabManager:
     """
-    TODO - Hold no customization except what will never change
-    TODO - An interface to interact with tabs and the graph nodes contained within
-    TODO - Should only manage graph nodes
+
     """
 
     def __init__(self, window):
@@ -91,6 +91,9 @@ class TabManager:
              } for metric in graph.check_box_values.values() if metric.output.get()]
              }for graph in cur_graph]
 
+
+    # TODO - NOT FOR BASE WORKING
+
     #
     # TODO - how to classify
     def share_settings(self, base_tab_id=None, dest_tab_id=None):
@@ -110,6 +113,8 @@ class TabManager:
                     val.update({metric['label']: True for metric in row['metric']})
 
                     tab[i].set_values(val)
+
+    # TODO - NOT FOR BASE WORKING
 
     def pick_graphing_file(self):
         # # TODO - How to save this data?

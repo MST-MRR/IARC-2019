@@ -1,15 +1,16 @@
-from tkinter import Tk, Menu, PhotoImage, TclError
+from tkinter import Tk, Menu, PhotoImage, TclError, filedialog
 
 from tools.config_maker.tab_manager import TabManager
 
 from tools.file_io.file_io import write_config
 
-
+# BASE WORKING
 # TODO - Base working version to push, create separate branch for tools
 # TODO - Add ipc to base working version
 # TODO - Base working version include documentation & functionality for -> logger, csvgrapher, file_io and config maker
 # TODO - Base working will have to have file_io issues fixed
 
+# Future
 # TODO - Make clear what data each tool needs
 
 # TODO - Implement scrolled frame
@@ -31,16 +32,14 @@ from tools.file_io.file_io import write_config
 # TODO - Add all configuration stuff here
 
 # TODO - All data should have a standard structure to which it can be sent to the file_io and encoded and decoded
-
+# TODO - GUI manages menu, tab and color configurations and initializations
+# TODO - Handles interactions with other tools ie fileio
+# TODO - Parent directory should be found here and sent to other classes
 
 class GUI:
     """
-    TODO - GUI manages menu, tab and color configurations and initializations
-    TODO - Handles interactions with other tools ie fileio
-    TODO - Parent directory should be found here and sent to other classes
-    """
 
-    settings_file = "Flight_Num.xml"  # Config output file  # TODO - Remove?
+    """
 
     icon_file = '../../ninja_icon.gif'
 
@@ -80,7 +79,11 @@ class GUI:
         window.mainloop()
 
     def save(self, section=None):
-        write_config(GUI.settings_file, self.graphs.get_data(tab_id=section))
+        filename = filedialog.asksaveasfilename(
+            title="Save config as...", defaultextension=".xml", filetypes=(("xml file", "*.xml"),("All Files", "*.*")))
+
+        if filename:
+            write_config(filename, self.graphs.get_data(tab_id=section))
 
 
 if __name__ == "__main__":

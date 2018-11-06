@@ -4,11 +4,12 @@ from tools.file_io.file_io import possible_metrics
 
 from tools.real_time_graphing.metric import Metric
 
-
+# BASE WORKING
 # TODO - Way to input custom functions - Add dynamic metrics
-
 # TODO - Add metric button
 
+
+# Future
 # TODO - Way to reference the lowerTime_chk and stuff like dat across modules
 
 # TODO - Time settings getting appended rather than reset with share settings
@@ -17,10 +18,11 @@ from tools.real_time_graphing.metric import Metric
 
 # TODO - Catch error if get_data(tab_manager) is called while title is a textbox rather than a label
 
+# TODO - Should be a visual representation of a graph on the XML config files that can be interacted with.
+# TODO - Should make use of the graph tags template and metric class
+
 class GraphNode:
     """
-    TODO - Should be a visual representation of a graph on the XML config files that can be interacted with.
-    TODO - Should make use of the graph tags template and metric class
 
     """
 
@@ -30,6 +32,7 @@ class GraphNode:
 
     checkbox_width = 6  # How many checkboxes allowed per line
 
+    # TODO - NOT FOR BASE WORKING
     class ItemList:
         """
         TODO - Data structure to make it easy to mess with the items
@@ -110,30 +113,7 @@ class GraphNode:
             except FileNotFoundError:
                 pass
 
-    def reset(self, to_reset=None):
-        # TODO - Add default item settings
-        if type(to_reset) is not list: to_reset = [to_reset]
-        if not to_reset: to_reset = [key for key in self.items.keys()]
-
-        for item in to_reset:
-            if item == 'check_boxes':
-                for value in self.check_box_values.values():
-                    value.output.set(False)
-
-    def set_values(self, values):
-        self.reset('check_boxes')
-
-        for name, value in values.items():
-            if name in self.items.items:
-                if isinstance(self.items[name], Label):
-                    self.items[name]['text'] = value
-                elif isinstance(self.items[name], Entry):
-                    self.items[name].insert(20, value)
-                else:
-                    self.items[name].set(value)
-            elif name in self.check_box_values.keys():
-                self.check_box_values[name].output.set(value)
-
+    # TODO - not done need for base working
     def add_check_box(self):
         # self.check_box_values.update(
         # {Metric(None, label=key, func=value[1], x_stream=value[0][0], y_stream=value[0][1], z_stream=value[0][2]): BooleanVar()})
@@ -194,3 +174,29 @@ class GraphNode:
             self.items['update_title']['text'] = "Submit"
 
         self.set_grid()
+
+    # TODO - NOT FOR BASE WORKING
+    def reset(self, to_reset=None):
+        # TODO - Add default item settings
+        if type(to_reset) is not list: to_reset = [to_reset]
+        if not to_reset: to_reset = [key for key in self.items.keys()]
+
+        for item in to_reset:
+            if item == 'check_boxes':
+                for value in self.check_box_values.values():
+                    value.output.set(False)
+
+    # TODO - NOT FOR BASE WORKING
+    def set_values(self, values):
+        self.reset('check_boxes')
+
+        for name, value in values.items():
+            if name in self.items.items:
+                if isinstance(self.items[name], Label):
+                    self.items[name]['text'] = value
+                elif isinstance(self.items[name], Entry):
+                    self.items[name].insert(20, value)
+                else:
+                    self.items[name].set(value)
+            elif name in self.check_box_values.keys():
+                self.check_box_values[name].output.set(value)
