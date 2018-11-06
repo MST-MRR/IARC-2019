@@ -5,12 +5,8 @@ from tools.config_maker.tab_manager import TabManager
 from tools.file_io.file_io import write_config
 
 # BASE WORKING
-# TODO - file_io issues
-
 # TODO - Fix file_io problems based on where program is called from
 # TODO - File_io detect where program is being called from and add necessary directories
-
-# TODO - Rename self.graphs
 
 # Future
 # TODO - Make clear what data each tool needs
@@ -26,6 +22,8 @@ from tools.file_io.file_io import write_config
 # TODO - Should save function be put in tab manager
 
 # TODO - Add all configuration stuff here
+
+# TODO - Tell tabmanager what tabs to be created and their configurations
 
 # TODO - All data should have a standard structure to which it can be sent to the file_io and encoded and decoded
 # TODO - GUI manages menu, tab and color configurations and initializations
@@ -54,8 +52,8 @@ class GUI:
             print("Failed to open icon")
 
         # Tabs
-        self.graphs = TabManager(window)  # TODO - Tell tabmanager what tabs to be created and their configurations
-        self.graphs.add()
+        self.graph_manager = TabManager(window)
+        self.graph_manager.add_graph()
 
         # Top Menu
         self.menu_bar = Menu(window, fg="#66AA33")
@@ -63,8 +61,8 @@ class GUI:
 
         # TODO - self.menu_bar.add_command(label='Pick a file', command=self.graphs.pick_graphing_file)
 
-        self.menu_bar.add_command(label="Add new graph", command=self.graphs.add)
-        self.menu_bar.add_command(label="Delete Last Graph", command=self.graphs.delete)
+        self.menu_bar.add_command(label="Add new graph", command=self.graph_manager.add_graph)
+        self.menu_bar.add_command(label="Delete Last Graph", command=self.graph_manager.delete_graph)
 
         # TODO - self.menu_bar.add_command(label="Pull old config")
 
@@ -89,7 +87,7 @@ class GUI:
             title="Save config as...", defaultextension=".xml", filetypes=(("xml file", "*.xml"),("All Files", "*.*")))
 
         if filename:
-            write_config(filename, self.graphs.get_data(tab_id=section))
+            write_config(filename, self.graph_manager.get_graph_data(tab_id=section))
 
 
 if __name__ == "__main__":

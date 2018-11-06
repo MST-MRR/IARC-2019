@@ -83,7 +83,7 @@ class TabManager:
         return self._graphs[item]
 
     # GraphNode functions
-    def add(self, section=None):
+    def add_graph(self, section=None):
         """
         Add graph to tab
 
@@ -97,14 +97,14 @@ class TabManager:
 
         graph = GraphNode(self.tab, len(self._graphs[section]))
 
-        graph.add_item('delete', (9, 0), Button(self.tab, text="Delete", command=lambda: self.delete(
+        graph.add_item('delete', (9, 0), Button(self.tab, text="Delete", command=lambda: self.delete_graph(
             graph=graph), bd=2))
 
         self.curr_tab_graphs.append(graph)
 
-        self.update()
+        self.update_graph_positions()
 
-    def delete(self, section=None, graph=None):
+    def delete_graph(self, section=None, graph=None):
         """
         Delete graph from tab.
 
@@ -124,9 +124,9 @@ class TabManager:
 
         self.curr_tab_graphs.remove(graph.delete())
 
-        self.update()
+        self.update_graph_positions()
 
-    def update(self):
+    def update_graph_positions(self):
         """
         Updates all graphs position based on above graphs height
         """
@@ -138,7 +138,7 @@ class TabManager:
 
                 curr_offset += graph.height
 
-    def get_data(self, tab_id=None):
+    def get_graph_data(self, tab_id=None):
         """
         Get all data from selected tab
 
@@ -164,10 +164,10 @@ class TabManager:
 
 
     # TODO - NOT FOR BASE WORKING
-    def share_settings(self, base_tab_id=None, dest_tab_id=None):
+    def share_tab_settings(self, base_tab_id=None, dest_tab_id=None):
         # Get all values -> same as save
         # Format and send to other tab
-        data = self.get_data(base_tab_id)
+        data = self.get_graph_data(base_tab_id)
 
         if dest_tab_id:
             relevant_tabs = dest_tab_id if type(dest_tab_id) is list else [dest_tab_id]

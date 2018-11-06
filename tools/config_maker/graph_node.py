@@ -6,8 +6,6 @@ from tools.real_time_graphing.metric import Metric
 
 # BASE WORKING
 # TODO - Way to input custom functions - Add dynamic metrics
-# TODO - Add metric button
-
 
 # Future
 # TODO - Way to reference the lowerTime_chk and stuff like dat across modules
