@@ -18,6 +18,12 @@ from tools.real_time_graphing.metric import Metric
 # TODO - Catch error if get_data(tab_manager) is called while title is a textbox rather than a label
 
 class GraphNode:
+    """
+    TODO - Should be a visual representation of a graph on the XML config files that can be interacted with.
+    TODO - Should make use of the graph tags template and metric class
+
+    """
+
     init_settings_filename = ["tools/config_maker/usable_metrics.xml", "usable_metrics.xml"]
 
     rows_per_graph = 3  # Baseline how many rows per graph
@@ -25,6 +31,11 @@ class GraphNode:
     checkbox_width = 6  # How many checkboxes allowed per line
 
     class ItemList:
+        """
+        TODO - Data structure to make it easy to mess with the items
+        TODO - No control functionality should be handled here
+        """
+
         def __init__(self):
             self.item_locations = {}
             self._items = {}
@@ -139,8 +150,6 @@ class GraphNode:
                 value.destroy()
 
         return self
-
-
 
     def set_grid(self, row_offset=None):
         if row_offset: self.row_offset = row_offset

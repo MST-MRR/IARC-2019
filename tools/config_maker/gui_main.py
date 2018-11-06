@@ -5,8 +5,6 @@ from tools.config_maker.tab_manager import TabManager
 from tools.file_io.file_io import write_config
 
 
-# TODO - All file parse/write should be handled here
-
 # TODO - Implement scrolled frame
 
 # TODO - pull old settings into window <- function that share data setting uses also to parse out relevant parts
@@ -21,8 +19,18 @@ from tools.file_io.file_io import write_config
 
 # TODO - Tab configurations to set names, disable parts for each
 
+# TODO - Should save be put in tabs
+
+# TODO - Add all configuration stuff here
+
 
 class GUI:
+    """
+    TODO - GUI manages menu, tab and color configurations and initializations
+    TODO - Handles interactions with other tools ie fileio
+    TODO - Parent directory should be found here and sent to other classes
+    """
+
     settings_file = "Flight_Num.xml"  # Config output file  # TODO - Remove?
 
     icon_file = '../../ninja_icon.gif'
@@ -41,7 +49,7 @@ class GUI:
             print("Failed to open icon")
 
         # Tabs
-        self.graphs = TabManager(window)
+        self.graphs = TabManager(window)  # TODO - Tell tabmanager what tabs to be created and their configurations
         self.graphs.add()
 
         # Top Menu

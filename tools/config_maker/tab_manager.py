@@ -6,7 +6,16 @@ from tkinter.ttk import Notebook
 from tools.config_maker.graph_node import GraphNode
 
 
+# TODO -> should get data be put in graph node
+
+
 class TabManager:
+    """
+    TODO - Hold no customization except what will never change
+    TODO - An interface to interact with tabs and the graph nodes contained within
+    TODO - Should only manage graph nodes
+    """
+
     def __init__(self, window):
         self._tab_controller = Notebook(window)
         self._tabs = []
@@ -19,6 +28,7 @@ class TabManager:
 
         self._graphs = [[], []]
 
+    # Tab functions
     @property
     def tab(self):
         return self._tabs[self.tab_id]
@@ -34,6 +44,7 @@ class TabManager:
     def __getitem__(self, item):
         return self._graphs[item]
 
+    # GraphNode functions
     def append(self, value):
         self._graphs.curr.append(value)
         self.update()
@@ -80,6 +91,8 @@ class TabManager:
              } for metric in graph.check_box_values.values() if metric.output.get()]
              }for graph in cur_graph]
 
+    #
+    # TODO - how to classify
     def share_settings(self, base_tab_id=None, dest_tab_id=None):
         # Get all values -> same as save
         # Format and send to other tab
@@ -97,6 +110,7 @@ class TabManager:
                     val.update({metric['label']: True for metric in row['metric']})
 
                     tab[i].set_values(val)
+
     def pick_graphing_file(self):
         # # TODO - How to save this data?
         # # TODO - Make data get read and used
