@@ -1,4 +1,4 @@
-from tkinter import Frame, Button
+from tkinter import Frame, Button, filedialog
 from tkinter.ttk import Notebook
 
 #from tools.config_maker.scroll_frame import VerticalScrolledFrame
@@ -97,3 +97,10 @@ class TabManager:
                     val.update({metric['label']: True for metric in row['metric']})
 
                     tab[i].set_values(val)
+    def pick_graphing_file(self):
+        # # TODO - How to save this data?
+        # # TODO - Make data get read and used
+
+        self.data_file = filedialog.askopenfilename(
+            title="Select file to Graph", filetypes=(("csv files", "*.csv"), ("all files", "*.*"))
+        )

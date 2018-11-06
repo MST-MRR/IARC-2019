@@ -11,9 +11,9 @@ from tools.real_time_graphing.metric import Metric
 
 # TODO - Way to reference the lowerTime_chk and stuff like dat across modules
 
-# TODO - Set data should set all values to false first it will only recieve true values
+# TODO - Time settings getting appended rather than reset with share settings
 
-# TODO - Need to remove name variable so only name data is in title box
+# TODO - Finish reset function
 
 # TODO - Catch error if get_data(tab_manager) is called while title is a textbox rather than a label
 
@@ -78,7 +78,19 @@ class GraphNode:
             except FileNotFoundError:
                 pass
 
+    def reset(self, to_reset=None):
+        # TODO - Add default item settings
+        if type(to_reset) is not list: to_reset = [to_reset]
+        if not to_reset: to_reset = [key for key in self.items.keys()]
+
+        for item in to_reset:
+            if item == 'check_boxes':
+                for value in self.check_box_values.values():
+                    value.output.set(False)
+
     def set_values(self, values):
+        self.reset('check_boxes')
+
         for name, value in values.items():
             if name in self.items:
                 if isinstance(self.items[name], Label):
