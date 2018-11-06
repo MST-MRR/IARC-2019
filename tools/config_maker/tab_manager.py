@@ -72,7 +72,7 @@ class TabManager:
         cur_graph = self._graphs[tab_id] if tab_id else self.curr
 
         return [
-            {'title': graph.name, 'lower_time': graph.items['lowerTime_chk'].get(),
+            {'title': graph.items['title']['text'], 'lower_time': graph.items['lowerTime_chk'].get(),
              'upper_time': graph.items['upperTime_chk'].get(),
              'metric': [{
                  'label': metric.label, 'func': metric.raw_func, 'x_stream': metric.x_stream,

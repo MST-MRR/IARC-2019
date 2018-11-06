@@ -15,6 +15,7 @@ from tools.real_time_graphing.metric import Metric
 
 # TODO - Need to remove name variable so only name data is in title box
 
+# TODO - Catch error if get_data(tab_manager) is called while title is a textbox rather than a label
 
 class GraphNode:
     init_settings_filename = ["tools/config_maker/usable_metrics.xml", "usable_metrics.xml"]
@@ -34,7 +35,7 @@ class GraphNode:
 
         self.height = GraphNode.rows_per_graph
 
-        self.name = "Graph{}".format(self.graph_num)
+        name = "Graph{}".format(self.graph_num)
 
         # Pull settings from hardcoded file
 
@@ -47,7 +48,7 @@ class GraphNode:
         self.items = dict()
 
         # Header
-        self.add_item('title', (0, 0, 2), Label(self.tab, text=self.name, font=("Arial Bold", 15), borderwidth=1))
+        self.add_item('title', (0, 0, 2), Label(self.tab, text=name, font=("Arial Bold", 15), borderwidth=1))
 
         self.add_item('update_title', (2, 0, 2), Button(self.tab, text="Change Name", command=self.update_title, bd=2))
 
@@ -143,11 +144,11 @@ class GraphNode:
         Allows you to update the name of the graph
         """
         if isinstance(self.items['title'], Entry):
-            self.name = self.items['title'].get()
+            name = self.items['title'].get()
 
             self.items['title'].destroy()
 
-            self.items['title'] = Label(self.tab, text=self.name, font=("Arial Bold", 15), bg="#66AA33", borderwidth=1)
+            self.items['title'] = Label(self.tab, text=name, font=("Arial Bold", 15), bg="#66AA33", borderwidth=1)
 
             self.items['update_title']['text'] = "Change Name"
 
