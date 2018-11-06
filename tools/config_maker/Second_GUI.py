@@ -9,9 +9,6 @@ from tools.file_io.file_io import write_config
 # TODO - Implement scrolled frame
 
 # TODO - pull old settings into window
-# TODO - Make share settings to both config(tabs)
-
-# TODO - Make copy settings toggleable by highlighting button background differently
 
 # TODO - Way to save what file you want graphed
 # TODO - Chose where to save based on tab ! and set variable to set it

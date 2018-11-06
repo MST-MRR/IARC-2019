@@ -9,7 +9,11 @@ from tools.real_time_graphing.metric import Metric
 
 # TODO - Add metric button
 
-# TODO - Sort items before doing set grid as to not get undefined behavior
+# TODO - Way to reference the lowerTime_chk and stuff like dat across modules
+
+# TODO - Set data should set all values to false first it will only recieve true values
+
+# TODO - Need to remove name variable so only name data is in title box
 
 
 class GraphNode:

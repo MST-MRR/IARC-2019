@@ -80,8 +80,20 @@ class TabManager:
              } for metric in graph.check_box_values.values() if metric.output.get()]
              }for graph in cur_graph]
 
-    def share_settings(self):
+    def share_settings(self, base_tab_id=None, dest_tab_id=None):
         # Get all values -> same as save
         # Format and send to other tab
+        data = self.get_data(base_tab_id)
 
-        print(self.sharing_settings)
+        if dest_tab_id:
+            relevant_tabs = dest_tab_id if type(dest_tab_id) is list else [dest_tab_id]
+        else:
+            relevant_tabs = [i for i in range(len(self._tabs)) if i is not base_tab_id]
+
+        for tab in (self[i] for i in relevant_tabs):
+            for i, row in enumerate(data):
+                if len(tab) > i:
+                    val = {'title': row['title'], 'lowerTime_chk': row['lower_time'], 'upperTime_chk': row['upper_time']}
+                    val.update({metric['label']: True for metric in row['metric']})
+
+                    tab[i].set_values(val)
