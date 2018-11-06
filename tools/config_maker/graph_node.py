@@ -21,6 +21,7 @@ from tools.real_time_graphing.metric import Metric
 # TODO - Should be a visual representation of a graph on the XML config files that can be interacted with.
 # TODO - Should make use of the graph tags template and metric class
 
+
 class GraphNode:
     """
     Setting for an individual graph.
@@ -79,6 +80,8 @@ class GraphNode:
 
         self.add_item('check_boxes', (1), {metric.label: Checkbutton(self.tab, text=metric.label, var=metric.output) for metric in self.check_box_values.values()})
 
+        self.add_item('add_check_box', (4, 0), Button(self.tab, text="Add Metric", command=self.add_check_box))
+
         # Time interval settings
         self.add_item('lowerTime_lbl', (0, 2, 2), Label(self.tab, text="Time interval(seconds) Lower:", borderwidth=1))
 
@@ -121,12 +124,13 @@ class GraphNode:
         """
         Add checkbox/metric to be selected
         """
+        """
+        self.check_box_values.update(
+            {label: Metric(BooleanVar(), label=key, func=value[1], x_stream=value[0][0], y_stream=value[0][1], z_stream=value[0][2])})
 
-        # self.check_box_values.update(
-        # {Metric(None, label=key, func=value[1], x_stream=value[0][0], y_stream=value[0][1], z_stream=value[0][2]): BooleanVar()})
-
-        # Need to add the tk checkbutton too!
-        pass
+        self.items['check_boxes'].update({label: Checkbutton(self.tab, text=metric.label, var=metric.output)})
+        """
+        self.set_grid()
 
     def delete(self):
         """

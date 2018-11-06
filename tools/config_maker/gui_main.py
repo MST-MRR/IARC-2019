@@ -4,9 +4,6 @@ from tools.config_maker.tab_manager import TabManager
 
 from tools.file_io.file_io import write_config
 
-# BASE WORKING
-# TODO - Fix file_io problems based on where program is called from
-# TODO - File_io detect where program is being called from and add necessary directories
 
 # Future
 # TODO - Make clear what data each tool needs
@@ -16,6 +13,9 @@ from tools.file_io.file_io import write_config
 # TODO - pull old settings into window <- function that share data setting uses also to parse out relevant parts
 
 # TODO - Finish menu
+
+# TODO - Fix file_io problems based on where program is called from
+# TODO - File_io detect where program is being called from and add necessary directories
 
 # TODO - Tab configurations to set names, disable parts for each
 
