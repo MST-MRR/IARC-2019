@@ -113,8 +113,6 @@ class GraphNode:
         self.item_locations[name] = loc
 
     def set_grid(self, row_offset=None):
-        # TODO - Sort items by row & column
-
         if row_offset: self.row_offset = row_offset
 
         rolling_offset = self.row_offset  # If checkboxes take extra lines, the lines underneath will drop one
@@ -126,11 +124,12 @@ class GraphNode:
                 if type(value) is dict:
                     for i, key in enumerate(value.keys()):
                         value[key].grid(sticky="W", column=i % GraphNode.checkbox_width,
-                                      row=rolling_offset + grid_values + int(i / GraphNode.checkbox_width))
+                                        row=rolling_offset + grid_values + int(i / GraphNode.checkbox_width))
 
                     rolling_offset += int(len(value) / GraphNode.checkbox_width)
                 else:
-                    value.grid(column=grid_values[0], row=rolling_offset + grid_values[1],
+                    value.grid(column=grid_values[0],
+                               row=grid_values[1] + rolling_offset if grid_values[1] > 1 else self.row_offset,
                                columnspan=grid_values[2] if len(grid_values) > 2 else 1)
 
         self.height = rolling_offset + GraphNode.rows_per_graph
