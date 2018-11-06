@@ -5,6 +5,13 @@ from tools.config_maker.tab_manager import TabManager
 from tools.file_io.file_io import write_config
 
 
+# TODO - Base working version to push, create separate branch for tools
+# TODO - Add ipc to base working version
+# TODO - Base working version include documentation & functionality for -> logger, csvgrapher, file_io and config maker
+# TODO - Base working will have to have file_io issues fixed
+
+# TODO - Make clear what data each tool needs
+
 # TODO - Implement scrolled frame
 
 # TODO - pull old settings into window <- function that share data setting uses also to parse out relevant parts
@@ -22,6 +29,8 @@ from tools.file_io.file_io import write_config
 # TODO - Should save be put in tabs
 
 # TODO - Add all configuration stuff here
+
+# TODO - All data should have a standard structure to which it can be sent to the file_io and encoded and decoded
 
 
 class GUI:
@@ -56,16 +65,16 @@ class GUI:
         self.menu_bar = Menu(window, fg="#66AA33")
         window.config(menu=self.menu_bar)
 
-        self.menu_bar.add_command(label='Pick a file', command=self.graphs.pick_graphing_file)
+        # TODO - self.menu_bar.add_command(label='Pick a file', command=self.graphs.pick_graphing_file)
 
         self.menu_bar.add_command(label="Add new graph", command=self.graphs.add)
         self.menu_bar.add_command(label="Delete Last Graph", command=self.graphs.delete)
 
-        self.menu_bar.add_command(label="Pull old config")
+        # TODO - self.menu_bar.add_command(label="Pull old config")
 
         self.menu_bar.add_command(label="Save", command=self.save)
 
-        self.menu_bar.add_checkbutton(label="Share tab settings", command=self.graphs.share_settings)
+        # TODO - self.menu_bar.add_checkbutton(label="Share tab settings", command=self.graphs.share_settings)
 
         # Display window
         window.mainloop()

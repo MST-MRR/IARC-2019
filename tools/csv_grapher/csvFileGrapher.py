@@ -10,6 +10,8 @@ from tools.file_io.file_io import parse_config
 def make_whole_graph():
     """
     Builds graph from logging files.
+
+    Needs:
     """
 
     #
