@@ -46,8 +46,6 @@ class GUI:
 
         #
         # Menu Making
-        self.sharing_settings = 0
-        # self.sharing_color = "green"
 
         self.menu_bar = Menu(window, fg="#66AA33")
 
@@ -62,16 +60,12 @@ class GUI:
 
         self.menu_bar.add_command(label="Save", command=self.save)
 
-        self.menu_bar.add_checkbutton(label="Share tab settings", var=self.sharing_settings,
-                                      command=self.toggle_sharing)
+        self.menu_bar.add_checkbutton(label="Share tab settings", command=self.graphs.share_settings)
 
         #
         # Display window
         window.config(menu=self.menu_bar)
         window.mainloop()
-
-    def toggle_sharing(self):
-        print(self.sharing_settings)
 
     def pick_graphing_file(self):
         # # TODO - How to save this data?
@@ -82,17 +76,7 @@ class GUI:
         )
 
     def save(self, section=None):
-        graphs = self.graphs[section] if section else self.graphs.curr
-
-        total_output = [
-            {'title': graph.name, 'lower_time': graph.items['lowerTime_chk'].get(),
-             'upper_time': graph.items['upperTime_chk'].get(),
-             'metric': [{'label': metric.label, 'func': metric.raw_func, 'x_stream': metric.x_stream,
-                         'y_stream': metric.y_stream, 'z_stream': metric.z_stream}
-                        for metric in graph.check_box_values.values() if metric.output.get()]}
-            for graph in graphs]
-
-        write_config(GUI.settings_file, total_output)
+        write_config(GUI.settings_file, self.graphs.get_data(tab_id=section))
 
 
 if __name__ == "__main__":

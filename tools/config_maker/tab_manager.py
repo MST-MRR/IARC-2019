@@ -67,3 +67,21 @@ class TabManager:
                 graph.set_grid(curr_offset)
 
                 curr_offset += graph.height
+
+    def get_data(self, tab_id=None):
+        cur_graph = self._graphs[tab_id] if tab_id else self.curr
+
+        return [
+            {'title': graph.name, 'lower_time': graph.items['lowerTime_chk'].get(),
+             'upper_time': graph.items['upperTime_chk'].get(),
+             'metric': [{
+                 'label': metric.label, 'func': metric.raw_func, 'x_stream': metric.x_stream,
+                 'y_stream': metric.y_stream, 'z_stream': metric.z_stream
+             } for metric in graph.check_box_values.values() if metric.output.get()]
+             }for graph in cur_graph]
+
+    def share_settings(self):
+        # Get all values -> same as save
+        # Format and send to other tab
+
+        print(self.sharing_settings)
