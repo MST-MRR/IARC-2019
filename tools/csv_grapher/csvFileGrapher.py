@@ -4,8 +4,10 @@ from tkinter import Tk
 import pandas as pd
 import matplotlib.pyplot as plt
 
-from tools.file_io.file_io import parse_config
-
+try:
+    from tools.file_io.file_io import parse_config
+except ImportError:
+    from file_io import parse_config
 
 def make_whole_graph():
     """

@@ -1,9 +1,11 @@
 from tkinter import Tk, Menu, PhotoImage, TclError, filedialog
 
-from tools.config_maker.tab_manager import TabManager
-
-from tools.file_io.file_io import write_config
-
+try:
+    from tools.config_maker.tab_manager import TabManager
+    from tools.file_io.file_io import write_config
+except ImportError:
+    from tab_manager import TabManager
+    from file_io import write_config
 
 class GUI:
     """

@@ -1,8 +1,10 @@
 from tkinter import Frame, Button
 from tkinter.ttk import Notebook
 
-from tools.config_maker.graph_node import GraphNode
-
+try:
+    from tools.config_maker.graph_node import GraphNode
+except ImportError:
+    from graph_node import GraphNode
 
 class TabManager:
     """

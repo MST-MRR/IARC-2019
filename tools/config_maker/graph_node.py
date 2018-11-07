@@ -1,9 +1,11 @@
 from tkinter import *
 
-from tools.file_io.file_io import possible_metrics
-
-from tools.real_time_graphing.metric import Metric
-
+try:
+    from tools.file_io.file_io import possible_metrics
+    from tools.real_time_graphing.metric import Metric
+except ImportError:
+    from file_io import possible_metrics
+    from metric import Metric
 
 class GraphNode:
     """
