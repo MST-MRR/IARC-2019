@@ -22,10 +22,8 @@ def make_whole_graph():
         filetypes=(("xml files", "*.xml"), ("csv files", "*.csv"), ("all files", "*.*"))
     )
 
-    # TODO - file_type_wanted = "*{}*.csv".format(config_file.replace(".xml", "").split("/")[-1])
-
     data_file = filedialog.askopenfilename(
-        title="Select file to Graph", filetypes=(("csv files", "*.csv"), ("all files", "*.*"))  # (file_type_wanted, file_type_wanted)
+        title="Select file to Graph", filetypes=(("csv files", "*.csv"), ("all files", "*.*"))
     )
 
     root.destroy()  # Close the tkinter window

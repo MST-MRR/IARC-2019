@@ -73,10 +73,8 @@ def possible_metrics(filename):
 
     Returns
     -------
-    List of possible metrics. List of dictionaries.
+    List of possible metrics. List of dictionaries -> {label: [(x_stream, y_stream, z_stream), func]}
     """
-
-    # {label: [(x_stream, y_stream, z_stream), func]}
 
     raw_data = parse_config(filename)
 

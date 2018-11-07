@@ -1,7 +1,6 @@
 import time
 import csv
 import os
-import random
 
 
 class Logger:
@@ -72,6 +71,8 @@ class Logger:
 
 
 if __name__ == '__main__':
+    import random
+
     # tempCounter is how many data point to collect temporarily
 
     theTempCounter = int(input("How long to log in seconds? "))
