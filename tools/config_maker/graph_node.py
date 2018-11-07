@@ -4,9 +4,6 @@ from tools.file_io.file_io import possible_metrics
 
 from tools.real_time_graphing.metric import Metric
 
-# BASE WORKING
-# TODO - Way to input custom functions - Add dynamic metrics
-
 # Future
 # TODO - Way to reference the lowerTime_chk and stuff like dat across modules
 
@@ -119,18 +116,59 @@ class GraphNode:
         self.items[name] = obj
         self.item_locations[name] = loc
 
-    # TODO - not done need for base working
     def add_check_box(self):
         """
         Add checkbox/metric to be selected
         """
-        """
-        self.check_box_values.update(
-            {label: Metric(BooleanVar(), label=key, func=value[1], x_stream=value[0][0], y_stream=value[0][1], z_stream=value[0][2])})
 
-        self.items['check_boxes'].update({label: Checkbutton(self.tab, text=metric.label, var=metric.output)})
-        """
-        self.set_grid()
+        def close_config_window(self, master, entries):
+            """
+            Saves all of the data from the window, tries to create a metric and checkboxes and then closes window
+
+            Parameters
+            ----------
+            master: tkinter window
+                Window to read data from and close
+
+            entries: List of tkinter entries
+                Entry boxes to read data from
+            """
+
+            data = [e.get() for e in entries]
+
+            try:
+                metric = Metric(BooleanVar(), label=data[0], func=data[1], x_stream=data[2], y_stream=data[3],
+                                z_stream=data[4])
+
+                self.check_box_values.update({metric.label: metric})
+                self.items['check_boxes'].update({metric.label: Checkbutton(self.tab, text=metric.label, var=metric.output)})
+                self.items['check_boxes'][metric.label].configure(background="#66AA33")
+
+                self.set_grid()
+            except AssertionError as e:
+                print("Error: {}".format(e))
+
+            master.destroy()
+            master.quit()
+
+        master = Tk()
+        master.title("Add Metric")
+        master.geometry('250x130')
+
+        Label(master, text="Label").grid(row=0)
+        Label(master, text="Function").grid(row=1)
+        Label(master, text="x_stream").grid(row=2)
+        Label(master, text="y_stream").grid(row=3)
+        Label(master, text="z_stream").grid(row=4)
+
+        entries = [Entry(master) for _ in range(5)]
+
+        for i, entry in enumerate(entries):
+            entry.grid(row=i, column=1)
+
+        Button(master, text="Add Metric", command=lambda: close_config_window(self, master, entries)).grid(row=9, column=0)
+
+        master.mainloop()
 
     def delete(self):
         """
