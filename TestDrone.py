@@ -1,41 +1,23 @@
 from Drone import Drone
 
 class TestDrone(Drone):
-    def backward(self, velocity, duration):
-        super(Drone, self).backward(velocity, duration)
+    def backward(self, velocity = Drone.DEFAULT_VELOCITY, duration = 1, distance = None):
+        super(TestDrone, self).backward(velocity, duration, distance)
 
-    def backward(self, distance):
-        super(Drone, self).backward(distance)
+    def forward(self, velocity = Drone.DEFAULT_VELOCITY, duration = 1, distance = None):
+        super(TestDrone, self).forward(velocity, duration, distance)
 
-    def forward(self, velocity, duration):
-        super(Drone, self).forward(velocity, duration)
+    def left(self, velocity = Drone.DEFAULT_VELOCITY, duration = 1, distance = None):
+        super(TestDrone, self).forward(velocity, duration, distance)
 
-    def forward(self, distance):
-        super(Drone, self).forward(distance)
+    def right(self, velocity = Drone.DEFAULT_VELOCITY, duration = 1, distance = None):
+        super(TestDrone, self).right(velocity, duration, distance)
 
-    def left(self, velocity, duration):
-        super(Drone, self).forward(velocity, duration)
+    def up(self, velocity = Drone.DEFAULT_VELOCITY, duration = 1, distance = None):
+        super(TestDrone, self).up(velocity, duration, distance)
 
-    def forward(self, distance):
-        super(Drone, self).forward(distance)
-
-    def right(self, velocity, duration):
-        super(Drone, self).right(velocity, duration)
-
-    def right(self, distance):
-        super(Drone, self).right(distance)
-
-    def up(self, velocity, duration):
-        super(Drone, self).up(velocity, duration)
-
-    def up(self, distance):
-        super(Drone, self).up(distance)
-
-    def down(self, velocity, duration):
-        super(Drone, self).down(velocity, duration)
-
-    def down(self, distance):
-        super(Drone, self).down(distance)
+    def down(self, velocity = Drone.DEFAULT_VELOCITY, duration = 1, distance = None):
+        super(TestDrone, self).down(velocity, duration, distance)
 
     def loadDevices(self):
         pass
