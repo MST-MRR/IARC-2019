@@ -8,7 +8,7 @@ class TestDrone(Drone):
         super(TestDrone, self).forward(velocity, duration, distance)
 
     def left(self, velocity = Drone.DEFAULT_VELOCITY, duration = 1, distance = None):
-        super(TestDrone, self).forward(velocity, duration, distance)
+        super(TestDrone, self).left(velocity, duration, distance)
 
     def right(self, velocity = Drone.DEFAULT_VELOCITY, duration = 1, distance = None):
         super(TestDrone, self).right(velocity, duration, distance)

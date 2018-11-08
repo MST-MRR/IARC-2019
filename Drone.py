@@ -15,8 +15,6 @@ class Drone(object):
     __metaclass__ = abc.ABCMeta
     
     # Static variables
-    MOVEMENT_COMPLETE = 0
-    MOVEMENT_FAILED = 1
     DEFAULT_VELOCITY = 1
     VELOCITY_THRESHOLD = 5 # never let the drone go faster than 5 m/s for safety (is this a good number?)
 
@@ -82,10 +80,10 @@ class Drone(object):
         # If distance is set, fly that distance
         if distance is not None:
             duration = distance / self.DEFAULT_VELOCITY
-            self.send_global_velocity(self.DEFAULT_VELOCITY, 0, 0, duration)
+            self.send_global_velocity(-1 * self.DEFAULT_VELOCITY, 0, 0, duration)
         # Else, fly at given velocity for given seconds
         else:
-            self.send_global_velocity(velocity, 0, 0, duration)
+            self.send_global_velocity(-1 * velocity, 0, 0, duration)
 
     @abc.abstractmethod
     def backward(self, velocity = DEFAULT_VELOCITY, duration = 1, distance = None):
@@ -102,10 +100,10 @@ class Drone(object):
         # If distance is set, fly that distance
         if distance is not None:
             duration = distance / self.DEFAULT_VELOCITY
-            self.send_global_velocity(-1 * self.DEFAULT_VELOCITY, 0, 0, duration)
+            self.send_global_velocity(self.DEFAULT_VELOCITY, 0, 0, duration)
         # Else, fly at given velocity for given seconds
         else:
-            self.send_global_velocity(-1 * velocity, 0, 0, duration)
+            self.send_global_velocity(velocity, 0, 0, duration)
 
     @abc.abstractmethod
     def left(self, velocity = DEFAULT_VELOCITY, duration = 1, distance = None):
