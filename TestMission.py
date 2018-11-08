@@ -1,8 +1,43 @@
 from TestDrone import TestDrone
+from TestDroneController import TestDroneController
 import time
 import sys
 import os
+from MovementInstruction import MovementInstruction
+import heapq # temporary
 
+controller = TestDroneController()
+
+# Get the controller ready
+controller.setId()
+controller.setDrone()
+controller.drone.connect()
+controller.drone.arm()
+
+print("Taking off...")
+controller.takeoff(5)
+print("Take off complete!")
+
+# Normally a new item would be pushed onto instruction queue when the instruction
+# is recevied over the network from the swarm controller
+heapq.heappush(controller.instructionQueue, (0, MovementInstruction(5, 5, 5)))
+heapq.heappush(controller.instructionQueue, (0, MovementInstruction(-5, -5, -5)))
+
+controller.readNextInstruction()
+controller.readNextInstruction()
+
+print(controller.movementQueue)
+
+while(controller.update()):
+    print("Finished Task. Sleeping 3 seconds")
+    time.sleep(3)
+
+print("Landing...")
+controller.landAndTerminate()
+print("Landed!")
+
+# Working test code (does not use drone controller instance)
+"""
 drone = TestDrone()
 
 print("Connecting...")
@@ -36,3 +71,4 @@ except Exception as error:
     drone.land()
 
 print("Mission terminated.")
+"""

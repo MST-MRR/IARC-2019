@@ -19,11 +19,7 @@ class Drone(object):
     VELOCITY_THRESHOLD = 5 # never let the drone go faster than 5 m/s for safety (is this a good number?)
 
     def __init__(self):
-        self.id = 1 # should the drone set its own id or should the swarm controller give an id?
         self.devices = []
-
-    def getId(self):
-        return self.id
 
     def connect(self):
         # Connect to the drone
@@ -42,8 +38,6 @@ class Drone(object):
     def takeoff(self, targetAltitude):
         DEFAULT_TAKEOFF_THRUST = 0.7
         SMOOTH_TAKEOFF_THRUST = 0.6
-
-        
 
         thrust = DEFAULT_TAKEOFF_THRUST
         while True:
