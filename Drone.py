@@ -14,22 +14,43 @@ from pymavlink import mavutil
 class Drone(object):
     __metaclass__ = abc.ABCMeta
     
-    # Static variables
-    DEFAULT_VELOCITY = 1
+    DEFAULT_VELOCITY = 0.5
     VELOCITY_THRESHOLD = 5 # never let the drone go faster than 5 m/s for safety (is this a good number?)
+    CONNECTION_STRING = "tcp:127.0.0.1:5762"
+
+    # DroneKit Vehicle Modes
+    GUIDED = "GUIDED"
+    LAND = "LAND"
+
+    # Directions
+    UP = (0, 0, 1)
+    DOWN = (0, 0, -1)
+    LEFT = (0, 1, 0)
+    RIGHT = (0, -1, 0)
+    FORWARD = (-1, 0, 0)
+    BACKWARD = (1, 0, 0)
 
     def __init__(self):
         self.devices = []
 
-    def connect(self):
-        # Connect to the drone
-        self.vehicle = dronekit.connect("tcp:127.0.0.1:5762", wait_ready=True)
+    def connect(self, isInSimulator):
+        if isInSimulator:
+            self.vehicle = dronekit.connect(self.CONNECTION_STRING, wait_ready=True)
+            print("--Connecting to the simulated ardupilot--")
+        else:
+            raise Exception("Non-simulator connection not yet implemented")
 
-    def arm(self):
-        while not self.vehicle.is_armable:
+    def altitude(self):
+        return self.vehicle.rangefinder.distance
+
+    # Attempts to arm the drone. Will time out eventually to prevent 
+    # infinite loop.
+    def arm(self, timeout = 10):
+        start = time.time()
+        while not self.vehicle.is_armable and time.time() - start < timeout:
             print("Waiting...\n")
             time.sleep(1.0)
-        self.vehicle.mode = VehicleMode("GUIDED")
+        self.vehicle.mode = VehicleMode(self.GUIDED)
 
         while not self.vehicle.armed:
             self.vehicle.armed = True
@@ -41,7 +62,7 @@ class Drone(object):
 
         thrust = DEFAULT_TAKEOFF_THRUST
         while True:
-            current_altitude = self.vehicle.rangefinder.distance
+            current_altitude = self.altitude()
             if current_altitude >= targetAltitude*0.95: # Trigger just below target alt.
                 print("Reached target altitude")
                 break
@@ -51,8 +72,8 @@ class Drone(object):
             time.sleep(0.2)
 
     def land(self):
-        while (not self.vehicle.mode == VehicleMode("LAND")):
-            self.vehicle.mode = VehicleMode("LAND")
+        while (not self.vehicle.mode == VehicleMode(self.LAND)):
+            self.vehicle.mode = VehicleMode(self.LAND)
 
     # Should fill devices list with all of the devices a particular drone has
     @abc.abstractmethod
@@ -61,7 +82,7 @@ class Drone(object):
 
     # Movement methods (basic implementation provided):
     @abc.abstractmethod
-    def forward(self, velocity = DEFAULT_VELOCITY, duration = 1, distance = None):
+    def move(self, direction, velocity = DEFAULT_VELOCITY, duration = 1, distance = None):
         if (velocity > self.VELOCITY_THRESHOLD):
             raise Exception('Velocity threshold exceeded')
         
@@ -73,110 +94,19 @@ class Drone(object):
 
         # If distance is set, fly that distance
         if distance is not None:
-            duration = distance / self.DEFAULT_VELOCITY
-            self.send_global_velocity(-1 * self.DEFAULT_VELOCITY, 0, 0, duration)
+            duration = int(distance / self.DEFAULT_VELOCITY)
+            # Multiply unit vector in direction by the velocity
+            vector = tuple(self.DEFAULT_VELOCITY * n for n in direction)
         # Else, fly at given velocity for given seconds
         else:
-            self.send_global_velocity(-1 * velocity, 0, 0, duration)
+            vector = tuple(self.DEFAULT_VELOCITY * n for n in direction)
 
-    @abc.abstractmethod
-    def backward(self, velocity = DEFAULT_VELOCITY, duration = 1, distance = None):
-        if (velocity > self.VELOCITY_THRESHOLD):
-            raise Exception('Velocity threshold exceeded')
-            
-            
-        altitude = self.vehicle.rangefinder.distance
-        if (altitude < 0.5):
-            raise Exception('Dangerously low to ground. Movement aborted')
-
-        # Other checks?
-
-        # If distance is set, fly that distance
-        if distance is not None:
-            duration = distance / self.DEFAULT_VELOCITY
-            self.send_global_velocity(self.DEFAULT_VELOCITY, 0, 0, duration)
-        # Else, fly at given velocity for given seconds
-        else:
-            self.send_global_velocity(velocity, 0, 0, duration)
-
-    @abc.abstractmethod
-    def left(self, velocity = DEFAULT_VELOCITY, duration = 1, distance = None):
-        if (velocity > self.VELOCITY_THRESHOLD):
-            raise Exception('Velocity threshold exceeded')
-            
-        altitude = self.vehicle.rangefinder.distance
-        if (altitude < 0.5):
-            raise Exception('Dangerously low to ground. Movement aborted')
-
-        # Other checks?
-
-        # If distance is set, fly that distance
-        if distance is not None:
-            duration = distance / self.DEFAULT_VELOCITY
-            self.send_global_velocity(0, self.DEFAULT_VELOCITY, 0, duration)
-        # Else, fly at given velocity for given seconds
-        else:
-            self.send_global_velocity(0, velocity, 0, duration)
-
-    @abc.abstractmethod
-    def right(self, velocity = DEFAULT_VELOCITY, duration = 1, distance = None):
-        if (velocity > self.VELOCITY_THRESHOLD):
-            raise Exception('Velocity threshold exceeded')
-            
-        # Other checks?
-
-        # If distance is set, fly that distance
-        if distance is not None:
-            duration = distance / self.DEFAULT_VELOCITY
-            self.send_global_velocity(0, -1 * self.DEFAULT_VELOCITY, 0, duration)
-        # Else, fly at given velocity for given seconds
-        else:
-            self.send_global_velocity(0, -1 * velocity, 0, duration)
-
-
-    @abc.abstractmethod
-    def up(self, velocity = DEFAULT_VELOCITY, duration = 1, distance = None):
-        if (velocity > self.VELOCITY_THRESHOLD):
-            raise Exception('Velocity threshold exceeded')
-            
-        altitude = self.vehicle.rangefinder.distance
-        if (altitude < 0.5):
-            raise Exception('Dangerously low to ground. Movement aborted')
-
-        # Other checks?
-
-        # If distance is set, fly that distance
-        if distance is not None:
-            duration = distance / self.DEFAULT_VELOCITY
-            self.send_global_velocity(0, 0, self.DEFAULT_VELOCITY, duration)
-        # Else, fly at given velocity for given seconds
-        else:
-            self.send_global_velocity(0, 0, velocity, duration)
-
-
-    @abc.abstractmethod
-    def down(self, velocity = DEFAULT_VELOCITY, duration = 1, distance = None):
-        if (velocity > self.VELOCITY_THRESHOLD):
-            raise Exception('Velocity threshold exceeded')
-            
-        altitude = self.vehicle.rangefinder.distance
-        if (altitude < 0.5):
-            raise Exception('Dangerously low to ground. Movement aborted')
-
-        # Other checks?
-
-        # If distance is set, fly that distance
-        if distance is not None:
-            duration = distance / self.DEFAULT_VELOCITY
-            self.send_global_velocity(0, 0, -1  * self.DEFAULT_VELOCITY, duration)
-        # Else, fly at given velocity for given seconds
-        else:
-            self.send_global_velocity(0, 0, -1 * velocity, duration)
+        self.send_global_velocity(vector, duration)
 
 
     # Tells the drone to move with the given velocities in the x, y, and z direction
     # for a specifies number of seconds.
-    def send_global_velocity(self, velocity_x, velocity_y, velocity_z, duration):
+    def send_global_velocity(self, (velocity_x, velocity_y, velocity_z), duration):
         """
         Move vehicle in direction based on specified velocity vectors.
         """
@@ -200,6 +130,26 @@ class Drone(object):
             self.vehicle.send_mavlink(msg)
             time.sleep(1)
 
+    def send_ned_velocity(self, (velocity_x, velocity_y, velocity_z), duration):
+        """
+        Move vehicle in direction based on specified velocity vectors.
+        """
+        msg = self.vehicle.message_factory.set_position_target_local_ned_encode(
+            0,       # time_boot_ms (not used)
+            0, 0,    # target system, target component
+            mavutil.mavlink.MAV_FRAME_LOCAL_NED, # frame
+            0b0000111111000111, # type_mask (only speeds enabled)
+            0, 0, 0, # x, y, z positions (not used)
+            velocity_x, velocity_y, velocity_z, # x, y, z velocity in m/s
+            0, 0, 0, # x, y, z acceleration (not supported yet, ignored in GCS_Mavlink)
+            0, 0)    # yaw, yaw_rate (not supported yet, ignored in GCS_Mavlink)
+
+
+        # send command to vehicle on 1 Hz cycle
+        for x in range(0,duration):
+            self.vehicle.send_mavlink(msg)
+            time.sleep(1)
+
     def set_attitude(self, roll_angle = 0.0, pitch_angle = 0.0, yaw_rate = 0.0, thrust = 0.5, duration = 0):
         """
         Note that from AC3.3 the message should be re-sent every second (after about 3 seconds
@@ -212,7 +162,6 @@ class Drone(object):
         The roll and pitch rate cannot be controllbed with rate in radian in AC3.4.4 or earlier,
         so you must use quaternion to control the pitch and roll for those vehicles.
         """
-
         # Thrust >  0.5: Ascend
         # Thrust == 0.5: Hold the altitude
         # Thrust <  0.5: Descend

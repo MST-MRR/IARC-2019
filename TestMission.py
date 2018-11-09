@@ -6,22 +6,22 @@ import os
 from MovementInstruction import MovementInstruction
 import heapq # temporary
 
+# This test uses a drone controller
 controller = TestDroneController()
 
 # Get the controller ready
 controller.setId()
 controller.setDrone()
-controller.drone.connect()
+controller.drone.connect(isInSimulator = True)
 controller.drone.arm()
 
 print("Taking off...")
-controller.takeoff(5)
+controller.takeoff(2)
 print("Take off complete!")
 
 # Normally a new item would be pushed onto instruction queue when the instruction
 # is recevied over the network from the swarm controller
-heapq.heappush(controller.instructionQueue, (0, MovementInstruction(5, 5, 5)))
-heapq.heappush(controller.instructionQueue, (0, MovementInstruction(-5, -5, -5)))
+heapq.heappush(controller.instructionQueue, (0, MovementInstruction(-2, 2, 0)))
 
 controller.readNextInstruction()
 controller.readNextInstruction()
@@ -29,8 +29,7 @@ controller.readNextInstruction()
 print(controller.movementQueue)
 
 while(controller.update()):
-    print("Finished Task. Sleeping 3 seconds")
-    time.sleep(3)
+    pass
 
 print("Landing...")
 controller.landAndTerminate()

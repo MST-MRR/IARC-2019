@@ -14,20 +14,12 @@ class TestDroneController(DroneController):
     def update(self):
         if self.movementQueue:
             direction, distance = self.movementQueue.popleft()
-            if direction == 'backward':
-                self.drone.backward(distance = distance)
-            elif direction == 'forward':
-                self.drone.forward(distance = distance)
-            elif direction == 'left':
-                self.drone.left(distance = distance)
-            elif direction == 'right':
-                self.drone.right(distance = distance)
-            elif direction == 'up':
-                self.drone.up(distance = distance)
-            elif direction == 'down':
-                self.drone.down(distance = distance)
-            else:
-                raise Exception("Unrecognized movement!")
+            print ("Starting move...")
+            self.drone.move(direction, distance = distance)
+            print("Finished move...")
+            print("Starting 5 second hover...")
+            self.drone.set_attitude(duration = 5)
+            print("Hover finished.")
             return True
         else:
             return False
