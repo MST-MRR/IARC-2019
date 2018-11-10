@@ -21,7 +21,7 @@ controller = TestDroneController()
 # Get the controller ready
 controller.setId()
 controller.setDrone()
-controller.drone.connect(isInSimulator = True)
+controller.drone.connect(isInSimulator = False)
 controller.drone.arm()
 
 print("Taking off...")
