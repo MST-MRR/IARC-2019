@@ -40,7 +40,7 @@ class Drone(object):
             print("--Connecting to the simulated ardupilot--")
         else:
             self.vehicle = dronekit.connect(self.CONNECTION_STRING_REAL, wait_ready=True)
-            print("--Connecting to the real-life ardupilot --")
+            print("--Connecting to the real-life ardupilot--")
 
     def altitude(self):
         return self.vehicle.rangefinder.distance
