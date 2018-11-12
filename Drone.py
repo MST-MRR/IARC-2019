@@ -14,9 +14,10 @@ from pymavlink import mavutil
 class Drone(object):
     __metaclass__ = abc.ABCMeta
     
-    DEFAULT_VELOCITY = 0.5
+    DEFAULT_VELOCITY = 0.25
     VELOCITY_THRESHOLD = 5 # never let the drone go faster than 5 m/s for safety (is this a good number?)
-    CONNECTION_STRING = "tcp:127.0.0.1:5762"
+    CONNECTION_STRING_SIMULATOR = "tcp:127.0.0.1:5762"
+    CONNECTION_STRING_REAL = "/dev/serial/by-id/usb-3D_Robotics_PX4_FMU_v2.x_0-if00"
 
     # DroneKit Vehicle Modes
     GUIDED = "GUIDED"
@@ -35,10 +36,11 @@ class Drone(object):
 
     def connect(self, isInSimulator):
         if isInSimulator:
-            self.vehicle = dronekit.connect(self.CONNECTION_STRING, wait_ready=True)
+            self.vehicle = dronekit.connect(self.CONNECTION_STRING_SIMULATOR, wait_ready=True)
             print("--Connecting to the simulated ardupilot--")
         else:
-            raise Exception("Non-simulator connection not yet implemented")
+            self.vehicle = dronekit.connect(self.CONNECTION_STRING_REAL, wait_ready=True)
+            print("--Connecting to the real-life ardupilot --")
 
     def altitude(self):
         return self.vehicle.rangefinder.distance
@@ -74,6 +76,8 @@ class Drone(object):
     def land(self):
         while (not self.vehicle.mode == VehicleMode(self.LAND)):
             self.vehicle.mode = VehicleMode(self.LAND)
+        while (self.vehicle.armed):
+            pass
 
     # Should fill devices list with all of the devices a particular drone has
     @abc.abstractmethod

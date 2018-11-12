@@ -57,7 +57,6 @@ class DroneController(MovementInstructionReader):
     def readNextInstruction(self):
         if len(self.instructionQueue) > 0:      
             self.currentInstruction = heapq.heappop(self.instructionQueue)[1]
-            print(self.currentInstruction)
             # If it is a movement instruction
             if type(self.currentInstruction) is MovementInstruction:
                 self.readMovementInstruction(self.currentInstruction, self.movementQueue)

@@ -8,14 +8,14 @@ class MovementInstructionReader(object):
         if x > 0:
             movementQueue.append((Drone.BACKWARD, x))
         elif x < 0:
-            movementQueue.append((Drone.FORWARD, x))
+            movementQueue.append((Drone.FORWARD, -x))
 
         if y > 0:
             movementQueue.append((Drone.LEFT, y))
         elif y < 0:
-            movementQueue.append((Drone.RIGHT, y))
+            movementQueue.append((Drone.RIGHT, -y))
 
         if z > 0:
             movementQueue.append((Drone.UP, z))
         elif z < 0:
-            movementQueue.append((Drone.DOWN, z))
+            movementQueue.append((Drone.DOWN, -z))

@@ -16,7 +16,7 @@ controller.drone.connect(isInSimulator = True)
 controller.drone.arm()
 
 print("Taking off...")
-controller.takeoff(2)
+controller.takeoff(1)
 print("Take off complete!")
 
 # Normally a new item would be pushed onto instruction queue when the instruction
