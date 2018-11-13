@@ -71,7 +71,7 @@ class Logger:
 
 
 if __name__ == '__main__':
-    import random
+    import math
 
     # tempCounter is how many data point to collect temporarily
 
@@ -83,19 +83,19 @@ if __name__ == '__main__':
              'velocity_x': 'velocity_x', 'velocity_y': 'velocity_y', 'velocity_z': 'velocity_z',
             'voltage': 'voltage'})
 
-    func = lambda: random.randint(1, 10)
+    func = lambda x: math.cos(x)
 
     while stopWhile < theTempCounter:  # main loop
         myData = {
-            'airspeed' : 1*func(),
-            'altitude' : 2*func(),
-            'pitch' : 3*func(),
-            'roll' : 4*func(),
-            'yaw' : 5*func(),
-            'velocity_x' : 6*func(),
-            'velocity_y' : 7*func(),
-            'velocity_z' : 8*func(),
-            'voltage' : 9*func()
+            'airspeed' : func(stopWhile) + .0,
+            'altitude' : func(stopWhile) + .1,
+            'pitch' : func(stopWhile) + .2,
+            'roll' : func(stopWhile) + .3,
+            'yaw' : func(stopWhile) + .4,
+            'velocity_x' : func(stopWhile) + .5,
+            'velocity_y' : func(stopWhile) + .6,
+            'velocity_z' : func(stopWhile) + .7,
+            'voltage' : func(stopWhile) + .8
         }
         my_logger.update(myData)
 
