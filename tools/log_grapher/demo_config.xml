@@ -5,5 +5,7 @@
     <metric func="x" label="Roll" x_stream="roll"/>
     <metric func="x" label="Yaw" x_stream="yaw"/>
   </graph>
-  <graph lower_time="10" title="Custom metric" upper_time="20"/>
+  <graph lower_time="10" title="Custom Metric" upper_time="20">
+    <metric func="sin(x) * 16 - .5" label="Sick test" x_stream="pitch"/>
+  </graph>
 </desiredgraphs>
