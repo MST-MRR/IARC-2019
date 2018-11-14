@@ -4,6 +4,8 @@ from MovementInstructionReader import MovementInstructionReader
 from MovementInstruction import MovementInstruction
 from Drone import Drone
 from collections import deque
+from drone_exceptions import NetworkError
+
 
 # Every drone controller will know how to read movement instructions
 class DroneController(MovementInstructionReader):
@@ -20,7 +22,7 @@ class DroneController(MovementInstructionReader):
     # Attempts to establish a connection with the swarm controller
     def connectToSwarm(self):
         if self.master is None or self.id is None:
-            raise Exception("IP address of master or id of this controller has not been set!")
+            raise NetworkError("IP address of master or id of this controller has not been set!")
         else:
             # Establish TCP or otherwise connection with the swarm controller
             pass

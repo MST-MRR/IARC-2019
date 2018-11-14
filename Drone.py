@@ -4,6 +4,8 @@ from dronekit import VehicleMode
 import time
 import math
 from pymavlink import mavutil
+from drone_exceptions import AltitudeError, ThrustError, VelocityError, BadArgumentError
+
 
 # Description:
 #    Wraps DroneKit vehicle and sensors.
@@ -57,7 +59,8 @@ class Drone(object):
             time.sleep(1.0)
         self.vehicle.mode = VehicleMode(self.GUIDED)
 
-        while not self.vehicle.armed:
+        start = time.time()
+        while not self.vehicle.armed and time.time() - start < timeout:
             self.vehicle.armed = True
             time.sleep(1)
 
@@ -79,7 +82,7 @@ class Drone(object):
             self.set_attitude(thrust=thrust)
             time.sleep(0.2)
         else:
-            raise Exception("Could not reach thrust")
+            raise ThrustError("Could not reach thrust")
 
     def land(self):
         while not self.vehicle.mode == VehicleMode(self.LAND):
@@ -94,11 +97,11 @@ class Drone(object):
 
     def validate_move(self, direction, velocity, duration, distance):
         if velocity > self.VELOCITY_THRESHOLD:
-            raise Exception('Velocity threshold exceeded')
+            raise VelocityError('Velocity threshold exceeded')
 
         altitude = self.vehicle.rangefinder.distance
         if altitude < 0.5:
-            raise Exception('Dangerously low to ground. Movement aborted')
+            raise AltitudeError('Dangerously low to ground. Movement aborted')
 
         # TODO - Other checks?
 
@@ -108,7 +111,7 @@ class Drone(object):
         self.validate_move(direction, velocity, duration, distance)
 
         if not(duration or distance):
-            raise Exception("No duration or distance value given.")
+            raise BadArgumentError("No duration or distance value given.")
 
         # If distance is set, fly that distance
         if distance:
