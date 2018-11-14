@@ -12,17 +12,17 @@ class TestDroneController(DroneController):
     # the drone is controlled. This implementation is not a good
     # example.
     def update(self):
-        if self.movementQueue:
-            direction, distance = self.movementQueue.popleft()
-            print ("Starting move...")
-            self.drone.move(direction, distance = distance)
-            print("Finished move...")
-            print("Starting 5 second hover...")
-            self.drone.set_attitude(duration = 5)
-            print("Hover finished.")
-            return True
-        else:
+        if not self.movementQueue:
             return False
+
+        direction, distance = self.movementQueue.popleft()
+        print ("Starting move...")
+        self.drone.move(direction, distance=distance)
+        print("Finished move...")
+        print("Starting 5 second hover...")
+        self.drone.set_attitude(duration=5)
+        print("Hover finished.")
+        return True
 
     def readNextInstruction(self):
         super(TestDroneController, self).readNextInstruction()

@@ -15,7 +15,7 @@ class Drone(object):
     __metaclass__ = abc.ABCMeta
     
     DEFAULT_VELOCITY = 0.25
-    VELOCITY_THRESHOLD = 5 # never let the drone go faster than 5 m/s for safety (is this a good number?)
+    VELOCITY_THRESHOLD = 1  # never let the drone go faster than 1 m/s for safety (is this a good number?)
     CONNECTION_STRING_SIMULATOR = "tcp:127.0.0.1:5762"
     CONNECTION_STRING_REAL = "/dev/serial/by-id/usb-3D_Robotics_PX4_FMU_v2.x_0-if00"
 
@@ -30,6 +30,9 @@ class Drone(object):
     RIGHT = (0, -1, 0)
     FORWARD = (-1, 0, 0)
     BACKWARD = (1, 0, 0)
+
+    DEFAULT_TAKEOFF_THRUST = 0.7
+    SMOOTH_TAKEOFF_THRUST = 0.6
 
     def __init__(self):
         self.devices = []
@@ -59,24 +62,29 @@ class Drone(object):
             time.sleep(1)
 
     def takeoff(self, targetAltitude):
-        DEFAULT_TAKEOFF_THRUST = 0.7
-        SMOOTH_TAKEOFF_THRUST = 0.6
+        thrust = Drone.DEFAULT_TAKEOFF_THRUST
 
-        thrust = DEFAULT_TAKEOFF_THRUST
-        while True:
+        start_time = time.time()
+        cutoff_time = 10
+
+        while time.time() - start_time < cutoff_time:
             current_altitude = self.altitude()
+
             if current_altitude >= targetAltitude*0.95: # Trigger just below target alt.
                 print("Reached target altitude")
                 break
             elif current_altitude >= targetAltitude*0.6:
-                thrust = SMOOTH_TAKEOFF_THRUST
-            self.set_attitude(thrust = thrust)
+                thrust = Drone.SMOOTH_TAKEOFF_THRUST
+
+            self.set_attitude(thrust=thrust)
             time.sleep(0.2)
+        else:
+            raise Exception("Could not reach thrust")
 
     def land(self):
-        while (not self.vehicle.mode == VehicleMode(self.LAND)):
+        while not self.vehicle.mode == VehicleMode(self.LAND):
             self.vehicle.mode = VehicleMode(self.LAND)
-        while (self.vehicle.armed):
+        while self.vehicle.armed:
             pass
 
     # Should fill devices list with all of the devices a particular drone has
@@ -84,26 +92,31 @@ class Drone(object):
     def loadDevices(self):
         return
 
-    # Movement methods (basic implementation provided):
-    @abc.abstractmethod
-    def move(self, direction, velocity = DEFAULT_VELOCITY, duration = 1, distance = None):
-        if (velocity > self.VELOCITY_THRESHOLD):
+    def validate_move(self, direction, velocity, duration, distance):
+        if velocity > self.VELOCITY_THRESHOLD:
             raise Exception('Velocity threshold exceeded')
-        
+
         altitude = self.vehicle.rangefinder.distance
-        if (altitude < 0.5):
+        if altitude < 0.5:
             raise Exception('Dangerously low to ground. Movement aborted')
 
-        # Other checks?
+        # TODO - Other checks?
+
+    # Movement methods (basic implementation provided):
+    @abc.abstractmethod
+    def move(self, direction, velocity=DEFAULT_VELOCITY, duration=None, distance=None):
+        self.validate_move(direction, velocity, duration, distance)
+
+        if not(duration or distance):
+            raise Exception("No duration or distance value given.")
 
         # If distance is set, fly that distance
-        if distance is not None:
+        if distance:
             duration = int(distance / self.DEFAULT_VELOCITY)
-            # Multiply unit vector in direction by the velocity
-            vector = tuple(self.DEFAULT_VELOCITY * n for n in direction)
+
+        # Multiply unit vector in direction by the velocity
         # Else, fly at given velocity for given seconds
-        else:
-            vector = tuple(self.DEFAULT_VELOCITY * n for n in direction)
+        vector = tuple(self.DEFAULT_VELOCITY * n for n in direction)
 
         self.send_global_velocity(vector, duration)
 
@@ -130,7 +143,7 @@ class Drone(object):
             0, 0)    # yaw, yaw_rate (not supported yet, ignored in GCS_Mavlink)
 
         # send command to vehicle on 1 Hz cycle
-        for x in range(0,duration):
+        for x in range(0, duration):
             self.vehicle.send_mavlink(msg)
             time.sleep(1)
 
