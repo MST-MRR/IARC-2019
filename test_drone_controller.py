@@ -2,6 +2,9 @@ from drone_controller import DroneController
 from test_drone import TestDrone
 
 class TestDroneController(DroneController):
+    def __init__(self, drone):
+        super(TestDroneController, self).__init__(drone)
+
     def setId(self):
         return 1
 

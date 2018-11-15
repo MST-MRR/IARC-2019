@@ -9,7 +9,7 @@ import heapq # temporary
 
 if __name__ == '__main__':
     # This test uses a drone controller
-    controller = TestDroneController()
+    controller = TestDroneController(TestDrone())
 
     # Get the controller ready
     controller.setId()

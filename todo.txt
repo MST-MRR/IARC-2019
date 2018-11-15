@@ -1,0 +1,8 @@
+TODO:
+Threading for anything that uses dronekit or networking
+Exception handling
+Python logger
+Add decorators for validating actions (such as move)
+Add functionality to instruction (intruction.start, instruction.cancel)
+Make our own priority queue
+Make default controller state (for emergency situations)

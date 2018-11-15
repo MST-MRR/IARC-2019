@@ -11,10 +11,10 @@ from drone_exceptions import NetworkError
 class DroneController(MovementInstructionReader):
     __metaclass__ = abc.ABCMeta
 
-    def __init__(self):
+    def __init__(self, drone):
         self.id = None # should the drone set its own id or should the swarm controller give an id?
         self.master = None # Will be set to an IP address here
-        self.drone = None
+        self.drone = drone
         self.instructionQueue = []
         self.currentInstruction = None
         self.movementQueue = deque()
@@ -73,11 +73,6 @@ class DroneController(MovementInstructionReader):
     @abc.abstractmethod
     def setId(self):
         self.id = 0
-
-    # After this method is called, self.drone should not be None.
-    @abc.abstractmethod
-    def setDrone(self):
-        pass
 
     # Takes the next best action to control the drone. Responible for carrying
     # out new instructions as needed and notifying when instructions have been
