@@ -1,9 +1,9 @@
-from TestDrone import TestDrone
-from TestDroneController import TestDroneController
+from test_drone import TestDrone
+from test_drone_controller import TestDroneController
 import time
 import sys
 import os
-from MovementInstruction import MovementInstruction
+from movement_instruction import MovementInstruction
 import heapq # temporary
 
 

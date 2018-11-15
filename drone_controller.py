@@ -1,8 +1,8 @@
 import abc
 import heapq
-from MovementInstructionReader import MovementInstructionReader
-from MovementInstruction import MovementInstruction
-from Drone import Drone
+from movement_instruction_reader import MovementInstructionReader
+from movement_instruction import MovementInstruction
+from drone import Drone
 from collections import deque
 from drone_exceptions import NetworkError
 

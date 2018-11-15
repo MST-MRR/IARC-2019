@@ -1,4 +1,4 @@
-from Drone import Drone
+from drone import Drone
 
 class MovementInstructionReader(object):
 
@@ -6,11 +6,11 @@ class MovementInstructionReader(object):
     def readMovementInstruction(self, i, movementQueue):
         (x, y, z) = i.payload
 
-        if x is not 0:
+        if x != 0:
             movementQueue.append((Drone.BACKWARD if x > 0 else Drone.FORWARD, abs(x)))
 
-        if y is not 0:
+        if y != 0:
             movementQueue.append((Drone.LEFT if y > 0 else Drone.RIGHT, abs(y)))
 
-        if z is not 0:
+        if z != 0:
             movementQueue.append((Drone.UP if z > 0 else Drone.DOWN, abs(z)))

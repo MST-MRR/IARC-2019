@@ -1,4 +1,4 @@
-from Drone import Drone
+from drone import Drone
 
 class TestDrone(Drone):
     def move(self, direction, velocity = Drone.DEFAULT_VELOCITY, duration = 1, distance = None):

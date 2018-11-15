@@ -1,5 +1,5 @@
-from DroneController import DroneController
-from TestDrone import TestDrone
+from drone_controller import DroneController
+from test_drone import TestDrone
 
 class TestDroneController(DroneController):
     def setId(self):
