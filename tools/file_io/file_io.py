@@ -48,6 +48,7 @@ def parse_config(filename):
 
         for metric in graph.findall('metric'):
             output[-1]['metric'].append({
+
                 'label': metric.get('label'),
 
                 'color': metric.get('color'),
@@ -123,3 +124,4 @@ if __name__ == '__main__':
         print(possible_metrics('test_config1.xml'))
 
     test_possible_metrics()
+
