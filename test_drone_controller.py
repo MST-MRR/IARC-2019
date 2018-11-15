@@ -19,9 +19,6 @@ class TestDroneController(DroneController):
         print ("Starting move...")
         self.drone.move(direction, distance=distance)
         print("Finished move...")
-        print("Starting 5 second hover...")
-        self.drone.set_attitude(duration=5)
-        print("Hover finished.")
         return True
 
     def readNextInstruction(self):
