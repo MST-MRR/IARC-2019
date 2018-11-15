@@ -26,13 +26,13 @@ class RealTimeGraph:
         Time in seconds to display previous data
     """
 
-    config_filename = 'config.xml'  # Location of configuration file
+    config_filename = ['tools/real_time_graphing/config.xml', 'config.xml']  # Location of configuration file
 
     max_rows = 3  # Rows of subplots per column
 
     data_freq_warning = .5  # If time values are this far apart warn the user
 
-    def __init__(self, get_data=get_demo_data, pan_width=10):
+    def __init__(self, get_data=get_demo_data, pan_width=10, **kwargs):
         self.get_data = get_data
         self.pan_width = abs(pan_width)
 
@@ -53,14 +53,16 @@ class RealTimeGraph:
         self.fig = plt.figure(figsize=(8, 6))
         self.fig.canvas.set_window_title('Real Time Graphing')
 
+        self.fig.subplots_adjust(hspace=1, wspace=0.75)  # Avoid subplot overlap
+
         self.parse_config()
 
         self.ani = animation.FuncAnimation(self.fig, self.plot_data, blit=False, interval=20, repeat=False)
 
         # Threading
-        self.sleep_time = 1e-1
+        self.sleep_time = kwargs['sleep_time'] if 'sleep_time' in kwargs.keys() else 1e-1
 
-        self.thread_stop = threading.Event()
+        self.thread_stop = kwargs['thread_stop'] if 'thread_stop' in kwargs.keys() else threading.Event()
 
         self.thread_queue = Queue()
 
@@ -72,10 +74,6 @@ class RealTimeGraph:
         for thread in threads.values():
             thread.start()
 
-        self.fig.subplots_adjust(hspace=1, wspace=0.75)  # Avoid subplot overlap
-
-        #
-        # Code stops here until matplot window closed
         plt.show()
 
         #
@@ -95,7 +93,11 @@ class RealTimeGraph:
             Parsed config file
         """
 
-        output = file_io.parse_config(RealTimeGraph.config_filename)
+        for filename in RealTimeGraph.config_filename:
+            try:
+                output = file_io.parse_config(filename)
+            except IOError:
+                pass
 
         # Total number of subplots
         graph_count = [graph["output"] == 'text' for graph in output].count(False)
