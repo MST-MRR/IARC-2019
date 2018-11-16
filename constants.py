@@ -1,6 +1,6 @@
 # Safety
-DEFAULT_VELOCITY = 0.25
-VELOCITY_THRESHOLD = 1  # never let the drone go faster than 1 m/s for safety (is this a good number?)
+DEFAULT_VELOCITY = 1
+VELOCITY_THRESHOLD = 2  # never let the drone go faster than 1 m/s for safety (is this a good number?)
 MINIMUM_ALLOWED_ALTITUDE = 0.5
 
 # Connection-oriented

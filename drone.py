@@ -36,13 +36,10 @@ class Drone(object):
     # infinite loop.
     def arm(self, timeout = 30):
         start = time.time()
-        while not self.vehicle.is_armable and time.time() - start < timeout:
-            print("Waiting...\n")
-            time.sleep(1.0)
         self.vehicle.mode = VehicleMode(c.GUIDED)
 
         start = time.time()
-        while not self.vehicle.armed and time.time() - start < timeout:
+        while (not self.vehicle.armed) and (time.time() - start < timeout):
             self.vehicle.armed = True
             time.sleep(1)
         print("Armed!")
@@ -51,7 +48,7 @@ class Drone(object):
         thrust = c.DEFAULT_TAKEOFF_THRUST
 
         start_time = time.time()
-        cutoff_time = 10
+        cutoff_time = 600
 
         while time.time() - start_time < cutoff_time:
             current_altitude = self.altitude()
@@ -105,3 +102,6 @@ class Drone(object):
         vector = tuple(c.DEFAULT_VELOCITY * n for n in direction)
 
         dkw.send_global_velocity(self.vehicle, vector, duration)
+    
+    def hover(self, duration):
+        dkw.send_global_velocity(self.vehicle, (0,0,0), duration=duration)
