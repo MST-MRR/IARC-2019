@@ -8,7 +8,7 @@ from time import sleep, time
 
 from tools.real_time_graphing.metric import Metric
 
-from tools.file_io import file_io
+from tools.file_io.file_io import parse_config
 
 from tools.real_time_graphing.demo_data_gen import get_demo_data
 
@@ -95,9 +95,10 @@ class RealTimeGraph:
 
         for filename in RealTimeGraph.config_filename:
             try:
-                output = file_io.parse_config(filename)
+                output = parse_config(filename)
             except IOError:
-                pass
+                print("Failed to read config file!")
+                output = None
 
         # Total number of subplots
         graph_count = [graph["output"] == 'text' for graph in output].count(False)
