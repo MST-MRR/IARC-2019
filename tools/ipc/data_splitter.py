@@ -1,12 +1,18 @@
 try:
     from tools.real_time_graphing.real_time_graphing import RealTimeGraph
 except ImportError:
-    print("Could not import real time grapher!")
+    try:
+        from real_time_graphing import RealTimeGraph
+    except ImportError:
+        print("Could not import real time grapher!")
 
 try:
     from tools.logging.logger import Logger
 except ImportError:
-    print("Could not import logger!")
+    try:
+        from logger import Logger
+    except ImportError:
+        print("Could not import logger!")
 
 
 class DataSplitter:
