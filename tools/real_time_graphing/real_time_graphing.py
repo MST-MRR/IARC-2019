@@ -6,12 +6,18 @@ from multiprocessing import Queue
 
 from time import sleep, time
 
-from tools.real_time_graphing.metric import Metric
+try:
+    from tools.real_time_graphing.metric import Metric
 
-from tools.file_io.file_io import parse_config
+    from tools.file_io.file_io import parse_config
 
-from tools.real_time_graphing.demo_data_gen import get_demo_data
+    from tools.real_time_graphing.demo_data_gen import get_demo_data
+except ImportError:
+    from metric import Metric
 
+    from file_io import parse_config
+
+    from demo_data_gen import get_demo_data
 
 class RealTimeGraph:
     """
