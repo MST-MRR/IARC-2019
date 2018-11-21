@@ -173,8 +173,11 @@ class RealTimeGraph:
         """
 
         while not self.thread_stop.is_set():
-            data = self.get_data()
-            thread_queue.put(data)
+            try:
+                data = self.get_data()
+                thread_queue.put(data)
+            except Exception as error:
+                print(error)
 
             # Adjust sleep times
             if self.data_count > self.plot_count:
