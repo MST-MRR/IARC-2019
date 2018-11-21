@@ -3,6 +3,8 @@ import dronekit
 from dronekit import VehicleMode
 import time
 import math
+import threading
+import sys
 
 from drone_exceptions import AltitudeError, ThrustError, VelocityError, BadArgumentError
 import constants as c
@@ -20,14 +22,20 @@ class Drone(object):
 
     def __init__(self):
         self.devices = []
+        self.is_flying = False
+        self.is_connected = False
+        self.vehicle = None
 
     def connect(self, isInSimulator):
         if isInSimulator:
             self.vehicle = dronekit.connect(c.CONNECTION_STRING_SIMULATOR, wait_ready=True)
-            print("--Connecting to the simulated ardupilot--")
+            print threading.current_thread.__name__, ": Connecting to the simulated ardupilot"
         else:
             self.vehicle = dronekit.connect(c.CONNECTION_STRING_REAL, wait_ready=True)
-            print("--Connecting to the real-life ardupilot--")
+            print threading.current_thread.__name__, ": Connecting to the real-life ardupilot"
+
+        if self.vehicle is not None:
+            self.is_connected = True
 
     def altitude(self):
         return self.vehicle.rangefinder.distance
@@ -38,11 +46,18 @@ class Drone(object):
         start = time.time()
         self.vehicle.mode = VehicleMode(c.GUIDED)
 
+        print threading.current_thread.__name__, ": Arming",
         start = time.time()
         while (not self.vehicle.armed) and (time.time() - start < timeout):
             self.vehicle.armed = True
             time.sleep(1)
-        print("Armed!")
+            print ".",
+            sys.stdout.flush()
+        print ""
+        print threading.current_thread.__name__, ": Armed"
+
+    def is_armed(self):
+        return self.vehicle.armed
 
     def takeoff(self, targetAltitude):
         thrust = c.DEFAULT_TAKEOFF_THRUST
@@ -64,11 +79,15 @@ class Drone(object):
         else:
             raise ThrustError("Could not reach thrust")
 
+        self.is_flying = True
+
     def land(self):
         while not self.vehicle.mode == VehicleMode(c.LAND):
             self.vehicle.mode = VehicleMode(c.LAND)
         while self.vehicle.armed:
             pass
+
+        self.is_flying = False
 
     # Should fill devices list with all of the devices a particular drone has
     @abc.abstractmethod

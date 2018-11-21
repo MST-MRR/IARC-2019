@@ -1,5 +1,5 @@
 # Safety
-DEFAULT_VELOCITY = 1
+DEFAULT_VELOCITY = 0.25
 VELOCITY_THRESHOLD = 2  # never let the drone go faster than 1 m/s for safety (is this a good number?)
 MINIMUM_ALLOWED_ALTITUDE = 0.5
 
@@ -22,3 +22,9 @@ BACKWARD = (1, 0, 0)
 # Movement
 DEFAULT_TAKEOFF_THRUST = 0.7
 SMOOTH_TAKEOFF_THRUST = 0.6
+
+# Sleep Times
+TEN_MILI = 0.01
+HUNDRED_MILI = 0.1
+HALF_SEC = 0.5
+SECOND = 1.0

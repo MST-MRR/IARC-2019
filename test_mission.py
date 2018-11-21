@@ -5,9 +5,20 @@ import sys
 import os
 from movement_instruction import MovementInstruction
 import heapq # temporary
+import safety_checks
 
 
 if __name__ == '__main__':
+    
+    emergency_land_event = safety_checks.init_emergency_land_event()
+
+    controller = TestDroneController(TestDrone(), emergency_land_event)
+
+    controller.start()
+
+    safety_checks.start_safety_loop(emergency_land_event)
+
+    """
     # This test uses a drone controller
     controller = TestDroneController(TestDrone())
 
@@ -23,42 +34,42 @@ if __name__ == '__main__':
 
     # Normally a new item would be pushed onto instruction queue when the instruction
     # is recevied over the network from the swarm controller
-    heapq.heappush(controller.instructionQueue, (0, MovementInstruction(20, 0, 0)))
+    heapq.heappush(controller.instructionQueue, (0, MovementInstruction(5, 0, 0)))
     controller.readNextInstruction()
     print(controller.movementQueue)
     while(controller.update()):
         pass
     print("Starting to hover")
-    controller.drone.hover(20)
+    controller.drone.hover(5)
     print("Ending hover")
-    heapq.heappush(controller.instructionQueue, (0, MovementInstruction(0, 20, 0)))
+    heapq.heappush(controller.instructionQueue, (0, MovementInstruction(0, 5, 0)))
     controller.readNextInstruction()
     print(controller.movementQueue)
     while(controller.update()):
         pass
     print("Starting to hover")
-    controller.drone.hover(20)
+    controller.drone.hover(5)
     print("Ending hover")
-    heapq.heappush(controller.instructionQueue, (0, MovementInstruction(-20, 0, 0)))
+    heapq.heappush(controller.instructionQueue, (0, MovementInstruction(-5, 0, 0)))
     controller.readNextInstruction()
     print(controller.movementQueue)
     while(controller.update()):
         pass
     print("Starting to hover")
-    controller.drone.hover(20)
+    controller.drone.hover(5)
     print("Ending hover")
-    heapq.heappush(controller.instructionQueue, (0, MovementInstruction(0, -20, 0)))
+    heapq.heappush(controller.instructionQueue, (0, MovementInstruction(0, -5, 0)))
     controller.readNextInstruction()
     print(controller.movementQueue)
     while(controller.update()):
         pass
     print("Starting to hover")
-    controller.drone.hover(20)
+    controller.drone.hover(5)
     print("Ending hover")
     print("Landing...")
     controller.landAndTerminate()
     print("Landed!")
-
+    """
     # Working test code (does not use drone controller instance)
     """
     drone = TestDrone()

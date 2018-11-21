@@ -26,8 +26,6 @@ def send_global_velocity(vehicle, (velocity_x, velocity_y, velocity_z), duration
     # send command to vehicle on 1 Hz cycle
     for x in range(0, duration):
         vehicle.send_mavlink(msg)
-        print(vehicle.rangefinder.distance)
-        print(vehicle.velocity)
         sleep(1)
 
 def set_attitude(vehicle, roll_angle = 0.0, pitch_angle = 0.0, yaw_rate = 0.0, thrust = 0.5, duration = 0):

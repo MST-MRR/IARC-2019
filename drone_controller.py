@@ -5,19 +5,24 @@ from movement_instruction import MovementInstruction
 from drone import Drone
 from collections import deque
 from drone_exceptions import NetworkError
+import threading
 
 
 # Every drone controller will know how to read movement instructions
-class DroneController(MovementInstructionReader):
+class DroneController(MovementInstructionReader, threading.Thread):
     __metaclass__ = abc.ABCMeta
 
-    def __init__(self, drone):
+    def __init__(self, drone, emergency_land_event):
+        super(DroneController, self).__init__()
+        self.setName("ControllerThread")
         self.id = None # should the drone set its own id or should the swarm controller give an id?
         self.master = None # Will be set to an IP address here
         self.drone = drone
         self.instructionQueue = []
         self.currentInstruction = None
         self.movementQueue = deque()
+        self.lock = threading.Lock()
+        self.emergency_land_event = emergency_land_event
 
     # Attempts to establish a connection with the swarm controller
     def connectToSwarm(self):
@@ -79,4 +84,11 @@ class DroneController(MovementInstructionReader):
     # finished. Also responsible for collision avoidance.
     @abc.abstractmethod
     def update(self):
+        pass
+
+    # Method overriden from threading.Thread. The start method calls this method.
+    # https://docs.python.org/2/library/threading.html. When this function finishes,
+    # the thread ends.
+    @abc.abstractmethod
+    def run(self):
         pass
