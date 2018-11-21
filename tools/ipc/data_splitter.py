@@ -55,6 +55,23 @@ class DataSplitter:
 
 
 if __name__ == '__main__':
+    from math import sin, cos
+
     demo = DataSplitter()
 
-    demo.send(23)
+    for i in range(100000):
+        demo.send({
+            'altitude': sin(i),
+            'airspeed': cos(i),
+            'velocity_x': sin(i),
+            'velocity_y': cos(i),
+            'velocity_z': sin(i),
+            'voltage': cos(i),
+            'roll': cos(i),
+            'pitch': sin(i),
+            'yaw': cos(i),
+            'target_altitude': sin(i),
+            'target_pitch_velocity': cos(i),
+            'target_roll_velocity': cos,
+            'target_yaw': sin(i)
+        })
