@@ -8,16 +8,19 @@ from time import sleep, time
 
 try:
     from tools.real_time_graphing.metric import Metric
-
-    from tools.file_io.file_io import parse_config
-
-    from tools.real_time_graphing.demo_data_gen import get_demo_data
 except ImportError:
     from metric import Metric
 
+try:
+    from tools.file_io.file_io import parse_config
+except ImportError:
     from file_io import parse_config
 
+try:
+    from tools.real_time_graphing.demo_data_gen import get_demo_data
+except ImportError:
     from demo_data_gen import get_demo_data
+
 
 class RealTimeGraph:
     """
@@ -32,7 +35,7 @@ class RealTimeGraph:
         Time in seconds to display previous data
     """
 
-    config_filename = ['tools/real_time_graphing/config.xml', 'config.xml']  # Location of configuration file
+    config_filename = ['../../tools/real_time_graphing/config.xml', 'tools/real_time_graphing/config.xml', 'config.xml']  # Location of configuration file
 
     max_rows = 3  # Rows of subplots per column
 
@@ -61,7 +64,7 @@ class RealTimeGraph:
 
         self.fig.subplots_adjust(hspace=1, wspace=0.75)  # Avoid subplot overlap
 
-        self.parse_config()
+        self.parse_rtg_config()
 
         self.ani = animation.FuncAnimation(self.fig, self.plot_data, blit=False, interval=20, repeat=False)
 
@@ -89,7 +92,7 @@ class RealTimeGraph:
         for thread in threads.values():
             thread.join()
 
-    def parse_config(self):
+    def parse_rtg_config(self):
         """
         Interprets the graph config file
 
@@ -102,6 +105,7 @@ class RealTimeGraph:
         for filename in RealTimeGraph.config_filename:
             try:
                 output = parse_config(filename)
+                break
             except IOError:
                 print("Failed to read config file!")
                 output = None
