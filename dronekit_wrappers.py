@@ -2,9 +2,11 @@ from time import sleep, time
 from math import radians, sin, cos
 from pymavlink import mavutil
 import dronekit
+import threading
+
 # Tells the drone to move with the given velocities in the x, y, and z direction
 # for a specifies number of seconds.
-def send_global_velocity(vehicle, (velocity_x, velocity_y, velocity_z), duration):
+def send_global_velocity(vehicle, (velocity_x, velocity_y, velocity_z), duration, stop_event):
     """
     Move vehicle in direction based on specified velocity vectors.
     """
@@ -25,6 +27,11 @@ def send_global_velocity(vehicle, (velocity_x, velocity_y, velocity_z), duration
 
     # send command to vehicle on 1 Hz cycle
     for x in range(0, duration):
+        if stop_event.isSet():
+            print threading.current_thread().name, ": Movement halting"
+            stop_event.clear()
+            return
+        print threading.current_thread().name, ": Sending velocity (", velocity_x, ", ", velocity_y, ", ", velocity_z, ")"
         vehicle.send_mavlink(msg)
         sleep(1)
 

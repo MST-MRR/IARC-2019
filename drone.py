@@ -46,7 +46,7 @@ class Drone(object):
         start = time.time()
         self.vehicle.mode = VehicleMode(c.GUIDED)
 
-        print threading.current_thread.__name__, ": Arming",
+        print threading.current_thread().name, ": Arming",
         start = time.time()
         while (not self.vehicle.armed) and (time.time() - start < timeout):
             self.vehicle.armed = True
@@ -54,7 +54,7 @@ class Drone(object):
             print ".",
             sys.stdout.flush()
         print ""
-        print threading.current_thread.__name__, ": Armed"
+        print threading.current_thread().name, ": Armed"
 
     def is_armed(self):
         return self.vehicle.armed
@@ -106,7 +106,7 @@ class Drone(object):
 
     # Movement methods (basic implementation provided):
     @abc.abstractmethod
-    def move(self, direction, velocity=c.DEFAULT_VELOCITY, duration=None, distance=None):
+    def move(self, direction, stop_event, velocity=c.DEFAULT_VELOCITY, duration=None, distance=None):
         self.validate_move(direction, velocity, duration, distance)
 
         if not(duration or distance):
@@ -119,8 +119,10 @@ class Drone(object):
         # Multiply unit vector in direction by the velocity
         # Else, fly at given velocity for given seconds
         vector = tuple(c.DEFAULT_VELOCITY * n for n in direction)
-
-        dkw.send_global_velocity(self.vehicle, vector, duration)
+        print "Sending velocity..."
+        dkw.send_global_velocity(self.vehicle, vector, duration, stop_event)
     
+    # TODO - the threading argument here is dummy
     def hover(self, duration):
-        dkw.send_global_velocity(self.vehicle, (0,0,0), duration=duration)
+        dummy = threading.Event()
+        dkw.send_global_velocity(self.vehicle,(0,0,0), duration, dummy)

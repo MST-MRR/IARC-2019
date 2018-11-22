@@ -19,8 +19,13 @@ def start_safety_loop(emergency_land_event):
             print threading.current_thread().name, ": Emergency Landing Initiated"
             emergency_land_event.set()
             print threading.current_thread().name, ": Waiting for response from controller"
+            count = 0 # Used as a timeout variable
             while emergency_land_event.is_set():
                 sleep(c.HUNDRED_MILI)
+                count += c.HUNDRED_MILI
+                if count >= 5 * c.SECOND: # 5 seconds
+                    print threading.current_thread().name, ": Controller not responding - Program exiting"
+                    exit()
             print threading.current_thread().name, ": Controller has responded"
             emergency_land_event.wait()
             print threading.current_thread().name, ": Emergency landing complete - Program exiting"
