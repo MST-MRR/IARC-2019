@@ -92,6 +92,13 @@ class RealTimeGraph:
         for thread in threads.values():
             thread.join()
 
+    def set_pull_function(self, func):
+        """
+        Set the pull data function
+        """
+
+        self.get_data = func
+
     def parse_rtg_config(self):
         """
         Interprets the graph config file
