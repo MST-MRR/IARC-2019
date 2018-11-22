@@ -1,3 +1,7 @@
+import threading
+from queue import Queue
+from time import sleep
+
 try:
     from tools.real_time_graphing.real_time_graphing import RealTimeGraph
 except ImportError:
@@ -15,17 +19,17 @@ except ImportError:
         print("Could not import logger!")
 
 
+# # # TODO - RTG Needs to go into separate thread!
+
+
 class DataSplitter:
     """
     Send data to this one object and it will send to both the RTG and logger
     """
 
-    def __init__(self, logger_desired_data=None):
-        try:
-            self.rtg = RealTimeGraph(get_data=self.pull)  # Tool, iterator pairs
-        except NameError as e:
-            print("Failed to create real time graph object. {}".format(e))
-            self.rtg = None
+    def __init__(self, logger_desired_data=None, rtg=None):
+        self.data = None
+        self.rtg = None
 
         try:
             self.logger = Logger(logger_desired_data)
@@ -33,10 +37,12 @@ class DataSplitter:
             print("Failed to create logger object. {}".format(e))
             self.logger = None
 
-        # Give rtg the command pull ->
-        # Call .update(data) on logger for every line
-
-        self.data = None
+        try:
+            self.rtg = rtg
+            self.rtg.set_pull_function(self.pull)
+        except Exception as e:
+            print("Failed to create real time graph object. {}".format(e))
+            self.rtg = None
 
     def send(self, data):
         """
@@ -57,6 +63,8 @@ class DataSplitter:
 if __name__ == '__main__':
     from math import sin, cos
 
+    # TODO - Create rtg object and pass it in if want one
+
     demo = DataSplitter()
 
     for i in range(100000):
@@ -72,6 +80,6 @@ if __name__ == '__main__':
             'yaw': cos(i),
             'target_altitude': sin(i),
             'target_pitch_velocity': cos(i),
-            'target_roll_velocity': cos,
+            'target_roll_velocity': cos(i),
             'target_yaw': sin(i)
         })
