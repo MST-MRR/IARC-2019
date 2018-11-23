@@ -75,6 +75,7 @@ class RealTimeGraph:
 
         self.thread_queue = Queue()
 
+    def run(self):
         threads = {
             'reader': threading.Thread(target=self.read_data, args=(self.thread_queue,)),
             'processor': threading.Thread(target=self.process_data, args=(self.thread_queue,))
