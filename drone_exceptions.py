@@ -1,34 +1,41 @@
 
 
-class NetworkError(Exception):
+class NetworkException(Exception):
     """
     Any network or connection errors
     """
     pass
 
 
-class AltitudeError(Exception):
+class AltitudeException(Exception):
     """
     Too low or too high altitude
     """
     pass
 
 
-class ThrustError(Exception):
+class ThrustException(Exception):
     """
     Too low or too high thrust
     """
     pass
 
 
-class VelocityError(Exception):
+class VelocityException(Exception):
     """
     Too low or too high velocity
     """
     pass
 
 
-class BadArgumentError(Exception):
+class BadArgumentException(Exception):
     """
     Caused by wrong call to function or something
     """
+    pass
+
+class EmergencyLandException(Exception):
+    """
+    Caused by wrong call to function or something
+    """
+    pass

@@ -26,8 +26,17 @@ class Movement(threading.Thread):
 
     def cancel(self):
         self.stop_event.set()
+        one_pass = False
         while self.stop_event.isSet():
-            time.sleep(c.TEN_MILI)
+            time.sleep(c.SECOND)
+            # In the event that the cancel is requested during the last second
+            # of send_global_velocity's execution, the isSet flag will never be
+            # cleared. If a second has passed (the frequency of send_global_velocity 
+            # loop), then it is deduced that this is the situation, and we can break.
+            if one_pass:
+                break
+            one_pass = True
+            
         self.state = c.CANCELED
 
     # TODO

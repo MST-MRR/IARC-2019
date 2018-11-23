@@ -6,7 +6,7 @@ import math
 import threading
 import sys
 
-from drone_exceptions import AltitudeError, ThrustError, VelocityError, BadArgumentError
+from drone_exceptions import AltitudeException, ThrustException, VelocityException, BadArgumentException
 import constants as c
 import dronekit_wrappers as dkw
 
@@ -29,10 +29,10 @@ class Drone(object):
     def connect(self, isInSimulator):
         if isInSimulator:
             self.vehicle = dronekit.connect(c.CONNECTION_STRING_SIMULATOR, wait_ready=True)
-            print threading.current_thread.__name__, ": Connecting to the simulated ardupilot"
+            print threading.current_thread().name, ": Connecting to the simulated ardupilot"
         else:
             self.vehicle = dronekit.connect(c.CONNECTION_STRING_REAL, wait_ready=True)
-            print threading.current_thread.__name__, ": Connecting to the real-life ardupilot"
+            print threading.current_thread().name, ": Connecting to the real-life ardupilot"
 
         if self.vehicle is not None:
             self.is_connected = True
@@ -63,21 +63,22 @@ class Drone(object):
         thrust = c.DEFAULT_TAKEOFF_THRUST
 
         start_time = time.time()
-        cutoff_time = 600
-
+        cutoff_time = 10
+        
         while time.time() - start_time < cutoff_time:
             current_altitude = self.altitude()
 
             if current_altitude >= targetAltitude*0.95: # Trigger just below target alt.
-                print("Reached target altitude")
+                print "Reached target altitude"
                 break
             elif current_altitude >= targetAltitude*0.6:
                 thrust = c.SMOOTH_TAKEOFF_THRUST
 
             dkw.set_attitude(self.vehicle, thrust=thrust)
-            time.sleep(0.2)
+            time.sleep(1)
         else:
-            raise ThrustError("Could not reach thrust")
+            print "Could not take off - trying again"
+            return
 
         self.is_flying = True
 
@@ -96,11 +97,11 @@ class Drone(object):
 
     def validate_move(self, direction, velocity, duration, distance):
         if velocity > c.VELOCITY_THRESHOLD:
-            raise VelocityError('Velocity threshold exceeded')
+            raise VelocityException('Velocity threshold exceeded')
 
         altitude = self.vehicle.rangefinder.distance
         if altitude < c.MINIMUM_ALLOWED_ALTITUDE:
-            raise AltitudeError('Dangerously low to ground. Movement aborted')
+            raise AltitudeException('Dangerously low to ground. Movement aborted')
 
         # TODO - Other checks?
 
@@ -110,7 +111,7 @@ class Drone(object):
         self.validate_move(direction, velocity, duration, distance)
 
         if not(duration or distance):
-            raise BadArgumentError("No duration or distance value given.")
+            raise BadArgumentException("No duration or distance value given.")
 
         # If distance is set, fly that distance
         if distance:
@@ -119,7 +120,6 @@ class Drone(object):
         # Multiply unit vector in direction by the velocity
         # Else, fly at given velocity for given seconds
         vector = tuple(c.DEFAULT_VELOCITY * n for n in direction)
-        print "Sending velocity..."
         dkw.send_global_velocity(self.vehicle, vector, duration, stop_event)
     
     # TODO - the threading argument here is dummy

@@ -14,6 +14,9 @@ def start_safety_loop(emergency_land_event):
     print threading.current_thread().name, ": Safety loop started"
     while True:
         try:
+            if "ControllerThread" not in [t.getName() for t in threading.enumerate()]:
+                print threading.current_thread().name, ": All thread except main have finished - Program exiting"
+                exit()
             sleep(c.HALF_SEC)
         except KeyboardInterrupt:
             print threading.current_thread().name, ": Emergency Landing Initiated"
@@ -27,6 +30,8 @@ def start_safety_loop(emergency_land_event):
                     print threading.current_thread().name, ": Controller not responding - Program exiting"
                     exit()
             print threading.current_thread().name, ": Controller has responded"
-            emergency_land_event.wait()
-            print threading.current_thread().name, ": Emergency landing complete - Program exiting"
+            if emergency_land_event.wait(timeout=10) is True:
+                print threading.current_thread().name, ": Emergency landing successful - Program exiting"
+            else:
+                print threading.current_thread().name, ": Emergency landing may have failed (controller never said it landed) - Program exiting"
             exit()

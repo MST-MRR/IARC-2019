@@ -1,5 +1,5 @@
 TODO:
-Threading for anything that uses dronekit or networking
+Consolidate takeoff and land into movement (currently they are not threaded)
 Exception handling
 Python logger
 Add decorators for validating actions (such as move)

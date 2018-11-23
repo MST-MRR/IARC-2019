@@ -35,7 +35,7 @@ def send_global_velocity(vehicle, (velocity_x, velocity_y, velocity_z), duration
         vehicle.send_mavlink(msg)
         sleep(1)
 
-def set_attitude(vehicle, roll_angle = 0.0, pitch_angle = 0.0, yaw_rate = 0.0, thrust = 0.5, duration = 0):
+def set_attitude(vehicle, roll_angle = 0.0, pitch_angle = 0.0, yaw_rate = 0.0, thrust = 0.5):
     """
     Note that from AC3.3 the message should be re-sent every second (after about 3 seconds
     with no message the velocity will drop back to zero). In AC3.2.1 and earlier the specified
@@ -62,11 +62,6 @@ def set_attitude(vehicle, roll_angle = 0.0, pitch_angle = 0.0, yaw_rate = 0.0, t
         thrust  # Thrust
     )
     vehicle.send_mavlink(msg)
-
-    start = time()
-    while time() - start < duration:
-        vehicle.send_mavlink(msg)
-        sleep(0.1)
 
 def to_quaternion(roll = 0.0, pitch = 0.0, yaw = 0.0):
     """

@@ -4,7 +4,7 @@ from movement_instruction_reader import MovementInstructionReader
 from movement_instruction import MovementInstruction
 from drone import Drone
 from collections import deque
-from drone_exceptions import NetworkError
+from drone_exceptions import NetworkException
 import threading
 
 
@@ -15,6 +15,7 @@ class DroneController(MovementInstructionReader, threading.Thread):
     def __init__(self, drone, emergency_land_event):
         super(DroneController, self).__init__()
         self.setName("ControllerThread")
+        self.setDaemon(True)
         self.id = None # should the drone set its own id or should the swarm controller give an id?
         self.master = None # Will be set to an IP address here
         self.drone = drone
@@ -27,7 +28,7 @@ class DroneController(MovementInstructionReader, threading.Thread):
     # Attempts to establish a connection with the swarm controller
     def connectToSwarm(self):
         if self.master is None or self.id is None:
-            raise NetworkError("IP address of master or id of this controller has not been set!")
+            raise NetworkException("IP address of master or id of this controller has not been set!")
         else:
             # Establish TCP or otherwise connection with the swarm controller
             pass
