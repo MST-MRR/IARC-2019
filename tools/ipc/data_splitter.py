@@ -1,15 +1,3 @@
-import threading
-from queue import Queue
-from time import sleep
-
-try:
-    from tools.real_time_graphing.real_time_graphing import RealTimeGraph
-except ImportError:
-    try:
-        from real_time_graphing import RealTimeGraph
-    except ImportError:
-        print("Could not import real time grapher!")
-
 try:
     from tools.logging.logger import Logger
 except ImportError:
@@ -17,9 +5,6 @@ except ImportError:
         from logger import Logger
     except ImportError:
         print("Could not import logger!")
-
-
-# # # TODO - RTG Needs to go into separate thread!
 
 
 class DataSplitter:
@@ -60,12 +45,8 @@ class DataSplitter:
         return self.data
 
 
-if __name__ == '__main__':
-    from math import sin, cos
-
-    # TODO - Create rtg object and pass it in if want one
-
-    demo = DataSplitter()
+def main(rtg):
+    demo = DataSplitter(rtg=rtg)
 
     for i in range(100000):
         demo.send({
@@ -83,3 +64,44 @@ if __name__ == '__main__':
             'target_roll_velocity': cos(i),
             'target_yaw': sin(i)
         })
+
+
+if __name__ == '__main__':
+    try:
+        from tools.real_time_graphing.real_time_graphing import RealTimeGraph
+    except ImportError:
+        try:
+            from real_time_graphing import RealTimeGraph
+        except ImportError:
+            print("Could not import real time grapher!")
+
+    import threading
+    from queue import Queue
+    from time import sleep
+
+    from math import sin, cos
+
+    thread_stop = threading.Event()
+
+    thread_queue = Queue()
+
+    rtg = RealTimeGraph(thread_stop=thread_stop)
+
+    threads = {
+        'sender': threading.Thread(target=rtg.run),
+        'graph': threading.Thread(target=main, args=(rtg,))
+    }
+
+    for thread in threads.values():
+        thread.start()
+
+    while not thread_stop.is_set():  # Arbitrary loop for while program is working
+        sleep(1)
+
+    for thread in threads.values():
+        thread.join()
+
+    rtg = RealTimeGraph
+
+
+
