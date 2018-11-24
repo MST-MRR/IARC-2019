@@ -8,6 +8,7 @@ from movement_instruction import MovementInstruction
 from movement import Movement
 import sys
 from drone_exceptions import EmergencyLandException
+import traceback
 
 class TestDroneController(DroneController):
     def __init__(self, drone, emergency_land_event):
@@ -24,33 +25,46 @@ class TestDroneController(DroneController):
 
     def update(self):
         try:
-            if not self.drone.is_connected:
+            if not self.drone.is_connected():
                 self.drone.connect(isInSimulator = True)
             
             if not self.drone.is_armed():
                 self.drone.arm()
 
-            if not self.drone.is_flying:
-                self.drone.takeoff(1)
+            if not self.drone.is_flying() and not self.drone.is_taking_off():
+                self.currentMovement = Movement(self.drone, takeoff=1)
+                self.currentMovement.start()
 
-            # If there is an active movement happening, wait
+            # If there is an active movement happening...
             if self.currentMovement is not None:
-                if self.currentMovement.state is c.ACTIVE:
+                # Check to see if it is active - if so, wait
+                if self.currentMovement.get_state() is c.ACTIVE:
                     sleep(c.HALF_SEC)
-                elif self.currentMovement.state is c.DEFAULT:
-                    self.currentMovement = None
-                    print threading.current_thread().name, ": Starting hover"
-                    self.drone.hover(1)
-                    print threading.current_thread().name, ": Hover complete"
-            # Process remaining movements before next instruction
+                # Else, the movement must be finished and in its default state
+                elif self.currentMovement.get_state() is c.DEFAULT:
+                    # If the movement was along a path, start to hover
+                    if self.currentMovement.get_type() is c.PATH:
+                        self.currentMovement = Movement(self.drone, hover=3)
+                        self.currentMovement.start()
+                    # Reset the current movement and allow a new movement to begin
+                    else:
+                        self.currentMovement = None
+            # Process remaining movements
             elif len(self.movementQueue):
                 direction, distance = self.movementQueue.popleft()
-                self.currentMovement = Movement(self.drone, direction, distance)
+                self.currentMovement = Movement(self.drone, path=(direction, distance))
                 self.currentMovement.start() # start movement thread
+            # Process remaining instructions (notice movements are always 
+            # processed before instructions, if they exist)
             elif len(self.instructionQueue):
                 self.readNextInstruction()
+            # If this line is reached, all the instructions have been processed
             else:
-                self.drone.land()
+                self.currentMovement = Movement(self.drone, land=True)
+                self.currentMovement.start()
+                # Wait for land to finish - it will hold up the thread, but everything
+                # has been completed anyway
+                self.currentMovement.join()
                 return False # All finished
 
             # Check to see if emergency landing has been initiated
@@ -64,6 +78,10 @@ class TestDroneController(DroneController):
             print "Error encountered in", threading.current_thread().name, ":"
             print "\tType:", type(e)
             print "\tMessage:", e
+            print traceback.print_exc()
+            # If a connection was never establish in the first place, return
+            if self.drone.vehicle is None:
+                return False
             # If a movement is going on, cancel it
             if self.currentMovement is not None:
                 self.currentMovement.cancel()
@@ -71,9 +89,7 @@ class TestDroneController(DroneController):
                 while self.currentMovement.state is not c.CANCELED:
                     sleep(c.TEN_MILI)
             # No movements are happening, so start landing
-            print threading.current_thread().name, ": Starting land"
             self.drone.land()
-            print threading.current_thread().name, ": Land complete"
             self.emergency_land_event.set()
             return False
         """

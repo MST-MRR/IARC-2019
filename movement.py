@@ -1,30 +1,82 @@
 import threading
 import constants as c
 import time
+from drone_exceptions import BadArgumentException
 
 class Movement(threading.Thread):
-    def __init__(self, drone, direction, distance):
+    def __init__(self, drone, **kwargs):
+        for kind, arg in kwargs.items():
+            if kind == "path":
+                self.type = c.PATH
+                self.direction = arg[0]
+                self.distance = arg[1]
+            elif kind == "hover":
+                self.type = c.HOVER
+                self.duration = arg
+            elif kind == "takeoff":
+                self.type = c.TAKEOFF
+                self.target_altitude = arg
+            elif kind == "land":
+                self.type = c.LAND
+            else:
+                raise BadArgumentException("Movement(): Must give path, hover, \
+                    takeoff, or land as argument")
+            
         super(Movement, self).__init__()
         self.setName("MovementThread")
         self.drone = drone
-        self.direction = direction
-        self.distance = distance
         self.state = c.DEFAULT
         self.stop_event = threading.Event()
-        
 
-    def get_status(self):
+    def get_state(self):
         return self.state
+
+    def get_type(self):
+        return self.type
 
     # Called when self.Start() is called
     def run(self):
+        if self.type == c.PATH:
+            self.runPath()
+        elif self.type == c.HOVER:
+            self.runHover()
+        elif self.type == c.TAKEOFF:
+            self.runTakeoff()
+        elif self.type == c.LAND:
+            self.runLand()
+            
+    def runPath(self):
         print threading.current_thread().name, ": Starting move"
         self.state = c.ACTIVE
-        self.drone.move(self.direction, self.stop_event, distance=self.distance)
+        self.drone.move(self.direction, self.distance, self.stop_event)
         self.state = c.DEFAULT
         print threading.current_thread().name, ": Finished move"
 
+    def runHover(self):
+        print threading.current_thread().name, ": Starting hover (", self.duration, "s)"
+        self.state = c.ACTIVE
+        self.drone.hover(self.duration, self.stop_event)
+        self.state = c.DEFAULT
+        print threading.current_thread().name, ": Finished hover"
+
+    def runTakeoff(self):
+        print threading.current_thread().name, ": Starting takeoff"
+        self.state = c.ACTIVE
+        self.drone.takeoff(self.target_altitude, self.stop_event)
+        self.state = c.DEFAULT
+        print threading.current_thread().name, ": Finished takeoff"
+    
+    def runLand(self):
+        print threading.current_thread().name, ": Starting land"
+        self.state = c.ACTIVE
+        self.drone.land()
+        self.state = c.DEFAULT
+        print threading.current_thread().name, ": Finished land"
+
     def cancel(self):
+        if self.type is c.LAND:
+            print threading.current_thread().name, ": Cannot cancel a land movement! Land proceeding"
+
         self.stop_event.set()
         one_pass = False
         while self.stop_event.isSet():
@@ -36,7 +88,7 @@ class Movement(threading.Thread):
             if one_pass:
                 break
             one_pass = True
-            
+
         self.state = c.CANCELED
 
     # TODO
