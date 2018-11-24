@@ -22,8 +22,8 @@ class TestDroneController(DroneController):
         # the networking thread are implemented, this sort of function call will
         # likely be done in update(), after checking that new instruction have
         # arrived over the network.
-        heapq.heappush(self.instructionQueue, (0, MovementInstruction(5, 5, 0)))
-        heapq.heappush(self.instructionQueue, (0, MovementInstruction(-5, -5, 0)))
+        heapq.heappush(self.instruction_queue, (0, MovementInstruction(5, 5, 0)))
+        heapq.heappush(self.instruction_queue, (0, MovementInstruction(-5, -5, 0)))
 
     def setId(self):
         return 1
@@ -58,13 +58,13 @@ class TestDroneController(DroneController):
                     else:
                         self.currentMovement = None
             # Process remaining movements
-            elif len(self.movementQueue):
-                direction, distance = self.movementQueue.popleft()
+            elif len(self.movement_queue):
+                direction, distance = self.movement_queue.popleft()
                 self.currentMovement = Movement(self.drone, path=(direction, distance))
                 self.currentMovement.start() # start movement thread
             # Process remaining instructions (movements are  
             # processed before instructions, if they exist)
-            elif len(self.instructionQueue):
+            elif len(self.instruction_queue):
                 self.readNextInstruction()
             # If this line is reached, all the instructions have been processed
             else:
