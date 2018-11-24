@@ -4,11 +4,40 @@ from pymavlink import mavutil
 import dronekit
 import threading
 
+"""
+Any functions requiring the use of DroneKit's message_factory module to construct
+mavlink commands are stored here.
+"""
+
 # Tells the drone to move with the given velocities in the x, y, and z direction
 # for a specifies number of seconds.
 def send_global_velocity(vehicle, (velocity_x, velocity_y, velocity_z), duration, stop_event):
     """
-    Move vehicle in direction based on specified velocity vectors.
+    Moves vehicle in direction of the give three-dimentional velocity vector for the
+    given duration in seconds.  
+
+    Parameters
+    ----------
+    vehicle: DroneKit.Vehicle
+        Interface to the drone
+    (velocity_x, velocity_y, velocity_z): (Double, Double, Double)
+        Velocity vector to travel along
+    duration: Integer
+        How long in seconds to fly along vector
+    stop_event: threading.Event
+        Set whenever the current thread is being canceled
+
+    Precondition:
+    ----------
+    None
+
+    Postcondition:
+    ----------
+    None
+
+    Returns:
+    ----------
+    None
     """
     msg = vehicle.message_factory.set_position_target_global_int_encode(
         0,       # time_boot_ms (not used)
@@ -37,13 +66,40 @@ def send_global_velocity(vehicle, (velocity_x, velocity_y, velocity_z), duration
 
 def set_attitude(vehicle, roll_angle = 0.0, pitch_angle = 0.0, yaw_rate = 0.0, thrust = 0.5):
     """
+    TODO: give a good description of what this function does
+
+    Parameters
+    ----------
+    vehicle: DroneKit.Vehicle
+        Interface to the drone
+    roll_angle: Double (optional)
+        TODO
+    pitch_angle: Double (optional)
+        TODO
+    yaw_rate: Double (optional)
+        TODO
+    thrust: Double (optional)
+        TODO
+
+    Precondition:
+    ----------
+    TODO
+
+    Postcondition:
+    ----------
+    TODO
+
+    Returns:
+    ----------
+    None
+    
+    The follow comments are from the DroneKit website:
+
     Note that from AC3.3 the message should be re-sent every second (after about 3 seconds
     with no message the velocity will drop back to zero). In AC3.2.1 and earlier the specified
     velocity persists until it is canceled. The code below should work on either version
     (sending the message multiple times does not cause problems).
-    """
 
-    """
     The roll and pitch rate cannot be controllbed with rate in radian in AC3.4.4 or earlier,
     so you must use quaternion to control the pitch and roll for those vehicles.
     """
@@ -66,6 +122,24 @@ def set_attitude(vehicle, roll_angle = 0.0, pitch_angle = 0.0, yaw_rate = 0.0, t
 def to_quaternion(roll = 0.0, pitch = 0.0, yaw = 0.0):
     """
     Convert degrees to quaternions
+
+    Parameters
+    ----------
+    roll: Double (optional)
+        TODO
+    pitch: Double (optional)
+        TODO
+    yaw: Double (optional)
+        TODO
+
+
+    Precondition:
+    ----------
+    TODO
+
+    Postcondition:
+    ----------
+    TODO
     """
     t0 = cos(radians(yaw * 0.5))
     t1 = sin(radians(yaw * 0.5))

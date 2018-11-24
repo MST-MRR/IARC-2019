@@ -1,5 +1,3 @@
-
-
 class NetworkException(Exception):
     """
     Any network or connection errors

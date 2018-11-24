@@ -1,8 +1,6 @@
 TODO:
-Consolidate takeoff and land into movement (currently they are not threaded)
-Exception handling
-Python logger
+Better exception handling
+Organize the files into subfiles
+Start using logging module instead of print()
 Add decorators for validating actions (such as move)
-Add functionality to instruction (intruction.start, instruction.cancel)
 Make our own priority queue
-Make default controller state (for emergency situations)

@@ -1,3 +1,7 @@
+"""
+All of the constant values used across all of the scripts are located here.
+"""
+
 # Safety
 DEFAULT_VELOCITY = 0.50
 VELOCITY_THRESHOLD = 2  # never let the drone go faster than 1 m/s for safety (is this a good number?)

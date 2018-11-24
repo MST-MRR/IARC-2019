@@ -11,26 +11,34 @@ from drone_exceptions import EmergencyLandException
 import traceback
 
 class TestDroneController(DroneController):
+    """
+    Concrete implementation of DroneController. See drone_controller.py for
+    documentation.
+    """
     def __init__(self, drone, emergency_land_event):
         super(TestDroneController, self).__init__(drone, emergency_land_event)
         self.currentMovement = None
+        # These lines are purely for testing purposes. Once swarm controller and
+        # the networking thread are implemented, this sort of function call will
+        # likely be done in update(), after checking that new instruction have
+        # arrived over the network.
         heapq.heappush(self.instructionQueue, (0, MovementInstruction(5, 5, 0)))
         heapq.heappush(self.instructionQueue, (0, MovementInstruction(-5, -5, 0)))
 
     def setId(self):
         return 1
 
-    def setDrone(self):
-        self.drone = TestDrone()
-
     def update(self):
         try:
+            # If not connected, try to connect
             if not self.drone.is_connected():
                 self.drone.connect(isInSimulator = True)
             
+            # If not armed, try to arm
             if not self.drone.is_armed():
                 self.drone.arm()
 
+            # If not flying, try to fly
             if not self.drone.is_flying() and not self.drone.is_taking_off():
                 self.currentMovement = Movement(self.drone, takeoff=1)
                 self.currentMovement.start()
@@ -54,7 +62,7 @@ class TestDroneController(DroneController):
                 direction, distance = self.movementQueue.popleft()
                 self.currentMovement = Movement(self.drone, path=(direction, distance))
                 self.currentMovement.start() # start movement thread
-            # Process remaining instructions (notice movements are always 
+            # Process remaining instructions (movements are  
             # processed before instructions, if they exist)
             elif len(self.instructionQueue):
                 self.readNextInstruction()
@@ -92,16 +100,6 @@ class TestDroneController(DroneController):
             self.drone.land()
             self.emergency_land_event.set()
             return False
-        """
-        if not self.movementQueue:
-            return False
-
-        direction, distance = self.movementQueue.popleft()
-        print ("Starting move...")
-        self.drone.move(direction, distance=distance)
-        print("Finished move...")
-        return True
-        """
 
     def run(self):
         print threading.current_thread().name, ": Controller thread started"
@@ -110,6 +108,5 @@ class TestDroneController(DroneController):
                 print threading.current_thread().name, ": Controller thread stopping"
                 return
         
-
     def readNextInstruction(self):
         super(TestDroneController, self).readNextInstruction()
