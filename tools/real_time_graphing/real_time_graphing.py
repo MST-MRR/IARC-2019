@@ -226,7 +226,15 @@ class RealTimeGraph:
                     y = data[metric.y_stream] if metric.y_stream else None
                     z = data[metric.z_stream] if metric.z_stream else None
 
-                    x_val = func(x, y, z) if z else (func(x, y) if y else func(x))
+                    if z is not None:
+                        x_val = func(x, y, z)
+                    elif y is not None:
+                        x_val = func(x, y)
+                    elif x is not None:
+                        print(x)
+                        x_val = func(x)
+                    else:
+                        x_val = func()
 
                     metric.push_data(x_val)
                 self.data_count += 1
