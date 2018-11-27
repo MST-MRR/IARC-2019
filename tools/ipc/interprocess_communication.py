@@ -9,6 +9,8 @@ except ImportError:
 
 class IPC:
     def __init__(self):
+        # TODO - Create rtg & data splitter in python 3, this class is in python 2 but allow it to send data to splitter
+        # TODO - Remember to send rtg to splitter
         # Should be used in python 2.7
 
         # Different commands for windows and linux
@@ -34,3 +36,39 @@ class IPC:
 
     def send(self, data):
         self.splitter.send(data)
+
+
+if __name__ == '__main__':
+    try:
+        from tools.real_time_graphing.real_time_graphing import RealTimeGraph
+    except ImportError:
+        try:
+            from real_time_graphing import RealTimeGraph
+        except ImportError:
+            print("Could not import real time grapher!")
+
+    import threading
+    from queue import Queue
+    from time import sleep
+
+    from math import sin, cos
+
+    thread_stop = threading.Event()
+
+    thread_queue = Queue()
+
+    rtg = RealTimeGraph(thread_stop=thread_stop)
+
+    threads = {
+        'graph': threading.Thread(target=main, args=(rtg, thread_stop,))
+    }
+
+    for thread in threads.values():
+        thread.start()
+
+    rtg.run()  # RTG needs to be in main thread?
+
+    thread_stop.set()
+
+    for thread in threads.values():
+        thread.join()

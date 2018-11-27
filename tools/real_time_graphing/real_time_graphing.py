@@ -231,7 +231,6 @@ class RealTimeGraph:
                     elif y is not None:
                         x_val = func(x, y)
                     elif x is not None:
-                        print(x)
                         x_val = func(x)
                     else:
                         x_val = func()
