@@ -3,6 +3,7 @@ from math import radians, sin, cos
 from pymavlink import mavutil
 import dronekit
 import threading
+from sys import stdout
 
 """
 Any functions requiring the use of DroneKit's message_factory module to construct
@@ -54,15 +55,19 @@ def send_global_velocity(vehicle, (velocity_x, velocity_y, velocity_z), duration
         0, 0, 0, # afx, afy, afz acceleration (not supported yet, ignored in GCS_Mavlink)
         0, 0)    # yaw, yaw_rate (not supported yet, ignored in GCS_Mavlink)
 
+    print threading.current_thread().name, "Velocity: (", velocity_x, ", ", velocity_y, ", ", velocity_z, ")"
+    print threading.current_thread().name, ": Sending velocity ",
     # send command to vehicle on 1 Hz cycle
     for x in range(0, duration):
         if stop_event.isSet():
             print threading.current_thread().name, ": Movement halting"
             stop_event.clear()
             return
-        print threading.current_thread().name, ": Sending velocity (", velocity_x, ", ", velocity_y, ", ", velocity_z, ")"
+        print ".",
+        stdout.flush()
         vehicle.send_mavlink(msg)
         sleep(1)
+    print ""
 
 def set_attitude(vehicle, roll_angle = 0.0, pitch_angle = 0.0, yaw_rate = 0.0, thrust = 0.5):
     """

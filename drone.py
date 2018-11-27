@@ -4,7 +4,7 @@ from dronekit import VehicleMode
 import time
 import math
 import threading
-import sys
+from sys import stdout
 
 from drone_exceptions import AltitudeException, ThrustException, VelocityException, BadArgumentException
 import constants as c
@@ -61,10 +61,12 @@ class Drone(object):
         None
         """
         if isInSimulator:
-            self.vehicle = dronekit.connect(c.CONNECTION_STRING_SIMULATOR, wait_ready=True)
+            self.vehicle = dronekit.connect(c.CONNECTION_STRING_SIMULATOR, wait_ready=True, 
+                status_printer=None)
             print threading.current_thread().name, ": Connecting to the simulated ardupilot"
         else:
-            self.vehicle = dronekit.connect(c.CONNECTION_STRING_REAL, wait_ready=True)
+            self.vehicle = dronekit.connect(c.CONNECTION_STRING_REAL, wait_ready=True, 
+                status_printer=None)
             print threading.current_thread().name, ": Connecting to the real-life ardupilot"
 
         if self.vehicle is not None:
@@ -114,7 +116,7 @@ class Drone(object):
             self.vehicle.armed = True
             time.sleep(1)
             print ".",
-            sys.stdout.flush()
+            stdout.flush()
         if not self.vehicle.armed:
             print threading.current_thread().name, ": Failed to arm"
         else:

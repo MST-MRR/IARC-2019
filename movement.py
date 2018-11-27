@@ -32,6 +32,9 @@ class Movement(threading.Thread):
     stop_event: threading.Event
         Set whenever a cancellation has been requested
     """
+
+    id = 1
+
     def __init__(self, drone, **kwargs):
         for kind, arg in kwargs.items():
             if kind == "path":
@@ -51,7 +54,8 @@ class Movement(threading.Thread):
                     takeoff, or land as argument")
             
         super(Movement, self).__init__()
-        self.setName("MovementThread")
+        self.setName("MovementThread-" + str(Movement.id))
+        Movement.id += 1
         self.drone = drone
         self.state = c.DEFAULT
         self.stop_event = threading.Event()
