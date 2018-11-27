@@ -45,10 +45,10 @@ class DataSplitter:
         return self.data
 
 
-def main(rtg):
+def main(rtg, thread_stop):
     demo = DataSplitter(rtg=rtg)
 
-    for i in range(100000):
+    for i in range(1000):
         demo.send({
             'altitude': sin(i),
             'airspeed': cos(i),
@@ -64,6 +64,9 @@ def main(rtg):
             'target_roll_velocity': cos(i),
             'target_yaw': sin(i)
         })
+        sleep(.1)
+
+        if thread_stop: break
 
 
 if __name__ == '__main__':
@@ -88,20 +91,15 @@ if __name__ == '__main__':
     rtg = RealTimeGraph(thread_stop=thread_stop)
 
     threads = {
-        'sender': threading.Thread(target=rtg.run),
-        'graph': threading.Thread(target=main, args=(rtg,))
+        'graph': threading.Thread(target=main, args=(rtg, thread_stop,))
     }
 
     for thread in threads.values():
         thread.start()
 
-    while not thread_stop.is_set():  # Arbitrary loop for while program is working
-        sleep(1)
+    rtg.run()  # RTG needs to be in main thread?
+
+    thread_stop.set()
 
     for thread in threads.values():
         thread.join()
-
-    rtg = RealTimeGraph
-
-
-
