@@ -1,3 +1,6 @@
+import threading
+from time import time, sleep
+
 try:
     from tools.logging.logger import Logger
 except ImportError:
@@ -6,10 +9,26 @@ except ImportError:
     except ImportError:
         print("Could not import logger!")
 
+try:
+    from tools.real_time_graphing.real_time_graphing import RealTimeGraph
+except ImportError:
+    try:
+        from real_time_graphing import RealTimeGraph
+    except ImportError:
+        print("Could not import real time grapher!")
+
 
 class DataSplitter:
     """
     Send data to this one object and it will send to both the RTG and logger
+
+    Parameters
+    ----------
+    logger_desired_data: dict, default=None
+        Parameter of desired data streams for logger object.
+
+    rtg: RealTimeGraph, default=None
+        The RealTimeGraph to plot data to if desired.
     """
 
     def __init__(self, logger_desired_data=None, rtg=None):
@@ -32,6 +51,11 @@ class DataSplitter:
     def send(self, data):
         """
         Sends data to tools.
+
+        Parameters
+        ----------
+        data: dict
+            Data to send to rtg and or logger
         """
 
         self.data = data  # Store data for rtg
@@ -69,17 +93,6 @@ def unit_test():
 
             if thread_stop.is_set(): break
 
-    try:
-        from tools.real_time_graphing.real_time_graphing import RealTimeGraph
-    except ImportError:
-        try:
-            from real_time_graphing import RealTimeGraph
-        except ImportError:
-            print("Could not import real time grapher!")
-
-    import threading
-    from time import sleep
-
     from math import sin, cos
 
     thread_stop = threading.Event()
@@ -102,4 +115,65 @@ def unit_test():
 
 
 if __name__ == '__main__':
-    unit_test()
+    import ast
+    # unit_test()
+
+    def get_data(rtg, thread_stop):
+        splitter = DataSplitter(rtg=rtg)
+
+        last_time = this_time = time()
+        eof_count = 0
+
+        while last_time + 60 > this_time and eof_count < 15:
+            try:
+                # TODO - Data gets sent once and then this keeps throwing EOF erros when nothing is trying to be sent
+                # TODO - Make break after so many consecutive EOF errors
+                # Python 3 uses utf-8 encoding
+                inputt = ""
+                inputt = input()
+
+                if inputt == "": continue
+
+                print(type(inputt), inputt)
+
+                if type(inputt) is str:
+                    data = ast.literal_eval(inputt)
+                elif type(inputt) is dict:
+                    data = inputt
+                else:
+                    print("Splitter: Input type: {}, Input: {}".format(type(inputt), inputt))
+
+                print(type(data), data)
+
+                splitter.send(data)
+
+                eof_count = 0
+            except EOFError as e:
+                # No data came in
+                print(e)
+                eof_count += 1
+
+            last_time = this_time
+            this_time = time()
+
+            if thread_stop.is_set(): break
+
+        print("Splitter: Done getting data!")
+
+    thread_stop = threading.Event()
+
+    rtg = RealTimeGraph(thread_stop=thread_stop)
+
+    threads = {
+        'graph': threading.Thread(target=get_data, args=(rtg, thread_stop,))
+    }
+
+    for thread in threads.values():
+        thread.start()
+
+    rtg.run()  # RTG needs to be in main thread
+
+    thread_stop.set()
+
+    for thread in threads.values():
+        thread.join()
