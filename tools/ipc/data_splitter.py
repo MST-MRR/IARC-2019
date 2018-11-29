@@ -1,3 +1,4 @@
+import sys
 import threading
 from time import time, sleep
 
@@ -7,7 +8,8 @@ except ImportError:
     try:
         from logger import Logger
     except ImportError:
-        print("Could not import logger!")
+        pass
+        # print("Could not import logger!")
 
 try:
     from tools.real_time_graphing.real_time_graphing import RealTimeGraph
@@ -38,7 +40,7 @@ class DataSplitter:
         try:
             self.logger = Logger(logger_desired_data)
         except NameError as e:
-            print("Failed to create logger object. {}".format(e))
+            # print("Failed to create logger object. {}".format(e))
             self.logger = None
 
         try:
@@ -114,51 +116,56 @@ def unit_test():
         thread.join()
 
 
+def get_data(rtg, thread_stop):
+    splitter = DataSplitter(rtg=rtg)
+
+    last_time = this_time = time()
+    eof_count = 0
+
+    while True: #  last_time + 60 > this_time: # and eof_count < 15:
+        try:
+            # TODO - Data gets sent once and then this keeps throwing EOF erros when nothing is trying to be sent
+            # TODO - Make break after so many consecutive EOF errors
+            # Python 3 uses utf-8 encoding
+            inputt = ""
+            # inputt = input()
+            inputt = sys.stdin.readline()
+
+            # if inputt == "": continue
+
+            # print(type(inputt), inputt)
+            # print("Splitter: Input type: {}, Input: {}".format(type(inputt), inputt))
+
+            if type(inputt) is str:
+                data = ast.literal_eval(inputt)
+            elif type(inputt) is dict:
+                data = inputt
+            else:
+                pass
+                # print("Splitter: Input type: {}, Input: {}".format(type(inputt), inputt))
+
+            # print(type(data), data)
+
+            splitter.send(data)
+
+            eof_count = 0
+        except EOFError as e:
+            # No data came in
+            # print(e)
+            eof_count += 1
+
+        last_time = this_time
+        this_time = time()
+
+        if thread_stop.is_set(): break
+
+    print("Splitter: Done getting data!")
+
+
 if __name__ == '__main__':
+    # print("Splitter: Starting")
     import ast
     # unit_test()
-
-    def get_data(rtg, thread_stop):
-        splitter = DataSplitter(rtg=rtg)
-
-        last_time = this_time = time()
-        eof_count = 0
-
-        while last_time + 60 > this_time and eof_count < 15:
-            try:
-                # TODO - Data gets sent once and then this keeps throwing EOF erros when nothing is trying to be sent
-                # TODO - Make break after so many consecutive EOF errors
-                # Python 3 uses utf-8 encoding
-                inputt = ""
-                inputt = input()
-
-                if inputt == "": continue
-
-                print(type(inputt), inputt)
-
-                if type(inputt) is str:
-                    data = ast.literal_eval(inputt)
-                elif type(inputt) is dict:
-                    data = inputt
-                else:
-                    print("Splitter: Input type: {}, Input: {}".format(type(inputt), inputt))
-
-                print(type(data), data)
-
-                splitter.send(data)
-
-                eof_count = 0
-            except EOFError as e:
-                # No data came in
-                print(e)
-                eof_count += 1
-
-            last_time = this_time
-            this_time = time()
-
-            if thread_stop.is_set(): break
-
-        print("Splitter: Done getting data!")
 
     thread_stop = threading.Event()
 

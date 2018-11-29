@@ -1,6 +1,10 @@
 import subprocess
 
 
+# TODO - Readd print statements to rtg
+
+# TODO - RTG cannot pan?
+
 class IPC:
     # Should be used in python 2.7
     # Different commands for windows and linux ?
@@ -12,11 +16,33 @@ class IPC:
     pyfile = "../real_time_graphing"
 
     def __init__(self):
-        self.splitter = subprocess.Popen('python3 data_splitter.py')
+        import sys
+
+        # TODO - Make use of stdout and stdin
+        self.splitter = subprocess.Popen('python3 data_splitter.py', stdin=subprocess.PIPE, stderr=subprocess.PIPE, stdout=subprocess.PIPE)
+        # TODO - Do not use stdout=PIPE or stderr=PIPE with this function as that can deadlock based on the child process output volume. Use Popen with the communicate() method when you need pipes.
+
+        sleep(.5)  # Poll will return None if immediately called after creating obj
+        if self.splitter.poll():
+            output, error_output = self.splitter.communicate()
+
+            print(error_output)
+            self.splitter = subprocess.Popen('python3 tools/ipc/data_splitter.py', stdin=subprocess.PIPE,
+                                             stderr=subprocess.PIPE, stdout=subprocess.PIPE)
+
+            output, error_output = self.splitter.communicate()
+            if error_output: print(error_output)
 
     def send(self, data):
-        # TODO - Send data to splitter object
-        pass
+        if self.splitter.poll() is None:
+            self.splitter.stdin.write("{}\n".format(str(data).encode()))  # Not optimal
+
+            print("IPC: {}".format(str(data)))
+            # print(self.splitter.stdout.readline())  # Blocks until line sent
+            #self.splitter.communicate(input=str(data))  # Communicate hangs for some reason
+
+        else:
+            print("IPC: Cannot send data")
 
 
 if __name__ == '__main__':
@@ -25,7 +51,10 @@ if __name__ == '__main__':
 
     demo = IPC()
 
-    for i in range(100):
+    sleep(1)
+    for j in range(10000):
+        # Only able to send data once
+        i = j * 3.14
         demo.send({
             'altitude': sin(i),
             'airspeed': cos(i),
@@ -41,8 +70,12 @@ if __name__ == '__main__':
             'target_roll_velocity': cos(i),
             'target_yaw': sin(i)
         })
+
         sleep(.1)
 
-        if demo.splitter.poll(): print(demo.splitter.poll())
+        if demo.splitter.poll() is not None:
+            print("IPC: splitter.poll(): {}".format(demo.splitter.poll()))
+            break
 
+    print("IPC: Done sending data.")
     demo.splitter.terminate()
