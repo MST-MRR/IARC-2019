@@ -122,10 +122,8 @@ def get_data(rtg, thread_stop):
     last_time = this_time = time()
     eof_count = 0
 
-    while True: #  last_time + 60 > this_time: # and eof_count < 15:
+    while last_time + 15 > this_time and eof_count < 15:
         try:
-            # TODO - Data gets sent once and then this keeps throwing EOF erros when nothing is trying to be sent
-            # TODO - Make break after so many consecutive EOF errors
             # Python 3 uses utf-8 encoding
             inputt = ""
             # inputt = input()
