@@ -1,6 +1,3 @@
-from __future__ import print_function
-
-import os
 import subprocess
 
 
@@ -15,14 +12,7 @@ class IPC:
     pyfile = "../real_time_graphing"
 
     def __init__(self):
-        # os.popen('python3 data_splitter.py)
         self.splitter = subprocess.Popen('python3 data_splitter.py')
-
-        # TODO - Create rtg
-        self.rtg = None
-
-        # TODO - Create data splitter
-        # self.splitter = None
 
     def send(self, data):
         # TODO - Send data to splitter object
