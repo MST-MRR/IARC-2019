@@ -210,6 +210,11 @@ class RealTimeGraph:
             while not thread_queue.empty():
                 data = thread_queue.get(False, self.sleep_time)
 
+                if not data:
+                    print("No data!")
+                    sleep(.1)
+                    continue
+
                 self.times.append(time() - self.start_time)
 
                 # Checks data frequency to see if poor quality
