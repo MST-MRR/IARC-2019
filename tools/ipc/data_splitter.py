@@ -1,9 +1,9 @@
 try:
     from tools.logging.logger import Logger
-except (ImportError, ModuleNotFoundError):
+except ImportError:
     try:
         from logger import Logger
-    except (ImportError, ModuleNotFoundError):
+    except ImportError:
         print("Could not import logger!")
 
 
@@ -45,37 +45,37 @@ class DataSplitter:
         return self.data
 
 
-def main(rtg, thread_stop):
-    demo = DataSplitter(rtg=rtg)
-
-    for i in range(1000):
-        demo.send({
-            'altitude': sin(i),
-            'airspeed': cos(i),
-            'velocity_x': sin(i),
-            'velocity_y': cos(i),
-            'velocity_z': sin(i),
-            'voltage': cos(i),
-            'roll': cos(i),
-            'pitch': sin(i),
-            'yaw': cos(i),
-            'target_altitude': sin(i),
-            'target_pitch_velocity': cos(i),
-            'target_roll_velocity': cos(i),
-            'target_yaw': sin(i)
-        })
-        sleep(.1)
-
-        if thread_stop: break
-
-
 if __name__ == '__main__':
+    def demo_data(rtg, thread_stop):
+        demo = DataSplitter(rtg=rtg)
+
+        for i in range(1000):
+            print('xxx')
+            demo.send({
+                'altitude': sin(i),
+                'airspeed': cos(i),
+                'velocity_x': sin(i),
+                'velocity_y': cos(i),
+                'velocity_z': sin(i),
+                'voltage': cos(i),
+                'roll': cos(i),
+                'pitch': 2 * sin(i),
+                'yaw': cos(i),
+                'target_altitude': sin(i),
+                'target_pitch_velocity': cos(i),
+                'target_roll_velocity': cos(i),
+                'target_yaw': sin(i)
+            })
+            sleep(.1)
+
+            if thread_stop.is_set(): break
+
     try:
         from tools.real_time_graphing.real_time_graphing import RealTimeGraph
-    except (ImportError, ModuleNotFoundError):
+    except ImportError:
         try:
             from real_time_graphing import RealTimeGraph
-        except (ImportError, ModuleNotFoundError):
+        except ImportError:
             print("Could not import real time grapher!")
 
     import threading
@@ -84,14 +84,14 @@ if __name__ == '__main__':
 
     from math import sin, cos
 
-    thread_stop = threading.Event()
-
     thread_queue = Queue()
+
+    thread_stop = threading.Event()
 
     rtg = RealTimeGraph(thread_stop=thread_stop)
 
     threads = {
-        'graph': threading.Thread(target=main, args=(rtg, thread_stop,))
+        'graph': threading.Thread(target=demo_data, args=(rtg, thread_stop,))
     }
 
     for thread in threads.values():
@@ -99,7 +99,7 @@ if __name__ == '__main__':
 
     rtg.run()  # RTG needs to be in main thread?
 
-    thread_stop.set()
+    #thread_stop.set()
 
-    for thread in threads.values():
-        thread.join()
+    #for thread in threads.values():
+     #   thread.join()
