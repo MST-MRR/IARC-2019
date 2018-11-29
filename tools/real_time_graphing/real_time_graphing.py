@@ -211,7 +211,7 @@ class RealTimeGraph:
                 data = thread_queue.get(False, self.sleep_time)
 
                 if not data:
-                    print("No data!")
+                    # print("No data!")
                     sleep(.1)
                     continue
 
@@ -220,7 +220,8 @@ class RealTimeGraph:
                 # Checks data frequency to see if poor quality
                 try:
                     if self.times[-1] > self.times[-2] + RealTimeGraph.data_freq_warning:
-                        print("Data quality: Sucks")
+                        # print("Data quality: Sucks")
+                        pass
                 except IndexError:
                     pass
 
