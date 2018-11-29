@@ -45,7 +45,7 @@ class DataSplitter:
         return self.data
 
 
-if __name__ == '__main__':
+def unit_test():
     def demo_data(rtg, thread_stop):
         demo = DataSplitter(rtg=rtg)
 
@@ -79,12 +79,9 @@ if __name__ == '__main__':
             print("Could not import real time grapher!")
 
     import threading
-    from queue import Queue
     from time import sleep
 
     from math import sin, cos
-
-    thread_queue = Queue()
 
     thread_stop = threading.Event()
 
@@ -97,9 +94,12 @@ if __name__ == '__main__':
     for thread in threads.values():
         thread.start()
 
-    rtg.run()  # RTG needs to be in main thread?
+    rtg.run()  # RTG needs to be in main thread
 
-    #thread_stop.set()
+    thread_stop.set()
 
-    #for thread in threads.values():
-     #   thread.join()
+    for thread in threads.values():
+        thread.join()
+
+if __name__ == '__main__':
+    pass
