@@ -7,13 +7,16 @@ import subprocess
 class IPC:
     # Should be used in python 2.7
     # Different commands for windows and linux ?
+    # Python 3 must be able to be run from python3 command
+    # Must have packages installed that tools will use
 
     os_windows = True
 
     pyfile = "../real_time_graphing"
 
     def __init__(self):
-        self.splitter = os.popen('python3 data_splitter.py')
+        # os.popen('python3 data_splitter.py)
+        self.splitter = subprocess.Popen('python3 data_splitter.py')
 
         # TODO - Create rtg
         self.rtg = None
@@ -50,4 +53,6 @@ if __name__ == '__main__':
         })
         sleep(.1)
 
-        print(demo.splitter.poll())
+        if demo.splitter.poll(): print(demo.splitter.poll())
+
+    demo.splitter.terminate()
