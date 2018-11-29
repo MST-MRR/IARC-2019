@@ -50,7 +50,6 @@ def unit_test():
         demo = DataSplitter(rtg=rtg)
 
         for i in range(1000):
-            print('xxx')
             demo.send({
                 'altitude': sin(i),
                 'airspeed': cos(i),
@@ -101,5 +100,6 @@ def unit_test():
     for thread in threads.values():
         thread.join()
 
+
 if __name__ == '__main__':
-    pass
+    unit_test()
