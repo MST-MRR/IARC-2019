@@ -1,9 +1,9 @@
 try:
     from tools.logging.logger import Logger
-except ImportError:
+except (ImportError, ModuleNotFoundError):
     try:
         from logger import Logger
-    except ImportError:
+    except (ImportError, ModuleNotFoundError):
         print("Could not import logger!")
 
 
@@ -72,10 +72,10 @@ def main(rtg, thread_stop):
 if __name__ == '__main__':
     try:
         from tools.real_time_graphing.real_time_graphing import RealTimeGraph
-    except ImportError:
+    except (ImportError, ModuleNotFoundError):
         try:
             from real_time_graphing import RealTimeGraph
-        except ImportError:
+        except (ImportError, ModuleNotFoundError):
             print("Could not import real time grapher!")
 
     import threading
