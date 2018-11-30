@@ -82,7 +82,7 @@ class Drone(object):
         double
             The distance from the ground
         """
-        return 0.2
+        return self.vehicle.rangefinder.distance
 
     def altitude_failsafe(self):
         """
@@ -229,7 +229,7 @@ class Drone(object):
         while time.time() - start_time < cutoff_time:
             current_altitude = self.altitude()
 
-            if (current_altitude >= target_altitude*0.95 or self.altitude_failsafe() >= target_altitude + 0.2): # Trigger just below target alt.
+            if current_altitude >= target_altitude*0.95: # Trigger just below target alt.
                 print "Reached target altitude"
                 break
             elif current_altitude >= target_altitude*0.6:
