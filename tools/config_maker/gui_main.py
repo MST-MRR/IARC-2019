@@ -7,6 +7,7 @@ except ImportError:
     from tab_manager import TabManager
     from file_io import write_config
 
+
 class GUI:
     """
     GUI to edit and create config files for all tools.
