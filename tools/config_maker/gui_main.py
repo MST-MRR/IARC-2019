@@ -13,7 +13,7 @@ class GUI:
     GUI to edit and create config files for all tools.
     """
 
-    icon_file = '../../ninja_icon.gif'
+    icon_file = 'ninja_icon.gif'
 
     def __init__(self):
         # Window setup
