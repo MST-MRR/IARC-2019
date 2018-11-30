@@ -82,7 +82,19 @@ class Drone(object):
         double
             The distance from the ground
         """
-        return self.vehicle.rangefinder.distance
+        return 0.2
+
+    def altitude_failsafe(self):
+        """
+        Simple wrapper function to retrieve the distance being read by 
+        the drone's barometer
+
+        Returns:
+        ----------
+        double
+            The distance from the ground
+        """
+        return self.vehicle.location.global_relative_frame.alt
 
     def arm(self, timeout = 60):
         """
@@ -217,7 +229,7 @@ class Drone(object):
         while time.time() - start_time < cutoff_time:
             current_altitude = self.altitude()
 
-            if current_altitude >= target_altitude*0.95: # Trigger just below target alt.
+            if (current_altitude >= target_altitude*0.95 or self.altitude_failsafe() >= target_altitude + 0.2): # Trigger just below target alt.
                 print "Reached target altitude"
                 break
             elif current_altitude >= target_altitude*0.6:
