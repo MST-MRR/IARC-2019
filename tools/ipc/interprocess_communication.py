@@ -15,7 +15,7 @@ class IPC:
 
     def __init__(self):
         for filename in ['tools/ipc/data_splitter.py', 'data_splitter.py']:
-            self.splitter = subprocess.Popen('python3 {}'.format(filename), stdin=subprocess.PIPE)
+            self.splitter = subprocess.Popen('python3 {}'.format(filename), stdin=subprocess.PIPE, shell=True)
 
             sleep(.1)  # Poll will return None(None means process working) if immediately called after creating obj
             if not self.splitter.poll():

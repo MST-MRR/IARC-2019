@@ -28,7 +28,7 @@ def send_data(ipc, drone, stop):
 
 
 if __name__ == '__main__':
-    do_tools = True  # Toggle whether to use logging/rtg
+    do_tools = False  # Toggle whether to use logging/rtg
 
     emergency_land_event = safety_checks.init_emergency_land_event()
 
