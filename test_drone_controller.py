@@ -9,6 +9,7 @@ from movement import Movement
 import sys
 from drone_exceptions import EmergencyLandException
 import traceback
+from lock import SharedLock
 
 class TestDroneController(DroneController):
     """
@@ -48,8 +49,8 @@ class TestDroneController(DroneController):
                 # Check to see if it is active - if so, wait
                 if self.currentMovement.get_state() is c.ACTIVE:
                     sleep(c.HALF_SEC)
-                # Else, the movement must be finished and in its default state
-                elif self.currentMovement.get_state() is c.DEFAULT:
+                # Else, the movement must be finished
+                elif self.currentMovement.get_state() is c.FINISHED:
                     # If the movement was along a path, start to hover
                     if self.currentMovement.get_type() is c.PATH:
                         self.currentMovement = Movement(self.drone, hover=3)
@@ -102,7 +103,9 @@ class TestDroneController(DroneController):
             return False
 
     def run(self):
+        SharedLock.getLock().acquire()
         print threading.current_thread().name, ": Controller thread started"
+        SharedLock.getLock().release()
         while True:
             if not self.update():
                 print threading.current_thread().name, ": Controller thread stopping"

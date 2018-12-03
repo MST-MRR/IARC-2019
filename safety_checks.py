@@ -1,6 +1,7 @@
 import threading
 from time import sleep
 import constants as c
+from lock import SharedLock
 
 def init_emergency_land_event():
     """
@@ -36,7 +37,9 @@ def start_safety_loop(emergency_land_event):
     ----------
     None
     """
+    SharedLock.getLock().acquire()
     print threading.current_thread().name, ": Safety loop started"
+    SharedLock.getLock().release()
     while True:
         try:
             # If the controller thread does not exist, it must have returned and so it is

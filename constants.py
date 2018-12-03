@@ -38,7 +38,7 @@ ACTIVE = 1
 WAITING = 2
 IDLE = 3
 CANCELED = 4
-DEFAULT = 5
+FINISHED = 5
 
 # Movement types
 PATH = 1

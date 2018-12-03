@@ -24,10 +24,10 @@ class Movement(threading.Thread):
                 the value does not matter
     type: PATH, HOVER, TAKEOFF, or LAND (see constants.py)
         Represents the type of movement being requested
-    state: ACTIVE, DEFAULT, CANCELED, or PAUSED (see constants.py)
+    state: ACTIVE, FINISHED, CANCELED, or PAUSED (see constants.py)
         Represents the state of the movement - ACTIVE means the movement
-        is happening now, DEFAULT means the movement has just been created
-        or has finished, CANCELED means the movement is currently processing
+        is happening now, FINISHED means the movement has finished, 
+        CANCELED means the movement is currently processing
         a cancellation request, PAUSED is currently undefined
     stop_event: threading.Event
         Set whenever a cancellation has been requested
@@ -57,7 +57,7 @@ class Movement(threading.Thread):
         self.setName("MovementThread-" + str(Movement.id))
         Movement.id += 1
         self.drone = drone
-        self.state = c.DEFAULT
+        self.state = c.ACTIVE
         self.stop_event = threading.Event()
 
     def get_state(self):
@@ -70,7 +70,7 @@ class Movement(threading.Thread):
 
         Returns:
         ----------
-        ACTIVE, DEFAULT, CANCELED, or PAUSED (see constants.py)
+        ACTIVE, FINISHED, CANCELED, or PAUSED (see constants.py)
             The state of the movement
         """
         return self.state
@@ -120,6 +120,7 @@ class Movement(threading.Thread):
             self.runTakeoff()
         elif self.type == c.LAND:
             self.runLand()
+        self.state = c.FINISHED
             
     def runPath(self):
         """
@@ -130,9 +131,7 @@ class Movement(threading.Thread):
         None
         """
         print threading.current_thread().name, ": Starting move"
-        self.state = c.ACTIVE
         self.drone.move(self.direction, self.distance, self.stop_event)
-        self.state = c.DEFAULT
         print threading.current_thread().name, ": Finished move"
 
     def runHover(self):
@@ -144,9 +143,7 @@ class Movement(threading.Thread):
         None
         """
         print threading.current_thread().name, ": Starting hover (", self.duration, "s)"
-        self.state = c.ACTIVE
         self.drone.hover(self.duration, self.stop_event)
-        self.state = c.DEFAULT
         print threading.current_thread().name, ": Finished hover"
 
     def runTakeoff(self):
@@ -158,9 +155,7 @@ class Movement(threading.Thread):
         None
         """
         print threading.current_thread().name, ": Starting takeoff"
-        self.state = c.ACTIVE
         self.drone.takeoff(self.target_altitude, self.stop_event)
-        self.state = c.DEFAULT
         print threading.current_thread().name, ": Finished takeoff"
     
     def runLand(self):
@@ -172,9 +167,7 @@ class Movement(threading.Thread):
         None
         """
         print threading.current_thread().name, ": Starting land"
-        self.state = c.ACTIVE
         self.drone.land()
-        self.state = c.DEFAULT
         print threading.current_thread().name, ": Finished land"
 
     def cancel(self):
