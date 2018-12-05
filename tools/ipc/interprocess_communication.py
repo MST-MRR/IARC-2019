@@ -7,15 +7,19 @@ from time import sleep
 
 # TODO - Way to pass in custom splitter filename?
 
+# TODO - Make sure everything works from multiple start locations
+
+# TODO - ERROR, WARNING, INFO
+
 
 class IPC:
     # Should be used in python 2.7
     # Python 3 must be able to be run from python3 command
-    # Must have packages installed that tools will use
+    # Must have packages installed that tools will use TODO Enumerate
 
     def __init__(self):
         for filename in ['data_splitter.py', 'tools/ipc/data_splitter.py']:
-            self.splitter = subprocess.Popen('python3 {}'.format(filename), stdin=subprocess.PIPE)
+            self.splitter = subprocess.Popen('python3 {}'.format(filename), stdin=subprocess.PIPE, stdout=subprocess.PIPE)
 
             sleep(.1)  # Poll will return None(None means process working) if immediately called after creating obj
             if not self.splitter.poll():
@@ -32,15 +36,30 @@ class IPC:
             self.splitter.stdin.write("{}\n".format(str(data).encode()))  # Lots of warnings against stdin!
 
             print("IPC: {}".format(str(data)))
-            # print(self.splitter.stdout.readline())  # TODO - Blocks until line sent
         else:
             print("IPC: Cannot send data")
 
 
+def shell_reader(splitter, thread_stop):
+    while not thread_stop.is_set():
+        print(splitter.stdout.readline()[:-1])  # TODO - Blocks until line sent
+
+
 if __name__ == '__main__':
+    import threading
+
     from math import sin, cos
 
     demo = IPC()
+
+    thread_stop = threading.Event()
+
+    threads = {
+        'output_reader': threading.Thread(target=shell_reader, args=(demo.splitter, thread_stop,))
+    }
+
+    for thread in threads.values():
+        thread.start()
 
     for j in range(10000):
         i = j / 3.14
@@ -68,3 +87,8 @@ if __name__ == '__main__':
 
     print("IPC: Done sending data.")
     demo.splitter.terminate()
+
+    thread_stop.set()
+
+    for thread in threads.values():
+        thread.join()
