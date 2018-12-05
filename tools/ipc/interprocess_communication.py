@@ -1,21 +1,27 @@
 import subprocess
+import threading
 from time import sleep
-
-# TODO - RTG cannot pan?
-
-# TODO - Way to pass in custom splitter filename?
 
 # TODO - Make sure everything works from multiple start locations
 
 # TODO - ERROR, WARNING, INFO
+# TODO - Colorama or logging
+
+# TODO - How to tell whether to use rtg or logger
+
+# TODO - Able to use with statement?
 
 
 class IPC:
-    # Should be used in python 2.7
-    # Python 3 must be able to be run from python3 command
+    """
+    Takes data sent to it and sends it to the datasplitter running in python 3.6
+    Meant to run in python 2.7
+    Python 3 must be able to be run from python3 command
 
-    def __init__(self):
-        for filename in ['data_splitter.py', 'tools/ipc/data_splitter.py']:
+    """
+
+    def __init__(self, thread_stop=threading.Event()):
+        for filename in ['tools/ipc/data_splitter.py', 'data_splitter.py']:
             self.splitter = subprocess.Popen('python3 {}'.format(filename), stdin=subprocess.PIPE, stdout=subprocess.PIPE)
 
             sleep(.1)  # Poll will return None(None means process working) if immediately called after creating obj
@@ -27,8 +33,36 @@ class IPC:
         else:
             # If loops through file names & doesnt find data splitter
             raise IOError("Data splitter file not found!")
+            return
+
+        self.thread_stop = thread_stop
+
+        self.threads = {'output_reader': threading.Thread(target=self.shell_reader)}
+
+        for thread in self.threads.values():
+            thread.start()
+
+    def quit(self):
+        """
+        Terminates subprocess and created thread
+        """
+
+        print("IPC: Done sending data.")
+        demo.splitter.terminate()
+
+        self.thread_stop.set()
+
+        for thread in self.threads.values():
+            thread.join()
 
     def send(self, data):
+        """
+
+        Parameters
+        ----------
+        data:
+            Data in format rtg and or logger can read
+        """
         if self.splitter.poll() is None:
             try:
                 self.splitter.stdin.write("{}\n".format(str(data).encode()))  # Lots of warnings against stdin!
@@ -39,28 +73,21 @@ class IPC:
         else:
             print("IPC: Cannot send data")
 
+    def shell_reader(self):
+        """
+        Reads output from generated subprocess shell
+        """
 
-def shell_reader(splitter, thread_stop):
-    # TODO - Build reader and its thread into the IPC class!
-
-    while not thread_stop.is_set():
-        out = splitter.stdout.readline().strip()  # output w/out \n
-        if not out == "": print(out)
+        while not self.thread_stop.is_set():
+            out = self.splitter.stdout.readline().strip()  # output w/out \n
+            if not out == "": print(out)
 
 
 if __name__ == '__main__':
-    import threading
 
     from math import sin, cos
 
-    thread_stop = threading.Event()
-
     demo = IPC()
-
-    threads = {'output_reader': threading.Thread(target=shell_reader, args=(demo.splitter, thread_stop,))}
-
-    for thread in threads.values():
-        thread.start()
 
     for j in range(10000):
         i = j / 3.14
@@ -82,14 +109,9 @@ if __name__ == '__main__':
 
         sleep(.1)
 
-        if demo.splitter.poll() is not None or thread_stop.is_set():
+        if demo.splitter.poll() is not None or demo.thread_stop.is_set():
             print("IPC: splitter.poll(): {}".format(demo.splitter.poll()))
             break
 
-    print("IPC: Done sending data.")
-    demo.splitter.terminate()
+    demo.quit()
 
-    thread_stop.set()
-
-    for thread in threads.values():
-        thread.join()
