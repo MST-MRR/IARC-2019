@@ -10,7 +10,7 @@ except ImportError:
     try:
         from logger import Logger
     except ImportError:
-        logging.warning("Could not import logger!")
+        logging.error("Could not import logger!")
 
 try:
     from tools.real_time_graphing.real_time_graphing import RealTimeGraph
@@ -18,7 +18,7 @@ except ImportError:
     try:
         from real_time_graphing import RealTimeGraph
     except ImportError:
-        logging.warning("Could not import real time grapher!")
+        logging.error("Could not import real time grapher!")
 
 
 class DataSplitter:
@@ -41,7 +41,7 @@ class DataSplitter:
         if log_level:
             printer = logging.getLogger()
 
-            # if not printer.handlers:  # TODO - This picks up python 2 hanlders for some reason
+            # if not printer.handlers:  # This picks up python 2 hanlders for some reason
             printer.setLevel(log_level)
             handler = logging.StreamHandler()
             handler.setLevel(log_level)
