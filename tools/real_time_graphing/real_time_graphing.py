@@ -1,3 +1,5 @@
+import logging
+
 import numpy as np
 from matplotlib import pyplot as plt, animation as animation
 
@@ -35,6 +37,8 @@ class RealTimeGraph:
         Time in seconds to display previous data
     """
 
+    log_level = logging.INFO
+
     config_filename = ['../../tools/real_time_graphing/config.xml', 'tools/real_time_graphing/config.xml', 'config.xml']  # Location of configuration file
 
     max_rows = 3  # Rows of subplots per column
@@ -42,6 +46,14 @@ class RealTimeGraph:
     data_freq_warning = .5  # If time values are this far apart warn the user
 
     def __init__(self, get_data=get_demo_data, pan_width=10, **kwargs):
+        printer = logging.getLogger()
+
+        if not printer.handlers:
+            printer.setLevel(RealTimeGraph.log_level)
+            handler = logging.StreamHandler()
+            handler.setLevel(RealTimeGraph.log_level)
+            printer.addHandler(handler)
+
         self.get_data = get_data
         self.pan_width = abs(pan_width)
 
@@ -115,7 +127,7 @@ class RealTimeGraph:
                 output = parse_config(filename)
                 break
             except IOError:
-                print("RTG: Failed to read config file!")
+                logging.error("RTG: Failed to read config file!")
                 output = None
 
         # Total number of subplots
@@ -185,7 +197,7 @@ class RealTimeGraph:
                 data = self.get_data()
                 thread_queue.put(data)
             except Exception as error:
-                print(error)
+                logging.warning("RTG:", error)
 
             # Adjust sleep times
             if self.data_count > self.plot_count:
@@ -211,7 +223,7 @@ class RealTimeGraph:
                 data = thread_queue.get(False, self.sleep_time)
 
                 if not data:
-                    print("RTG: No data!")
+                    logging.warning("RTG: No data!")
                     sleep(.1)
                     continue
 
@@ -220,7 +232,7 @@ class RealTimeGraph:
                 # Checks data frequency to see if poor quality
                 try:
                     if self.times[-1] > self.times[-2] + RealTimeGraph.data_freq_warning:
-                        print("RTG: Data quality: Sucks")
+                        logging.warning("RTG: Data quality: Sucks")
                         pass
                 except IndexError:
                     pass
@@ -275,7 +287,7 @@ class RealTimeGraph:
                 ax.relim()
                 ax.autoscale(axis='y')
             except ValueError as e:
-                print("RGG: Caught '{}'!\nPast 10 times: {}\nPast 10 outputs: {}".format(e, self.times[-10:], metric.data[-10:]))
+                logging.error("RGG: Caught '{}'!\nPast 10 times: {}\nPast 10 outputs: {}".format(e, self.times[-10:], metric.data[-10:]))
 
             current_time = int(self.times[-1])
 

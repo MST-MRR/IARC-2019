@@ -37,10 +37,12 @@ class DataSplitter:
     def __init__(self, log_level=None, logger_desired_data=None, rtg=None):
         if log_level:
             printer = logging.getLogger()
-            printer.setLevel(log_level)
-            handler = logging.StreamHandler()
-            handler.setLevel(log_level)
-            printer.addHandler(handler)
+
+            if not printer.handlers:
+                printer.setLevel(log_level)
+                handler = logging.StreamHandler()
+                handler.setLevel(log_level)
+                printer.addHandler(handler)
 
         self.data = None
         self.rtg = None
