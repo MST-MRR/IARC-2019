@@ -150,7 +150,7 @@ def get_data(rtg, thread_stop):
 
         if thread_stop.is_set(): break
 
-    print("Splitter: Done getting data!")
+    print("SPLITTER: Done getting data!")
 
 
 if __name__ == '__main__':

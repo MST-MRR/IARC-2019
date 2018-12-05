@@ -44,7 +44,7 @@ def shell_reader(splitter, thread_stop):
     # TODO - Build reader and its thread into the IPC class!
 
     while not thread_stop.is_set():
-        out = splitter.stdout.readline()[:-1]  # output w/out \n
+        out = splitter.stdout.readline().strip()  # output w/out \n
         if not out == "": print(out)
 
 
