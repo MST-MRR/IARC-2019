@@ -1,8 +1,6 @@
 import subprocess
 from time import sleep
 
-# TODO - Re-add print statements to rtg
-
 # TODO - RTG cannot pan?
 
 # TODO - Way to pass in custom splitter filename?
@@ -15,7 +13,6 @@ from time import sleep
 class IPC:
     # Should be used in python 2.7
     # Python 3 must be able to be run from python3 command
-    # Must have packages installed that tools will use TODO Enumerate
 
     def __init__(self):
         for filename in ['data_splitter.py', 'tools/ipc/data_splitter.py']:
@@ -33,7 +30,10 @@ class IPC:
 
     def send(self, data):
         if self.splitter.poll() is None:
-            self.splitter.stdin.write("{}\n".format(str(data).encode()))  # Lots of warnings against stdin!
+            try:
+                self.splitter.stdin.write("{}\n".format(str(data).encode()))  # Lots of warnings against stdin!
+            except IOError as e:
+                print(e)
 
             print("IPC: {}".format(str(data)))
         else:
@@ -41,8 +41,11 @@ class IPC:
 
 
 def shell_reader(splitter, thread_stop):
+    # TODO - Build reader and its thread into the IPC class!
+
     while not thread_stop.is_set():
-        print(splitter.stdout.readline()[:-1])  # TODO - Blocks until line sent
+        out = splitter.stdout.readline()[:-1]  # output w/out \n
+        if not out == "": print(out)
 
 
 if __name__ == '__main__':
@@ -50,13 +53,11 @@ if __name__ == '__main__':
 
     from math import sin, cos
 
-    demo = IPC()
-
     thread_stop = threading.Event()
 
-    threads = {
-        'output_reader': threading.Thread(target=shell_reader, args=(demo.splitter, thread_stop,))
-    }
+    demo = IPC()
+
+    threads = {'output_reader': threading.Thread(target=shell_reader, args=(demo.splitter, thread_stop,))}
 
     for thread in threads.values():
         thread.start()
@@ -81,7 +82,7 @@ if __name__ == '__main__':
 
         sleep(.1)
 
-        if demo.splitter.poll() is not None:
+        if demo.splitter.poll() is not None or thread_stop.is_set():
             print("IPC: splitter.poll(): {}".format(demo.splitter.poll()))
             break
 
