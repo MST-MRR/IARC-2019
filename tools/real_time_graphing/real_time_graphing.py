@@ -115,7 +115,7 @@ class RealTimeGraph:
                 output = parse_config(filename)
                 break
             except IOError:
-                print("Failed to read config file!")
+                print("RTG: Failed to read config file!")
                 output = None
 
         # Total number of subplots
@@ -211,7 +211,7 @@ class RealTimeGraph:
                 data = thread_queue.get(False, self.sleep_time)
 
                 if not data:
-                    # print("No data!")
+                    print("RTG: No data!")
                     sleep(.1)
                     continue
 
@@ -220,7 +220,7 @@ class RealTimeGraph:
                 # Checks data frequency to see if poor quality
                 try:
                     if self.times[-1] > self.times[-2] + RealTimeGraph.data_freq_warning:
-                        # print("Data quality: Sucks")
+                        print("RTG: Data quality: Sucks")
                         pass
                 except IndexError:
                     pass
@@ -275,7 +275,7 @@ class RealTimeGraph:
                 ax.relim()
                 ax.autoscale(axis='y')
             except ValueError as e:
-                print("Caught '{}'!\nPast 10 times: {}\nPast 10 outputs: {}".format(e, self.times[-10:], metric.data[-10:]))
+                print("RGG: Caught '{}'!\nPast 10 times: {}\nPast 10 outputs: {}".format(e, self.times[-10:], metric.data[-10:]))
 
             current_time = int(self.times[-1])
 
