@@ -27,6 +27,9 @@ class DataSplitter:
 
     Parameters
     ----------
+    log_level: logging.LEVEL, default=None
+        If logging is desired set a logging level.
+
     logger_desired_data: dict, default=None
         Parameter of desired data streams for logger object.
 
@@ -38,11 +41,11 @@ class DataSplitter:
         if log_level:
             printer = logging.getLogger()
 
-            if not printer.handlers:
-                printer.setLevel(log_level)
-                handler = logging.StreamHandler()
-                handler.setLevel(log_level)
-                printer.addHandler(handler)
+            # if not printer.handlers:  # TODO - This picks up python 2 hanlders for some reason
+            printer.setLevel(log_level)
+            handler = logging.StreamHandler()
+            handler.setLevel(log_level)
+            printer.addHandler(handler)
 
         self.data = None
         self.rtg = None
