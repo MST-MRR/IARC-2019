@@ -8,8 +8,7 @@ except ImportError:
     try:
         from logger import Logger
     except ImportError:
-        pass
-        # print("Could not import logger!")
+        print("Could not import logger!")
 
 try:
     from tools.real_time_graphing.real_time_graphing import RealTimeGraph
@@ -125,13 +124,8 @@ def get_data(rtg, thread_stop):
     while last_time + 15 > this_time and eof_count < 15:
         try:
             # Python 3 uses utf-8 encoding
-            inputt = ""
-            # inputt = input()
             inputt = sys.stdin.readline()
 
-            # if inputt == "": continue
-
-            # print(type(inputt), inputt)
             # print("Splitter: Input type: {}, Input: {}".format(type(inputt), inputt))
 
             if type(inputt) is str:
@@ -139,10 +133,9 @@ def get_data(rtg, thread_stop):
             elif type(inputt) is dict:
                 data = inputt
             else:
-                pass
-                # print("Splitter: Input type: {}, Input: {}".format(type(inputt), inputt))
+                print("Splitter: Input type: {}, Input: {}".format(type(inputt), inputt))
 
-            # print(type(data), data)
+            print("SPLITTER: {}".format(data))
 
             splitter.send(data)
 
@@ -161,7 +154,7 @@ def get_data(rtg, thread_stop):
 
 
 if __name__ == '__main__':
-    # print("Splitter: Starting")
+    print("Splitter: Starting")
     import ast
     # unit_test()
 
@@ -170,7 +163,7 @@ if __name__ == '__main__':
     rtg = RealTimeGraph(thread_stop=thread_stop)
 
     threads = {
-        'graph': threading.Thread(target=get_data, args=(rtg, thread_stop,))
+        'getter': threading.Thread(target=get_data, args=(rtg, thread_stop,))
     }
 
     for thread in threads.values():
