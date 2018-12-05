@@ -139,7 +139,7 @@ def get_data(rtg, thread_stop):
     last_time = this_time = time()
     eof_count = 0
 
-    while last_time + 15 > this_time and eof_count < 15:
+    while last_time + 15 > this_time:
         try:
             # Python 3 uses utf-8 encoding
             inputt = sys.stdin.readline()
