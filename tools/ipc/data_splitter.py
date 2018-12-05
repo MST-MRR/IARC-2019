@@ -1,3 +1,5 @@
+import logging
+
 import sys
 import threading
 from time import time, sleep
@@ -8,7 +10,7 @@ except ImportError:
     try:
         from logger import Logger
     except ImportError:
-        print("Could not import logger!")
+        logging.warning("Could not import logger!")
 
 try:
     from tools.real_time_graphing.real_time_graphing import RealTimeGraph
@@ -16,7 +18,7 @@ except ImportError:
     try:
         from real_time_graphing import RealTimeGraph
     except ImportError:
-        print("Could not import real time grapher!")
+        logging.warning("Could not import real time grapher!")
 
 
 class DataSplitter:
@@ -32,21 +34,23 @@ class DataSplitter:
         The RealTimeGraph to plot data to if desired.
     """
 
-    def __init__(self, logger_desired_data=None, rtg=None):
+    def __init__(self, log_level=None, logger_desired_data=None, rtg=None):
+        if log_level: logging.basicConfig(level=log_level)
+
         self.data = None
         self.rtg = None
 
         try:
             self.logger = Logger(logger_desired_data)
         except NameError as e:
-            # print("Failed to create logger object. {}".format(e))
+            logging.warning("Failed to create logger object. {}".format(e))
             self.logger = None
 
         try:
             self.rtg = rtg
             self.rtg.set_pull_function(self.pull)
         except Exception as e:
-            print("Failed to create real time graph object. {}".format(e))
+            logging.warning("Failed to create real time graph object. {}".format(e))
             self.rtg = None
 
     def send(self, data):
@@ -126,23 +130,23 @@ def get_data(rtg, thread_stop):
             # Python 3 uses utf-8 encoding
             inputt = sys.stdin.readline()
 
-            # print("Splitter: Input type: {}, Input: {}".format(type(inputt), inputt))
+            # logging.info("Splitter: Input type: {}, Input: {}".format(type(inputt), inputt))
 
             if type(inputt) is str:
                 data = ast.literal_eval(inputt)
             elif type(inputt) is dict:
                 data = inputt
             else:
-                print("Splitter: Input type: {}, Input: {}".format(type(inputt), inputt))
+                logging.warning("Splitter: Input type: {}, Input: {}".format(type(inputt), inputt))
 
-            print("SPLITTER: {}".format(data))
+            logging.info("SPLITTER: {}".format(data))
 
             splitter.send(data)
 
             eof_count = 0
         except EOFError as e:
             # No data came in
-            # print(e)
+            logging.warning(e)
             eof_count += 1
 
         last_time = this_time
@@ -150,13 +154,22 @@ def get_data(rtg, thread_stop):
 
         if thread_stop.is_set(): break
 
-    print("SPLITTER: Done getting data!")
+    logging.info("SPLITTER: Done getting data!")
 
 
 if __name__ == '__main__':
-    print("Splitter: Starting")
     import ast
     # unit_test()
+
+    # TODO - Clean up the logging stuff!
+
+    printer = logging.getLogger()
+    printer.setLevel(logging.INFO)
+    handler = logging.StreamHandler()
+    handler.setLevel(logging.INFO)
+    printer.addHandler(handler)
+
+    logging.info("Splitter: Starting")
 
     thread_stop = threading.Event()
 
