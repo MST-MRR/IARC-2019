@@ -35,7 +35,12 @@ class DataSplitter:
     """
 
     def __init__(self, log_level=None, logger_desired_data=None, rtg=None):
-        if log_level: logging.basicConfig(level=log_level)
+        if log_level:
+            printer = logging.getLogger()
+            printer.setLevel(log_level)
+            handler = logging.StreamHandler()
+            handler.setLevel(log_level)
+            printer.addHandler(handler)
 
         self.data = None
         self.rtg = None
@@ -77,6 +82,8 @@ class DataSplitter:
 def unit_test():
     def demo_data(rtg, thread_stop):
         demo = DataSplitter(rtg=rtg)
+
+        logging.info("Splitter: Starting...")
 
         for i in range(1000):
             demo.send({
@@ -120,7 +127,9 @@ def unit_test():
 
 
 def get_data(rtg, thread_stop):
-    splitter = DataSplitter(rtg=rtg)
+    splitter = DataSplitter(logging.INFO, rtg=rtg)
+
+    logging.info("Splitter: Starting...")
 
     last_time = this_time = time()
     eof_count = 0
@@ -161,30 +170,16 @@ if __name__ == '__main__':
     import ast
     # unit_test()
 
-    # TODO - Clean up the logging stuff!
-
-    printer = logging.getLogger()
-    printer.setLevel(logging.INFO)
-    handler = logging.StreamHandler()
-    handler.setLevel(logging.INFO)
-    printer.addHandler(handler)
-
-    logging.info("Splitter: Starting")
-
     thread_stop = threading.Event()
 
     rtg = RealTimeGraph(thread_stop=thread_stop)
 
-    threads = {
-        'getter': threading.Thread(target=get_data, args=(rtg, thread_stop,))
-    }
+    getter_thread = threading.Thread(target=get_data, args=(rtg, thread_stop,))
 
-    for thread in threads.values():
-        thread.start()
+    getter_thread.start()
 
     rtg.run()  # RTG needs to be in main thread
 
     thread_stop.set()
 
-    for thread in threads.values():
-        thread.join()
+    getter_thread.join()
