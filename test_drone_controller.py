@@ -10,6 +10,7 @@ import sys
 from drone_exceptions import EmergencyLandException
 import traceback
 from lock import SharedLock
+from failsafe_controller import FailsafeController
 
 class TestDroneController(DroneController):
     """
@@ -106,10 +107,16 @@ class TestDroneController(DroneController):
         SharedLock.getLock().acquire()
         print threading.current_thread().name, ": Controller thread started"
         SharedLock.getLock().release()
+        fscontroller = FailsafeController(self.drone)
+        fsevent = fscontroller.get_failesafe_event()
+        fscontroller.start()
         while True:
             if not self.update():
                 print threading.current_thread().name, ": Controller thread stopping"
                 return
+            if fsevent.is_set():
+                self.emergency_land_event.set()
+                fsevent.clear()
         
     def readNextInstruction(self):
         super(TestDroneController, self).readNextInstruction()
