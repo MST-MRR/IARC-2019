@@ -7,6 +7,10 @@ class Logger:
     """
     Object that can be sent data to be logged
 
+    Run Requirements: Must be run from base folder or in tools folder!
+
+    Version: python 2.7 / 3.6(Best)
+
     Parameters
     ----------
     desired_data: dict
@@ -28,9 +32,16 @@ class Logger:
 
         file_name_start = '{}_Flight_Num_'.format(date)
 
-        daily_flight = max([int(element.split(file_name_start)[1].split('.csv')[0]) if file_name_start in element else 0 for element in os.listdir()]) + 1
+        # generated logs file to always save to
+        resource_file_dir = "generated_logs/"
 
-        self.directory = '{}{}.csv'.format(file_name_start, str(daily_flight))
+        if 'tools' in os.listdir("."):
+            resource_file_dir = "tools/" + resource_file_dir
+
+        prev_flight_num = 0 if not os.listdir(resource_file_dir) else max([int(element.split(file_name_start)[1].split('.csv')[0]) if file_name_start in element else 0 for element in os.listdir(resource_file_dir)])
+        daily_flight = prev_flight_num + 1
+
+        self.directory = '{}{}{}.csv'.format(resource_file_dir, file_name_start, str(daily_flight))
 
         #
         # Create file
