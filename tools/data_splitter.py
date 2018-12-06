@@ -58,12 +58,9 @@ class DataSplitter:
             logging.warning("Failed to create logger object. {}".format(e))
             self.logger = None
 
-        try:
+        if rtg:
             self.rtg = rtg
             self.rtg.set_pull_function(self.pull)
-        except Exception as e:
-            logging.warning("Failed to create real time graph object. {}".format(e))
-            self.rtg = None
 
     def send(self, data):
         """
@@ -86,7 +83,7 @@ class DataSplitter:
         return self.data
 
 
-def unit_test():
+def unit_test(rtg, thread_stop):
     def demo_data(rtg, thread_stop):
         demo = DataSplitter(rtg=rtg)
 
@@ -114,23 +111,22 @@ def unit_test():
 
     from math import sin, cos
 
-    thread_stop = threading.Event()
+    if rtg:
+        threads = {
+            'graph': threading.Thread(target=demo_data, args=(rtg, thread_stop,))
+        }
 
-    rtg = RealTimeGraph(thread_stop=thread_stop)
+        for thread in threads.values():
+            thread.start()
 
-    threads = {
-        'graph': threading.Thread(target=demo_data, args=(rtg, thread_stop,))
-    }
+        rtg.run()  # RTG needs to be in main thread
 
-    for thread in threads.values():
-        thread.start()
+        thread_stop.set()
 
-    rtg.run()  # RTG needs to be in main thread
-
-    thread_stop.set()
-
-    for thread in threads.values():
-        thread.join()
+        for thread in threads.values():
+            thread.join()
+    else:
+        demo_data(rtg, thread_stop)
 
 
 def get_data(rtg, thread_stop):
@@ -178,19 +174,26 @@ if __name__ == '__main__':
 
     test = False
 
-    if test:
-        unit_test()
-    else:
-        thread_stop = threading.Event()
+    thread_stop = threading.Event()
 
+    try:
         rtg = RealTimeGraph(thread_stop=thread_stop)
+    except NameError as e:
+        logging.warning(e)
+        rtg = None
 
-        getter_thread = threading.Thread(target=get_data, args=(rtg, thread_stop,))
+    if test:
+        unit_test(rtg, thread_stop)
+    else:
+        if rtg:
+            getter_thread = threading.Thread(target=get_data, args=(rtg, thread_stop,))
 
-        getter_thread.start()
+            getter_thread.start()
 
-        rtg.run()  # RTG needs to be in main thread
+            rtg.run()  # RTG needs to be in main thread
 
-        thread_stop.set()
+            thread_stop.set()
 
-        getter_thread.join()
+            getter_thread.join()
+        else:
+            get_data(rtg, thread_stop)
