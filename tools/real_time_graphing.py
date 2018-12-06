@@ -303,7 +303,7 @@ if __name__ == '__main__':
     try:
         from tools.real_time_graph.demo_data_gen import get_demo_data
     except ImportError:
-        from real_time_graphing.demo_data_gen import get_demo_data
+        from real_time_graph.demo_data_gen import get_demo_data
 
     test_object = RealTimeGraph(get_demo_data)
     test_object.run()
