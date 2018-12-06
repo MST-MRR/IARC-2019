@@ -25,6 +25,8 @@ class DataSplitter:
     """
     Send data to this one object and it will send to both the RTG and logger
 
+    Version: python 3.6
+
     Parameters
     ----------
     log_level: logging.LEVEL, default=None
@@ -173,18 +175,22 @@ def get_data(rtg, thread_stop):
 
 if __name__ == '__main__':
     import ast
-    # unit_test()
 
-    thread_stop = threading.Event()
+    test = False
 
-    rtg = RealTimeGraph(thread_stop=thread_stop)
+    if test:
+        unit_test()
+    else:
+        thread_stop = threading.Event()
 
-    getter_thread = threading.Thread(target=get_data, args=(rtg, thread_stop,))
+        rtg = RealTimeGraph(thread_stop=thread_stop)
 
-    getter_thread.start()
+        getter_thread = threading.Thread(target=get_data, args=(rtg, thread_stop,))
 
-    rtg.run()  # RTG needs to be in main thread
+        getter_thread.start()
 
-    thread_stop.set()
+        rtg.run()  # RTG needs to be in main thread
 
-    getter_thread.join()
+        thread_stop.set()
+
+        getter_thread.join()
