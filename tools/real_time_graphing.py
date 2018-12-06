@@ -8,14 +8,14 @@ import numpy as np
 from matplotlib import pyplot as plt, animation as animation
 
 try:
-    from tools.real_time_graphing.metric import Metric
+    from tools.real_time_graph.metric import Metric
 except ImportError:
-    from real_time_graphing.metric import Metric
+    from real_time_graph.metric import Metric
 
 try:
-    from tools.file_io.file_io import parse_config
+    from tools.file_oi.file_io import parse_config
 except ImportError:
-    from file_io.file_io import parse_config
+    from file_oi.file_io import parse_config
 
 
 class RealTimeGraph:
@@ -37,7 +37,7 @@ class RealTimeGraph:
 
     log_level = logging.INFO
 
-    config_filename = ['tools/real_time_graphing/config.xml', 'real_time_graphing/config.xml', 'config.xml']  # Possible locations of configuration file
+    config_filename = ['tools/real_time_graph/config.xml', 'real_time_graph/config.xml', 'config.xml']  # Possible locations of configuration file
 
     max_rows = 3  # Rows of subplots per column
 
@@ -67,7 +67,7 @@ class RealTimeGraph:
 
         self.check_time = self.start_time = time()
 
-        # Initializes figure for real_time_graphing
+        # Initializes figure for real_time_graph
         plt.rcParams['toolbar'] = 'None'  # Disable matplot toolbar
 
         self.fig = plt.figure(figsize=(8, 6))
@@ -301,7 +301,7 @@ class RealTimeGraph:
 
 if __name__ == '__main__':
     try:
-        from tools.real_time_graphing.demo_data_gen import get_demo_data
+        from tools.real_time_graph.demo_data_gen import get_demo_data
     except ImportError:
         from real_time_graphing.demo_data_gen import get_demo_data
 
