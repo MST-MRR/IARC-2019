@@ -1,32 +1,30 @@
 import logging
-
-import numpy as np
-from matplotlib import pyplot as plt, animation as animation
+from time import sleep, time
 
 import threading
 from multiprocessing import Queue
 
-from time import sleep, time
+import numpy as np
+from matplotlib import pyplot as plt, animation as animation
 
 try:
     from tools.real_time_graphing.metric import Metric
 except ImportError:
-    from metric import Metric
+    from real_time_graphing.metric import Metric
 
 try:
     from tools.file_io.file_io import parse_config
 except ImportError:
-    from file_io import parse_config
-
-try:
-    from tools.real_time_graphing.demo_data_gen import get_demo_data
-except ImportError:
-    from demo_data_gen import get_demo_data
+    from file_io.file_io import parse_config
 
 
 class RealTimeGraph:
     """
-    Description
+    Tool to graph data as it comes in in real time.
+
+    Version: python 3.6
+
+    Requirements: Numpy, Matplotlib
 
     Parameters
     ----------
@@ -39,13 +37,13 @@ class RealTimeGraph:
 
     log_level = logging.INFO
 
-    config_filename = ['../../tools/real_time_graphing/config.xml', 'tools/real_time_graphing/config.xml', 'config.xml']  # Location of configuration file
+    config_filename = ['tools/real_time_graphing/config.xml', 'real_time_graphing/config.xml', 'config.xml']  # Possible locations of configuration file
 
     max_rows = 3  # Rows of subplots per column
 
     data_freq_warning = .5  # If time values are this far apart warn the user
 
-    def __init__(self, get_data=get_demo_data, pan_width=10, **kwargs):
+    def __init__(self, get_data=None, pan_width=10, **kwargs):
         printer = logging.getLogger()
 
         if not printer.handlers:
@@ -54,6 +52,7 @@ class RealTimeGraph:
             handler.setLevel(RealTimeGraph.log_level)
             printer.addHandler(handler)
 
+        if not get_data: logging.critical("RTG: No data pull function!")
         self.get_data = get_data
         self.pan_width = abs(pan_width)
 
@@ -126,9 +125,11 @@ class RealTimeGraph:
             try:
                 output = parse_config(filename)
                 break
-            except IOError:
-                logging.error("RTG: Failed to read config file!")
+            except FileNotFoundError:
+                logging.warning("RTG: Failed to read config file: {}. Trying again...".format(filename))
                 output = None
+
+        if output is None: logging.critical("RTG: No configuration file found!")
 
         # Total number of subplots
         graph_count = [graph["output"] == 'text' for graph in output].count(False)
@@ -299,4 +300,10 @@ class RealTimeGraph:
 
 
 if __name__ == '__main__':
-    test_object = RealTimeGraph()
+    try:
+        from tools.real_time_graphing.demo_data_gen import get_demo_data
+    except ImportError:
+        from real_time_graphing.demo_data_gen import get_demo_data
+
+    test_object = RealTimeGraph(get_demo_data)
+    test_object.run()
