@@ -56,6 +56,12 @@ class Logger:
         self.start_time = time.time()
         self.last_update_time = 0
 
+    def __enter__(self):
+        return self
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        self.exit()
+
     def exit(self):
         """
         Closes file that was logging data.
