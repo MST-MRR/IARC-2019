@@ -1,24 +1,24 @@
 import logging
+from time import time, sleep
 
 import sys
 import threading
-from time import time, sleep
 
 try:
-    from tools.logging.logger import Logger
+    from tools.logger import Logger
 except ImportError:
     try:
         from logger import Logger
-    except ImportError:
-        logging.error("Could not import logger!")
+    except ImportError as e:
+        logging.error(e)
 
 try:
-    from tools.real_time_graphing.real_time_graphing import RealTimeGraph
+    from tools.real_time_graphing import RealTimeGraph
 except ImportError:
     try:
         from real_time_graphing import RealTimeGraph
-    except ImportError:
-        logging.error("Could not import real time grapher!")
+    except ImportError as e:
+        logging.error(e)
 
 
 class DataSplitter:
