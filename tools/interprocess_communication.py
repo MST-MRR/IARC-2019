@@ -1,8 +1,11 @@
+import os
 import logging
 
 import subprocess
 import threading
 from time import sleep
+
+# TODO - How to tell to use rtg or logger / what logging level / Can convert python 2 log handle to 3?
 
 
 class IPC:
@@ -28,7 +31,11 @@ class IPC:
 
         self.reader_thread = threading.Thread(target=self.shell_reader)
 
-        for filename in ['tools/data_splitter.py', 'data_splitter.py']:
+        filename = 'data_splitter.py'
+        if 'tools' in os.listdir("."):
+            filename = 'tools/{}'.format(filename)
+
+        try:
             if reader:
                 self.splitter = subprocess.Popen('{} {}'.format(IPC.py3command, filename), stdin=subprocess.PIPE,
                                                  stdout=subprocess.PIPE)
@@ -36,14 +43,12 @@ class IPC:
                 self.splitter = subprocess.Popen('{} {}'.format(IPC.py3command, filename), stdin=subprocess.PIPE)
 
             sleep(.1)  # Poll will return None(None means process working) if immediately called after creating obj
-            if not self.splitter.poll():
-                break  # Success!
-            else:
+
+            if self.splitter.poll():
                 output, error_output = self.splitter.communicate()
                 logging.warning(error_output)
-        else:
-            # If loops through file names & doesnt find data splitter
-            logging.error("Data splitter file not found!")
+        except Exception as e:
+            logging.error(e)
             raise IOError("Data splitter file not found!")
 
         if reader:
@@ -62,6 +67,14 @@ class IPC:
         """
 
         self.quit()
+
+    @property
+    def alive(self):
+        """
+        Returns true if the process is still alive
+        """
+
+        return demo.splitter.poll() is None and not self.thread_stop.is_set()
 
     def quit(self):
         """
@@ -119,7 +132,7 @@ class IPC:
 if __name__ == '__main__':
     from math import sin, cos
 
-    logging.basicConfig(level=logging.INFO)
+    logging.basicConfig(level=logging.WARNING)
 
     with IPC() as demo:
         for i in range(0, 10000, 3):
@@ -142,6 +155,6 @@ if __name__ == '__main__':
 
             sleep(.1)
 
-            if demo.splitter.poll() is not None or demo.thread_stop.is_set():
+            if not demo.alive:
                 logging.info("IPC: splitter.poll(): {}".format(demo.splitter.poll()))
                 break
