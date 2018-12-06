@@ -1,11 +1,12 @@
+import logging
+
 import subprocess
 import threading
 from time import sleep
 
-import logging
+# TODO - How to tell to use rtg/logger/logging level
 
-# TODO - How to tell whether to use rtg or logger
-# TODO - How to tell what logging level to use
+# TODO - Move logger to this branch and update it then test
 
 # TODO - Make sure everything works from multiple start locations
 # TODO - Pip install module or does requirements work?
