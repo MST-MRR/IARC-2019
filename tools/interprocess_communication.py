@@ -8,15 +8,13 @@ from time import sleep
 
 # TODO - Move logger to this branch and update it then test
 
-# TODO - Make sure everything works from multiple start locations
-# TODO - Pip install module or does requirements work?
-
 
 class IPC:
     """
     Takes data sent to it and sends it to the datasplitter running in python 3.6
-    Meant to run in python 2.7
     Python 3 must be able to be run from py3command's command
+
+    Version: python 2.7
 
     Parameters
     ----------
@@ -34,7 +32,7 @@ class IPC:
 
         self.reader_thread = threading.Thread(target=self.shell_reader)
 
-        for filename in ['tools/ipc/data_splitter.py', 'data_splitter.py']:
+        for filename in ['tools/data_splitter.py', 'data_splitter.py']:
             if reader:
                 self.splitter = subprocess.Popen('{} {}'.format(IPC.py3command, filename), stdin=subprocess.PIPE,
                                                  stdout=subprocess.PIPE)
@@ -96,7 +94,7 @@ class IPC:
 
         if self.splitter.poll() is None:
             try:
-                self.splitter.stdin.write("{}\n".format(str(data).encode()))  # Lots of warnings against stdin!
+                self.splitter.stdin.write("{}\n".format(str(data).encode()))
             except IOError as e:
                 logging.warning(e)
 
