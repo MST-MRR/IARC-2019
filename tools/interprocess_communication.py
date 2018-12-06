@@ -4,10 +4,6 @@ import subprocess
 import threading
 from time import sleep
 
-# TODO - How to tell to use rtg/logger/logging level
-
-# TODO - Move logger to this branch and update it then test
-
 
 class IPC:
     """
