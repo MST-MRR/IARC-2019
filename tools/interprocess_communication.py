@@ -24,7 +24,7 @@ class IPC:
 
     py3command = 'python3'  # Command to start specifically python3 (rename python.exe in Python3 folder to python3.exe)
 
-    def __init__(self, reader=True, thread_stop=threading.Event()):
+    def __init__(self, reader=True, thread_stop=threading.Event(), log_level=30):
         self.thread_stop = thread_stop
 
         self.reader_thread = threading.Thread(target=self.shell_reader)
@@ -35,10 +35,10 @@ class IPC:
 
         try:
             if reader:
-                self.splitter = subprocess.Popen('{} {}'.format(IPC.py3command, filename), stdin=subprocess.PIPE,
+                self.splitter = subprocess.Popen('{} {} -l {}'.format(IPC.py3command, filename, log_level), stdin=subprocess.PIPE,
                                                  stdout=subprocess.PIPE)
             else:
-                self.splitter = subprocess.Popen('{} {}'.format(IPC.py3command, filename), stdin=subprocess.PIPE)
+                self.splitter = subprocess.Popen('{} {} -l {}'.format(IPC.py3command, filename, log_level), stdin=subprocess.PIPE)
 
             sleep(.1)  # Poll will return None(None means process working) if immediately called after creating obj
 
@@ -105,7 +105,7 @@ class IPC:
             except IOError as e:
                 logging.warning(e)
 
-            logging.info("IPC: {}".format(str(data)))
+            logging.debug("IPC: {}".format(str(data)))
         else:
             logging.error("IPC: Cannot send data")
 
@@ -130,9 +130,11 @@ class IPC:
 if __name__ == '__main__':
     from math import sin, cos
 
-    logging.basicConfig(level=logging.DEBUG)
+    log_lvl = logging.INFO
 
-    with IPC() as demo:
+    logging.basicConfig(level=log_lvl)
+
+    with IPC(log_level=log_lvl) as demo:
         for i in range(0, 10000, 3):
             # i = j / 3.14
             demo.send({
