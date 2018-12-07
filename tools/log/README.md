@@ -2,9 +2,8 @@
 Real time logging for the drone, can work on board or over network.
 
 ## Configuration
-When a Logger object is created a dictionary consisting of 
-{header: data stream} pairs can be passed in or default settings are
-used.
+When a Logger object is created a dictionary consisting of data streams can be passed 
+in or default settings are used.
 
 A data stream is a stream of data as it comes in from the drone.
 
@@ -18,20 +17,22 @@ Possible Data streams:
     'roll_rc_output', 'yaw_controller_output', 'yaw_rc_output', 
     'target_yaw', 'color_image', 'depth_image'
 
-The filename to save the log file to will automatically be chosen.
+The filename to save the log file to will automatically be chosen. There must be a __'generated_logs'__
+file in tools/
 
 ## Operating
 
-Once the logger object is created Logger.update() can be called to pass
+Once the logger object is created, __Logger.update()__ can be called to pass
 in data. The time that the logger receives the data is the time that
 gets logged.
 
 Data should be passed into the update function in the format
     
-    {header: data}
+    {data_stream(str): data(number)}
     
 When done, the logger.exit() function should be called.
 
+__Only__ the headers in desired data(set in constructor) will be logged!
 
 ## Troubleshooting
-If you have issues or suggestions, message Cole Dieckhaus or Jon Ogden on slack or email cole - csdhv9@mst.edu.
+If you have issues or suggestions, message Cole Dieckhaus or Jon Ogden on slack.
