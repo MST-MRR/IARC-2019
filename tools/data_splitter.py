@@ -39,16 +39,7 @@ class DataSplitter:
         The RealTimeGraph to plot data to if desired.
     """
 
-    def __init__(self, log_level=None, logger_desired_data=None, rtg=None):
-        if log_level:
-            printer = logging.getLogger()
-
-            # if not printer.handlers:  # This picks up python 2 hanlders for some reason
-            printer.setLevel(log_level)
-            handler = logging.StreamHandler()
-            handler.setLevel(log_level)
-            printer.addHandler(handler)
-
+    def __init__(self, logger_desired_data=None, rtg=None):
         self.data = None
         self.rtg = None
 
@@ -130,7 +121,7 @@ def unit_test(rtg, thread_stop):
 
 
 def get_data(rtg, thread_stop):
-    splitter = DataSplitter(logging.INFO, rtg=rtg)
+    splitter = DataSplitter(rtg=rtg)
 
     logging.info("Splitter: Starting...")
 
@@ -170,11 +161,28 @@ def get_data(rtg, thread_stop):
 
 
 if __name__ == '__main__':
-    import ast
+    import ast  # to interpret input
 
-    test = False
+    from argparse import ArgumentParser
+
+    parser = ArgumentParser()
+
+    parser.add_argument("-d", "--debug", type=bool, nargs='?', dest="debug", default=False,
+                        help="To use or not to use debug mode.")
+
+    parser.add_argument("-l", "--log-level", type=int, nargs='?', dest="log_level", default=30,
+                        help="What logging level to use.")
+
+    options = parser.parse_args()
 
     thread_stop = threading.Event()
+
+    if options.log_level:
+        printer = logging.getLogger()
+        printer.setLevel(options.log_level)
+        handler = logging.StreamHandler()
+        handler.setLevel(options.log_level)
+        printer.addHandler(handler)
 
     try:
         rtg = RealTimeGraph(thread_stop=thread_stop)
@@ -182,7 +190,7 @@ if __name__ == '__main__':
         logging.warning(e)
         rtg = None
 
-    if test:
+    if options.debug:
         unit_test(rtg, thread_stop)
     else:
         if rtg:
