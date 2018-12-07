@@ -1,6 +1,7 @@
 import threading
 import constants as c
 import time
+import coloredlogs, logging
 from drone_exceptions import BadArgumentException
 
 class Movement(threading.Thread):
@@ -36,6 +37,8 @@ class Movement(threading.Thread):
     id = 1
 
     def __init__(self, drone, **kwargs):
+        self.logger = logging.getLogger(__name__)
+      
         for kind, arg in kwargs.items():
             if kind == "path":
                 self.type = c.PATH
@@ -130,9 +133,9 @@ class Movement(threading.Thread):
         ----------
         None
         """
-        print threading.current_thread().name, ": Starting move"
+        self.logger.info(threading.current_thread().name + ": Starting move")
         self.drone.move(self.direction, self.distance, self.stop_event)
-        print threading.current_thread().name, ": Finished move"
+        self.logger.info(threading.current_thread().name + ": Finished move")
 
     def runHover(self):
         """
@@ -142,9 +145,9 @@ class Movement(threading.Thread):
         ----------
         None
         """
-        print threading.current_thread().name, ": Starting hover (", self.duration, "s)"
+        self.logger.info(threading.current_thread().name + ": Starting hover (" + str(self.duration) + "s)")
         self.drone.hover(self.duration, self.stop_event)
-        print threading.current_thread().name, ": Finished hover"
+        self.logger.info(threading.current_thread().name + ": Finished hover")
 
     def runTakeoff(self):
         """
@@ -154,9 +157,9 @@ class Movement(threading.Thread):
         ----------
         None
         """
-        print threading.current_thread().name, ": Starting takeoff"
+        self.logger.info(threading.current_thread().name + ": Starting takeoff")
         self.drone.takeoff(self.target_altitude, self.stop_event)
-        print threading.current_thread().name, ": Finished takeoff"
+        self.logger.info(threading.current_thread().name + ": Finished takeoff")
     
     def runLand(self):
         """
@@ -166,9 +169,9 @@ class Movement(threading.Thread):
         ----------
         None
         """
-        print threading.current_thread().name, ": Starting land"
+        self.logger.info(threading.current_thread().name + ": Starting land")
         self.drone.land()
-        print threading.current_thread().name, ": Finished land"
+        self.logger.info(threading.current_thread().name + ": Finished land")
 
     def cancel(self):
         """
@@ -191,7 +194,7 @@ class Movement(threading.Thread):
         None
         """
         if self.type is c.LAND:
-            print threading.current_thread().name, ": Cannot cancel a land movement! Land proceeding"
+            self.warning(threading.current_thread().name + ": Cannot cancel a land movement! Land proceeding")
 
         self.stop_event.set()
         one_pass = False

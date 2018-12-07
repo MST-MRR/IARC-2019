@@ -9,6 +9,7 @@ from sys import stdout
 from drone_exceptions import AltitudeException, ThrustException, VelocityException, BadArgumentException
 import constants as c
 import dronekit_wrappers as dkw
+import coloredlogs, logging
 
 class Drone(object):
     """
@@ -35,6 +36,7 @@ class Drone(object):
         self.connected = False
         self.taking_off = False
         self.flying = False
+        self.logger = logging.getLogger(__name__)
 
 
     def connect(self, isInSimulator):
@@ -63,11 +65,11 @@ class Drone(object):
         if isInSimulator:
             self.vehicle = dronekit.connect(c.CONNECTION_STRING_SIMULATOR, wait_ready=True, 
                 status_printer=None)
-            print threading.current_thread().name, ": Connecting to the simulated ardupilot"
+            self.logger.info(threading.current_thread().name + ": Connecting to the simulated ardupilot")
         else:
             self.vehicle = dronekit.connect(c.CONNECTION_STRING_REAL, wait_ready=True, 
                 status_printer=None)
-            print threading.current_thread().name, ": Connecting to the real-life ardupilot"
+            self.logger.info(threading.current_thread().name + ": Connecting to the real-life ardupilot")
 
         if self.vehicle is not None:
             self.connected = True
@@ -122,17 +124,16 @@ class Drone(object):
         start = time.time()
         self.vehicle.mode = VehicleMode(c.GUIDED_MODE)
 
-        print threading.current_thread().name, ": Arming",
+        self.logger.info(threading.current_thread().name + ": Arming")
         start = time.time()
         while (not self.vehicle.armed) and (time.time() - start < timeout):
             self.vehicle.armed = True
             time.sleep(1)
-            print ".",
             stdout.flush()
         if not self.vehicle.armed:
-            print threading.current_thread().name, ": Failed to arm"
+            self.logger.error(threading.current_thread().name + ": Failed to arm")
         else:
-            print threading.current_thread().name, ": Armed"
+            self.logger.info(threading.current_thread().name + ": Armed")
 
     def is_connected(self):
         """
@@ -230,7 +231,7 @@ class Drone(object):
             current_altitude = self.altitude()
 
             if current_altitude >= target_altitude*0.95: # Trigger just below target alt.
-                print "Reached target altitude"
+                self.logger.info("Reached target altitude")
                 break
             elif current_altitude >= target_altitude*0.6:
                 thrust = c.SMOOTH_TAKEOFF_THRUST
@@ -239,7 +240,7 @@ class Drone(object):
             time.sleep(1)
         else:
             self.taking_off = False
-            print "Could not take off - trying again"
+            self.logger.warning("Could not take off - trying again")
             return
 
         self.taking_off = False

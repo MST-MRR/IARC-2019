@@ -6,6 +6,9 @@ All of the constant values used across all of the scripts are located here.
 DEFAULT_VELOCITY = 0.50
 VELOCITY_THRESHOLD = 2  # never let the drone go faster than 1 m/s for safety (is this a good number?)
 MINIMUM_ALLOWED_ALTITUDE = 0.5
+MAXIMUM_ALLOWED_ALTITUDE = 4.0
+RANGEFINDER_MIN = 0.29
+RANGEFINDER_EPSILON = 0.03
 
 # Connection-oriented
 CONNECTION_STRING_SIMULATOR = "tcp:127.0.0.1:5762"

@@ -12,21 +12,22 @@ class FailsafeController(threading.Thread):
         super(FailsafeController, self).__init__()
         self.event = threading.Event()
         self.drone = drone 
+        self.logger = logging.getLogger(__name__)
 
     def max_velocity_check(self):
-        if self.drone.vehicle.airspeed > 0.01:
+        if self.drone.vehicle.airspeed > c.VELOCITY_THRESHOLD:
             raise drone_exceptions.VelocityExceededThreshold()
         
     def max_altitude_check(self):
-        if True == False:
+        if self.drone.vehicle.location.global_relative_frame.alt > c.MAXIMUM_ALLOWED_ALTITUDE:
             raise drone_exceptions.AltitudeExceededThreshold()
 
     def negative_velocity_check(self):
-        if True == False:
+        if self.drone.vehicle.airspeed < 0.0:
             raise drone_exceptions.AltitudeNegativeException()
 
     def rangefinder_check(self):
-        if True == False:
+        if self.drone.vehicle.rangefinder.distance < c.RANGEFINDER_MIN - c.RANGEFINDER_EPSILON -.5:
             raise drone_exceptions.RangefinderMalfunction()
 
     def opticalflow_check(self):
@@ -43,7 +44,8 @@ class FailsafeController(threading.Thread):
                 self.opticalflow_check()
         except Exception as e:
             self.event.set()
-            print("A type of", e, "exception has occured")
+            msg = str(type(e)) + " Error"
+            self.logger.critical(msg)
 
     def run(self):
         self.started = True

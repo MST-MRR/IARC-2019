@@ -11,6 +11,7 @@ from drone_exceptions import EmergencyLandException
 import traceback
 from lock import SharedLock
 from failsafe_controller import FailsafeController
+import coloredlogs, logging
 
 class TestDroneController(DroneController):
     """
@@ -20,6 +21,8 @@ class TestDroneController(DroneController):
     def __init__(self, drone, emergency_land_event):
         super(TestDroneController, self).__init__(drone, emergency_land_event)
         self.currentMovement = None
+        self.logger = logging.getLogger(__name__)
+        coloredlogs.install(level='DEBUG')
         # These lines are purely for testing purposes. Once swarm controller and
         # the networking thread are implemented, this sort of function call will
         # likely be done in update(), after checking that new instruction have
@@ -85,10 +88,6 @@ class TestDroneController(DroneController):
             sleep(c.TEN_MILI)
             return True
         except Exception as e:
-            print "Error encountered in", threading.current_thread().name, ":"
-            print "\tType:", type(e)
-            print "\tMessage:", e
-            print traceback.print_exc()
             # If a connection was never establish in the first place, return
             if self.drone.vehicle is None:
                 return False
@@ -105,14 +104,14 @@ class TestDroneController(DroneController):
 
     def run(self):
         SharedLock.getLock().acquire()
-        print threading.current_thread().name, ": Controller thread started"
+        self.logger.info(threading.current_thread().name + ": Controller thread started")
         SharedLock.getLock().release()
         fscontroller = FailsafeController(self.drone)
         fsevent = fscontroller.get_failesafe_event()
         fscontroller.start()
         while True:
             if not self.update():
-                print threading.current_thread().name, ": Controller thread stopping"
+                self.logger.info(threading.current_thread().name + ": Controller thread stopping")
                 return
             if fsevent.is_set():
                 self.emergency_land_event.set()
