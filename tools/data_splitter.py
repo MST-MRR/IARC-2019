@@ -138,7 +138,7 @@ def get_data(rtg, thread_stop):
             else:
                 logging.warning("Splitter: Input type: {}, Input: {}".format(type(received), received))
 
-            logging.info("Splitter: {}".format(data))
+            logging.debug("Splitter: {}".format(data))
 
             splitter.send(data)
 
