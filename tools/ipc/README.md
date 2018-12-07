@@ -1,5 +1,5 @@
 # Inter-process Communication IARC-2019
-A tool to allow python 2.7 processes to send data to the data splitter running in python 3.6.
+IPC is a tool to allow python 2.7 processes to send data to the data splitter running in python 3.6.
 The data splitter is a tool made to send data to both the real time graphing and logging tools
 concurrently.
 
