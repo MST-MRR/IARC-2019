@@ -29,9 +29,6 @@ class DataSplitter:
 
     Parameters
     ----------
-    log_level: logging.LEVEL, default=None
-        If logging is desired set a logging level.
-
     logger_desired_data: dict, default=None
         Parameter of desired data streams for logger object.
 
@@ -75,6 +72,8 @@ class DataSplitter:
 
 
 def unit_test(rtg, thread_stop):
+    from math import sin, cos
+
     def demo_data(rtg, thread_stop):
         demo = DataSplitter(rtg=rtg)
 
@@ -99,8 +98,6 @@ def unit_test(rtg, thread_stop):
             sleep(.1)
 
             if thread_stop.is_set(): break
-
-    from math import sin, cos
 
     if rtg:
         threads = {
@@ -130,26 +127,25 @@ def get_data(rtg, thread_stop):
 
     while last_time + 15 > this_time:
         try:
-            # Python 3 uses utf-8 encoding
-            inputt = sys.stdin.readline()
+            received = sys.stdin.readline()  # Python 3 uses utf-8 encoding
 
             # logging.info("Splitter: Input type: {}, Input: {}".format(type(inputt), inputt))
 
-            if type(inputt) is str:
-                data = ast.literal_eval(inputt)
-            elif type(inputt) is dict:
-                data = inputt
+            if type(received) is str:
+                data = ast.literal_eval(received)
+            elif type(received) is dict:
+                data = received
             else:
-                logging.warning("Splitter: Input type: {}, Input: {}".format(type(inputt), inputt))
+                logging.warning("Splitter: Input type: {}, Input: {}".format(type(received), received))
 
-            logging.info("SPLITTER: {}".format(data))
+            logging.info("Splitter: {}".format(data))
 
             splitter.send(data)
 
             eof_count = 0
         except EOFError as e:
             # No data came in
-            logging.warning(e)
+            logging.warning("Splitter: {}".format(e))
             eof_count += 1
 
         last_time = this_time
@@ -157,12 +153,10 @@ def get_data(rtg, thread_stop):
 
         if thread_stop.is_set(): break
 
-    logging.info("SPLITTER: Done getting data!")
+    logging.info("Splitter: Done getting data!")
 
 
 if __name__ == '__main__':
-    import ast  # to interpret input
-
     from argparse import ArgumentParser
 
     parser = ArgumentParser()
@@ -187,12 +181,14 @@ if __name__ == '__main__':
     try:
         rtg = RealTimeGraph(thread_stop=thread_stop)
     except NameError as e:
-        logging.warning(e)
+        logging.warning("Splitter: {}".format(e))
         rtg = None
 
     if options.debug:
         unit_test(rtg, thread_stop)
     else:
+        import ast  # For interpreting received data
+
         if rtg:
             getter_thread = threading.Thread(target=get_data, args=(rtg, thread_stop,))
 
@@ -204,4 +200,4 @@ if __name__ == '__main__':
 
             getter_thread.join()
         else:
-            get_data(rtg, thread_stop)
+            get_data(rtg=None, thread_stop=thread_stop)
