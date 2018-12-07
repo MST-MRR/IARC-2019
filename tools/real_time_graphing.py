@@ -198,7 +198,7 @@ class RealTimeGraph:
                 data = self.get_data()
                 thread_queue.put(data)
             except Exception as error:
-                logging.warning("RTG:", error)
+                logging.warning("RTG: {}".format(error))
 
             # Adjust sleep times
             if self.data_count > self.plot_count:

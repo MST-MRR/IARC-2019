@@ -5,8 +5,6 @@ import subprocess
 import threading
 from time import sleep
 
-# TODO - How to tell to use rtg or logger / what logging level / Can convert python 2 log handle to 3?
-
 
 class IPC:
     """
@@ -132,7 +130,8 @@ class IPC:
 if __name__ == '__main__':
     from math import sin, cos
 
-    logging.basicConfig(level=logging.WARNING)
+    logging.basicConfig(level=logging.DEBUG)
+    # TODO - How to tell to use rtg or logger / what logging level / Can convert python 2 log handle to 3?
 
     with IPC() as demo:
         for i in range(0, 10000, 3):
