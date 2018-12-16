@@ -2,33 +2,22 @@
 Real time logging for the drone, can work on board or over network.
 
 ## Configuration
-When a Logger object is created a dictionary consisting of data streams can be passed 
-in or default settings are used.
+When a Logger object is created, the desired_data parameter should be set to a list of keys to look for in the received
+data. Since data is sent to the logger in the form of a dictionary, desired_data should be a list of keys present so
+that it can pull relevant data.
 
-A data stream is a stream of data as it comes in from the drone.
-
-Possible Data streams:
-    
-    'roll', 'pitch', 'yaw', 'target_altitude', 'target_roll_velocity',
-    'target_pitch_velocity', 'altitude', 'airspeed', 'velocity_x', 
-    'velocity_y', 'velocity_z', 'voltage', 'state', 'mode',
-    'armed', 'altitude_controller_output', 'altitude_rc_output', 
-    'pitch_controller_output', 'pitch_rc_output', 'roll_controller_output', 
-    'roll_rc_output', 'yaw_controller_output', 'yaw_rc_output', 
-    'target_yaw', 'color_image', 'depth_image'
-
-The filename to save the log file to will automatically be chosen. There must be a __'generated_logs'__
+The filename to save the log file to will automatically be chosen. There should be a __'generated_logs'__
 file in tools/
 
 ## Operating
 
 Once the logger object is created, __Logger.update()__ can be called to pass
 in data. The time that the logger receives the data is the time that
-gets logged.
+gets logged. Any data that should be logged for should have its key in the desired_data list on logger creation.
 
 Data should be passed into the update function in the format
     
-    {data_stream(str): data(number)}
+    {key(str): data(number)}
     
 When done, the logger.exit() function should be called.
 
