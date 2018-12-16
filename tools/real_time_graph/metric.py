@@ -38,34 +38,33 @@ class Metric:
 
         #
         # Set func
-        if not func:
-            func = 'x'
+        self._raw_func = func if func else 'x'
 
         # Func safety check
-        for letter in func:
+        for letter in self._raw_func:
             assert letter in ',.0123456789 xyz()+-*/%absintfloatsincostanhlogp', \
                 "{}: Determined to be potentially unsafe at letter '{}'.".format(func, letter)
 
         # Init func
-        if 'x' in func:
+        if 'x' in self._raw_func:
             assert x_stream, "X in function but no x_stream!"
             assert x_stream in Metric.possible_data_streams, "Invalid x_stream!"
 
-            if 'y' in func:
+            if 'y' in self._raw_func:
                 assert y_stream, "Y in function but no y_stream!"
                 assert y_stream in Metric.possible_data_streams, "Invalid y_stream!"
 
-                if 'z' in func:
+                if 'z' in self._raw_func:
                     assert z_stream, "Z in function but no z_stream!"
                     assert z_stream in Metric.possible_data_streams, "Invalid z_stream!"
 
-                    self._func = lambda x, y, z: eval(func)
+                    self._func = lambda x, y, z: eval(self._raw_func)
                 else:
-                    self._func = lambda x, y: eval(func)
+                    self._func = lambda x, y: eval(self._raw_func)
             else:
-                self._func = lambda x: eval(func)
+                self._func = lambda x: eval(self._raw_func)
         else:
-            self._func = lambda: eval(func)
+            self._func = lambda: eval(self._raw_func)
 
         # Set data streams
         self._x_stream = x_stream
@@ -126,6 +125,17 @@ class Metric:
         """
 
         return self._func
+
+    @property
+    def raw_func(self):
+        """
+        Raw_func getter.
+
+        Returns
+        -------
+        str
+            The string that the function was created with
+        """
 
     @property
     def x_stream(self):
