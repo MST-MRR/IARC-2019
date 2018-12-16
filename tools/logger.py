@@ -7,22 +7,25 @@ class Logger:
     """
     Object that can be sent data to be logged
 
-    Run Requirements: Must be run from base folder or in tools folder!
+    Run Requirements: Must be run from base folder or in tools folder so that it has somewhere to
+                      save logs to. Else make a folder called generated_logs in the running
+                      directory.
 
-    Version: python 2.7 / 3.6(Best)
+    Version: python 2.7 / 3.6
 
     Parameters
     ----------
     desired_data: list
-        List of data streams as keys it should look for in data received. Time is set as first header by default.
+        List of data streams as keys it should look for in data received. Time is set as first
+        header by default.
     """
     def __init__(self, desired_data=None):
 
         #
         # Setup dict w/ headers matched to desired data stream
         self.desired_data = ['secFromStart']
-        self.desired_data += ['airspeed', 'altitude', 'pitch', 'roll', 'yaw', 'velocity_x', 'velocity_y',
-                              'velocity_z', 'voltage'] if not desired_data else desired_data
+        self.desired_data += ['airspeed', 'altitude', 'pitch', 'roll', 'yaw', 'velocity_x',
+                              'velocity_y', 'velocity_z', 'voltage'] if not desired_data else desired_data
 
         #
         # Setup directory name
@@ -30,13 +33,28 @@ class Logger:
 
         file_name_start = '{}_Flight_Num_'.format(date)
 
-        # generated logs file to always save to
+        # find the generated_logs folder
         resource_file_dir = "generated_logs/"
 
         if 'tools' in os.listdir("."):
             resource_file_dir = "tools/" + resource_file_dir
 
-        prev_flight_num = 0 if not os.listdir(resource_file_dir) else max([int(element.split(file_name_start)[1].split('.csv')[0]) if file_name_start in element else 0 for element in os.listdir(resource_file_dir)])
+        if os.listdir(resource_file_dir):
+            # For each file in the directory with the same timestamp, store the flight number and
+            # find the max stored value
+            flight_num_list = []
+
+            for element in os.listdir(resource_file_dir):
+                if file_name_start in element:
+                    flight_num_list.append(int(element.split(file_name_start)[1].split('.csv')[0]))
+                else:
+                    flight_num_list.append(0)
+
+            prev_flight_num = max(flight_num_list)
+
+        else:
+            prev_flight_num = 0
+
         daily_flight = prev_flight_num + 1
 
         self.directory = '{}{}{}.csv'.format(resource_file_dir, file_name_start, str(daily_flight))
@@ -55,9 +73,17 @@ class Logger:
         self.last_update_time = 0
 
     def __enter__(self):
+        """
+        On with statement creation
+        """
+
         return self
 
     def __exit__(self, exc_type, exc_val, exc_tb):
+        """
+        On with statement exit
+        """
+
         self.exit()
 
     def exit(self):
@@ -80,23 +106,29 @@ class Logger:
         current_time = time.time()
 
         if self.last_update_time != current_time:
-            self.writer.writerow({element: input_data[element] if element is not 'secFromStart' else current_time - self.start_time for element in self.desired_data})
+            # Format data to write
+            output_data = {element: input_data[element] if element is not 'secFromStart' else current_time - self.start_time for element in self.desired_data}
 
-        self.last_update_time = current_time
+            # Write data
+            self.writer.writerow(output_data)
+
+            self.last_update_time = current_time
 
 
 if __name__ == '__main__':
+    # Unit test
+
     import math
 
-    # tempCounter is how many data point to collect temporarily
-
+    # tempCounter is how long to collect data
     theTempCounter = int(input("How long to log in seconds? "))
 
     stopWhile = 0
 
     my_logger = Logger()
 
-    func = lambda x: math.cos(x)
+    def func(x):
+        return math.cos(x)
 
     while stopWhile < theTempCounter:  # main loop
         myData = {
