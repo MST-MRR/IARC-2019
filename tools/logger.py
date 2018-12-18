@@ -22,16 +22,16 @@ class Logger:
 
     EMPTY_VALUE = '-'  # Value to put in csv if no data given
 
+    TIME_HEADER = 'secFromStart'  # Header for time value
+
     def __init__(self, desired_data):
 
-        #
         # Setup dict w/ headers matched to desired data stream
-        self.desired_data = ['secFromStart']
+        self.desired_data = [Logger.TIME_HEADER]
 
         assert desired_data, "No headers given!"
         self.desired_data += desired_data
 
-        #
         # Setup directory name
         date = time.strftime('%x').replace('/', '_')  # Gets today's date & sets / to _ as not mess up the directory
 
@@ -63,7 +63,6 @@ class Logger:
 
         self.directory = '{}{}{}.csv'.format(resource_file_dir, file_name_start, str(daily_flight))
 
-        #
         # Create file
         self.logging_file = open(self.directory, "w")
 
@@ -71,7 +70,6 @@ class Logger:
 
         self.writer.writeheader()
 
-        #
         # Init timing variables
         self.start_time = time.time()
         self.last_update_time = 0
@@ -112,12 +110,12 @@ class Logger:
         if self.last_update_time != current_time:
             # Format data to write
             output_data = {}
-            
+
             for element in self.desired_data:
-                if element not in input_data:
-                    output_data.update({element: Logger.EMPTY_VALUE})
-                elif element is 'secFromStart':
+                if element is Logger.TIME_HEADER:
                     output_data.update({element: current_time - self.start_time})
+                elif element not in input_data:
+                    output_data.update({element: Logger.EMPTY_VALUE})
                 else:
                     output_data.update({element: input_data[element]})
 
