@@ -37,18 +37,12 @@ class Logger:
 
         file_name_start = '{}_Flight_Num_'.format(date)
 
-        # find the generated_logs folder
-        resource_file_dir = "generated_logs/"
-
-        if 'tools' in os.listdir("."):
-            resource_file_dir = "tools/" + resource_file_dir
-
-        if os.listdir(resource_file_dir):
+        if os.listdir(self.resource_file_dir):
             # For each file in the directory with the same timestamp, store the flight number and
             # find the max stored value
             flight_num_list = []
 
-            for element in os.listdir(resource_file_dir):
+            for element in os.listdir(self.resource_file_dir):
                 if file_name_start in element:
                     flight_num_list.append(int(element.split(file_name_start)[1].split('.csv')[0]))
                 else:
@@ -61,7 +55,7 @@ class Logger:
 
         daily_flight = prev_flight_num + 1
 
-        self.directory = '{}{}{}.csv'.format(resource_file_dir, file_name_start, str(daily_flight))
+        self.directory = '{}{}{}.csv'.format(self.resource_file_dir, file_name_start, str(daily_flight))
 
         # Create file
         self.logging_file = open(self.directory, "w")
@@ -73,6 +67,19 @@ class Logger:
         # Init timing variables
         self.start_time = time.time()
         self.last_update_time = 0
+
+    @property
+    def resource_file_dir(self):
+        """
+        Finds the generated_logs folder
+        """
+
+        resource_file_dir = "generated_logs/"
+
+        if 'tools' in os.listdir("."):
+            resource_file_dir = "tools/" + resource_file_dir
+
+        return resource_file_dir
 
     def __enter__(self):
         """
