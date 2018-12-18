@@ -19,6 +19,9 @@ class Logger:
         List of data streams as keys it should look for in data received. Time is set as first
         header by default.
     """
+
+    EMPTY_VALUE = '-'  # Value to put in csv if no data given
+
     def __init__(self, desired_data):
 
         #
@@ -108,7 +111,15 @@ class Logger:
 
         if self.last_update_time != current_time:
             # Format data to write
-            output_data = {element: input_data[element] if element is not 'secFromStart' else current_time - self.start_time for element in self.desired_data}
+            output_data = {}
+            
+            for element in self.desired_data:
+                if element not in input_data:
+                    output_data.update({element: Logger.EMPTY_VALUE})
+                elif element is 'secFromStart':
+                    output_data.update({element: current_time - self.start_time})
+                else:
+                    output_data.update({element: input_data[element]})
 
             # Write data
             self.writer.writerow(output_data)
@@ -127,7 +138,7 @@ if __name__ == '__main__':
     stopWhile = 0
 
     my_logger = Logger(['airspeed', 'altitude', 'pitch', 'roll', 'yaw', 'velocity_x',
-                              'velocity_y', 'velocity_z', 'voltage'])
+                        'velocity_y', 'velocity_z', 'voltage'])
 
     def func(x):
         return math.cos(x)
@@ -138,7 +149,7 @@ if __name__ == '__main__':
             'altitude' : func(stopWhile) + .1,
             'pitch' : func(stopWhile) + .2,
             'roll' : func(stopWhile) + .3,
-            'yaw' : func(stopWhile) + .4,
+            # 'yaw' : func(stopWhile) + .4,
             'velocity_x' : func(stopWhile) + .5,
             'velocity_y' : func(stopWhile) + .6,
             'velocity_z' : func(stopWhile) + .7,
