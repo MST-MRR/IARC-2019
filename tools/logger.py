@@ -2,6 +2,8 @@ import time
 import csv
 import os
 
+from numpy import nan
+
 
 class Logger:
     """
@@ -20,7 +22,7 @@ class Logger:
         header by default.
     """
 
-    EMPTY_VALUE = '-'  # Value to put in csv if no data given
+    EMPTY_VALUE = nan  # Value to put in csv if no data given
 
     TIME_HEADER = 'secFromStart'  # Header for time value
 
