@@ -19,13 +19,14 @@ class Logger:
         List of data streams as keys it should look for in data received. Time is set as first
         header by default.
     """
-    def __init__(self, desired_data=None):
+    def __init__(self, desired_data):
 
         #
         # Setup dict w/ headers matched to desired data stream
         self.desired_data = ['secFromStart']
-        self.desired_data += ['airspeed', 'altitude', 'pitch', 'roll', 'yaw', 'velocity_x',
-                              'velocity_y', 'velocity_z', 'voltage'] if not desired_data else desired_data
+
+        assert desired_data, "No headers given!"
+        self.desired_data += desired_data
 
         #
         # Setup directory name
@@ -125,7 +126,8 @@ if __name__ == '__main__':
 
     stopWhile = 0
 
-    my_logger = Logger()
+    my_logger = Logger(['airspeed', 'altitude', 'pitch', 'roll', 'yaw', 'velocity_x',
+                              'velocity_y', 'velocity_z', 'voltage'])
 
     def func(x):
         return math.cos(x)
