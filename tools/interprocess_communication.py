@@ -82,7 +82,7 @@ class IPC:
         Returns true if the process is still alive
         """
 
-        return demo.subprocess.poll() is None and not self.thread_stop.is_set()
+        return self.subprocess.poll() is None and not self.thread_stop.is_set()
 
     def quit(self):
         """
