@@ -1,3 +1,5 @@
+import logging
+
 import time
 import csv
 import os
@@ -59,6 +61,8 @@ class Logger:
 
         # Create file
         self.logging_file = open(self.directory, "w")
+
+        logging.warning("Logger: File created: {}".format(self.directory))
 
         self.writer = csv.DictWriter(self.logging_file, fieldnames=self.desired_data)
 
