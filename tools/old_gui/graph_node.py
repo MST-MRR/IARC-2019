@@ -1,11 +1,23 @@
 from tkinter import *
 
-try:
-    from tools.file_io.file_io import possible_metrics
-    from tools.real_time_graphing.metric import Metric
-except ImportError:
-    from file_io import possible_metrics
-    from metric import Metric
+from tools.file_oi.file_io import possible_metrics
+
+from metric import Metric
+
+# Future
+# TODO - Way to reference the lowerTime_chk and stuff like dat across modules
+
+# TODO - Time settings getting appended rather than reset with share settings
+
+# TODO - Finish reset function
+
+# TODO - Catch error if get_data(tab_manager) is called while title is a textbox rather than a label
+
+# TODO - Class for creating and manipulating items
+
+# TODO - Should be a visual representation of a graph on the XML config files that can be interacted with.
+# TODO - Should make use of the graph tags template and metric class
+
 
 class GraphNode:
     """
@@ -23,7 +35,7 @@ class GraphNode:
         Any initial values that should be set. {Item name: value}
     """
 
-    init_settings_filename = ["tools/config_maker/usable_metrics.xml", "usable_metrics.xml"]
+    init_settings_filename = "usable_metrics.xml"
 
     rows_per_graph = 3  # Baseline how many rows per graph
 
@@ -49,6 +61,8 @@ class GraphNode:
         # Item config
         self.item_locations = {}
         self.items = {}
+
+        # self.items = GraphNode.ItemList()
 
         # Header
         self.add_item('title', (0, 0, 2), Label(self.tab, text=name, font=("Arial Bold", 15), borderwidth=1))
@@ -85,12 +99,8 @@ class GraphNode:
         -------
         dict of possible metrics and the metrics data.
         """
-
-        for filename in GraphNode.init_settings_filename:
-            try:
-                return possible_metrics(filename)
-            except FileNotFoundError:
-                pass
+        print(possible_metrics(GraphNode.init_settings_filename))
+        return possible_metrics(GraphNode.init_settings_filename)
 
     def add_item(self, name, loc, obj):
         if type(obj) is dict:
@@ -227,3 +237,29 @@ class GraphNode:
             self.items['update_title']['text'] = "Submit"
 
         self.set_grid()
+
+    # TODO - NOT FOR BASE WORKING
+    def reset(self, to_reset=None):
+        # TODO - Add default item settings
+        if type(to_reset) is not list: to_reset = [to_reset]
+        if not to_reset: to_reset = [key for key in self.items.keys()]
+
+        for item in to_reset:
+            if item == 'check_boxes':
+                for value in self.check_box_values.values():
+                    value.output.set(False)
+
+    # TODO - NOT FOR BASE WORKING
+    def set_values(self, values):
+        self.reset('check_boxes')
+
+        for name, value in values.items():
+            if name in self.items:
+                if isinstance(self.items[name], Label):
+                    self.items[name]['text'] = value
+                elif isinstance(self.items[name], Entry):
+                    self.items[name].insert(20, value)
+                else:
+                    self.items[name].set(value)
+            elif name in self.check_box_values.keys():
+                self.check_box_values[name].output.set(value)
