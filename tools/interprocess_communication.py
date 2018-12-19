@@ -8,15 +8,15 @@ from time import sleep
 
 class IPC:
     """
-    Takes data sent to it and sends it to the datasplitter running in python 3.6
-    Python 3 must be able to be run from py3command's command
+    Takes data given to it and sends it to the rtg_cache running in python 3.6
+    Python 3 must be able to be run from IPC.py3command's command
 
     Version: python 2.7
 
     Parameters
     ----------
     reader: bool, default=True
-        Whether or not to use the shell reader
+        Whether or not to use the shell reader.
 
     thread_stop: threading.Event, default=threading.Event
         The thread stop to be used by shell reader, can pass in own thread stop or allow it to create its own.
@@ -24,30 +24,31 @@ class IPC:
 
     py3command = 'python3'  # Command to start specifically python3 (rename python.exe in Python3 folder to python3.exe)
 
-    def __init__(self, reader=True, thread_stop=threading.Event(), log_level=30):
+    def __init__(self, reader=True, thread_stop=threading.Event()):
         self.thread_stop = thread_stop
 
         self.reader_thread = threading.Thread(target=self.shell_reader)
 
-        filename = 'data_splitter.py'
+        filename = 'rtg_cache.py'
         if 'tools' in os.listdir("."):
             filename = 'tools/{}'.format(filename)
 
         try:
             if reader:
-                self.splitter = subprocess.Popen('{} {} -l {}'.format(IPC.py3command, filename, log_level), stdin=subprocess.PIPE,
+                self.splitter = subprocess.Popen('{} {}'.format(IPC.py3command, filename), stdin=subprocess.PIPE,
                                                  stdout=subprocess.PIPE)
             else:
-                self.splitter = subprocess.Popen('{} {} -l {}'.format(IPC.py3command, filename, log_level), stdin=subprocess.PIPE)
+                self.splitter = subprocess.Popen('{} {}'.format(IPC.py3command, filename), stdin=subprocess.PIPE)
 
-            sleep(.1)  # Poll will return None(None means process working) if immediately called after creating obj
+            sleep(.1)  # Give time to start / fail to start
 
             if self.splitter.poll():
                 output, error_output = self.splitter.communicate()
                 logging.warning(error_output)
+
         except Exception as e:
-            logging.error(e)
-            raise IOError("Data splitter file not found!")
+            logging.error("IPC: {}".format(e))
+            raise IOError("IPC: Rtg cache file not found!")
 
         if reader:
             self.start_reader()
@@ -132,11 +133,20 @@ if __name__ == '__main__':
 
     log_lvl = logging.INFO
 
+    """
+    if options.log_level:
+        printer = logging.getLogger()
+        printer.setLevel(options.log_level)
+        handler = logging.StreamHandler()
+        handler.setLevel(options.log_level)
+        printer.addHandler(handler)
+    """
+
     logging.basicConfig(level=log_lvl)
 
     with IPC(log_level=log_lvl) as demo:
-        for i in range(0, 10000, 3):
-            # i = j / 3.14
+        for j in range(0, 10000, 3):
+            i = j * 1
             demo.send({
                 'airspeed': cos(i),
                 'velocity_x': sin(i),
