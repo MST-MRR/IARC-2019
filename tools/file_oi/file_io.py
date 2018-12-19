@@ -71,11 +71,13 @@ def possible_metrics(filename):
     List of possible metrics. List of dictionaries -> {label: [(x_stream, y_stream, z_stream), func]}
     """
 
+    metrics = {}
+
     raw_data = parse_config(filename)
 
-    metrics = {
-        metric['label']: [(metric['x_stream'], metric['y_stream'], metric['z_stream']), metric['func']]
-        for graph in raw_data for metric in graph['metric']}
+    for graph in raw_data:
+        for metric in graph['metrics']:
+            metrics.update({metric['label']: [(metric['x_stream'], metric['y_stream'], metric['z_stream']), metric['func']]})
 
     return metrics
 
