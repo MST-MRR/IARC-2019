@@ -39,17 +39,17 @@ class IPC:
             # Attempt start
 
             if reader:
-                self.splitter = subprocess.Popen('{} {}'.format(IPC.py3command, filename), stdin=subprocess.PIPE,
+                self.subprocess = subprocess.Popen('{} {}'.format(IPC.py3command, filename), stdin=subprocess.PIPE,
                                                  stdout=subprocess.PIPE)
             else:
-                self.splitter = subprocess.Popen('{} {}'.format(IPC.py3command, filename), stdin=subprocess.PIPE)
+                self.subprocess = subprocess.Popen('{} {}'.format(IPC.py3command, filename), stdin=subprocess.PIPE)
 
             sleep(.1)  # Give time to start / fail to start
 
             # See if started
 
-            if self.splitter.poll():
-                output, error_output = self.splitter.communicate()
+            if self.subprocess.poll():
+                output, error_output = self.subprocess.communicate()
                 logging.warning(error_output)
 
         except Exception as e:
@@ -82,7 +82,7 @@ class IPC:
         Returns true if the process is still alive
         """
 
-        return demo.splitter.poll() is None and not self.thread_stop.is_set()
+        return demo.subprocess.poll() is None and not self.thread_stop.is_set()
 
     def quit(self):
         """
@@ -90,7 +90,7 @@ class IPC:
         """
 
         logging.info("IPC: Quitting.")
-        demo.splitter.terminate()
+        self.subprocess.terminate()
 
         self.thread_stop.set()
 
@@ -109,22 +109,22 @@ class IPC:
             Data in format rtg and or logger can read
         """
 
-        if self.splitter.poll() is None:
+        if self.subprocess.poll() is None:
             try:
-                self.splitter.stdin.write("{}\n".format(str(data).encode()))
+                self.subprocess.stdin.write("{}\n".format(str(data).encode()))
             except IOError as e:
                 logging.warning(e)
 
             logging.debug("IPC: {}".format(str(data)))
         else:
-            logging.error("IPC: Cannot send data")
+            logging.error("IPC: Process is dead! Poll: {}".format(self.subprocess.poll()))
 
     def shell_reader(self):
         """
         Reads output from generated subprocess shell
         """
 
-        return self.splitter.stdout.readline().strip()  # output w/out \n
+        return self.subprocess.stdout.readline().strip()  # output w/out \n
 
     def continuous_shell_reader(self):
         """
@@ -165,5 +165,5 @@ if __name__ == '__main__':
             sleep(.1)
 
             if not demo.alive:
-                logging.info("IPC: splitter.poll(): {}".format(demo.splitter.poll()))
+                logging.info("IPC: splitter.poll(): {}".format(demo.subprocess.poll()))
                 break
