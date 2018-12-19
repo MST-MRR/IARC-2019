@@ -40,7 +40,7 @@ class IPC:
 
             if reader:
                 self.subprocess = subprocess.Popen('{} {}'.format(IPC.py3command, filename), stdin=subprocess.PIPE,
-                                                 stdout=subprocess.PIPE)
+                                                   stdout=subprocess.PIPE)
             else:
                 self.subprocess = subprocess.Popen('{} {}'.format(IPC.py3command, filename), stdin=subprocess.PIPE)
 
@@ -89,7 +89,7 @@ class IPC:
         Terminates subprocess and created thread
         """
 
-        logging.info("IPC: Quitting.")
+        logging.warning("IPC: Quitting.")
         self.subprocess.terminate()
 
         self.thread_stop.set()
