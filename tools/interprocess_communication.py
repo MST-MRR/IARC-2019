@@ -27,13 +27,17 @@ class IPC:
     def __init__(self, reader=True, thread_stop=threading.Event()):
         self.thread_stop = thread_stop
 
-        self.reader_thread = threading.Thread(target=self.shell_reader)
+        # Get filename
 
         filename = 'rtg_cache.py'
         if 'tools' in os.listdir("."):
             filename = 'tools/{}'.format(filename)
 
+        # Start subprocess
+
         try:
+            # Attempt start
+
             if reader:
                 self.splitter = subprocess.Popen('{} {}'.format(IPC.py3command, filename), stdin=subprocess.PIPE,
                                                  stdout=subprocess.PIPE)
@@ -41,6 +45,8 @@ class IPC:
                 self.splitter = subprocess.Popen('{} {}'.format(IPC.py3command, filename), stdin=subprocess.PIPE)
 
             sleep(.1)  # Give time to start / fail to start
+
+            # See if started
 
             if self.splitter.poll():
                 output, error_output = self.splitter.communicate()
@@ -50,8 +56,11 @@ class IPC:
             logging.error("IPC: {}".format(e))
             raise IOError("IPC: Rtg cache file not found!")
 
+        # Shell reader
+
         if reader:
-            self.start_reader()
+            self.reader_thread = threading.Thread(target=self.continuous_shell_reader)
+            self.reader_thread.start()
 
     def __enter__(self):
         """
@@ -110,41 +119,31 @@ class IPC:
         else:
             logging.error("IPC: Cannot send data")
 
-    def start_reader(self):
-        """
-        Starts the thread for shell_reader to execute
-        """
-
-        self.reader_thread.start()
-
     def shell_reader(self):
         """
         Reads output from generated subprocess shell
         """
 
+        return self.splitter.stdout.readline().strip()  # output w/out \n
+
+    def continuous_shell_reader(self):
+        """
+        Continuously read output form subprocess shell
+        """
+
         while not self.thread_stop.is_set():
-            out = self.splitter.stdout.readline().strip()  # output w/out \n
+            out = self.shell_reader()
+
             if not out == "":
-                print(out)  # Just printing out, let other process choose what to output
+                print(out)
 
 
 if __name__ == '__main__':
     from math import sin, cos
 
-    log_lvl = logging.INFO
+    logging.basicConfig(level=logging.INFO)
 
-    """
-    if options.log_level:
-        printer = logging.getLogger()
-        printer.setLevel(options.log_level)
-        handler = logging.StreamHandler()
-        handler.setLevel(options.log_level)
-        printer.addHandler(handler)
-    """
-
-    logging.basicConfig(level=log_lvl)
-
-    with IPC(log_level=log_lvl) as demo:
+    with IPC() as demo:
         for j in range(0, 10000, 3):
             i = j * 1
             demo.send({
