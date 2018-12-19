@@ -43,7 +43,7 @@ class RealTimeGraph:
 
     data_freq_warning = .5  # If time values are this far apart warn the user
 
-    def __init__(self, get_data=None, pan_width=10, **kwargs):
+    def __init__(self, get_data, pan_width=10, **kwargs):
         printer = logging.getLogger()
 
         if not printer.handlers:
@@ -103,13 +103,6 @@ class RealTimeGraph:
 
         for thread in threads.values():
             thread.join()
-
-    def set_pull_function(self, func):
-        """
-        Set the pull data function
-        """
-
-        self.get_data = func
 
     def parse_rtg_config(self):
         """
