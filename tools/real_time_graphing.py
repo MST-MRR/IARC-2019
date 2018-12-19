@@ -125,7 +125,7 @@ class RealTimeGraph:
             try:
                 output = parse_config(filename)
                 break
-            except FileNotFoundError:
+            except IOError:
                 logging.warning("RTG: Failed to read config file: {}. Trying again...".format(filename))
                 output = None
 
