@@ -42,6 +42,6 @@ if __name__ == '__main__':
 
     demo = RTGCache()
 
-    demo.data = get_demo_data()
+    demo.data = get_demo_data()  # Only for unit test
 
     demo.start()

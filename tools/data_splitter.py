@@ -1,9 +1,6 @@
 import logging
 from time import time, sleep
 
-import sys
-import threading
-
 try:
     from tools.logger import Logger
 except ImportError:
