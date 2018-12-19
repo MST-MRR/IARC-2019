@@ -10,6 +10,14 @@ except ImportError:
         logging.error(e)
 
 try:
+    from tools.interprocess_communication import IPC
+except ImportError:
+    try:
+        from interprocess_communication import IPC
+    except ImportError as e:
+        logging.error(e)
+
+try:
     from tools.real_time_graphing import RealTimeGraph
 except ImportError:
     try:
@@ -45,8 +53,7 @@ class DataSplitter:
             logging.warning("Splitter: RTG Disabled!")
             self.ipc = None
         else:
-            # Create ipc
-            self.ipc = None               # TODO implement
+            self.ipc = IPC()
 
     def exit(self):
         """
@@ -55,6 +62,9 @@ class DataSplitter:
 
         if self.logger:
             self.logger.exit()
+
+        if self.ipc:
+            self.ipc.quit()
 
     def send(self, data):
         """
@@ -70,14 +80,11 @@ class DataSplitter:
             self.logger.update(data)
 
         if self.ipc:
-                        # TODO - self.ipc.send(data)
-            pass
+            self.ipc.send(data)
 
 
 if __name__ == '__main__':
     # Unit test
-
-    # TODO - Test rtg wanting data not getting it
 
     import math
 
