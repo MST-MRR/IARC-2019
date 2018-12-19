@@ -23,54 +23,60 @@ except ImportError:
 
 class DataSplitter:
     """
-    Send data to this one object and it will send to both the RTG and logger
+    Send data to this and it will send to both the logger & IPC(RTG)
 
-    Version: python 3.6
+    Version: python 2.7
 
     Parameters
     ----------
-    logger_desired_data: dict, default=None
-        Parameter of desired data streams for logger object.
+    logger_desired_headers: list, default=[]
+        Headers for logger to log data for. Logger object not created if no headers given.
 
-    rtg: RealTimeGraph, default=None
-        The RealTimeGraph to plot data to if desired.
+    rtg: bool, default=True
+        Whether to use the real time grapher or not
     """
 
-    def __init__(self, logger_desired_data=None, rtg=None):
-        self.data = None
-        self.rtg = None
+    def __init__(self, logger_desired_headers=[], rtg=True):
 
-        try:
-            self.logger = Logger(logger_desired_data)
-        except NameError as e:
-            logging.warning("Failed to create logger object. {}".format(e))
+        if logger_desired_headers is [] or not logger_desired_headers:
+            logging.critical("Splitter: No desired headers for logger!!!")
             self.logger = None
+        else:
+            self.logger = Logger(logger_desired_headers)
 
-        if rtg:
-            self.rtg = rtg
-            self.rtg.set_pull_function(self.pull)
+        if not rtg:
+            logging.warning("Splitter: RTG Disabled!")
+            self.ipc = None
+        else:
+            # Create ipc
+            self.ipc = None               # TODO implement
+
+    def exit(self):
+        """
+        Safely close all created objects
+        """
+
+        if self.logger:
+            self.logger.exit()
 
     def send(self, data):
         """
-        Sends data to tools.
+        Send data everywhere.
 
         Parameters
         ----------
-        data: dict
-            Data to send to rtg and or logger
+        data: dict {header: value}
+            Data to dispatch
         """
 
-        self.data = data  # Store data for rtg
-        if self.logger: self.logger.update(data)  # Send data to logger immediately
+        if self.logger:
+            self.logger.update(data)
 
-    def pull(self):
-        """
-        Pull stored data
-        """
+        if self.ipc:
+                        # TODO - self.ipc.send(data)
+            pass
 
-        return self.data
-
-
+"""
 def unit_test(rtg, thread_stop):
     from math import sin, cos
 
@@ -201,3 +207,43 @@ if __name__ == '__main__':
             getter_thread.join()
         else:
             get_data(rtg=None, thread_stop=thread_stop)
+"""
+
+if __name__ == '__main__':
+    # Unit test
+
+    # TODO - Test rtg wanting data not getting it
+
+    import math
+
+    time_to_run = int(input("How long to log in seconds? "))
+
+    demo = DataSplitter(['airspeed', 'altitude', 'pitch', 'roll', 'yaw', 'velocity_x',
+                         'velocity_y', 'velocity_z', 'voltage'], False)
+
+    start_time = time()
+    time_elapsed = 0
+
+    def func(x):
+        return math.cos(x)
+
+    while time_elapsed < time_to_run:
+        myData = {
+            'airspeed': func(time_elapsed) + .0,
+            'altitude': func(time_elapsed) + .1,
+            'pitch': func(time_elapsed) + .2,
+            'roll': func(time_elapsed) + .3,
+            # 'yaw' : func(time_elapsed) + .4,
+            'velocity_x': func(time_elapsed) + .5,
+            'velocity_y': func(time_elapsed) + .6,
+            'velocity_z': func(time_elapsed) + .7,
+            'voltage': func(time_elapsed) + .8
+        }
+
+        demo.send(myData)
+
+        time_elapsed = time() - start_time
+
+        sleep(.00001)
+
+    demo.exit()
