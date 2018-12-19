@@ -29,10 +29,8 @@ class Logger:
     def __init__(self, desired_data):
 
         # Setup dict w/ headers matched to desired data stream
-        self.desired_data = [Logger.TIME_HEADER]
-
         assert desired_data, "No headers given!"
-        self.desired_data += desired_data
+        self.desired_data = [Logger.TIME_HEADER] + desired_data
 
         # Setup directory name
         date = time.strftime('%x').replace('/', '_')  # Gets today's date & sets / to _ as not mess up the directory
