@@ -218,7 +218,7 @@ class RealTimeGraph:
 
                 if not data:
                     logging.warning("RTG: No data!")
-                    sleep(.1)
+                    sleep(.25)
                     continue
 
                 self.times.append(time() - self.start_time)
