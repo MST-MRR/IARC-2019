@@ -22,24 +22,27 @@ class Logger:
         List of headers of data streams to log.
     """
 
-    EMPTY_VALUE = nan  # Value to put in csv if no data given
+    EMPTY_VALUE = nan  # (np.nan) Value to put in csv if no data given
 
-    TIME_HEADER = 'secFromStart'  # Header for time value
+    TIME_HEADER = 'secFromStart'  # Header for time value, log_grapher also uses - must change there too
 
     def __init__(self, desired_headers):
 
         # Setup dict w/ headers matched to desired data stream
-        assert desired_headers, "No headers given!"
+        if not desired_headers: logging.critical("Logger: No headers given!!!")
         self.desired_headers = [Logger.TIME_HEADER] + desired_headers
 
-        # Setup directory name
+        # Find directory and choose filename
+
+        self.resource_file_dir = self.find_directory()
+
         date = time.strftime('%x').replace('/', '_')  # Gets today's date & sets / to _ as not mess up the directory
 
         file_name_start = '{}_Flight_Num_'.format(date)
 
         if os.listdir(self.resource_file_dir):
-            # For each file in the directory with the same timestamp, store the flight number and
-            # find the max stored value
+            # For each file in the directory with the same date, find the highest flight number
+
             flight_num_list = []
 
             for element in os.listdir(self.resource_file_dir):
@@ -70,8 +73,8 @@ class Logger:
         self.start_time = time.time()
         self.last_update_time = 0
 
-    @property
-    def resource_file_dir(self):
+    @staticmethod
+    def find_directory():
         """
         Finds the generated_logs folder
         """
