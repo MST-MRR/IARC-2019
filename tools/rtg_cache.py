@@ -11,6 +11,8 @@ class RTGCache:
     """
     Creates rtg and caches data for it.
 
+    Meant to be run within subprocess.
+
     Version: python 2.7 / 3.6
     """
 
@@ -49,7 +51,7 @@ class RTGCache:
         """
 
         try:
-            received = sys.stdin.readline()  # TODO - timeout somehow for all os
+            received = sys.stdin.readline()  # No timeout because this should be run in subprocess
 
             if type(received) is str:
                 data = literal_eval(received)
@@ -75,8 +77,8 @@ class RTGCache:
 
 
 if __name__ == '__main__':
-    """
-    # Unit test
+
+    # Unit test - Should have lines at random height that no not change
     
     from real_time_graph.demo_data_gen import get_demo_data
 
@@ -91,3 +93,4 @@ if __name__ == '__main__':
 
     cache = RTGCache()
     cache.start()
+    """
