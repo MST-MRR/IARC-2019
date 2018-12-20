@@ -124,7 +124,9 @@ class RealTimeGraph:
                 logging.warning("RTG: Failed to read config file: {}. Trying again...".format(filename))
                 output = None
 
-        if output is None: logging.critical("RTG: No configuration file found!")
+        if output is None:
+            logging.critical("RTG: No configuration file found!")
+            return
 
         # Total number of subplots
         graph_count = [graph["output"] == 'text' for graph in output].count(False)
