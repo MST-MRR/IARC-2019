@@ -5,7 +5,7 @@
 ## Data Splitter
 Starts and sends data to both the logger and ipc(real time grapher).
 
-More details in         TODO    TODO
+More details in documentation/splitter/README.md
 
 
 ## Logger
