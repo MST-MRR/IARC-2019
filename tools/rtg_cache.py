@@ -77,7 +77,7 @@ class RTGCache:
 
 
 if __name__ == '__main__':
-
+    """
     # Unit test - Should have lines at random height that no not change
     
     from real_time_graph.demo_data_gen import get_demo_data
@@ -87,10 +87,9 @@ if __name__ == '__main__':
     demo.data = get_demo_data()  # Only for unit test
 
     demo.start()
-
     """
+
     # Main
 
     cache = RTGCache()
     cache.start()
-    """
