@@ -57,7 +57,7 @@ class IPC:
 
             if self.subprocess.poll():
                 output, error_output = self.subprocess.communicate()
-                logging.warning(error_output)
+                logging.warning("IPC: Poll: {}".format(error_output))
 
         except Exception as e:
             logging.error("IPC: {}".format(e))
@@ -120,7 +120,7 @@ class IPC:
             try:
                 self.subprocess.stdin.write("{}\n".format(str(data).encode()))
             except IOError as e:
-                logging.warning(e)
+                logging.warning("IPC: Failed to send data! IOError: {}".format(e))
 
             logging.debug("IPC: {}".format(str(data)))
         else:
@@ -142,7 +142,7 @@ class IPC:
             out = self.shell_reader()
 
             if not out == "":
-                print(out)
+                print("IPC: Received: {}".format(out))
 
 
 if __name__ == '__main__':
