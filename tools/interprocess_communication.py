@@ -8,21 +8,20 @@ from time import sleep
 
 class IPC:
     """
-    Takes data given to it and sends it to the rtg_cache running in python 3.6
-    Python 3 must be able to be run from IPC.py3command's command
+    Creates subprocess in python 2.7 or 3.6 that it can send and receive data from.
 
     Version: python 2.7
 
     Parameters
     ----------
-    version: 2/3,default=2
+    version: 2/3, default=2
         Version of python to use.
 
     reader: bool, default=True
         Whether or not to use the shell reader.
 
     thread_stop: threading.Event, default=threading.Event
-        The thread stop to be used by shell reader, can pass in own thread stop or allow it to create its own.
+        The thread stop to be used by shell reader, pass in own thread stop or allow it to create its own.
     """
 
     py2command = 'python'  # Command to start python 2.7
@@ -71,14 +70,14 @@ class IPC:
 
     def __enter__(self):
         """
-        On enter with statement
+        On enter with statement.
         """
 
         return self
 
     def __exit__(self, exc_type, exc_val, exc_tb):
         """
-        On exit with statement
+        On exit with statement.
         """
 
         self.quit()
@@ -86,14 +85,14 @@ class IPC:
     @property
     def alive(self):
         """
-        Returns true if the process is still alive
+        If process is still alive or not.
         """
 
         return self.subprocess.poll() is None and not self.thread_stop.is_set()
 
     def quit(self):
         """
-        Terminates subprocess and created thread
+        Terminates subprocess and created thread.
         """
 
         logging.warning("IPC: Quitting.")
@@ -108,12 +107,12 @@ class IPC:
 
     def send(self, data):
         """
-        Send data to splitter
+        Send data to subprocess.
 
         Parameters
         ----------
         data:
-            Data in format rtg and or logger can read
+            Data in format subprocess can read.
         """
 
         if self.subprocess.poll() is None:
@@ -128,7 +127,7 @@ class IPC:
 
     def shell_reader(self):
         """
-        Reads output from generated subprocess shell
+        Returns output from generated subprocess shell.
         """
 
         return self.subprocess.stdout.readline().strip()  # output w/out \n

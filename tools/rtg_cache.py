@@ -9,9 +9,9 @@ from real_time_graphing import RealTimeGraph
 
 class RTGCache:
     """
-    Serves as intermediary for IPC and RTG.
-    IPC sends when it gets data but this needs to constantly look for that data.
-    RTG constantly tries to pull data so it is cached here
+    Creates rtg and caches data for it.
+
+    Version: python 2.7 / 3.6
     """
 
     def __init__(self):
@@ -21,31 +21,31 @@ class RTGCache:
 
         self.thread_stop = threading.Event()
 
-        self.getter_thread = threading.Thread(target=self.repeating_read_stdin, args=(self.thread_stop,))
+        self.stdin_reader_thread = threading.Thread(target=self.repeating_read_stdin, args=(self.thread_stop,))
 
     def start(self):
         """
-        Start rtg & stdin getter
+        Start rtg & stdin reader thread.
         """
 
-        self.getter_thread.start()
+        self.stdin_reader_thread.start()
 
         self.rtg.run()  # Ran in main thread
 
         self.thread_stop.set()
 
-        self.getter_thread.join()
+        self.stdin_reader_thread.join()
 
     def pull(self):
         """
-        Returns stored data
+        Return stored data.
         """
 
         return self.data
 
     def read_stdin(self):
         """
-        Read input
+        Read from stdin.
         """
 
         try:
@@ -69,7 +69,7 @@ class RTGCache:
 
     def repeating_read_stdin(self, stopper):
         """
-        Continuously read stdin
+        Continuously read stdin.
         """
 
         while not stopper.is_set():

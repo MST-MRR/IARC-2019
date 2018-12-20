@@ -9,19 +9,17 @@ from numpy import nan
 
 class Logger:
     """
-    Object that can be sent data to be logged
+    Logs data sent to it.
 
-    Run Requirements: Must be run from base folder or in tools folder so that it has somewhere to
-                      save logs to. Else make a folder called generated_logs in the running
-                      directory.
+    Run Requirements: Must be run from base folder or in tools folder so that it has somewhere to save logs to.
+                      Else make a folder called generated_logs in the running directory.
 
     Version: python 2.7 / 3.6
 
     Parameters
     ----------
     desired_data: list
-        List of data streams as keys it should look for in data received. Time is set as first
-        header by default.
+        List of headers of data streams to log.
     """
 
     EMPTY_VALUE = nan  # Value to put in csv if no data given
@@ -112,7 +110,7 @@ class Logger:
 
         Parameters
         ----------
-        input_data: dict
+        input_data: dict {header: value}
             Stream of new data to be logged
         """
 

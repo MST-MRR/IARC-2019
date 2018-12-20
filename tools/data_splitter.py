@@ -38,10 +38,10 @@ class DataSplitter:
         Headers for logger to log data for. Logger object not created if no headers given.
 
     use_rtg: bool, default=True
-        Whether to use the real time grapher or not
+        Whether to use the real time grapher or not.
 
     version: 2 / 3, default=2
-        Version of python to create rtg subprocess in
+        Version of python to create rtg subprocess in. Not used if use_rtg=False.
     """
 
     def __init__(self, logger_desired_headers=[], use_rtg=True, version=2):
@@ -61,7 +61,7 @@ class DataSplitter:
     @property
     def tools_active(self):
         """
-        Returns active tools
+        Returns all active tool objects.
         """
 
         tools_active = []
@@ -76,8 +76,9 @@ class DataSplitter:
 
     def exit(self):
         """
-        Safely close all created objects
+        Safely close all created tools.
         """
+
         logging.warning("Splitter: Quitting...")
 
         if self.logger:
@@ -93,7 +94,7 @@ class DataSplitter:
         Parameters
         ----------
         data: dict {header: value}
-            Data to dispatch
+            Data to dispatch.
         """
 
         if self.logger:

@@ -22,7 +22,7 @@ class RealTimeGraph:
     """
     Tool to graph data as it comes in in real time.
 
-    Version: python 3.6
+    Version: python 2.7 / 3.6
 
     Requirements: Numpy, Matplotlib
 
