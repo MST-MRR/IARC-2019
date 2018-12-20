@@ -42,12 +42,14 @@ class DataSplitter:
 
     version: 2 / 3, default=2
         Version of python to create rtg subprocess in. Not used if use_rtg=False.
+        Currently only tested in 2.7, TCL issues come up w/ 3.6! Use 2.7.
     """
 
     def __init__(self, logger_desired_headers=[], use_rtg=True, version=2):
 
         if logger_desired_headers is [] or not logger_desired_headers:
-            logging.critical("Splitter: No desired headers for logger!!!")
+            logging.warning("Splitter: No desired headers for logger!!!")
+            logging.critical("Splitter: Logger disabled")
             self.logger = None
         else:
             self.logger = Logger(logger_desired_headers)
@@ -79,13 +81,15 @@ class DataSplitter:
         Safely close all created tools.
         """
 
-        logging.warning("Splitter: Quitting...")
+        logging.warning("Splitter: Exiting all tools...")
 
         if self.logger:
             self.logger.exit()
 
         if self.ipc:
             self.ipc.quit()
+
+        logging.warning("Splitter: Successfully exited.")
 
     def send(self, data):
         """
@@ -116,8 +120,13 @@ if __name__ == '__main__':
 
     time_to_run = 10  # int(input("How long to log in seconds? "))
 
-    demo = DataSplitter(['airspeed', 'altitude', 'pitch', 'roll', 'yaw', 'velocity_x',
-                         'velocity_y', 'velocity_z', 'voltage'], use_rtg=True)
+    # demo = DataSplitter(use_rtg=False)  # No tools
+
+    # demo = DataSplitter([], use_rtg=True, version=2)  # No logger
+
+    # demo = DataSplitter(['pitch', 'altitude', 'roll', 'yaw', 'voltage'], use_rtg=False)  # No rtg
+
+    demo = DataSplitter(['pitch', 'altitude', 'roll', 'yaw', 'voltage'], use_rtg=True, version=2)  # Both tools
 
     start_time = time()
     time_elapsed = 0
@@ -145,6 +154,7 @@ if __name__ == '__main__':
         sleep(.00001)
 
         if not demo.tools_active:
+            logging.warning("Splitter: Demo: No tools active!")
             break
 
     demo.exit()
