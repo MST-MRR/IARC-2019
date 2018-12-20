@@ -9,14 +9,15 @@ The file is read in the format:
     <desiredgraphs>
         <graph title="Possible Metrics" xlabel="Seconds" ylabel="Y">
             <metric label="label" x_stream="data stream" />
+            <metric label="label" x_stream="data stream" />
             ...
         </graph>
     </desiredgraphs>
 
 
-A data stream is a stream of data as it comes in from the drone.
+A data stream is a stream of data as it comes in from the drone in pairs {header: value}.
 
-Possible Data streams:
+Possible data streams - List of headers:
     
     'roll', 'pitch', 'yaw', 'target_altitude', 'target_roll_velocity',
     'target_pitch_velocity', 'altitude', 'airspeed', 'velocity_x', 
