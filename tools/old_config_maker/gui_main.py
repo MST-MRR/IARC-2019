@@ -6,7 +6,6 @@ from tools.file_oi.file_io import write_config
 
 
 # Future
-# TODO - Make clear what data each tool needs
 
 # TODO - Implement scrolled frame
 
@@ -34,6 +33,8 @@ from tools.file_oi.file_io import write_config
 class GUI:
     """
     GUI to edit and create config files for all tools.
+
+    Version: python 3.6
     """
 
     icon_file = '../../ninja_icon.gif'
