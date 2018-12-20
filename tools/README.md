@@ -1,6 +1,6 @@
 # Tools IARC-2019
 
-![tools diagram](documentation/tools_diagram.bmp "Tools diagram")
+![tools diagram](documentation/tools_layout.png)
 
 ## Data Splitter
 Starts and sends data to both the logger and ipc(real time grapher).
