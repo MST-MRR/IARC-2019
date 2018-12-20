@@ -1,6 +1,6 @@
 from tkinter import Tk, Menu, PhotoImage, TclError, filedialog
 
-from tools.old_gui.tab_manager import TabManager
+from tools.old_config_maker.tab_manager import TabManager
 
 from tools.file_oi.file_io import write_config
 
