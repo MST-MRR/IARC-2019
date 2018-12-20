@@ -37,11 +37,14 @@ class DataSplitter:
     logger_desired_headers: list, default=[]
         Headers for logger to log data for. Logger object not created if no headers given.
 
-    rtg: bool, default=True
+    use_rtg: bool, default=True
         Whether to use the real time grapher or not
+
+    version: 2 / 3, default=2
+        Version of python to create rtg subprocess in
     """
 
-    def __init__(self, logger_desired_headers=[], rtg=True):
+    def __init__(self, logger_desired_headers=[], use_rtg=True, version=2):
 
         if logger_desired_headers is [] or not logger_desired_headers:
             logging.critical("Splitter: No desired headers for logger!!!")
@@ -49,11 +52,11 @@ class DataSplitter:
         else:
             self.logger = Logger(logger_desired_headers)
 
-        if not rtg:
+        if not use_rtg:
             logging.warning("Splitter: RTG Disabled!")
             self.ipc = None
         else:
-            self.ipc = IPC()
+            self.ipc = IPC(version=version)
 
     def exit(self):
         """
@@ -76,11 +79,15 @@ class DataSplitter:
             Data to dispatch
         """
 
-        if self.logger:
-            self.logger.update(data)
+        #if self.logger:
+        #    self.logger.update(data)
 
         if self.ipc:
-            self.ipc.send(data)
+            if self.ipc.alive:
+                self.ipc.send(data)
+            else:
+                logging.critical("Splitter: IPC Dead! Removing.")
+                self.ipc = None
 
 
 if __name__ == '__main__':
@@ -88,10 +95,10 @@ if __name__ == '__main__':
 
     import math
 
-    time_to_run = int(input("How long to log in seconds? "))
+    time_to_run = 10  # int(input("How long to log in seconds? "))
 
     demo = DataSplitter(['airspeed', 'altitude', 'pitch', 'roll', 'yaw', 'velocity_x',
-                         'velocity_y', 'velocity_z', 'voltage'], False)
+                         'velocity_y', 'velocity_z', 'voltage'], use_rtg=True)
 
     start_time = time()
     time_elapsed = 0

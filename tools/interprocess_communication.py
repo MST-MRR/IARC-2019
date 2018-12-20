@@ -15,6 +15,9 @@ class IPC:
 
     Parameters
     ----------
+    version: 2/3,default=2
+        Version of python to use.
+
     reader: bool, default=True
         Whether or not to use the shell reader.
 
@@ -22,9 +25,10 @@ class IPC:
         The thread stop to be used by shell reader, can pass in own thread stop or allow it to create its own.
     """
 
-    py3command = 'python3'  # Command to start specifically python3 (rename python.exe in Python3 folder to python3.exe)
+    py2command = 'python'  # Command to start python 2.7
+    py3command = 'python3'  # Command to start python 3.6 (rename python.exe in Python3 folder to python3.exe)
 
-    def __init__(self, reader=True, thread_stop=threading.Event()):
+    def __init__(self, version=2, reader=True, thread_stop=threading.Event()):
         self.thread_stop = thread_stop
 
         # Get filename
@@ -33,16 +37,19 @@ class IPC:
         if 'tools' in os.listdir("."):
             filename = 'tools/{}'.format(filename)
 
+        # Set python command
+        python_command = IPC.py3command if version != 2 else IPC.py2command
+
         # Start subprocess
 
         try:
             # Attempt start
 
             if reader:
-                self.subprocess = subprocess.Popen('{} {}'.format(IPC.py3command, filename), stdin=subprocess.PIPE,
+                self.subprocess = subprocess.Popen('{} {}'.format(python_command, filename), stdin=subprocess.PIPE,
                                                    stdout=subprocess.PIPE)
             else:
-                self.subprocess = subprocess.Popen('{} {}'.format(IPC.py3command, filename), stdin=subprocess.PIPE)
+                self.subprocess = subprocess.Popen('{} {}'.format(python_command, filename), stdin=subprocess.PIPE)
 
             sleep(.1)  # Give time to start / fail to start
 
