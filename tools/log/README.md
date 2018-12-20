@@ -9,6 +9,7 @@ The filename to save the log file to will automatically be chosen. There should 
 file in tools/
 
 The logger will not work if the main file that runs it is not in the IARC directory or the tools directory.
+To fix this add a generated_logs directory to the main running file's directory.
 
 ## Operating
 
