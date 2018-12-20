@@ -25,13 +25,6 @@ class RTGCache:
 
     def start(self):
         """
-        Start rtg
-        """
-
-        self.rtg.run()
-
-    def start_for_ipc(self):
-        """
         Start rtg & stdin getter
         """
 
@@ -75,14 +68,16 @@ class RTGCache:
             logging.warning("Cache: Data not received! {}".format(e))
 
     def repeating_read_stdin(self, stopper):
+        """
+        Continuously read stdin
+        """
+
         while not stopper.is_set():
             self.read_stdin()
 
 
 if __name__ == '__main__':
-    """
     # Unit test
-
     from real_time_graph.demo_data_gen import get_demo_data
 
     demo = RTGCache()
@@ -90,9 +85,10 @@ if __name__ == '__main__':
     demo.data = get_demo_data()  # Only for unit test
 
     demo.start()
-    """
 
+    """
     # Main
 
     cache = RTGCache()
-    cache.start_for_ipc()
+    cache.start()
+    """
