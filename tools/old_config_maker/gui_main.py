@@ -1,8 +1,8 @@
 from tkinter import Tk, Menu, PhotoImage, TclError, filedialog
 
-from tools.old_config_maker.tab_manager import TabManager
+from tab_manager import TabManager
 
-from tools.file_oi.file_io import write_config
+import file_io
 
 
 # Future
@@ -96,7 +96,7 @@ class GUI:
             title="Save config as...", defaultextension=".xml", filetypes=(("xml file", "*.xml"),("All Files", "*.*")))
 
         if filename:
-            write_config(filename, self.graph_manager.get_graph_data(tab_id=section))
+            file_io.write_config(filename, self.graph_manager.get_graph_data(tab_id=section))
 
 
 if __name__ == "__main__":

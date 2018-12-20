@@ -1,9 +1,8 @@
 from tkinter import Frame, Button, filedialog
 from tkinter.ttk import Notebook
 
-#from tools.config_maker.scroll_frame import VerticalScrolledFrame
 
-from tools.old_config_maker.graph_node import GraphNode
+from graph_node import GraphNode
 
 # Future
 # TODO -> should get data be put in graph node

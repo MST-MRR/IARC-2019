@@ -1,6 +1,6 @@
 from tkinter import *
 
-from tools.file_oi.file_io import possible_metrics
+import file_io
 
 from metric import Metric
 
@@ -99,8 +99,8 @@ class GraphNode:
         -------
         dict of possible metrics and the metrics data.
         """
-        print(possible_metrics(GraphNode.init_settings_filename))
-        return possible_metrics(GraphNode.init_settings_filename)
+        print(file_io.possible_metrics(GraphNode.init_settings_filename))
+        return file_io.possible_metrics(GraphNode.init_settings_filename)
 
     def add_item(self, name, loc, obj):
         if type(obj) is dict:
