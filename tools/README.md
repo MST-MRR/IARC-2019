@@ -31,3 +31,17 @@ __RTGCache.start()__ Call rtg.run() and begin reading input from stdin.
 Graphs data as it comes in from drone in real time. Run with the inter-process communication.
 
 More details in real_time_graph/README.md
+
+
+# To be phased out
+## Config Maker
+Creates config files for RTG and Log Grapher.
+
+More details in old_config_maker/README.md
+
+
+## Plotter / Log Grapher
+Graph data from generated log files. Requires a config file and csv data file.
+
+More details in old_plotter/README.md
+
