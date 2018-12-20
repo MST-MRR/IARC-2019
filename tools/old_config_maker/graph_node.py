@@ -4,20 +4,6 @@ import file_io
 
 from metric import Metric
 
-# Future
-# TODO - Way to reference the lowerTime_chk and stuff like dat across modules
-
-# TODO - Time settings getting appended rather than reset with share settings
-
-# TODO - Finish reset function
-
-# TODO - Catch error if get_data(tab_manager) is called while title is a textbox rather than a label
-
-# TODO - Class for creating and manipulating items
-
-# TODO - Should be a visual representation of a graph on the XML config files that can be interacted with.
-# TODO - Should make use of the graph tags template and metric class
-
 
 class GraphNode:
     """
@@ -35,7 +21,7 @@ class GraphNode:
         Any initial values that should be set. {Item name: value}
     """
 
-    init_settings_filename = "usable_metrics.xml"
+    init_settings_filename = ["usable_metrics.xml", "old_config_maker/usable_metrics.xml", "tools/old_config_maker/usable_metrics.xml"]
 
     rows_per_graph = 3  # Baseline how many rows per graph
 
@@ -99,8 +85,18 @@ class GraphNode:
         -------
         dict of possible metrics and the metrics data.
         """
-        print(file_io.possible_metrics(GraphNode.init_settings_filename))
-        return file_io.possible_metrics(GraphNode.init_settings_filename)
+        # print(file_io.possible_metrics(GraphNode.init_settings_filename))
+
+        for filename in GraphNode.init_settings_filename:
+            try:
+                output = file_io.possible_metrics(filename)
+            except IOError:
+                pass
+
+        if not output:
+            raise IOError("Possible metrics file not found!")
+
+        return output
 
     def add_item(self, name, loc, obj):
         if type(obj) is dict:

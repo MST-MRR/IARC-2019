@@ -5,31 +5,6 @@ from tab_manager import TabManager
 import file_io
 
 
-# Future
-
-# TODO - Implement scrolled frame
-
-# TODO - pull old settings into window <- function that share data setting uses also to parse out relevant parts
-
-# TODO - Finish menu
-
-# TODO - Fix file_io problems based on where program is called from
-# TODO - File_io detect where program is being called from and add necessary directories
-
-# TODO - Tab configurations to set names, disable parts for each
-
-# TODO - Should save function be put in tab manager
-
-# TODO - Add all configuration stuff here
-
-# TODO - Tell tabmanager what tabs to be created and their configurations
-
-# TODO - All data should have a standard structure to which it can be sent to the file_io and encoded and decoded
-# TODO - GUI manages menu, tab and color configurations and initializations
-# TODO - Handles interactions with other tools ie fileio
-# TODO - Parent directory should be found here and sent to other classes
-
-
 class GUI:
     """
     GUI to edit and create config files for all tools.
@@ -37,7 +12,7 @@ class GUI:
     Version: python 3.6
     """
 
-    icon_file = '../../ninja_icon.gif'
+    icon_file = 'ninja_icon.gif'
 
     def __init__(self):
         # Window setup

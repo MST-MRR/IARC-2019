@@ -4,12 +4,6 @@ from tkinter.ttk import Notebook
 
 from graph_node import GraphNode
 
-# Future
-# TODO -> should get data be put in graph node
-# TODO - Hold no customization except what will never change
-# TODO - An interface to interact with tabs and the graph nodes contained within
-# TODO - Should only manage graph nodes
-
 
 class TabManager:
     """
