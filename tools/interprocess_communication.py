@@ -10,12 +10,15 @@ class IPC:
     """
     Creates subprocess in python 2.7 or 3.6 that it can send and receive data from.
 
+    Currently have TCL problems in 3.6 w/ data_splitter! Use 2.7.
+
     Version: python 2.7
 
     Parameters
     ----------
     version: 2/3, default=2
         Version of python to create subprocess in.
+        Only tested w/ data splitter in 2.7!
 
     reader: bool, default=True
         Whether or not to use the shell reader.
@@ -149,7 +152,7 @@ if __name__ == '__main__':
 
     logging.basicConfig(level=logging.INFO)
 
-    with IPC() as demo:
+    with IPC(version=2) as demo:
         for j in range(0, 10000, 3):
             i = j * 1
             demo.send({
