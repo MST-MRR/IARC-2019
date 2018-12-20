@@ -62,6 +62,7 @@ class DataSplitter:
         """
         Safely close all created objects
         """
+        logging.warning("Splitter: Quitting...")
 
         if self.logger:
             self.logger.exit()
@@ -79,14 +80,15 @@ class DataSplitter:
             Data to dispatch
         """
 
-        #if self.logger:
-        #    self.logger.update(data)
+        if self.logger:
+            self.logger.update(data)
 
         if self.ipc:
             if self.ipc.alive:
                 self.ipc.send(data)
             else:
                 logging.critical("Splitter: IPC Dead! Removing.")
+                self.ipc.quit()
                 self.ipc = None
 
 
