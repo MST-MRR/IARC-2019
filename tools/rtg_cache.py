@@ -77,7 +77,9 @@ class RTGCache:
 
 
 if __name__ == '__main__':
+    """
     # Unit test
+    
     from real_time_graph.demo_data_gen import get_demo_data
 
     demo = RTGCache()
@@ -91,4 +93,3 @@ if __name__ == '__main__':
 
     cache = RTGCache()
     cache.start()
-    """
