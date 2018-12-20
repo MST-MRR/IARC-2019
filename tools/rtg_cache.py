@@ -19,25 +19,29 @@ class RTGCache:
 
         self.rtg = RealTimeGraph(get_data=self.pull)
 
+        self.thread_stop = threading.Event()
+
+        self.getter_thread = threading.Thread(target=self.repeating_read_stdin, args=(self.thread_stop,))
+
     def start(self):
         """
         Start rtg
         """
 
-        def repeating_read_stdin(stopper):
-            while not stopper.is_set():
-                self.read_stdin()
+        self.rtg.run()
 
-        thread_stop = threading.Event()
+    def start_for_ipc(self):
+        """
+        Start rtg & stdin getter
+        """
 
-        getter_thread = threading.Thread(target=repeating_read_stdin, args=(thread_stop,))
-        getter_thread.start()
+        self.getter_thread.start()
 
         self.rtg.run()  # Ran in main thread
 
-        thread_stop.set()
+        self.thread_stop.set()
 
-        getter_thread.join()
+        self.getter_thread.join()
 
     def pull(self):
         """
@@ -70,6 +74,10 @@ class RTGCache:
         except EOFError as e:
             logging.warning("Cache: Data not received! {}".format(e))
 
+    def repeating_read_stdin(self, stopper):
+        while not stopper.is_set():
+            self.read_stdin()
+
 
 if __name__ == '__main__':
     """
@@ -87,4 +95,4 @@ if __name__ == '__main__':
     # Main
 
     cache = RTGCache()
-    cache.start()
+    cache.start_for_ipc()
