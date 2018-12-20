@@ -1,6 +1,6 @@
 # Tools IARC-2019
 
-![tools diagram](tools_diagram. "Tools diagram")
+![tools diagram](documentation/tools_diagram.bmp "Tools diagram")
 
 ## Data Splitter
 Starts and sends data to both the logger and ipc(real time grapher).
@@ -11,14 +11,14 @@ More details in         TODO    TODO
 ## Logger
 Logs data as it comes in from the drone in real time.
 
-More details in log/README.md
+More details in documentation/log/README.md
 
 
 ## Inter-process Communication
 Creates and interacts with a subprocess. Currently used to keep the real_time_graphing process
 separate from main due to matplotlib needing to be in main thread.
 
-More details in ipc/README.md
+More details in documentation/ipc/README.md
 
 
 ## RTG Cache
