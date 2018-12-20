@@ -18,7 +18,7 @@ class Logger:
 
     Parameters
     ----------
-    desired_data: list
+    desired_headers: list
         List of headers of data streams to log.
     """
 
@@ -26,11 +26,11 @@ class Logger:
 
     TIME_HEADER = 'secFromStart'  # Header for time value
 
-    def __init__(self, desired_data):
+    def __init__(self, desired_headers):
 
         # Setup dict w/ headers matched to desired data stream
-        assert desired_data, "No headers given!"
-        self.desired_data = [Logger.TIME_HEADER] + desired_data
+        assert desired_headers, "No headers given!"
+        self.desired_headers = [Logger.TIME_HEADER] + desired_headers
 
         # Setup directory name
         date = time.strftime('%x').replace('/', '_')  # Gets today's date & sets / to _ as not mess up the directory
@@ -62,7 +62,7 @@ class Logger:
 
         logging.warning("Logger: File created: {}".format(self.directory))
 
-        self.writer = csv.DictWriter(self.logging_file, fieldnames=self.desired_data)
+        self.writer = csv.DictWriter(self.logging_file, fieldnames=self.desired_headers)
 
         self.writer.writeheader()
 
@@ -120,7 +120,7 @@ class Logger:
             # Format data to write
             output_data = {}
 
-            for element in self.desired_data:
+            for element in self.desired_headers:
                 if element is Logger.TIME_HEADER:
                     output_data.update({element: current_time - self.start_time})
                 elif element not in input_data:
