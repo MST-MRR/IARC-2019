@@ -48,15 +48,15 @@ class Metric:
         # Init func
         if 'x' in self._raw_func:
             assert x_stream, "X in function but no x_stream!"
-            assert x_stream in Metric.possible_data_streams, "Invalid x_stream!"
+            assert x_stream in Metric.possible_data_streams, "Invalid x_stream: '{}'".format(x_stream)
 
             if 'y' in self._raw_func:
                 assert y_stream, "Y in function but no y_stream!"
-                assert y_stream in Metric.possible_data_streams, "Invalid y_stream!"
+                assert y_stream in Metric.possible_data_streams, "Invalid y_stream: '{}'".format(y_stream)
 
                 if 'z' in self._raw_func:
                     assert z_stream, "Z in function but no z_stream!"
-                    assert z_stream in Metric.possible_data_streams, "Invalid z_stream!"
+                    assert z_stream in Metric.possible_data_streams, "Invalid z_stream: '{}'".format(z_stream)
 
                     self._func = lambda x, y, z: eval(self._raw_func)
                 else:
