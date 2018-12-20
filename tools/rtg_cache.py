@@ -49,9 +49,7 @@ class RTGCache:
         """
 
         try:
-            received = sys.stdin.readline()     # TODO - Make timeout
-
-            # logging.info("Splitter: Input type: {}, Input: {}".format(type(inputt), inputt))
+            received = sys.stdin.readline()  # TODO - timeout somehow for all os
 
             if type(received) is str:
                 data = literal_eval(received)
