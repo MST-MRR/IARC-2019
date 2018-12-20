@@ -15,7 +15,7 @@ class IPC:
     Parameters
     ----------
     version: 2/3, default=2
-        Version of python to use.
+        Version of python to create subprocess in.
 
     reader: bool, default=True
         Whether or not to use the shell reader.
