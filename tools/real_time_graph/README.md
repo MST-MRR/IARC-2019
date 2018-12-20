@@ -3,11 +3,10 @@
 When creating a grapher object there is 2 optional parameters:
 ```
     get_data: (func, default get_demo_data) The function to be called to get data.
-    pan_width: (int, default 10) Time in seconds to display graph in the past. This is essentially the x limit.
 ```
 
 ## Configuration
-There is a configuration file located in the same folder as real_time_graphing.py.
+There needs to be a configuration file named 'config.xml' in tools or tools/real_time_graph
 You may edit the config file by hand or using the config editor GUI.
 
 Subplot settings:
@@ -43,7 +42,13 @@ Choices of data_streams are:
     'roll_rc_output', 'yaw_controller_output', 'yaw_rc_output', 
     'target_yaw', 'color_image', 'depth_image'
 ```
+
+
 ## Operating
 This tool is only for the real time graphing, pulling data from the drone. If you wish to plot data from csv files, there is a csv graphing tool.
+
+__RTG.run()__ Start matplot frame and begin pulling and plotting data from given source(get_data).
+
+
 ## Troubleshooting
-If you have issues or suggestions, message Cole Dieckhaus or Thomas McKanna on slack or email cole - csdhv9@mst.edu.
+If you have issues or suggestions, message Cole Dieckhaus or Thomas McKanna on slack.
