@@ -43,7 +43,9 @@ class RealTimeGraph:
 
     data_freq_warning = .5  # If time values are this far apart warn the user
 
-    def __init__(self, get_data, pan_width=10, **kwargs):
+    pan_width = 10  # Seconds of previous data to show
+
+    def __init__(self, get_data, **kwargs):
         printer = logging.getLogger()
 
         if not printer.handlers:
@@ -54,7 +56,7 @@ class RealTimeGraph:
 
         if not get_data: logging.critical("RTG: No data pull function!")
         self.get_data = get_data
-        self.pan_width = abs(pan_width)
+        self.pan_width = abs(kwargs['pan_width']) if 'pan_width' in kwargs.keys() else RealTimeGraph.pan_width
 
         # Stored which data items we are interested in
         self.tracked_data = []
