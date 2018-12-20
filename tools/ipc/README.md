@@ -1,27 +1,38 @@
 # Inter-process Communication IARC-2019
-IPC is a tool to allow python 2.7 processes to send data to the data splitter running in python 3.6.
-The data splitter is a tool made to send data to both the real time graphing and/or the logging tools.
+IPC is a tool to create and manage a separate process.
 
 ## Configuration
 The inter-process communication should be run from within the tools directory or in the directory 
 containing tools. If that is not the case, in IPC.__init__ the filename variable should be changed.
 
+Constants
+    
+    Command to start python 2.7
+        py2command = 'python'
+    
+    Command to start python 3.6 (can rename python.exe in Python3 folder to python3.exe)
+        py3command = 'python3'  
+
+Parameters
+    
+    version: 2/3, default=2
+        Version of python to create subprocess in.
+
+    reader: bool, default=True
+        Whether or not to use the shell reader. Sometimes needed to see process output.
+
+    thread_stop: threading.Event, default=threading.Event
+        The thread stop to be used by shell reader, pass in own thread stop or allow it to create its own.
+
 ## Operating
-Sometimes doesnt run on first try!
+Sometimes first run after clone doesnt work!
 
-The IPC object has multiple parameters
+__IPC.send(data)__ to send data to subprocess.
 
-    reader: default=True, Whether or not to manually read os output from the process.
-        (sometimes system reads automatically)
-    thread_stop: default=threading.Event, Can input an already being used thread stop or it will auto-generate.
+__IPC.alive__ (bool) to see created process is still running.
 
-The send function should be used to send a dictionary of {key: values} to both the logger and RTG.
+__IPC.quit()__ to safely close the IPC.
 
-The alive function will return true if the created process is still running.
-
-May be used in a with statement. 
-
-The quit function must be called if not used within a with statement!
 
 ## Troubleshooting
 If you have issues or suggestions, message Cole Dieckhaus on slack or email @ csdhv9@mst.edu.
