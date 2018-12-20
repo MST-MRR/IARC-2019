@@ -58,6 +58,22 @@ class DataSplitter:
         else:
             self.ipc = IPC(version=version)
 
+    @property
+    def tools_active(self):
+        """
+        Returns active tools
+        """
+
+        tools_active = []
+
+        if self.logger:
+            tools_active.append(self.logger)
+
+        if self.ipc:
+            tools_active.append(self.ipc)
+
+        return tools_active
+
     def exit(self):
         """
         Safely close all created objects
@@ -126,5 +142,8 @@ if __name__ == '__main__':
         time_elapsed = time() - start_time
 
         sleep(.00001)
+
+        if not demo.tools_active:
+            break
 
     demo.exit()
