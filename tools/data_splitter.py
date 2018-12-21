@@ -17,14 +17,6 @@ except ImportError:
     except ImportError as e:
         logging.error(e)
 
-try:
-    from tools.real_time_graphing import RealTimeGraph
-except ImportError:
-    try:
-        from real_time_graphing import RealTimeGraph
-    except ImportError as e:
-        logging.error(e)
-
 
 class DataSplitter:
     """
