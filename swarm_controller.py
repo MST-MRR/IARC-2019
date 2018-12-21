@@ -1,3 +1,0 @@
-"""
-Implementation currently undefined.
-"""

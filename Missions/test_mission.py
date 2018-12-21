@@ -1,14 +1,16 @@
-from test_drone import TestDrone
-from test_drone_controller import TestDroneController
+
 import time
 import sys
 import os
-from movement_instruction import MovementInstruction
 import heapq # temporary (we want to implement our own)
-import safety_checks
 import threading
 
-from tools.ipc.interprocess_communication import IPC
+from ..Drone.drone import Drone
+from ..Drone.drone_controller import DroneController
+from ..Instructions.Movement.movement_instruction import MovementInstruction
+from ..Utilities import safety_checks
+from ..tools import logger
+from ..tools.ipc.interprocess_communication import IPC
 
 
 def send_data(ipc, drone, stop):
@@ -33,7 +35,7 @@ if __name__ == '__main__':
 
     emergency_land_event = safety_checks.init_emergency_land_event()
 
-    controller = TestDroneController(TestDrone(), emergency_land_event)
+    controller = DroneController(Drone(), emergency_land_event)
 
     if do_tools:
         import threading
@@ -48,6 +50,8 @@ if __name__ == '__main__':
 
         for thread in threads.values():
             thread.start()
+
+    #lgger = lo  # Caused error
 
     controller.start()
 

@@ -1,8 +1,9 @@
-import threading
-import constants as c
-import time
 import coloredlogs, logging
-from drone_exceptions import BadArgumentException
+import threading
+import time
+
+from ...Utilities import constants as c
+from ...Utilities.drone_exceptions import BadArgumentException
 
 class Movement(threading.Thread):
     """

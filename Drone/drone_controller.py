@@ -1,25 +1,26 @@
-from drone_controller import DroneController
-from test_drone import TestDrone
-import constants as c
 from time import sleep
 import threading
 import heapq
-from movement_instruction import MovementInstruction
-from movement import Movement
+
+from drone_controller_base import DroneControllerBase
+from drone import Drone
+from ..Utilities import constants as c
+from ..Instructions.Movement.movement_instruction import MovementInstruction
+from ..Instructions.Movement.movement import Movement
 import sys
-from drone_exceptions import EmergencyLandException
+from ..Utilities.drone_exceptions import EmergencyLandException
 import traceback
-from lock import SharedLock
-from failsafe_controller import FailsafeController
+from ..Utilities.lock import SharedLock
+from ..Utilities.failsafe_controller import FailsafeController
 import coloredlogs, logging
 
-class TestDroneController(DroneController):
+class DroneController(DroneControllerBase):
     """
     Concrete implementation of DroneController. See drone_controller.py for
     documentation.
     """
     def __init__(self, drone, emergency_land_event):
-        super(TestDroneController, self).__init__(drone, emergency_land_event)
+        super(DroneController, self).__init__(drone, emergency_land_event)
         self.currentMovement = None
         self.logger = logging.getLogger(__name__)
         coloredlogs.install(level='DEBUG')
@@ -118,4 +119,4 @@ class TestDroneController(DroneController):
                 fsevent.clear()
         
     def readNextInstruction(self):
-        super(TestDroneController, self).readNextInstruction()
+        super(DroneController, self).readNextInstruction()

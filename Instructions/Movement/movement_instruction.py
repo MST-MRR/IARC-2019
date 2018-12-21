@@ -1,4 +1,4 @@
-from instruction import Instruction
+from ..instruction import Instruction
 import abc
 
 class MovementInstruction(Instruction):

@@ -6,12 +6,12 @@ import math
 import threading
 from sys import stdout
 
-from drone_exceptions import AltitudeException, ThrustException, VelocityException, BadArgumentException
-import constants as c
-import dronekit_wrappers as dkw
+from ..Utilities.drone_exceptions import AltitudeException, ThrustException, VelocityException, BadArgumentException
+from ..Utilities import constants as c
+from ..Utilities import dronekit_wrappers as dkw
 import coloredlogs, logging
 
-class Drone(object):
+class DroneBase(object):
     """
     Wraps a DroneKit.vehicle and sensors
 

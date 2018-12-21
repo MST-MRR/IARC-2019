@@ -1,15 +1,15 @@
 import abc
 import heapq
-from movement_instruction_reader import MovementInstructionReader
-from movement_instruction import MovementInstruction
+from ..Instructions.Movement.movement_instruction_reader import MovementInstructionReader
+from ..Instructions.Movement.movement_instruction import MovementInstruction
 from drone import Drone
 from collections import deque
-from drone_exceptions import NetworkException
+from ..Utilities.drone_exceptions import NetworkException
 import threading
 
 
 # Every drone controller will know how to read movement instructions
-class DroneController(MovementInstructionReader, threading.Thread):
+class DroneControllerBase(MovementInstructionReader, threading.Thread):
     """
     Responsible for processing instructions received from the swarm controller 
     along with drone sensor data to best control the movement and actions of 
@@ -36,7 +36,7 @@ class DroneController(MovementInstructionReader, threading.Thread):
     __metaclass__ = abc.ABCMeta
 
     def __init__(self, drone, emergency_land_event):
-        super(DroneController, self).__init__()
+        super(DroneControllerBase, self).__init__()
         self.setName("ControllerThread") # Set name of thread for ease of debugging
         self.setDaemon(True) # Is this needed?
         self.id = None # Once we have multiple drones, this will need to be set

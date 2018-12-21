@@ -1,5 +1,5 @@
-from drone import Drone
-import constants as c
+from ...Drone.drone import Drone
+from ...Utilities import constants as c
 
 class MovementInstructionReader(object):
     """
