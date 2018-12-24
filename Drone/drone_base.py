@@ -1,15 +1,18 @@
+# Standard Library
 import abc
+import coloredlogs
 import dronekit
 from dronekit import VehicleMode
-import time
+import logging
 import math
-import threading
 from sys import stdout
+import time
+import threading
 
-from ..Utilities.drone_exceptions import AltitudeException, ThrustException, VelocityException, BadArgumentException
+# Ours
 from ..Utilities import constants as c
 from ..Utilities import dronekit_wrappers as dkw
-import coloredlogs, logging
+from ..Utilities.drone_exceptions import AltitudeException, ThrustException, VelocityException, BadArgumentException
 
 class DroneBase(object):
     """

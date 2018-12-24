@@ -1,10 +1,12 @@
-from time import sleep, time
+# Standard Library
+import coloredlogs
+import dronekit
+import logging
 from math import radians, sin, cos
 from pymavlink import mavutil
-import dronekit
 import threading
 from sys import stdout
-import coloredlogs, logging
+from time import sleep, time
 
 """
 Any functions requiring the use of DroneKit's message_factory module to construct

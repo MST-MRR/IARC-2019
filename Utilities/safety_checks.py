@@ -1,8 +1,10 @@
-import threading
-from time import sleep
+# Standard Library
+import coloredlogs
 import constants as c
 from lock import SharedLock
-import logging, coloredlogs
+import logging
+import threading
+from time import sleep
 
 def init_emergency_land_event():
     """

@@ -1,18 +1,21 @@
-from time import sleep
-import threading
+# Standard Library
+import coloredlogs
 import heapq
+import logging
+import threading
+from time import sleep
+import traceback
+import sys
 
-from drone_controller_base import DroneControllerBase
+# Ours
 from drone import Drone
-from ..Utilities import constants as c
+from drone_controller_base import DroneControllerBase
 from ..Instructions.Movement.movement_instruction import MovementInstruction
 from ..Instructions.Movement.movement import Movement
-import sys
+from ..Utilities import constants as c
 from ..Utilities.drone_exceptions import EmergencyLandException
-import traceback
-from ..Utilities.lock import SharedLock
 from ..Utilities.failsafe_controller import FailsafeController
-import coloredlogs, logging
+from ..Utilities.lock import SharedLock
 
 class DroneController(DroneControllerBase):
     """

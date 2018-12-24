@@ -1,5 +1,9 @@
-from ..instruction import Instruction
+# Standard Library
 import abc
+
+# Ours
+from ..instruction import Instruction
+
 
 class MovementInstruction(Instruction):
     """

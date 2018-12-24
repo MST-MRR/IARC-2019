@@ -1,12 +1,14 @@
+# Standard Library
 import abc
-import heapq
-from ..Instructions.Movement.movement_instruction_reader import MovementInstructionReader
-from ..Instructions.Movement.movement_instruction import MovementInstruction
-from drone import Drone
 from collections import deque
-from ..Utilities.drone_exceptions import NetworkException
+import heapq
 import threading
 
+# Ours
+from drone import Drone
+from ..Instructions.Movement.movement_instruction_reader import MovementInstructionReader
+from ..Instructions.Movement.movement_instruction import MovementInstruction
+from ..Utilities.drone_exceptions import NetworkException
 
 # Every drone controller will know how to read movement instructions
 class DroneControllerBase(MovementInstructionReader, threading.Thread):
@@ -124,7 +126,7 @@ class DroneControllerBase(MovementInstructionReader, threading.Thread):
     @abc.abstractmethod
     def update(self):
         """
-        Takes the next best action to control the drone. Responible for connecting, arming,
+        Takes the next best action to control the drone. Responsible for connecting, arming,
         and taking off the drone, carrying out instructions as needed, and safely landing 
         the drone (whether due to mission completed or emergency). 
         """

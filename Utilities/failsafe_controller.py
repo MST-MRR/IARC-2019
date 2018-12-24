@@ -1,8 +1,10 @@
+# Standard Library
+import coloredlogs
+import constants as c
+import drone_exceptions
+import logging
 import threading
 import time
-import coloredlogs, logging
-import drone_exceptions
-import constants as c
 
 class FailsafeController(threading.Thread):
     """

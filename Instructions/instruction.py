@@ -1,5 +1,6 @@
-import uuid
+# Standard Library
 import abc
+import uuid
 
 class Instruction(object):
     """

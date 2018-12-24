@@ -1,7 +1,10 @@
-import coloredlogs, logging
+# Standard Library
+import coloredlogs
+import logging
 import threading
 import time
 
+# Ours
 from ...Utilities import constants as c
 from ...Utilities.drone_exceptions import BadArgumentException
 

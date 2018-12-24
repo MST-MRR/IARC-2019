@@ -1,17 +1,17 @@
-
-import time
-import sys
+# Standard Library
+import heapq 
 import os
-import heapq # temporary (we want to implement our own)
+import sys
 import threading
+import time
 
+# Ours
 from ..Drone.drone import Drone
 from ..Drone.drone_controller import DroneController
 from ..Instructions.Movement.movement_instruction import MovementInstruction
-from ..Utilities import safety_checks
 from ..tools import logger
 from ..tools.ipc.interprocess_communication import IPC
-
+from ..Utilities import safety_checks
 
 def send_data(ipc, drone, stop):
     while not stop.is_set():
