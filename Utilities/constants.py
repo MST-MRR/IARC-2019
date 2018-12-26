@@ -43,8 +43,14 @@ IDLE = 3
 CANCELED = 4
 FINISHED = 5
 
-# Movement types
+# Movement Types
 PATH = 1
 HOVER = 2
 TAKEOFF = 3
 LAND = 4
+
+# Controller Modes
+MOVEMENT = 1
+FOLLOW = 2
+HEAL = 3
+DECODE = 4

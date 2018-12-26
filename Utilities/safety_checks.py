@@ -1,76 +1,77 @@
 # Standard Library
 import coloredlogs
 import constants as c
-from lock import SharedLock
+import drone_exceptions
 import logging
 import threading
-from time import sleep
+import time
 
-def init_emergency_land_event():
+# Ours
+from two_way_event import TwoWayEvent
+from ..Drone.drone import Drone
+
+class SafetyChecking(threading.Thread):
     """
-    Returns the threading.Event that is to be passed to a drone
-    controller upon its initialization and well as to the
-    start_safety_loop function
+    This class checks that the drone is behaving as expected, and
+    if not, alerts the user (currently does not do anything about it!)
     """
-    return threading.Event()
 
-# 
-def start_safety_loop(emergency_land_event):
-    """
-    Periodically checks to see if a keyboard interrupt has happened.
-    If so, it notifies the controller (which has a reference to the
-    event). The controller then resets the event, initiates a landing,
-    and sets the event once the landing has completed, at which point
-    the program exits. 
+    def __init__(self):
+        super(SafetyChecking, self).__init__()
+        self.setName("SafetyCheckThread")
+        self.daemon = True
+        self.event = TwoWayEvent()
+        self.drone = Drone.getDrone()
+        self.logger = logging.getLogger(__name__)
+        self.enabled = True    
 
-    Parameters
-    ----------
-    emergency_land_event: threading.Event
-        Set whenever a keyboard interrupt comes in
+    def max_velocity_check(self):
+        if self.drone.vehicle.airspeed > c.VELOCITY_THRESHOLD:
+            raise drone_exceptions.VelocityExceededThreshold()
+        
+    def max_altitude_check(self):
+        if self.drone.vehicle.location.global_relative_frame.alt > c.MAXIMUM_ALLOWED_ALTITUDE:
+            raise drone_exceptions.AltitudeExceededThreshold()
 
-    Precondition:
-    ----------
-    None
+    def negative_velocity_check(self):
+        if self.drone.vehicle.airspeed < 0.0:
+            raise drone_exceptions.AltitudeNegativeException()
 
-    Postcondition:
-    ----------
-    The program exits.
+    def rangefinder_check(self):
+        if self.drone.vehicle.rangefinder.distance < c.RANGEFINDER_MIN - c.RANGEFINDER_EPSILON -.5:
+            raise drone_exceptions.RangefinderMalfunction()
 
-    Returns:
-    ----------
-    None
-    """
-    SharedLock.getLock().acquire()
-    logger = logging.getLogger(__name__)
-    coloredlogs.install(level='DEBUG')
-    logger.info(threading.current_thread().name + ": Safety loop started")
-    SharedLock.getLock().release()
-    while True:
+    def opticalflow_check(self):
+        if True == False:
+            raise drone_exceptions.OpticalflowMalfunction()
+
+    def update(self):
         try:
-            # If the controller thread does not exist, it must have returned and so it is
-            # deduced that it is time for the program to exit
-            if "ControllerThread" not in [t.getName() for t in threading.enumerate()]:
-                logger.info(threading.current_thread().name + ": All thread except main have finished - Program exiting")
-                exit()
-            sleep(c.HALF_SEC)
-        except KeyboardInterrupt:
-            logger.warning(threading.current_thread().name + ": Emergency Landing Initiated")
-            # Set the event flag
-            emergency_land_event.set()
-            logger.info(threading.current_thread().name + ": Waiting for response from controller")
-            count = 0 # Used as a timeout variable
-            # Wait for the controller to 'respond' (clear the event flag)
-            while emergency_land_event.is_set():
-                sleep(c.HUNDRED_MILI)
-                count += c.HUNDRED_MILI
-                if count >= 5 * c.SECOND: # 5 seconds (Should this be increased for safety?)
-                    logger.warning(threading.current_thread().name + ": Controller not responding - Program exiting")
-                    exit()
-            # The flag has been clear
-            logger.info(threading.current_thread().name + ": Controller has responded")
-            # Now wait for it to be set again, indicating the emergency landing has finished
-            if emergency_land_event.wait(timeout=10) is True:
-                logger.info(threading.current_thread().name + ": Emergency landing successful - Program exiting")
-            else:
-                logger.warning(threading.current_thread().name + ": Emergency landing may have failed (controller never said it landed) - Program exiting")
-            exit()
+            if self.drone.connected:
+                self.max_velocity_check()
+                self.max_altitude_check()
+                self.negative_velocity_check()
+                self.rangefinder_check()
+                self.opticalflow_check()
+        except Exception as e:
+            self.event.set_m()
+            msg = str(type(e)) + " Error"
+            self.logger.critical(msg)
+            self.event.wait_a()
+            self.enabled = False
+
+    def run(self):
+        self.started = True
+        while self.enabled:
+            if self.enabled:
+                self.update()
+            time.sleep(c.HALF_SEC)
+
+    def get_safety_check_event(self):
+        return self.event
+
+    def disable(self):
+        self.enabled = False
+    
+    def enable(self):
+        self.enabled = True

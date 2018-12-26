@@ -5,7 +5,6 @@ import dronekit
 from dronekit import VehicleMode
 import logging
 import math
-from sys import stdout
 import time
 import threading
 
@@ -132,7 +131,6 @@ class DroneBase(object):
         while (not self.vehicle.armed) and (time.time() - start < timeout):
             self.vehicle.armed = True
             time.sleep(1)
-            stdout.flush()
         if not self.vehicle.armed:
             self.logger.error(threading.current_thread().name + ": Failed to arm")
         else:
@@ -231,6 +229,11 @@ class DroneBase(object):
         cutoff_time = 10
         
         while time.time() - start_time < cutoff_time:
+            if stop_event.is_set_m():
+                self.taking_off = False
+                stop_event.set_r()
+                return False
+
             current_altitude = self.altitude()
 
             if current_altitude >= target_altitude*0.95: # Trigger just below target alt.
@@ -242,12 +245,12 @@ class DroneBase(object):
             dkw.set_attitude(self.vehicle, thrust=thrust)
             time.sleep(1)
         else:
-            self.taking_off = False
             self.logger.warning("Could not take off - trying again")
-            return
+            return False
 
         self.taking_off = False
         self.flying = True
+        return True
 
     def land(self):
         while not self.vehicle.mode == VehicleMode(c.LAND_MODE):
@@ -257,13 +260,39 @@ class DroneBase(object):
 
         self.flying = False
 
+    @staticmethod
+    @abc.abstractmethod
+    def getDrone():
+        """
+        Returns an instance of the drone. If one has not yet been created, 
+        then one is created. Only one instance of the drone should ever be
+        created. This method follows the singleton pattern.
+
+        Parameters
+        ----------
+        None
+
+        Precondition:
+        ----------
+        None
+
+        Postcondition:
+        ----------
+        If there was no prior instance of the drone, there is one now
+
+        Returns:
+        ----------
+        drone.Drone
+        """
+        pass
+
     # TODO - This is currently not being used.
     @abc.abstractmethod
     def loadDevices(self):
         """
         Behavior of this function is currently undefined.
         """
-        return
+        pass
 
     # TODO - This is currently not being used. Make it into a decorator
     def validate_move(self, direction, velocity, duration, distance):

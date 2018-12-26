@@ -11,7 +11,7 @@ from ..Drone.drone_controller import DroneController
 from ..Instructions.Movement.movement_instruction import MovementInstruction
 from ..tools import logger
 from ..tools.ipc.interprocess_communication import IPC
-from ..Utilities import safety_checks
+from ..Utilities.emergency_land import EmergencyLand
 
 def send_data(ipc, drone, stop):
     while not stop.is_set():
@@ -33,9 +33,7 @@ def send_data(ipc, drone, stop):
 if __name__ == '__main__':
     do_tools = False  # Toggle whether to use logging/rtg
 
-    emergency_land_event = safety_checks.init_emergency_land_event()
-
-    controller = DroneController(Drone(), emergency_land_event)
+    controller = DroneController()
 
     if do_tools:
         import threading
@@ -52,10 +50,10 @@ if __name__ == '__main__':
             thread.start()
 
     #lgger = lo  # Caused error
-
+    
     controller.start()
-
-    safety_checks.start_safety_loop(emergency_land_event)
+    
+    EmergencyLand.start_safety_net()
 
     if do_tools:
         thread_stop.set()

@@ -5,8 +5,10 @@ import threading
 import time
 
 # Ours
+from ...Drone.drone import Drone
 from ...Utilities import constants as c
 from ...Utilities.drone_exceptions import BadArgumentException
+from ...Utilities.two_way_event import TwoWayEvent
 
 class Movement(threading.Thread):
     """
@@ -16,17 +18,6 @@ class Movement(threading.Thread):
     ----------
     drone: drone.Drone
         Interface to the drone
-    kwargs: Dictionary
-        Exactly one of the following key value pairs must be given:
-            path=(DIRECTION, DISTANCE)
-                where DIRECTION is UP, DOWN, LEFT, RIGHT, FORWARD, BACK (see constants.py)
-                and DISTANCE is a Double
-            hover=DURATION
-                where DURATION is an Integer
-            takeoff=TARGET_ALTITUDE
-                where TARGET_ALTITUDE is a Double
-            land=None
-                the value does not matter
     type: PATH, HOVER, TAKEOFF, or LAND (see constants.py)
         Represents the type of movement being requested
     state: ACTIVE, FINISHED, CANCELED, or PAUSED (see constants.py)
@@ -40,7 +31,20 @@ class Movement(threading.Thread):
 
     id = 1
 
-    def __init__(self, drone, **kwargs):
+    def __init__(self, **kwargs):
+        """
+        kwargs: Dictionary
+        Exactly one of the following key value pairs must be given:
+            path=(DIRECTION, DISTANCE)
+                where DIRECTION is UP, DOWN, LEFT, RIGHT, FORWARD, BACK (see constants.py)
+                and DISTANCE is a Double
+            hover=DURATION
+                where DURATION is an Integer
+            takeoff=TARGET_ALTITUDE
+                where TARGET_ALTITUDE is a Double
+            land=True
+                the value does not matter
+        """
         self.logger = logging.getLogger(__name__)
       
         for kind, arg in kwargs.items():
@@ -63,9 +67,10 @@ class Movement(threading.Thread):
         super(Movement, self).__init__()
         self.setName("MovementThread-" + str(Movement.id))
         Movement.id += 1
-        self.drone = drone
+        self.drone = Drone.getDrone()
         self.state = c.ACTIVE
-        self.stop_event = threading.Event()
+        self.stop_event = TwoWayEvent()
+        self.done_event = threading.Event()
 
     def get_state(self):
         """
@@ -128,6 +133,7 @@ class Movement(threading.Thread):
         elif self.type == c.LAND:
             self.runLand()
         self.state = c.FINISHED
+        self.done_event.set()
             
     def runPath(self):
         """
@@ -162,8 +168,10 @@ class Movement(threading.Thread):
         None
         """
         self.logger.info(threading.current_thread().name + ": Starting takeoff")
-        self.drone.takeoff(self.target_altitude, self.stop_event)
-        self.logger.info(threading.current_thread().name + ": Finished takeoff")
+        if self.drone.takeoff(self.target_altitude, self.stop_event):
+            self.logger.info(threading.current_thread().name + ": Finished takeoff")
+        else:
+            self.logger.info(threading.current_thread().name + ": Aborted takeoff")
     
     def runLand(self):
         """
@@ -195,24 +203,14 @@ class Movement(threading.Thread):
 
         Returns:
         ----------
-        None
+        Stop event which is set when the movement has been canceled
         """
         if self.type is c.LAND:
             self.warning(threading.current_thread().name + ": Cannot cancel a land movement! Land proceeding")
 
-        self.stop_event.set()
-        one_pass = False
-        while self.stop_event.isSet():
-            time.sleep(c.SECOND)
-            # In the event that the cancel is requested during the last second
-            # of send_global_velocity's execution, the isSet flag will never be
-            # cleared. If a second has passed (the frequency of send_global_velocity 
-            # loop), then it is deduced that this is the situation, and we can break.
-            if one_pass:
-                break
-            one_pass = True
-
-        self.state = c.CANCELED
+        self.stop_event.set_m()
+        
+        return self.stop_event
 
     # TODO
     def pause(self):
@@ -220,4 +218,19 @@ class Movement(threading.Thread):
         Behavior of this function is currently undefined.
         """
         self.state = c.WAITING
+
+    def get_done_event(self):
+        """
+        Returns an event which is set when the movement
+        is done.
+
+        Parameters
+        ----------
+        None
+
+        Returns:
+        ----------
+        threading.Event
+        """
+        return self.done_event
     

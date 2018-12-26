@@ -64,9 +64,9 @@ def send_global_velocity(vehicle, (velocity_x, velocity_y, velocity_z), duration
     logger.info(threading.current_thread().name + ": Sending velocity ")
     # send command to vehicle on 1 Hz cycle
     for x in range(0, duration):
-        if stop_event.isSet():
+        if stop_event.is_set_m():
             logger.info(threading.current_thread().name + ": Movement halting")
-            stop_event.clear()
+            stop_event.set_r()
             return
         stdout.flush()
         vehicle.send_mavlink(msg)

@@ -12,19 +12,18 @@ from drone import Drone
 from drone_controller_base import DroneControllerBase
 from ..Instructions.Movement.movement_instruction import MovementInstruction
 from ..Instructions.Movement.movement import Movement
+from Modes.takeoff_mode import TakeoffMode
 from ..Utilities import constants as c
 from ..Utilities.drone_exceptions import EmergencyLandException
-from ..Utilities.failsafe_controller import FailsafeController
 from ..Utilities.lock import SharedLock
 
 class DroneController(DroneControllerBase):
     """
-    Concrete implementation of DroneController. See drone_controller.py for
+    Concrete implementation of DroneControllerBase. See drone_controller_base.py for
     documentation.
     """
-    def __init__(self, drone, emergency_land_event):
-        super(DroneController, self).__init__(drone, emergency_land_event)
-        self.currentMovement = None
+    def __init__(self):
+        super(DroneController, self).__init__()
         self.logger = logging.getLogger(__name__)
         coloredlogs.install(level='DEBUG')
         # These lines are purely for testing purposes. Once swarm controller and
@@ -39,6 +38,13 @@ class DroneController(DroneControllerBase):
 
     def update(self):
         try:
+            
+            # Check to see if emergency landing has been initiated
+            if self.emergency_land_event.is_set_m():
+                # Acknowledge that the event has been seen
+                self.emergency_land_event.set_a()
+                raise EmergencyLandException("Keyboard interrupt")
+            
             # If not connected, try to connect
             if not self.drone.is_connected():
                 self.drone.connect(isInSimulator = True)
@@ -48,78 +54,77 @@ class DroneController(DroneControllerBase):
                 self.drone.arm()
 
             # If not flying, try to fly
-            if not self.drone.is_flying() and not self.drone.is_taking_off():
-                self.currentMovement = Movement(self.drone, takeoff=1)
-                self.currentMovement.start()
+            if not self.drone.is_taking_off() and not self.drone.is_flying() and self.mode is None:
+                self.mode = TakeoffMode(alt=1)
 
-            # If there is an active movement happening...
-            if self.currentMovement is not None:
-                # Check to see if it is active - if so, wait
-                if self.currentMovement.get_state() is c.ACTIVE:
-                    sleep(c.HALF_SEC)
-                # Else, the movement must be finished
-                elif self.currentMovement.get_state() is c.FINISHED:
-                    # If the movement was along a path, start to hover
-                    if self.currentMovement.get_type() is c.PATH:
-                        self.currentMovement = Movement(self.drone, hover=3)
-                        self.currentMovement.start()
-                    # Reset the current movement and allow a new movement to begin
-                    else:
-                        self.currentMovement = None
-            # Process remaining movements
-            elif len(self.movement_queue):
-                direction, distance = self.movement_queue.popleft()
-                self.currentMovement = Movement(self.drone, path=(direction, distance))
-                self.currentMovement.start() # start movement thread
-            # Process remaining instructions (movements are  
-            # processed before instructions, if they exist)
-            elif len(self.instruction_queue):
-                self.readNextInstruction()
-            # If this line is reached, all the instructions have been processed
+            # Remove takeoff mode once the drone is flying
+            if self.drone.is_flying() and type(self.mode) == TakeoffMode:
+                self.mode = None
+            
+            if self.mode is not None:
+                # Do one iteration of whichever mode we are in
+                self.mode.do()
+
+                # If we are done, set the mode to None so that 
+                # we can move on to the next instruction
+                if self.mode.is_done():
+                    self.mode = None
             else:
-                self.currentMovement = Movement(self.drone, land=True)
-                self.currentMovement.start()
-                # Wait for land to finish - it will hold up the thread, but everything
-                # has been completed anyway
-                self.currentMovement.join()
-                return False # All finished
+                # Process remaining instructions
+                if len(self.instruction_queue):
+                    # Stop hovering, if we were doing so
+                    if self.no_mode_hover is not None:
+                        stop_hover_event = self.no_mode_hover.cancel()
+                        stop_hover_event.wait_r()
+                        self.no_mode_hover = None
+                    SharedLock.getLock().acquire()
+                    self.readNextInstruction()
+                    SharedLock.getLock().release()
+                else:
+                    # Hover until asn instruction comes in or landing
+                    # is requested
+                    # TODO - Have Movement land drone if hover finishes its 
+                    # full time (pass flag to indicate this behavior)
+                    if self.no_mode_hover is None:
+                        self.no_mode_hover = Movement(hover=60)
+                        self.no_mode_hover.start()
+                    sleep(c.HALF_SEC)
 
-            # Check to see if emergency landing has been initiated
-            if self.emergency_land_event.isSet():
-                # Acknowledge that the event has been seen
-                self.emergency_land_event.clear()
-                raise EmergencyLandException("Keyboard interrupt")
-            sleep(c.TEN_MILI)
-            return True
+            # Keep going (NOTE: this implementation never returns True and so never
+            # returns on its own - the user must tell the drone to land with ctrl-c)
+            return False
         except Exception as e:
+            # No need print traceback of a keyboard interrupt
+            if type(e) is not EmergencyLandException:
+                exc_type, exc_value, exc_traceback = sys.exc_info()
+                traceback.print_tb(exc_traceback)
             # If a connection was never establish in the first place, return
             if self.drone.vehicle is None:
-                return False
-            # If a movement is going on, cancel it
-            if self.currentMovement is not None:
-                self.currentMovement.cancel()
-                # There may be a delay since movement is happening in a different thread
-                while self.currentMovement.state is not c.CANCELED:
-                    sleep(c.TEN_MILI)
-            # No movements are happening, so start landing
-            self.drone.land()
-            self.emergency_land_event.set()
-            return False
+                return True
+            # If currently in a mode, exit it
+            if self.mode is not None and not self.mode.is_done():
+                exit_event = self.mode.exit_mode()
+                exit_event.wait_r()
+            # If we weren't in a mode and were hovering, stop hovering
+            elif self.no_mode_hover is not None:
+                stop_hover_event = self.no_mode_hover.cancel()
+                stop_hover_event.wait_r()
+
+            land = Movement(land=True)
+            land.start()
+            land.get_done_event().wait()
+            self.emergency_land_event.set_r()
+            return True
 
     def run(self):
         SharedLock.getLock().acquire()
         self.logger.info(threading.current_thread().name + ": Controller thread started")
         SharedLock.getLock().release()
-        fscontroller = FailsafeController(self.drone)
-        fsevent = fscontroller.get_failesafe_event()
-        fscontroller.start()
+        
         while True:
-            if not self.update():
+            if self.update():
                 self.logger.info(threading.current_thread().name + ": Controller thread stopping")
                 return
-            if fsevent.is_set():
-                self.emergency_land_event.set()
-                fsevent.clear()
         
     def readNextInstruction(self):
         super(DroneController, self).readNextInstruction()

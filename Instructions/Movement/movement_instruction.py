@@ -7,9 +7,9 @@ from ..instruction import Instruction
 
 class MovementInstruction(Instruction):
     """
-    The payload of a MovementInstruction is defined as follows:
+    The payload of a MovementInstruction is (currently) defined as follows:
         (Double, Double, Double)
-    which represent the x, y, and z coordinates the drone is meant
+    which represent the x, y, and z coordinate the drone is meant
     to fly to as if the current location were the origin
     """
     def __init__(self, x, y, z):

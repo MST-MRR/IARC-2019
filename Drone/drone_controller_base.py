@@ -1,6 +1,5 @@
 # Standard Library
 import abc
-from collections import deque
 import heapq
 import threading
 
@@ -8,7 +7,9 @@ import threading
 from drone import Drone
 from ..Instructions.Movement.movement_instruction_reader import MovementInstructionReader
 from ..Instructions.Movement.movement_instruction import MovementInstruction
+from Modes.movement_mode import MovementMode
 from ..Utilities.drone_exceptions import NetworkException
+from ..Utilities.emergency_land import EmergencyLand
 
 # Every drone controller will know how to read movement instructions
 class DroneControllerBase(MovementInstructionReader, threading.Thread):
@@ -32,21 +33,23 @@ class DroneControllerBase(MovementInstructionReader, threading.Thread):
     movement_queue: list of movement.Movement
         List of path movements the drone should make.
     emergency_land_event: threading.Event
-        Event which is set when an emergency landing is request,
+        Event which is set when an emergency landing is requested,
         as when a keyboard interrupt comes in
+    mode: one of MOVEMENT, FOLLOW, HEAL, or DECODE (see constants)
+        Determines the behavior of the controller
     """
     __metaclass__ = abc.ABCMeta
 
-    def __init__(self, drone, emergency_land_event):
+    def __init__(self):
         super(DroneControllerBase, self).__init__()
         self.setName("ControllerThread") # Set name of thread for ease of debugging
-        self.setDaemon(True) # Is this needed?
         self.id = None # Once we have multiple drones, this will need to be set
-        self.drone = drone
+        self.drone = Drone.getDrone()
         self.instruction_queue = []
         self.current_instruction = None
-        self.movement_queue = deque()
-        self.emergency_land_event = emergency_land_event
+        self.emergency_land_event = EmergencyLand.get_emergency_land_event()
+        self.mode = None
+        self.no_mode_hover = None
 
     # Attempts to establish a connection with the swarm controller
     def connectToSwarm(self):
@@ -82,30 +85,25 @@ class DroneControllerBase(MovementInstructionReader, threading.Thread):
 
         Precondition:
         ----------
-        None
+        The instruction queue is not empty.
 
         Postcondition:
         ----------
-        The instruction queue contains one less element, or no change if there were
-        no instructions to begin with.
+        The instruction queue contains one less element.
 
         Returns:
         ----------
         None
         """
-        if len(self.instruction_queue) > 0:      
+        if len(self.instruction_queue):      
             self.current_instruction = heapq.heappop(self.instruction_queue)[1]
-
             if type(self.current_instruction) is MovementInstruction:
-                # This method inherited from MovementInstructionReader
-                self.readMovementInstruction(self.current_instruction, self.movement_queue)
-
+                self.mode = MovementMode()
+        
+                # The following method is inherited from MovementInstructionReader
+                self.readMovementInstruction(self.current_instruction, self.mode.get_movement_queue())
             # In the future, there may be other types of instruction (other than movements) we
             # want to process here (for example, HealInstruction)
-
-        else:
-            # TODO: what happens when there are no instruction to process?
-            pass
 
     @abc.abstractmethod
     def setId(self):
@@ -129,6 +127,10 @@ class DroneControllerBase(MovementInstructionReader, threading.Thread):
         Takes the next best action to control the drone. Responsible for connecting, arming,
         and taking off the drone, carrying out instructions as needed, and safely landing 
         the drone (whether due to mission completed or emergency). 
+
+        Returns:
+            True if the update should continue to be called.
+            False if update should stop being called.
         """
         pass
  
