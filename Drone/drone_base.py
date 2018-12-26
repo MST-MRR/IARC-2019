@@ -214,8 +214,7 @@ class DroneBase(object):
 
         Postcondition:
         ----------
-        Upon success: the drone is the requested altitude in the air. This function
-        will not cause the drone to hover after reaching target altitude! self.flying
+        Upon success: the drone is the requested altitude in the air. self.flying
         is set to True.
 
         Returns:
@@ -293,20 +292,6 @@ class DroneBase(object):
         Behavior of this function is currently undefined.
         """
         pass
-
-    # TODO - This is currently not being used. Make it into a decorator
-    def validate_move(self, direction, velocity, duration, distance):
-        """
-        Behavior of this function is currently undefined.
-        """
-        if velocity > c.VELOCITY_THRESHOLD:
-            raise VelocityException('Velocity threshold exceeded')
-
-        altitude = self.vehicle.rangefinder.distance
-        if altitude < c.MINIMUM_ALLOWED_ALTITUDE:
-            raise AltitudeException('Dangerously low to ground. Movement aborted')
-
-        # TODO - Other checks?
 
     @abc.abstractmethod
     def move(self, direction, distance, stop_event, velocity=c.DEFAULT_VELOCITY):

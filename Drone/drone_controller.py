@@ -104,7 +104,7 @@ class DroneController(DroneControllerBase):
             # If currently in a mode, exit it
             if self.mode is not None and not self.mode.is_done():
                 exit_event = self.mode.exit_mode()
-                exit_event.wait_r()
+                exit_event.wait_r(timeout=1)
             # If we weren't in a mode and were hovering, stop hovering
             elif self.no_mode_hover is not None:
                 stop_hover_event = self.no_mode_hover.cancel()
