@@ -10,15 +10,17 @@ import sys
 # Ours
 from drone import Drone
 from drone_controller_base import DroneControllerBase
-from ..Instructions.Movement.movement_instruction import MovementInstruction
 from ..Instructions.Movement.movement import Movement
-from Tasks.takeoff_task import TakeoffTask
+from ..Instructions.Movement.movement_instruction import MovementInstruction
+from ..Instructions.Movement.movement_instruction_reader import MovementInstructionReader
 from Tasks.hover_task import HoverTask
+from Tasks.movement_task import MovementTask
+from Tasks.takeoff_task import TakeoffTask
 from ..Utilities import constants as c
 from ..Utilities.drone_exceptions import EmergencyLandException
 from ..Utilities.lock import SharedLock
 
-class DroneController(DroneControllerBase):
+class DroneController(DroneControllerBase, MovementInstructionReader):
     """
     Concrete implementation of DroneControllerBase. See drone_controller_base.py for
     documentation.
@@ -30,8 +32,8 @@ class DroneController(DroneControllerBase):
         # The following two lines are purely for testing purposes. Instructions
         # will be pushed onto the heap as a result of the swarm controller
         # sending instructions or inter-drone communication.
-        heapq.heappush(self.instruction_queue, (0, MovementInstruction(2, 0, 0)))
-        #heapq.heappush(self.instruction_queue, (0, MovementInstruction(-5, -5, 0)))
+        heapq.heappush(self.instruction_queue, (0, MovementInstruction(5, 5, 0)))
+        heapq.heappush(self.instruction_queue, (0, MovementInstruction(-5, -5, 0)))
 
     def setId(self):
         return 1
@@ -78,7 +80,7 @@ class DroneController(DroneControllerBase):
                 traceback.print_tb(exc_traceback)
 
             # If a connection was never establish in the first place, return
-            if self.drone.vehicle is None:
+            if not Drone.getDrone().is_connected():
                 return True
 
             # If currently have a task, exit it
@@ -101,11 +103,13 @@ class DroneController(DroneControllerBase):
         SharedLock.getLock().release()
 
         try:
+            drone = Drone.getDrone()
+
             # Connect to low-level controller
-            self.drone.connect(isInSimulator = True)
+            drone.connect(isInSimulator = True)
             
             # Arm the drone for flight
-            self.drone.arm()
+            drone.arm()
         except Exception as e:
             exc_type, exc_value, exc_traceback = sys.exc_info()
             traceback.print_tb(exc_traceback)
@@ -121,4 +125,12 @@ class DroneController(DroneControllerBase):
             sleep(c.HALF_SEC)
         
     def readNextInstruction(self):
-        super(DroneController, self).readNextInstruction()
+        if len(self.instruction_queue):      
+            self.current_instruction = heapq.heappop(self.instruction_queue)[1]
+            if type(self.current_instruction) is MovementInstruction:
+                self.task = MovementTask()
+        
+                # The following method is inherited from MovementInstructionReader
+                self.readMovementInstruction(self.current_instruction, self.task.get_movement_queue())
+            # In the future, there may be other types of instruction (other than movements) we
+            # want to process here (for example, HealInstruction)

@@ -16,7 +16,8 @@ class MovementTask(TaskBase):
         self.state = c.ACTIVE
 
     def do(self):
-        # If there is an active movement happening, check to see if it has finished
+        # If there is not current movement and the queue is not empty,
+        # pop the queue and start the movement
         if self.currentMovement is None and len(self.movement_queue):
             direction, distance = self.movement_queue.popleft()
             self.currentMovement = Movement(path=(direction, distance))
@@ -26,8 +27,7 @@ class MovementTask(TaskBase):
         if self.currentMovement is None:
             self.state = c.FINISHED
             return
-
-        # Process remaining movements
+        # If the movement is finished, set current movement to none
         elif self.currentMovement.get_state() is c.FINISHED:
             # Reset the current movement and allow a new movement to begin
             self.currentMovement = None

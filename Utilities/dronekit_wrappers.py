@@ -8,6 +8,9 @@ import threading
 from sys import stdout
 from time import sleep, time
 
+# Ours
+import constants as c
+
 """
 Any functions requiring the use of DroneKit's message_factory module to construct
 mavlink commands are stored here.
@@ -64,13 +67,13 @@ def send_global_velocity(vehicle, (velocity_x, velocity_y, velocity_z), duration
     logger.info(threading.current_thread().name + ": Sending velocity ")
     # send command to vehicle on 1 Hz cycle
     for x in range(0, duration):
+        stdout.flush()
+        vehicle.send_mavlink(msg)
+        sleep(c.SECOND)
         if stop_event.is_set_m():
             logger.info(threading.current_thread().name + ": Movement halting")
             stop_event.set_r()
             return
-        stdout.flush()
-        vehicle.send_mavlink(msg)
-        sleep(1)
    
 
 def set_attitude(vehicle, roll_angle = 0.0, pitch_angle = 0.0, yaw_rate = 0.0, thrust = 0.5):

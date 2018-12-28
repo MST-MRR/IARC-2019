@@ -4,15 +4,10 @@ import heapq
 import threading
 
 # Ours
-from drone import Drone
-from ..Instructions.Movement.movement_instruction_reader import MovementInstructionReader
-from ..Instructions.Movement.movement_instruction import MovementInstruction
-from Tasks.movement_task import MovementTask
 from ..Utilities.drone_exceptions import NetworkException
 from ..Utilities.emergency_land import EmergencyLand
 
-# Every drone controller will know how to read movement instructions
-class DroneControllerBase(MovementInstructionReader, threading.Thread):
+class DroneControllerBase(threading.Thread):
     """
     Responsible for processing instructions received from the swarm controller 
     along with drone sensor data to best control the movement and actions of 
@@ -23,15 +18,11 @@ class DroneControllerBase(MovementInstructionReader, threading.Thread):
     id: Integer
         Identification number used by the swarm controller
         to distinguish between the drones
-    drone: drone.Drone
-        Interface for controlling the drone
     instruction_queue: list of instruction.Instruction
         A priority queue holding instruction send from the
         swarm controller
     current_instruction: instruction.Instruction
         The instruction currently being processed
-    movement_queue: list of movement.Movement
-        List of path movements the drone should make.
     emergency_land_event: threading.Event
         Event which is set when an emergency landing is requested,
         as when a keyboard interrupt comes in
@@ -44,7 +35,6 @@ class DroneControllerBase(MovementInstructionReader, threading.Thread):
         super(DroneControllerBase, self).__init__()
         self.setName("ControllerThread") # Set name of thread for ease of debugging
         self.id = None # Once we have multiple drones, this will need to be set
-        self.drone = Drone.getDrone()
         self.instruction_queue = []
         self.current_instruction = None
         self.emergency_land_event = EmergencyLand.get_emergency_land_event()
@@ -94,15 +84,7 @@ class DroneControllerBase(MovementInstructionReader, threading.Thread):
         ----------
         None
         """
-        if len(self.instruction_queue):      
-            self.current_instruction = heapq.heappop(self.instruction_queue)[1]
-            if type(self.current_instruction) is MovementInstruction:
-                self.task = MovementTask()
-        
-                # The following method is inherited from MovementInstructionReader
-                self.readMovementInstruction(self.current_instruction, self.task.get_movement_queue())
-            # In the future, there may be other types of instruction (other than movements) we
-            # want to process here (for example, HealInstruction)
+        pass
 
     @abc.abstractmethod
     def setId(self):
@@ -112,6 +94,10 @@ class DroneControllerBase(MovementInstructionReader, threading.Thread):
         Parameters
         ----------
         None
+
+        Postcondition:
+        ----------
+        self.id is set to some unique value
 
         Returns:
         ----------

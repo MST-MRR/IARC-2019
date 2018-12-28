@@ -36,7 +36,6 @@ if __name__ == '__main__':
     controller = DroneController()
 
     if do_tools:
-        import threading
 
         data_sender = IPC()
 
@@ -55,6 +54,8 @@ if __name__ == '__main__':
     
     EmergencyLand.start_safety_net()
 
+    # Would never get here because of the way EmergencyLand is implemented
+    # (it doesn't return until is ensures a set number of threads have ended)
     if do_tools:
         thread_stop.set()
 
