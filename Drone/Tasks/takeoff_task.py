@@ -1,17 +1,14 @@
-# Standard Library
-from time import sleep
-
 # Ours
 from ..drone import Drone
-from mode_base import ModeBase
+from task_base import TaskBase
 from ...Instructions.Movement.movement import Movement
 from ...Utilities import constants as c
 from ...Utilities.two_way_event import TwoWayEvent
 
-class TakeoffMode(ModeBase):
+class TakeoffTask(TaskBase):
 
     def __init__(self, alt):
-        super(TakeoffMode, self).__init__()
+        super(TakeoffTask, self).__init__()
         self.drone = Drone.getDrone()
         self.cancel_event = TwoWayEvent()
         self.target_alt = alt
@@ -31,5 +28,5 @@ class TakeoffMode(ModeBase):
         else:
             return False
 
-    def exit_mode(self):
+    def exit_task(self):
         return self.movement.cancel()

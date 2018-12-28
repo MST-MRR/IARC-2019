@@ -7,7 +7,7 @@ import threading
 from drone import Drone
 from ..Instructions.Movement.movement_instruction_reader import MovementInstructionReader
 from ..Instructions.Movement.movement_instruction import MovementInstruction
-from Modes.movement_mode import MovementMode
+from Tasks.movement_task import MovementTask
 from ..Utilities.drone_exceptions import NetworkException
 from ..Utilities.emergency_land import EmergencyLand
 
@@ -35,7 +35,7 @@ class DroneControllerBase(MovementInstructionReader, threading.Thread):
     emergency_land_event: threading.Event
         Event which is set when an emergency landing is requested,
         as when a keyboard interrupt comes in
-    mode: one of MOVEMENT, FOLLOW, HEAL, or DECODE (see constants)
+    task: one of MOVEMENT, FOLLOW, HEAL, or DECODE (see constants)
         Determines the behavior of the controller
     """
     __metaclass__ = abc.ABCMeta
@@ -48,8 +48,7 @@ class DroneControllerBase(MovementInstructionReader, threading.Thread):
         self.instruction_queue = []
         self.current_instruction = None
         self.emergency_land_event = EmergencyLand.get_emergency_land_event()
-        self.mode = None
-        self.no_mode_hover = None
+        self.task = None
 
     # Attempts to establish a connection with the swarm controller
     def connectToSwarm(self):
@@ -98,10 +97,10 @@ class DroneControllerBase(MovementInstructionReader, threading.Thread):
         if len(self.instruction_queue):      
             self.current_instruction = heapq.heappop(self.instruction_queue)[1]
             if type(self.current_instruction) is MovementInstruction:
-                self.mode = MovementMode()
+                self.task = MovementTask()
         
                 # The following method is inherited from MovementInstructionReader
-                self.readMovementInstruction(self.current_instruction, self.mode.get_movement_queue())
+                self.readMovementInstruction(self.current_instruction, self.task.get_movement_queue())
             # In the future, there may be other types of instruction (other than movements) we
             # want to process here (for example, HealInstruction)
 

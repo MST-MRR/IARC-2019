@@ -49,7 +49,7 @@ HOVER = 2
 TAKEOFF = 3
 LAND = 4
 
-# Controller Modes
+# Controller Tasks
 MOVEMENT = 1
 FOLLOW = 2
 HEAL = 3
