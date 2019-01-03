@@ -69,6 +69,7 @@ class IPC:
 
         if reader:
             self.reader_thread = threading.Thread(target=self.continuous_shell_reader)
+            self.reader_thread.daemon = True
             self.reader_thread.start()
 
     def __enter__(self):

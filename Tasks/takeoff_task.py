@@ -17,7 +17,6 @@ class TakeoffTask(TaskBase):
     def do(self):
         if self.movement is None:
             self.movement = self.drone.Movement(takeoff=self.target_alt)
-            #self.movement = Drone.Movement(takeoff=self.target_alt)
             self.movement.start()
         elif self.movement.get_state() is c.FINISHED:
             self.state = c.FINISHED

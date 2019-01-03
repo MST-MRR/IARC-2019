@@ -4,11 +4,14 @@ import drone_exceptions
 import logging
 import threading
 import time
+import os
+
 
 # Ours
 from .. import constants as c
 from ..two_way_event import TwoWayEvent
 from ...Drone.drone import Drone
+from ...tools.data_splitter import DataSplitter
 
 class SafetyChecking(threading.Thread):
     """
@@ -34,7 +37,10 @@ class SafetyChecking(threading.Thread):
         self.event = TwoWayEvent()
         self.drone = Drone.getDrone()
         self.logger = logging.getLogger(__name__)
-        self.enabled = True    
+        self.enabled = True 
+
+        print os.getcwd()
+        self.rtg = DataSplitter(['altitude'], use_rtg=True)   
 
     def max_velocity_check(self):
         if self.drone.vehicle.airspeed > c.VELOCITY_THRESHOLD:
@@ -69,6 +75,7 @@ class SafetyChecking(threading.Thread):
             msg = str(type(e)) + " Error"
             self.logger.critical(msg)
             self.event.wait_a()
+            self.rtg.exit()
             self.enabled = False
 
     def run(self):

@@ -37,7 +37,7 @@ class RealTimeGraph:
 
     log_level = logging.INFO
 
-    config_filename = ['tools/real_time_graph/config.xml', 'real_time_graph/config.xml', 'config.xml']  # Possible locations of configuration file
+    config_filename = ['IARC-2019/tools/real_time_graph/config.xml']  # Possible locations of configuration file
 
     max_rows = 3  # Rows of subplots per column
 
