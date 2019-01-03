@@ -3,7 +3,7 @@ from collections import deque
 
 # Ours
 from task_base import TaskBase
-from ..Utilities.Flight.movement import Movement
+from ..Drone.drone import Drone
 from ..Utilities import constants as c
 from ..Utilities.two_way_event import TwoWayEvent
 
@@ -11,6 +11,7 @@ class MovementTask(TaskBase):
 
     def __init__(self):
         super(MovementTask, self).__init__()
+        self.drone = Drone.getDrone()
         self.currentMovement = None
         self.movement_queue = deque()
         self.state = c.ACTIVE
@@ -20,7 +21,7 @@ class MovementTask(TaskBase):
         # pop the queue and start the movement
         if self.currentMovement is None and len(self.movement_queue):
             direction, distance = self.movement_queue.popleft()
-            self.currentMovement = Movement(path=(direction, distance))
+            self.currentMovement = self.drone.Movement(path=(direction, distance))
             self.currentMovement.start() # start movement thread
 
         # If current movement is still none, we ran out of movements and are done    

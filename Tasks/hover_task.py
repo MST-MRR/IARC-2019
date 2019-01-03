@@ -3,7 +3,7 @@ from time import sleep
 
 # Ours
 from task_base import TaskBase
-from ..Utilities.Flight.movement import Movement
+from ..Drone.drone import Drone
 from ..Utilities import constants as c
 from ..Utilities.two_way_event import TwoWayEvent
 
@@ -11,6 +11,7 @@ class HoverTask(TaskBase):
 
     def __init__(self, duration=480):
         super(HoverTask, self).__init__()
+        self.drone = Drone.getDrone()
         self.currentMovement = None
         self.done_event = None
         self.state = c.ACTIVE
@@ -18,7 +19,7 @@ class HoverTask(TaskBase):
 
     def do(self):
         if self.currentMovement is None:
-            self.currentMovement = Movement(hover=self.duration)
+            self.currentMovement = self.drone.Movement(hover=self.duration)
             self.currentMovement.start()
             self.done_event = self.currentMovement.get_done_event()
         elif self.done_event.is_set():

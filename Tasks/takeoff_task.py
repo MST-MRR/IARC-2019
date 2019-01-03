@@ -1,7 +1,6 @@
 # Ours
 from ..Drone.drone import Drone
 from task_base import TaskBase
-from ..Utilities.Flight.movement import Movement
 from ..Utilities import constants as c
 from ..Utilities.two_way_event import TwoWayEvent
 
@@ -17,7 +16,8 @@ class TakeoffTask(TaskBase):
 
     def do(self):
         if self.movement is None:
-            self.movement = Movement(takeoff=self.target_alt)
+            self.movement = self.drone.Movement(takeoff=self.target_alt)
+            #self.movement = Drone.Movement(takeoff=self.target_alt)
             self.movement.start()
         elif self.movement.get_state() is c.FINISHED:
             self.state = c.FINISHED
