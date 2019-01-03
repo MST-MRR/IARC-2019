@@ -4,8 +4,6 @@ import drone_exceptions
 import logging
 import threading
 import time
-import os
-
 
 # Ours
 from .. import constants as c
@@ -39,7 +37,6 @@ class SafetyChecking(threading.Thread):
         self.logger = logging.getLogger(__name__)
         self.enabled = True 
 
-        print os.getcwd()
         self.rtg = DataSplitter(['altitude'], use_rtg=True)   
 
     def max_velocity_check(self):

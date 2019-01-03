@@ -35,7 +35,9 @@ class IPC:
 
         # Get filename
 
-        filename = 'IARC-2019/tools/rtg_cache.py'
+        filename = 'IARC-2019.tools.rtg_cache'
+        if 'tools' in os.listdir("."):
+            filename = 'tools/{}'.format(filename)
 
         # Set python command
         python_command = IPC.py3command if version != 2 else IPC.py2command
@@ -47,9 +49,9 @@ class IPC:
 
             if reader:
                 self.subprocess = subprocess.Popen('{} {}'.format(python_command, filename), stdin=subprocess.PIPE,
-                                                   stdout=subprocess.PIPE)
+                                                   stdout=subprocess.PIPE, shell=True)
             else:
-                self.subprocess = subprocess.Popen('{} {}'.format(python_command, filename), stdin=subprocess.PIPE)
+                self.subprocess = subprocess.Popen('{} {}'.format(python_command, filename), stdin=subprocess.PIPE, shell=True)
 
             sleep(.1)  # Give time to start / fail to start
 
@@ -67,7 +69,6 @@ class IPC:
 
         if reader:
             self.reader_thread = threading.Thread(target=self.continuous_shell_reader)
-            self.reader_thread.daemon = True
             self.reader_thread.start()
 
     def __enter__(self):
