@@ -1,65 +1,103 @@
+import logging
+
 import time
 import csv
 import os
 
+from numpy import nan
+
 
 class Logger:
     """
-    Object that can be sent data to be logged
+    Logs data sent to it.
 
-    Run Requirements: Must be run from base folder or in tools folder!
+    Run Requirements: Must be run from base folder or in tools folder so that it has somewhere to save logs to.
+                      Else make a folder called generated_logs in the running directory.
 
-    Version: python 2.7 / 3.6(Best)
+    Version: python 2.7 / 3.6
 
     Parameters
     ----------
-    desired_data: dict
-        Pair of headers and data streams. Time is set as first header by default.
+    desired_headers: list
+        List of headers of data streams to log.
     """
-    def __init__(self, desired_data=None):
 
-        #
+    EMPTY_VALUE = nan  # (np.nan) Value to put in csv if no data given
+
+    TIME_HEADER = 'secFromStart'  # Header for time value, log_grapher also uses - must change there too
+
+    def __init__(self, desired_headers):
+
         # Setup dict w/ headers matched to desired data stream
-        self.desired_data = {'secFromStart': None}
-        self.desired_data.update(
-            {'airspeed': 'airspeed',  'altitude': 'altitude', 'pitch': 'pitch', 'roll': 'roll', 'yaw': 'yaw',
-             'velocity_x': 'velocity_x', 'velocity_y': 'velocity_y', 'velocity_z': 'velocity_z', 'voltage': 'voltage'}
-            if not desired_data else desired_data)
+        if not desired_headers: logging.critical("Logger: No headers given!!!")
+        self.desired_headers = [Logger.TIME_HEADER] + desired_headers
 
-        #
-        # Setup directory name
+        # Find directory and choose filename
+
+        self.resource_file_dir = self.find_directory()
+
         date = time.strftime('%x').replace('/', '_')  # Gets today's date & sets / to _ as not mess up the directory
 
         file_name_start = '{}_Flight_Num_'.format(date)
 
-        # generated logs file to always save to
+        if os.listdir(self.resource_file_dir):
+            # For each file in the directory with the same date, find the highest flight number
+
+            flight_num_list = []
+
+            for element in os.listdir(self.resource_file_dir):
+                if file_name_start in element:
+                    flight_num_list.append(int(element.split(file_name_start)[1].split('.csv')[0]))
+                else:
+                    flight_num_list.append(0)
+
+            prev_flight_num = max(flight_num_list)
+
+        else:
+            prev_flight_num = 0
+
+        daily_flight = prev_flight_num + 1
+
+        self.directory = '{}{}{}.csv'.format(self.resource_file_dir, file_name_start, str(daily_flight))
+
+        # Create file
+        self.logging_file = open(self.directory, "w")
+
+        logging.warning("Logger: File created: {}".format(self.directory))
+
+        self.writer = csv.DictWriter(self.logging_file, fieldnames=self.desired_headers)
+
+        self.writer.writeheader()
+
+        # Init timing variables
+        self.start_time = time.time()
+        self.last_update_time = 0
+
+    @staticmethod
+    def find_directory():
+        """
+        Finds the generated_logs folder
+        """
+
         resource_file_dir = "generated_logs/"
 
         if 'tools' in os.listdir("."):
             resource_file_dir = "tools/" + resource_file_dir
 
-        prev_flight_num = 0 if not os.listdir(resource_file_dir) else max([int(element.split(file_name_start)[1].split('.csv')[0]) if file_name_start in element else 0 for element in os.listdir(resource_file_dir)])
-        daily_flight = prev_flight_num + 1
-
-        self.directory = '{}{}{}.csv'.format(resource_file_dir, file_name_start, str(daily_flight))
-
-        #
-        # Create file
-        self.logging_file = open(self.directory, "w")
-
-        self.writer = csv.DictWriter(self.logging_file, fieldnames=self.desired_data.keys())
-
-        self.writer.writeheader()
-
-        #
-        # Init timing variables
-        self.start_time = time.time()
-        self.last_update_time = 0
+        return resource_file_dir
 
     def __enter__(self):
+        """
+        On with statement creation
+        """
+
         return self
 
     def __exit__(self, exc_type, exc_val, exc_tb):
+        """
+        On with statement exit
+        """
+
         self.exit()
 
     def exit(self):
@@ -75,32 +113,45 @@ class Logger:
 
         Parameters
         ----------
-        input_data: dict
+        input_data: dict {header: value}
             Stream of new data to be logged
         """
 
         current_time = time.time()
 
         if self.last_update_time != current_time:
-            self.writer.writerow({key: input_data[element] if element else current_time - self.start_time for key, element in self.desired_data.items()})
+            # Format data to write
+            output_data = {}
 
-        self.last_update_time = current_time
+            for element in self.desired_headers:
+                if element is Logger.TIME_HEADER:
+                    output_data.update({element: current_time - self.start_time})
+                elif element not in input_data:
+                    output_data.update({element: Logger.EMPTY_VALUE})
+                else:
+                    output_data.update({element: input_data[element]})
+
+            # Write data
+            self.writer.writerow(output_data)
+
+            self.last_update_time = current_time
 
 
 if __name__ == '__main__':
+    # Unit test
+
     import math
 
-    # tempCounter is how many data point to collect temporarily
-
+    # tempCounter is how long to collect data
     theTempCounter = int(input("How long to log in seconds? "))
 
     stopWhile = 0
 
-    my_logger = Logger({'airspeed': 'airspeed',  'altitude': 'altitude', 'pitch': 'pitch', 'roll': 'roll', 'yaw': 'yaw',
-             'velocity_x': 'velocity_x', 'velocity_y': 'velocity_y', 'velocity_z': 'velocity_z',
-            'voltage': 'voltage'})
+    my_logger = Logger(['airspeed', 'altitude', 'pitch', 'roll', 'yaw', 'velocity_x',
+                        'velocity_y', 'velocity_z', 'voltage'])
 
-    func = lambda x: math.cos(x)
+    def func(x):
+        return math.cos(x)
 
     while stopWhile < theTempCounter:  # main loop
         myData = {
@@ -108,7 +159,7 @@ if __name__ == '__main__':
             'altitude' : func(stopWhile) + .1,
             'pitch' : func(stopWhile) + .2,
             'roll' : func(stopWhile) + .3,
-            'yaw' : func(stopWhile) + .4,
+            # 'yaw' : func(stopWhile) + .4,
             'velocity_x' : func(stopWhile) + .5,
             'velocity_y' : func(stopWhile) + .6,
             'velocity_z' : func(stopWhile) + .7,
