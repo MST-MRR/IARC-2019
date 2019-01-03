@@ -1,9 +1,9 @@
 # Ours
-from ..drone import Drone
+from ..Drone.drone import Drone
 from task_base import TaskBase
-from ...Instructions.Movement.movement import Movement
-from ...Utilities import constants as c
-from ...Utilities.two_way_event import TwoWayEvent
+from ..Utilities.Flight.movement import Movement
+from ..Utilities import constants as c
+from ..Utilities.two_way_event import TwoWayEvent
 
 class TakeoffTask(TaskBase):
 

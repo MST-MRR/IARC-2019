@@ -8,10 +8,9 @@ import time
 # Ours
 from ..Drone.drone import Drone
 from ..Drone.drone_controller import DroneController
-from ..Instructions.Movement.movement_instruction import MovementInstruction
 from ..tools import logger
 from ..tools.ipc.interprocess_communication import IPC
-from ..Utilities.emergency_land import EmergencyLand
+from ..Utilities.Safety.emergency_land import EmergencyLand
 
 def send_data(ipc, drone, stop):
     while not stop.is_set():

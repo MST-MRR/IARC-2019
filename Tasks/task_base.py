@@ -20,13 +20,13 @@ class TaskBase():
 
         Precondition:
         ----------
-        The tasks for this task are not done (i.e. a call
+        The goal of this task is not finished (i.e. a call
         to is_done() should return false before this method is
         called)
 
         Postcondition:
         ----------
-        If the tasks for this task were completed during this
+        If the goal of this task was reached during this
         iteration, calls to is_done will return true
 
         Returns:
@@ -38,8 +38,8 @@ class TaskBase():
     @abc.abstractmethod
     def is_done(self):
         """
-        Returns true if the tasks for this task have been 
-        completed, and false otherwise.
+        Returns true if the task is done doing
+        whatever is does, and false otherwise.
 
         Parameters
         ----------

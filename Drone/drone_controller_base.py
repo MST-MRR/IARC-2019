@@ -4,30 +4,29 @@ import heapq
 import threading
 
 # Ours
-from ..Utilities.drone_exceptions import NetworkException
-from ..Utilities.emergency_land import EmergencyLand
+from ..Utilities.Safety.drone_exceptions import NetworkException
+from ..Utilities.Safety.emergency_land import EmergencyLand
 
 class DroneControllerBase(threading.Thread):
     """
-    Responsible for processing instructions received from the swarm controller 
-    along with drone sensor data to best control the movement and actions of 
-    a drone in accordance with the goal of the mission.
+    Responsible for managing the execution of tasks, maintaining a queue of
+    instructions, and responding gracefully to emergency landing events.
 
     Data Members
     ----------
     id: Integer
         Identification number used by the swarm controller
         to distinguish between the drones
-    instruction_queue: list of instruction.Instruction
-        A priority queue holding instruction send from the
-        swarm controller
-    current_instruction: instruction.Instruction
+    instruction_queue: list of InstructionBase subclass 
+        A priority queue holding instruction sent from the
+        swarm controller or interdrone communication
+    current_instruction: subclass of InstructionBase
         The instruction currently being processed
-    emergency_land_event: threading.Event
+    emergency_land_event: TwoWayEvent
         Event which is set when an emergency landing is requested,
         as when a keyboard interrupt comes in
-    task: one of MOVEMENT, FOLLOW, HEAL, or DECODE (see constants)
-        Determines the behavior of the controller
+    task: subclass of TaskBase
+        Represents what the drone is doing now
     """
     __metaclass__ = abc.ABCMeta
 
@@ -45,11 +44,7 @@ class DroneControllerBase(threading.Thread):
         """
         Behavior of this function is currently undefined.
         """
-        if self.master is None or self.id is None:
-            raise NetworkException("IP address of master or id of this controller has not been set!")
-        else:
-            # Establish TCP or otherwise connection with the swarm controller
-            pass
+        pass
 
     # Lets the swarm controller know that an instruction is finished
     def notifyInstructionFinished(self, instructionId):
@@ -64,9 +59,8 @@ class DroneControllerBase(threading.Thread):
     def readNextInstruction(self):
         """
         Discards the old instruction and sets current_instruction to the next instruction
-        in self.instruction_queue. Should be customized to match the kinds of instructions
-        a particular kind of drone controller can read (i.e. which XXXInstructionReader it
-        is a subclass of)
+        in self.instruction_queue. Calls the get_task method on the new instruction and
+        sets task to the value returned.
 
         Parameters
         ----------
@@ -89,7 +83,7 @@ class DroneControllerBase(threading.Thread):
     @abc.abstractmethod
     def setId(self):
         """
-        Hardcoded setter for drone ID
+        Sets the drone's id
 
         Parameters
         ----------
@@ -109,13 +103,12 @@ class DroneControllerBase(threading.Thread):
     @abc.abstractmethod
     def update(self):
         """
-        Takes the next best action to control the drone. Responsible for connecting, arming,
-        and taking off the drone, carrying out instructions as needed, and safely landing 
-        the drone (whether due to mission completed or emergency). 
+        Checks that a land event has not been set and executes the
+        next iteration of the current task, if one exists
 
         Returns:
-            True if the update should continue to be called.
-            False if update should stop being called.
+            False if the update should continue to be called.
+            True if update should stop being called.
         """
         pass
  
@@ -123,7 +116,7 @@ class DroneControllerBase(threading.Thread):
     def run(self):
         """
         Method overriden from threading.Thread. The start() method calls this method.
-        https://docs.python.org/2/library/threading.html. When this function finishes,
-        the thread ends.
+        https://docs.python.org/2/library/threading.html. Responsible for connecting
+        and arming the drone, and waiting for the update loop to signal it is finished.
         """
         pass

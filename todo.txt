@@ -1,6 +1,0 @@
-TODO:
-Better exception handling
-Organize the files into subfiles
-Start using logging module instead of print()
-Add decorators for validating actions (such as move)
-Make our own priority queue

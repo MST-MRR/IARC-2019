@@ -11,7 +11,7 @@ import threading
 # Ours
 from ..Utilities import constants as c
 from ..Utilities import dronekit_wrappers as dkw
-from ..Utilities.drone_exceptions import AltitudeException, ThrustException, VelocityException, BadArgumentException
+from ..Utilities.Safety.drone_exceptions import AltitudeException, ThrustException, VelocityException, BadArgumentException
 
 class DroneBase(object):
     """

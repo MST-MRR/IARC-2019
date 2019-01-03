@@ -1,25 +1,36 @@
 # Standard Library
 import coloredlogs
-import constants as c
 import drone_exceptions
 import logging
 import threading
 import time
 
 # Ours
-from two_way_event import TwoWayEvent
-from ..Drone.drone import Drone
+from .. import constants as c
+from ..two_way_event import TwoWayEvent
+from ...Drone.drone import Drone
 
 class SafetyChecking(threading.Thread):
     """
     This class checks that the drone is behaving as expected, and
-    if not, alerts the user (currently does not do anything about it!)
+    if not, alerts the safety loop on the main thread via setting
+    an event.
+
+    Parameters
+    ----------
+    event: TwoWayEvent
+        Set whenever an unsafe condition is found
+    drone: Drone
+        Interface to the drones information
+    enabled: Boolean
+        Set to true if the loop should continue to run,
+        and false otherwise
     """
 
     def __init__(self):
         super(SafetyChecking, self).__init__()
         self.setName("SafetyCheckThread")
-        self.daemon = True
+        self.daemon = True # Means that this thread will abrupty shut down upon main thread exiting
         self.event = TwoWayEvent()
         self.drone = Drone.getDrone()
         self.logger = logging.getLogger(__name__)
@@ -63,8 +74,7 @@ class SafetyChecking(threading.Thread):
     def run(self):
         self.started = True
         while self.enabled:
-            if self.enabled:
-                self.update()
+            self.update()
             time.sleep(c.HALF_SEC)
 
     def get_safety_check_event(self):

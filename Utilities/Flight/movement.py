@@ -7,7 +7,7 @@ import time
 # Ours
 from ...Drone.drone import Drone
 from ...Utilities import constants as c
-from ...Utilities.drone_exceptions import BadArgumentException
+from ...Utilities.Safety.drone_exceptions import BadArgumentException
 from ...Utilities.two_way_event import TwoWayEvent
 
 class Movement(threading.Thread):

@@ -10,17 +10,16 @@ import sys
 # Ours
 from drone import Drone
 from drone_controller_base import DroneControllerBase
-from ..Instructions.Movement.movement import Movement
-from ..Instructions.Movement.movement_instruction import MovementInstruction
-from ..Instructions.Movement.movement_instruction_reader import MovementInstructionReader
-from Tasks.hover_task import HoverTask
-from Tasks.movement_task import MovementTask
-from Tasks.takeoff_task import TakeoffTask
+from ..Utilities.Flight.movement import Movement
+from ..Instructions.movement_instruction import MovementInstruction
+from ..Tasks.hover_task import HoverTask
+from ..Tasks.movement_task import MovementTask
+from ..Tasks.takeoff_task import TakeoffTask
 from ..Utilities import constants as c
-from ..Utilities.drone_exceptions import EmergencyLandException
+from ..Utilities.Safety.drone_exceptions import EmergencyLandException
 from ..Utilities.lock import SharedLock
 
-class DroneController(DroneControllerBase, MovementInstructionReader):
+class DroneController(DroneControllerBase):
     """
     Concrete implementation of DroneControllerBase. See drone_controller_base.py for
     documentation.
@@ -32,8 +31,8 @@ class DroneController(DroneControllerBase, MovementInstructionReader):
         # The following two lines are purely for testing purposes. Instructions
         # will be pushed onto the heap as a result of the swarm controller
         # sending instructions or inter-drone communication.
-        heapq.heappush(self.instruction_queue, (0, MovementInstruction(5, 5, 0)))
-        heapq.heappush(self.instruction_queue, (0, MovementInstruction(-5, -5, 0)))
+        heapq.heappush(self.instruction_queue, (0, MovementInstruction((5, 5, 0))))
+        heapq.heappush(self.instruction_queue, (0, MovementInstruction((-5, -5, 0))))
 
     def setId(self):
         return 1
@@ -90,9 +89,11 @@ class DroneController(DroneControllerBase, MovementInstructionReader):
                 # if they were less than a second away from completing
                 exit_event.wait_r(timeout=1) 
 
+            # Land the drone
             land = Movement(land=True)
             land.start()
             land.get_done_event().wait()
+            # Set response, letting safety (main) thread know the drone has landed
             self.emergency_land_event.set_r()
 
             return True
@@ -127,10 +128,4 @@ class DroneController(DroneControllerBase, MovementInstructionReader):
     def readNextInstruction(self):
         if len(self.instruction_queue):      
             self.current_instruction = heapq.heappop(self.instruction_queue)[1]
-            if type(self.current_instruction) is MovementInstruction:
-                self.task = MovementTask()
-        
-                # The following method is inherited from MovementInstructionReader
-                self.readMovementInstruction(self.current_instruction, self.task.get_movement_queue())
-            # In the future, there may be other types of instruction (other than movements) we
-            # want to process here (for example, HealInstruction)
+            self.task = self.current_instruction.get_task()

@@ -3,9 +3,9 @@ from time import sleep
 
 # Ours
 from task_base import TaskBase
-from ...Instructions.Movement.movement import Movement
-from ...Utilities import constants as c
-from ...Utilities.two_way_event import TwoWayEvent
+from ..Utilities.Flight.movement import Movement
+from ..Utilities import constants as c
+from ..Utilities.two_way_event import TwoWayEvent
 
 class HoverTask(TaskBase):
 
