@@ -7,15 +7,8 @@ from multiprocessing import Queue
 import numpy as np
 from matplotlib import pyplot as plt, animation as animation
 
-try:
-    from tools.real_time_graph.metric import Metric
-except ImportError:
-    from real_time_graph.metric import Metric
-
-try:
-    from tools.file_oi.file_io import parse_config
-except ImportError:
-    from file_oi.file_io import parse_config
+from file_oi.file_io import parse_config
+from real_time_graph.metric import Metric
 
 
 class RealTimeGraph:
