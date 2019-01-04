@@ -1,5 +1,3 @@
-import sys  # For getting this file's path
-
 import logging
 from time import sleep, time
 
@@ -109,7 +107,7 @@ class RealTimeGraph:
         Returns the filename of config file.
         """
 
-        config_path = sys.argv[0].split(RealTimeGraph.working_filename)[0]
+        config_path = __file__.split(RealTimeGraph.working_filename)[0]  # Get this files location
 
         config_path += RealTimeGraph.relative_config_path
 
