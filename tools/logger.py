@@ -34,7 +34,7 @@ class Logger:
 
         # Find directory and choose filename
 
-        self.resource_file_dir = self.find_directory()
+        self.resource_file_dir = '../../tools/generated_logs/'
 
         date = time.strftime('%x').replace('/', '_')  # Gets today's date & sets / to _ as not mess up the directory
 
