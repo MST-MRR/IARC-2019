@@ -1,21 +1,8 @@
 import logging
 from time import time, sleep
 
-try:
-    from tools.logger import Logger
-except ImportError:
-    try:
-        from logger import Logger
-    except ImportError as e:
-        logging.error(e)
-
-try:
-    from tools.interprocess_communication import IPC
-except ImportError:
-    try:
-        from interprocess_communication import IPC
-    except ImportError as e:
-        logging.error(e)
+from logger import Logger
+from interprocess_communication import IPC
 
 
 class DataSplitter:
