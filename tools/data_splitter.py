@@ -22,6 +22,8 @@ class DataSplitter:
 
     def __init__(self, logger_desired_headers=[], use_rtg=True):
 
+        # Enable or disable each tool based on parameter choice
+
         if logger_desired_headers is [] or not logger_desired_headers:
             logging.critical("Splitter: Logger disabled.")
             self.logger = None
