@@ -23,14 +23,13 @@ class DataSplitter:
     def __init__(self, logger_desired_headers=[], use_rtg=True):
 
         if logger_desired_headers is [] or not logger_desired_headers:
-            logging.warning("Splitter: No desired headers for logger!!!")
-            logging.critical("Splitter: Logger disabled")
+            logging.critical("Splitter: Logger disabled.")
             self.logger = None
         else:
             self.logger = Logger(logger_desired_headers)
 
         if not use_rtg:
-            logging.warning("Splitter: RTG Disabled!")
+            logging.warning("Splitter: RTG Disabled.")
             self.ipc = None
         else:
             self.ipc = IPC()
