@@ -1,3 +1,5 @@
+import sys  # For getting this file's path
+
 import logging
 from time import sleep, time
 
@@ -30,13 +32,15 @@ class RealTimeGraph:
 
     log_level = logging.INFO
 
-    config_filename = ['tools/real_time_graph/config.xml', 'real_time_graph/config.xml', 'config.xml']  # Possible locations of configuration file
-
     max_rows = 3  # Rows of subplots per column
 
     data_freq_warning = .5  # If time values are this far apart warn the user
 
     pan_width = 10  # Seconds of previous data to show
+
+    working_filename = 'real_time_graphing.py'  # The name of this file
+
+    relative_config_path = "real_time_graph/config.xml"  # Path from this file to config file
 
     def __init__(self, get_data, **kwargs):
         printer = logging.getLogger()
@@ -99,6 +103,18 @@ class RealTimeGraph:
         for thread in threads.values():
             thread.join()
 
+    @property
+    def config_filename(self):
+        """
+        Returns the filename of config file.
+        """
+
+        config_path = sys.argv[0].split(RealTimeGraph.working_filename)[0]
+
+        config_path += RealTimeGraph.relative_config_path
+
+        return config_path
+
     def parse_rtg_config(self):
         """
         Interprets the graph config file
@@ -109,13 +125,11 @@ class RealTimeGraph:
             Parsed config file
         """
 
-        for filename in RealTimeGraph.config_filename:
-            try:
-                output = parse_config(filename)
-                break
-            except IOError:
-                logging.warning("RTG: Failed to read config file: {}. Trying again...".format(filename))
-                output = None
+        try:
+            output = parse_config(self.config_filename)
+        except IOError:
+            logging.warning("RTG: Failed to read config file!".format(self.config_filename))
+            output = None
 
         if output is None:
             logging.critical("RTG: No configuration file found!")
