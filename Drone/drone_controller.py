@@ -10,7 +10,6 @@ import sys
 # Ours
 from drone import Drone
 from drone_controller_base import DroneControllerBase
-from ..Utilities.Flight.movement import Movement
 from ..Instructions.movement_instruction import MovementInstruction
 from ..Tasks.hover_task import HoverTask
 from ..Tasks.movement_task import MovementTask
@@ -90,7 +89,7 @@ class DroneController(DroneControllerBase):
                 exit_event.wait_r(timeout=1) 
 
             # Land the drone
-            land = Movement(land=True)
+            land = Drone.Movement(land=True)
             land.start()
             land.get_done_event().wait()
             # Set response, letting safety (main) thread know the drone has landed
