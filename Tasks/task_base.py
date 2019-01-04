@@ -18,20 +18,10 @@ class TaskBase():
         ----------
         None (maybe kwargs in the future?)
 
-        Precondition:
-        ----------
-        The goal of this task is not finished (i.e. a call
-        to is_done() should return false before this method is
-        called)
-
-        Postcondition:
-        ----------
-        If the goal of this task was reached during this
-        iteration, calls to is_done will return true
-
         Returns:
         ----------
-        None
+        True if the task is done with its goal, and false otherwise
+        (But do not use to query if the task is done, use is_done() instead)
         """
         pass
 
@@ -42,14 +32,6 @@ class TaskBase():
         whatever is does, and false otherwise.
 
         Parameters
-        ----------
-        None
-
-        Precondition:
-        ----------
-        None
-
-        Postcondition:
         ----------
         None
 
@@ -65,7 +47,7 @@ class TaskBase():
         Takes the necessary actions to for the controller to
         safely exit the current task (ex. halting movement). 
         The task has been safely exited once the returned 
-        event's response is set (wait_r()).
+        event is set.
 
         Parameters
         ----------
@@ -81,6 +63,6 @@ class TaskBase():
 
         Returns:
         ----------
-        TwoWayEvent
+        threading.Event
         """
         pass

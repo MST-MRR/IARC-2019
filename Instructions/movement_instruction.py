@@ -1,3 +1,5 @@
+from collections import deque
+
 # Ours
 from ..Tasks.movement_task import MovementTask
 from instruction_base import InstructionBase
@@ -14,9 +16,8 @@ class MovementInstruction(InstructionBase):
         
         self.movementTask = None
 
-    def get_task(self):
-        self.movementTask = MovementTask()
-        queue = self.movementTask.get_movement_queue()
+    def get_task(self, drone):
+        queue = deque()
         if self.x != 0:
             queue.append((c.BACKWARD if self.x > 0 else c.FORWARD, abs(self.x)))
 
@@ -25,5 +26,7 @@ class MovementInstruction(InstructionBase):
 
         if self.z != 0:
             queue.append((c.UP if self.z > 0 else c.DOWN, abs(self.z)))
+
+        self.movementTask = MovementTask(drone, queue)
 
         return self.movementTask

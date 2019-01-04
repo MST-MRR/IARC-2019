@@ -3,11 +3,7 @@ import abc
 import heapq
 import threading
 
-# Ours
-from ..Utilities.Safety.drone_exceptions import NetworkException
-from ..Utilities.Safety.emergency_land import EmergencyLand
-
-class DroneControllerBase(threading.Thread):
+class DroneControllerBase():
     """
     Responsible for managing the execution of tasks, maintaining a queue of
     instructions, and responding gracefully to emergency landing events.
@@ -22,32 +18,27 @@ class DroneControllerBase(threading.Thread):
         swarm controller or interdrone communication
     current_instruction: subclass of InstructionBase
         The instruction currently being processed
-    emergency_land_event: TwoWayEvent
-        Event which is set when an emergency landing is requested,
-        as when a keyboard interrupt comes in
     task: subclass of TaskBase
         Represents what the drone is doing now
     """
     __metaclass__ = abc.ABCMeta
 
-    def __init__(self):
-        super(DroneControllerBase, self).__init__()
-        self.setName("ControllerThread") # Set name of thread for ease of debugging
+    def __init__(self, drone):
+        self.drone = drone
         self.id = None # Once we have multiple drones, this will need to be set
         self.instruction_queue = []
         self.current_instruction = None
-        self.emergency_land_event = EmergencyLand.get_emergency_land_event()
         self.task = None
 
     # Attempts to establish a connection with the swarm controller
-    def connectToSwarm(self):
+    def connect_to_swarm(self):
         """
         Behavior of this function is currently undefined.
         """
         pass
 
     # Lets the swarm controller know that an instruction is finished
-    def notifyInstructionFinished(self, instructionId):
+    def notify_instruction_finished(self, instructionId):
         """
         Behavior of this function is currently undefined.
         """
@@ -56,7 +47,7 @@ class DroneControllerBase(threading.Thread):
         pass
 
     @abc.abstractmethod
-    def readNextInstruction(self):
+    def read_next_instruction(self):
         """
         Discards the old instruction and sets current_instruction to the next instruction
         in self.instruction_queue. Calls the get_task method on the new instruction and
@@ -81,7 +72,7 @@ class DroneControllerBase(threading.Thread):
         pass
 
     @abc.abstractmethod
-    def setId(self):
+    def set_id(self):
         """
         Sets the drone's id
 
@@ -109,14 +100,5 @@ class DroneControllerBase(threading.Thread):
         Returns:
             False if the update should continue to be called.
             True if update should stop being called.
-        """
-        pass
- 
-    @abc.abstractmethod
-    def run(self):
-        """
-        Method overriden from threading.Thread. The start() method calls this method.
-        https://docs.python.org/2/library/threading.html. Responsible for connecting
-        and arming the drone, and waiting for the update loop to signal it is finished.
         """
         pass

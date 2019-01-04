@@ -1,40 +1,39 @@
 # Standard Library
 from time import sleep
+import threading
 
 # Ours
 from task_base import TaskBase
 from ..Drone.drone import Drone
 from ..Utilities import constants as c
-from ..Utilities.two_way_event import TwoWayEvent
 
 class HoverTask(TaskBase):
 
-    def __init__(self, duration=480):
+    def __init__(self, drone, duration=480):
         super(HoverTask, self).__init__()
-        self.drone = Drone.getDrone()
-        self.currentMovement = None
-        self.done_event = None
-        self.state = c.ACTIVE
+        self.drone = drone
+        self.movement = None
+        self.stop_event = threading.Event()
         self.duration = duration # 8 minutes default
+        self.done = False
 
     def do(self):
-        if self.currentMovement is None:
-            self.currentMovement = self.drone.Movement(hover=self.duration)
-            self.currentMovement.start()
-            self.done_event = self.currentMovement.get_done_event()
-        elif self.done_event.is_set():
-            self.state = c.FINISHED
+        if self.movement is None:
+            self.movement = self.drone.hover(self.duration, self.stop_event)
+        elif self.movement.is_set():
+            self.done = True
+            return True
+
+        return False
 
     def is_done(self):
-        if self.state is c.FINISHED:
-            return True
-        else:
-            return False
+        return self.done
 
     def exit_task(self):
-        if self.currentMovement is not None:
-            cancel_event = self.currentMovement.cancel()
+        self.stop_event.set()
+        if self.movement is not None:
+            return self.movement
         else:
-            cancel_event = TwoWayEvent()
-            cancel_event.set_r()
-        return cancel_event
+            cancel_event = threading.Event()
+            cancel_event.set()
+            return cancel_event

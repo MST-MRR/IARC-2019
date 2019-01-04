@@ -27,7 +27,7 @@ class IPC:
         The thread stop to be used by shell reader, pass in own thread stop or allow it to create its own.
     """
 
-    py2command = 'python'  # Command to start python 2.7
+    py2command = 'python -m'  # Command to start python 2.7
     py3command = 'python3'  # Command to start python 3.6 (rename python.exe in Python3 folder to python3.exe)
 
     def __init__(self, version=2, reader=True, thread_stop=threading.Event()):
@@ -100,6 +100,7 @@ class IPC:
 
         logging.warning("IPC: Quitting.")
         self.subprocess.terminate()
+        self.subprocess.kill()
 
         self.thread_stop.set()
 

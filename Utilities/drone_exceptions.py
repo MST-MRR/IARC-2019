@@ -67,3 +67,5 @@ class AltitudeNegativeException(Exception):
     Caused by altitude being negative.
     """
     pass
+
+# TODO: Add more safety-related exceptions here

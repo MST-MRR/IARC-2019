@@ -11,100 +11,41 @@ from time import sleep, time
 # Ours
 import constants as c
 
-"""
-Any functions requiring the use of DroneKit's message_factory module to construct
-mavlink commands are stored here.
-"""
-
-# Tells the drone to move with the given velocities in the x, y, and z direction
-# for a specifies number of seconds.
-def send_global_velocity(vehicle, (velocity_x, velocity_y, velocity_z), duration, stop_event):
+def get_velocity_message(message_factory, (velocity_x, velocity_y, velocity_z)):
     """
-    Moves vehicle in direction of the give three-dimentional velocity vector for the
-    given duration in seconds.  
+    Returns a DroneKit object that represents a mavlink message which moves
+    the drone at a certain velocity.
 
     Parameters
     ----------
-    vehicle: DroneKit.Vehicle
-        Interface to the drone
-    (velocity_x, velocity_y, velocity_z): (Double, Double, Double)
-        Velocity vector to travel along
-    duration: Integer
-        How long in seconds to fly along vector
-    stop_event: threading.Event
-        Set whenever the current thread is being canceled
-
-    Precondition:
-    ----------
-    None
-
-    Postcondition:
-    ----------
-    None
+    message_factory: dronekit.vehicle.message_factory
+        Used to create the message
+    (velocity_x, velocity_y, velocity_z): (Double, Double ,Double)
+        The vector to travel along
 
     Returns:
     ----------
-    None
+    MAVLink_message (a DroneKit object)
     """
-    msg = vehicle.message_factory.set_position_target_global_int_encode(
-        0,       # time_boot_ms (not used)
-        0, 0,    # target system, target component
-        mavutil.mavlink.MAV_FRAME_GLOBAL_RELATIVE_ALT_INT, # frame
-        0b0000111111000111, # type_mask (only speeds enabled)
-        0, # lat_int - X Position in WGS84 frame in 1e7 * meters
-        0, # lon_int - Y Position in WGS84 frame in 1e7 * meters
-        0, # alt - Altitude in meters in AMSL altitude(not WGS84 if absolute or relative)
-        # altitude above terrain if GLOBAL_TERRAIN_ALT_INT
-        velocity_x, # X velocity in NED frame in m/s
-        velocity_y, # Y velocity in NED frame in m/s
-        velocity_z, # Z velocity in NED frame in m/s
-        0, 0, 0, # afx, afy, afz acceleration (not supported yet, ignored in GCS_Mavlink)
-        0, 0)    # yaw, yaw_rate (not supported yet, ignored in GCS_Mavlink)
-
-    logger = logging.getLogger(__name__)
-    coloredlogs.install(level='DEBUG')
-    logger.info(threading.current_thread().name + " Velocity: ( " + str(velocity_x) +  ", " + str(velocity_y) + ", " + str(velocity_z) + ")")
-    logger.info(threading.current_thread().name + ": Sending velocity ")
-    # send command to vehicle on 1 Hz cycle
-    for x in range(0, duration):
-        stdout.flush()
-        vehicle.send_mavlink(msg)
-        sleep(c.SECOND)
-        if stop_event.is_set_m():
-            logger.info(threading.current_thread().name + ": Movement halting")
-            stop_event.set_r()
-            return
+    return message_factory.set_position_target_global_int_encode(
+            0,       # time_boot_ms (not used)
+            0, 0,    # target system, target component
+            mavutil.mavlink.MAV_FRAME_GLOBAL_RELATIVE_ALT_INT, # frame
+            0b0000111111000111, # type_mask (only speeds enabled)
+            0, # lat_int - X Position in WGS84 frame in 1e7 * meters
+            0, # lon_int - Y Position in WGS84 frame in 1e7 * meters
+            0, # alt - Altitude in meters in AMSL altitude(not WGS84 if absolute or relative)
+            # altitude above terrain if GLOBAL_TERRAIN_ALT_INT
+            velocity_x, # X velocity in NED frame in m/s
+            velocity_y, # Y velocity in NED frame in m/s
+            velocity_z, # Z velocity in NED frame in m/s
+            0, 0, 0, # afx, afy, afz acceleration (not supported yet, ignored in GCS_Mavlink)
+            0, 0)    # yaw, yaw_rate (not supported yet, ignored in GCS_Mavlink)
    
 
 def set_attitude(vehicle, roll_angle = 0.0, pitch_angle = 0.0, yaw_rate = 0.0, thrust = 0.5):
     """
-    TODO: give a good description of what this function does
-
-    Parameters
-    ----------
-    vehicle: DroneKit.Vehicle
-        Interface to the drone
-    roll_angle: Double (optional)
-        TODO
-    pitch_angle: Double (optional)
-        TODO
-    yaw_rate: Double (optional)
-        TODO
-    thrust: Double (optional)
-        TODO
-
-    Precondition:
-    ----------
-    TODO
-
-    Postcondition:
-    ----------
-    TODO
-
-    Returns:
-    ----------
-    None
-    
+    NOTE: CURRENTLY NOT USED
     The follow comments are from the DroneKit website:
 
     Note that from AC3.3 the message should be re-sent every second (after about 3 seconds
@@ -133,25 +74,9 @@ def set_attitude(vehicle, roll_angle = 0.0, pitch_angle = 0.0, yaw_rate = 0.0, t
 
 def to_quaternion(roll = 0.0, pitch = 0.0, yaw = 0.0):
     """
+    NOTE: CURRENTLY NOT USED
+
     Convert degrees to quaternions
-
-    Parameters
-    ----------
-    roll: Double (optional)
-        TODO
-    pitch: Double (optional)
-        TODO
-    yaw: Double (optional)
-        TODO
-
-
-    Precondition:
-    ----------
-    TODO
-
-    Postcondition:
-    ----------
-    TODO
     """
     t0 = cos(radians(yaw * 0.5))
     t1 = sin(radians(yaw * 0.5))

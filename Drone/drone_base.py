@@ -11,7 +11,6 @@ import threading
 # Ours
 from ..Utilities import constants as c
 from ..Utilities import dronekit_wrappers as dkw
-from ..Utilities.Safety.drone_exceptions import AltitudeException, ThrustException, VelocityException, BadArgumentException
 
 class DroneBase(object):
     """
@@ -25,21 +24,16 @@ class DroneBase(object):
         Interface to the drone's devices, such as camera
     connected: Boolean
         True if the drone is connected to Ardupilot
-    taking_off: Boolean
-        True if the drone is in the middle of taking off
-    flying: Boolean
-        True if the drone is flying but not taking off
     """
     __metaclass__ = abc.ABCMeta
+
+    cnt = 0
 
     def __init__(self):
         self.vehicle = None
         self.devices = []
         self.connected = False
-        self.taking_off = False
-        self.flying = False
         self.logger = logging.getLogger(__name__)
-
 
     def connect(self, isInSimulator):
         """
@@ -166,39 +160,9 @@ class DroneBase(object):
         """
         return self.vehicle.armed
 
-    def is_taking_off(self):
-        """
-        Getter for self.taking_off
-
-        Parameters
-        ----------
-        None
-
-        Returns:
-        ----------
-        Boolean
-            True if the drone is in the middle of taking off and false otherwise
-        """
-        return self.taking_off
-
-    def is_flying(self):
-        """
-        Getter for self.flying
-
-        Parameters
-        ----------
-        None
-
-        Returns:
-        ----------
-        Boolean
-            True if the drone flying (but not taking off) and false otherwise
-        """
-        return self.flying
-
     def takeoff(self, target_altitude, stop_event):
         """
-        Attempts to take off (fly from resting state) the drone
+        The drone flies from the ground to desired altitude
 
         Parameters
         ----------
@@ -206,7 +170,7 @@ class DroneBase(object):
             The height in meters the drone should be off the ground after
             this function completes
         stop_event: threading.Event
-            Set whenever the current thread is being canceled
+            Event which is set when takeoff should be canceled
 
         Precondition:
         ----------
@@ -214,58 +178,48 @@ class DroneBase(object):
 
         Postcondition:
         ----------
-        Upon success: the drone is the requested altitude in the air. self.flying
-        is set to True.
+        Upon success: the drone is the requested altitude in the air. 
 
         Returns:
         ----------
         None
         """
-        self.taking_off = True
-        thrust = c.DEFAULT_TAKEOFF_THRUST
+        def takeoff_thread(target_altitude, finished, stop_event):
+            self.logger.info(threading.current_thread().name + ": Starting takeoff")
+            thrust = c.DEFAULT_TAKEOFF_THRUST
 
-        start_time = time.time()
-        cutoff_time = 10
-        
-        while time.time() - start_time < cutoff_time:
-            if stop_event.is_set_m():
-                self.taking_off = False
-                stop_event.set_r()
-                return False
+            start_time = time.time()
+            cutoff_time = 10
+            
+            while time.time() - start_time < cutoff_time:
+                if stop_event.is_set():
+                    self.logger.info(threading.current_thread().name + ": Takeoff halting")
+                    break
 
-            current_altitude = self.altitude()
+                current_altitude = self.altitude()
 
-            if current_altitude >= target_altitude*0.95: # Trigger just below target alt.
-                self.logger.info("Reached target altitude")
-                break
-            elif current_altitude >= target_altitude*0.6:
-                thrust = c.SMOOTH_TAKEOFF_THRUST
+                if current_altitude >= target_altitude*0.95: # Trigger just below target alt.
+                    break
+                elif current_altitude >= target_altitude*0.6:
+                    thrust = c.SMOOTH_TAKEOFF_THRUST
 
-            dkw.set_attitude(self.vehicle, thrust=thrust)
-            time.sleep(1)
-        else:
-            self.logger.warning("Could not take off - trying again")
-            return False
+                dkw.set_attitude(self.vehicle, thrust=thrust)
+                time.sleep(1)
+            else:
+                self.logger.error("Could not take off!")
+            
+            self.logger.info(threading.current_thread().name + ": Finished takeoff")
+            finished.set()
 
-        self.taking_off = False
-        self.flying = True
-        return True
+        finished = threading.Event()
+        threading.Thread(target=takeoff_thread, name="TakeoffThread-" + str(DroneBase.cnt), 
+            args=(target_altitude, finished, stop_event)).start()
+        DroneBase.cnt += 1
+        return finished
 
     def land(self):
-        while not self.vehicle.mode == VehicleMode(c.LAND_MODE):
-            self.vehicle.mode = VehicleMode(c.LAND_MODE)
-        while self.vehicle.armed:
-            pass
-
-        self.flying = False
-
-    @staticmethod
-    @abc.abstractmethod
-    def getDrone():
         """
-        Returns an instance of the drone. If one has not yet been created, 
-        then one is created. Only one instance of the drone should ever be
-        created. This method follows the singleton pattern.
+        Lands the drone on the ground
 
         Parameters
         ----------
@@ -273,27 +227,32 @@ class DroneBase(object):
 
         Precondition:
         ----------
-        None
+        The drone is connected and armed.
 
         Postcondition:
         ----------
-        If there was no prior instance of the drone, there is one now
-
+        The drone is on the groun (and ideally not smashed into 1000 pieces)
+        
         Returns:
         ----------
-        drone.Drone
+        None
         """
-        pass
+        def land_thread(finished):
+            self.logger.info(threading.current_thread().name + ": Starting land")
+            while not self.vehicle.mode == VehicleMode(c.LAND_MODE):
+                self.vehicle.mode = VehicleMode(c.LAND_MODE)
+            while self.vehicle.armed:
+                pass
 
-    # TODO - This is currently not being used.
-    @abc.abstractmethod
-    def loadDevices(self):
-        """
-        Behavior of this function is currently undefined.
-        """
-        pass
+            self.logger.info(threading.current_thread().name + ": Finished  land")
+            finished.set()
 
-    @abc.abstractmethod
+        finished = threading.Event()
+        threading.Thread(target=land_thread, name="LandThread-" + str(DroneBase.cnt), 
+            args=(finished,)).start()
+        DroneBase.cnt += 1
+        return finished
+
     def move(self, direction, distance, stop_event, velocity=c.DEFAULT_VELOCITY):
         """
         Moves the drone along a path.
@@ -304,12 +263,12 @@ class DroneBase(object):
             The direction the drone should travel in
         distance: Double
             The distance in meters the drone should travel in the given direction
-        stop_event: threading.Event()
-            Set whenever the current thread is being canceled
+        emergency_land: threading.Event()
+            Set when this movement needs to stop
 
         Precondition:
         ----------
-        The drone is flying. Should not called from the main thread.
+        The drone is already in the air and not moving anywhere else
 
         Postcondition:
         ----------
@@ -317,16 +276,37 @@ class DroneBase(object):
 
         Returns:
         ----------
-        None
+        threading.Event
         """
-        if velocity is None:
-            velocity = c.DEFAULT_VELOCITY
+
         # Calculate duration to send velocity command based on distance and velocity
         duration = int(distance / velocity)
 
         # Multiply unit vector in direction by the velocity
         vector = tuple(velocity * n for n in direction)
-        dkw.send_global_velocity(self.vehicle, vector, duration, stop_event)
+
+        # Make the mavlink message
+        msg = dkw.get_velocity_message(self.vehicle.message_factory, vector)
+
+        def move_thread(msg, duration, finished, stop_event):
+            self.logger.info(threading.current_thread().name + ": Starting move")
+            # Send the message once every second
+            for _ in range(0, duration):
+                self.vehicle.send_mavlink(msg)
+                time.sleep(1)
+                if stop_event.is_set():
+                    self.logger.info(threading.current_thread().name + ": Movement halting")
+                    break
+
+            self.logger.info(threading.current_thread().name + ": Finished move")
+            finished.set()
+
+        finished = threading.Event()
+        threading.Thread(target=move_thread, name="MovementThread-" + str(DroneBase.cnt), 
+            args=(msg, duration, finished, stop_event)).start()
+        DroneBase.cnt += 1
+        return finished
+            
     
     def hover(self, duration, stop_event):
         """
@@ -337,11 +317,11 @@ class DroneBase(object):
         duration: Integer
             The number of seconds that the drone should hover in place
         stop_event: threading.Event()
-            Set whenever the current thread is being canceled
+            Set whenever the hover should stop
 
         Precondition:
         ----------
-        The drone is flying. Should not called from the main thread.
+        The drone is flying.
 
         Postcondition:
         ----------
@@ -351,4 +331,31 @@ class DroneBase(object):
         ----------
         None
         """
-        dkw.send_global_velocity(self.vehicle,(0,0,0), duration, stop_event)
+        # Make the mavlink message
+        msg = dkw.get_velocity_message(self.vehicle.message_factory, (0, 0, 0))
+
+        def hover_thread(msg, duration, finished, stop_event):
+            self.logger.info(threading.current_thread().name + ": Starting hover")
+            # Send the message once every second
+            for _ in range(0, duration):
+                self.vehicle.send_mavlink(msg)
+                time.sleep(1)
+                if stop_event.is_set():
+                    self.logger.info(threading.current_thread().name + ": Hover halting")
+                    break
+
+            self.logger.info(threading.current_thread().name + ": Finished hover")
+            finished.set()
+
+        finished = threading.Event()
+        threading.Thread(target=hover_thread, name="HoverThread-" + str(DroneBase.cnt), 
+            args=(msg, duration, finished, stop_event)).start()
+        DroneBase.cnt += 1
+        return finished
+
+    @abc.abstractmethod
+    def loadDevices(self):
+        """
+        Behavior of this function is currently undefined.
+        """
+        pass

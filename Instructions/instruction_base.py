@@ -5,6 +5,10 @@ class InstructionBase():
     """
     Responsible for decoding data sent over the network and
     using that data to create tasks.
+
+    NOTE: This class will be import once we start sending
+    messages over the network, but is currently in a simplified
+    state.
     """
     __metaclass__ = abc.ABCMeta
 

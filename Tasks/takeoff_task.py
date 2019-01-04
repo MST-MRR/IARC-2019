@@ -1,31 +1,38 @@
+# Standard Library
+import threading
+
 # Ours
 from ..Drone.drone import Drone
 from task_base import TaskBase
 from ..Utilities import constants as c
-from ..Utilities.two_way_event import TwoWayEvent
 
 class TakeoffTask(TaskBase):
 
-    def __init__(self, alt):
+    def __init__(self, drone, alt):
         super(TakeoffTask, self).__init__()
-        self.drone = Drone.getDrone()
-        self.cancel_event = TwoWayEvent()
+        self.drone = drone
+        self.stop_event = threading.Event()
         self.target_alt = alt
         self.movement = None
-        self.state = c.ACTIVE
+        self.done = False
 
     def do(self):
         if self.movement is None:
-            self.movement = self.drone.Movement(takeoff=self.target_alt)
-            self.movement.start()
-        elif self.movement.get_state() is c.FINISHED:
-            self.state = c.FINISHED
+            self.movement = self.drone.takeoff(self.target_alt, self.stop_event)
+        elif self.movement.is_set():
+            self.done = True
+            return True
+
+        return False
 
     def is_done(self):
-        if self.state is c.FINISHED:
-            return True
-        else:
-            return False
+        return self.done
 
     def exit_task(self):
-        return self.movement.cancel()
+        self.stop_event.set()
+        if self.movement is not None:
+            return self.movement
+        else:
+            cancel_event = threading.Event()
+            cancel_event.set()
+            return cancel_event
