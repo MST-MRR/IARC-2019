@@ -18,13 +18,9 @@ class DataSplitter:
 
     use_rtg: bool, default=True
         Whether to use the real time grapher or not.
-
-    version: 2 / 3, default=2
-        Version of python to create rtg subprocess in. Not used if use_rtg=False.
-        Currently only tested in 2.7, TCL issues come up w/ 3.6! Use 2.7.
     """
 
-    def __init__(self, logger_desired_headers=[], use_rtg=True, version=2):
+    def __init__(self, logger_desired_headers=[], use_rtg=True):
 
         if logger_desired_headers is [] or not logger_desired_headers:
             logging.warning("Splitter: No desired headers for logger!!!")
@@ -37,7 +33,7 @@ class DataSplitter:
             logging.warning("Splitter: RTG Disabled!")
             self.ipc = None
         else:
-            self.ipc = IPC(version=version)
+            self.ipc = IPC()
 
     @property
     def active_tools(self):
@@ -101,11 +97,11 @@ if __name__ == '__main__':
 
     # demo = DataSplitter(use_rtg=False)  # No tools
 
-    # demo = DataSplitter([], use_rtg=True, version=2)  # No logger
+    # demo = DataSplitter([], use_rtg=True)  # No logger
 
     # demo = DataSplitter(['pitch', 'altitude', 'roll', 'yaw', 'voltage'], use_rtg=False)  # No rtg
 
-    demo = DataSplitter(['pitch', 'altitude', 'roll', 'yaw', 'voltage'], use_rtg=True, version=2)  # Both tools
+    demo = DataSplitter(['pitch', 'altitude', 'roll', 'yaw', 'voltage'], use_rtg=True)  # Both tools
 
     start_time = time()
     time_elapsed = 0

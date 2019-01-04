@@ -8,18 +8,12 @@ from time import sleep
 
 class IPC:
     """
-    Creates subprocess in python 2.7 or 3.6 that it can send and receive data from.
-
-    Currently have TCL problems in 3.6 w/ data_splitter! Use 2.7.
+    Creates subprocess in python 2.7 that it can send and receive data from.
 
     Version: python 2.7
 
     Parameters
     ----------
-    version: 2/3, default=2
-        Version of python to create subprocess in.
-        Only tested w/ data splitter in 2.7!
-
     reader: bool, default=True
         Whether or not to use the shell reader.
 
@@ -27,10 +21,9 @@ class IPC:
         The thread stop to be used by shell reader, pass in own thread stop or allow it to create its own.
     """
 
-    py2command = 'python'  # Command to start python 2.7
-    py3command = 'python3'  # Command to start python 3.6 (rename python.exe in Python3 folder to python3.exe)
+    python_command = 'python'  # Command to start python 2.7
 
-    def __init__(self, version=2, reader=True, thread_stop=threading.Event()):
+    def __init__(self, reader=True, thread_stop=threading.Event()):
         self.thread_stop = thread_stop
 
         # Get filename
@@ -39,19 +32,16 @@ class IPC:
         if 'tools' in os.listdir("."):
             filename = 'tools/{}'.format(filename)
 
-        # Set python command
-        python_command = IPC.py3command if version != 2 else IPC.py2command
-
         # Start subprocess
 
         try:
             # Attempt start
 
             if reader:
-                self.subprocess = subprocess.Popen('{} {}'.format(python_command, filename), stdin=subprocess.PIPE,
+                self.subprocess = subprocess.Popen('{} {}'.format(IPC.python_command, filename), stdin=subprocess.PIPE,
                                                    stdout=subprocess.PIPE)
             else:
-                self.subprocess = subprocess.Popen('{} {}'.format(python_command, filename), stdin=subprocess.PIPE)
+                self.subprocess = subprocess.Popen('{} {}'.format(IPC.python_command, filename), stdin=subprocess.PIPE)
 
             sleep(.1)  # Give time to start / fail to start
 
@@ -152,7 +142,7 @@ if __name__ == '__main__':
 
     logging.basicConfig(level=logging.INFO)
 
-    with IPC(version=2) as demo:
+    with IPC() as demo:
         for j in range(0, 10000, 3):
             i = j * 1
             demo.send({
