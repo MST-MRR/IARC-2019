@@ -96,8 +96,6 @@ class Logger:
         if not os.path.isdir(resource_file_dir):
             os.mkdir(resource_file_dir)
 
-        print(resource_file_dir)
-
         return resource_file_dir
 
     def __enter__(self):
