@@ -23,14 +23,18 @@ class IPC:
 
     python_command = 'python'  # Command to start python 2.7
 
+    working_filename = 'interprocess_communication.py'  # The name of this file
+
+    target_path = "rtg_cache.py"  # Relative path to target file
+
     def __init__(self, reader=True, thread_stop=threading.Event()):
         self.thread_stop = thread_stop
 
         # Get filename
 
-        filename = 'rtg_cache.py'
-        if 'tools' in os.listdir("."):
-            filename = 'tools/{}'.format(filename)
+        filename = __file__.split(IPC.working_filename)[0]  # Get this files location
+
+        filename += IPC.target_path
 
         # Start subprocess
 
