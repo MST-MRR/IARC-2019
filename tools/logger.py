@@ -93,12 +93,12 @@ class Logger:
 
         return self
 
-    def __exit__(self, exc_type, exc_val, exc_tb):
+    def __exit__(self, *args):
         """
         On with statement exit
         """
 
-        self.exit()
+        self.logging_file.close()
 
     def exit(self):
         """
