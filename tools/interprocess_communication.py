@@ -35,9 +35,7 @@ class IPC:
 
         # Get filename
 
-        filename = 'rtg_cache.py'
-        if 'tools' in os.listdir("."):
-            filename = 'tools/{}'.format(filename)
+        filename = 'IARC-2019/tools/rtg_cache.py'
 
         # Set python command
         python_command = IPC.py3command if version != 2 else IPC.py2command
