@@ -40,7 +40,7 @@ class DataSplitter:
             self.ipc = IPC(version=version)
 
     @property
-    def tools_active(self):
+    def active_tools(self):
         """
         Returns all active tool objects.
         """
@@ -132,7 +132,7 @@ if __name__ == '__main__':
 
         sleep(.00001)
 
-        if not demo.tools_active:
+        if not demo.active_tools:
             logging.warning("Splitter: Demo: No tools active!")
             break
 
