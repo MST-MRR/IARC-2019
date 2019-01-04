@@ -26,6 +26,8 @@ class Logger:
 
     TIME_HEADER = 'secFromStart'  # Header for time value, log_grapher also uses - must change there too
 
+    SAVE_FOLDER = "generated_logs/"
+
     def __init__(self, desired_headers):
 
         # Setup dict w/ headers matched to desired data stream
@@ -79,10 +81,22 @@ class Logger:
         Finds the generated_logs folder
         """
 
-        resource_file_dir = "generated_logs/"
+        resource_file_dir = os.getcwd()
 
-        if 'tools' in os.listdir("."):
-            resource_file_dir = "tools/" + resource_file_dir
+        project_filename = 'IARC-2019'
+
+        if project_filename in resource_file_dir:
+            resource_file_dir = resource_file_dir.split(project_filename)[0]
+
+        if resource_file_dir[-1] not in ["\\", "/"]:
+            resource_file_dir += '/'
+
+        resource_file_dir += Logger.SAVE_FOLDER
+
+        if not os.path.isdir(resource_file_dir):
+            os.mkdir(resource_file_dir)
+
+        print(resource_file_dir)
 
         return resource_file_dir
 
