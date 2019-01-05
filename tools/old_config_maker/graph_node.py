@@ -1,7 +1,6 @@
 from tkinter import *
 
 import file_io
-
 from metric import Metric
 
 

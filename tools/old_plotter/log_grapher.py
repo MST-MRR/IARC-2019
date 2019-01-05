@@ -1,8 +1,8 @@
-from tkinter import filedialog
-from tkinter import Tk
+from tkinter import Tk, filedialog
+
+import matplotlib.pyplot as plt
 
 import pandas as pd
-import matplotlib.pyplot as plt
 
 try:
     from tools.file_io.file_io import parse_config

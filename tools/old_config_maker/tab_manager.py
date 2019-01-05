@@ -1,6 +1,5 @@
-from tkinter import Frame, Button, filedialog
+from tkinter import Button, Frame, filedialog
 from tkinter.ttk import Notebook
-
 
 from graph_node import GraphNode
 

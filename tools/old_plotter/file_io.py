@@ -124,4 +124,3 @@ if __name__ == '__main__':
         print(possible_metrics('test_config1.xml'))
 
     test_possible_metrics()
-

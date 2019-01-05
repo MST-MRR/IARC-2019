@@ -1,11 +1,11 @@
 import logging
-from time import sleep, time
-
 import threading
 from multiprocessing import Queue
+from time import sleep, time
 
 import numpy as np
-from matplotlib import pyplot as plt, animation as animation
+from matplotlib import animation as animation
+from matplotlib import pyplot as plt
 
 from file_oi.file_io import parse_config
 from real_time_graph.metric import Metric

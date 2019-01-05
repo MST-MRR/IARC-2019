@@ -1,8 +1,8 @@
 import logging
-from time import time, sleep
+from time import sleep, time
 
-from logger import Logger
 from interprocess_communication import IPC
+from logger import Logger
 
 
 class DataSplitter:

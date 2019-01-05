@@ -1,7 +1,6 @@
 import logging
-
-import threading
 import sys
+import threading
 from ast import literal_eval
 
 from real_time_graphing import RealTimeGraph

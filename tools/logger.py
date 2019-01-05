@@ -1,8 +1,7 @@
-import logging
-
-import time
 import csv
+import logging
 import os
+import time
 
 from numpy import nan
 
