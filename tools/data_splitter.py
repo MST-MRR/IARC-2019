@@ -59,11 +59,8 @@ class DataSplitter:
 
         logging.warning("Splitter: Exiting all tools...")
 
-        if self.logger:
-            self.logger.quit()
-
-        if self.ipc:
-            self.ipc.quit()
+        for tool in self.active_tools:
+            tool.quit()
 
         logging.warning("Splitter: Successfully exited.")
 
