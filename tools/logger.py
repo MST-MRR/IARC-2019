@@ -112,7 +112,7 @@ class Logger:
 
         self.logging_file.close()
 
-    def exit(self):
+    def quit(self):
         """
         Closes file that was logging data.
         """
