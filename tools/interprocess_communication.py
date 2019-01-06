@@ -1,4 +1,7 @@
+import os
 import logging
+
+import shlex
 import subprocess
 import threading
 from time import sleep
@@ -32,6 +35,9 @@ class IPC:
 
         filename = __file__.split(IPC.working_filename)[0]  # Get this files location
 
+        if filename[-1] not in ["\\", "/"]:
+            filename += '/'
+        
         filename += IPC.target_path
 
         # Start subprocess
@@ -40,10 +46,10 @@ class IPC:
             # Attempt start
 
             if reader:
-                self.subprocess = subprocess.Popen('{} {}'.format(IPC.python_command, filename), stdin=subprocess.PIPE,
+                self.subprocess = subprocess.Popen(shlex.split('{} {}'.format(IPC.python_command, filename)), stdin=subprocess.PIPE,
                                                    stdout=subprocess.PIPE)
             else:
-                self.subprocess = subprocess.Popen('{} {}'.format(IPC.python_command, filename), stdin=subprocess.PIPE)
+                self.subprocess = subprocess.Popen(shlex.split('{} {}'.format(IPC.python_command, filename)), stdin=subprocess.PIPE)
 
             sleep(.1)  # Give time to start / fail to start
 
@@ -54,8 +60,7 @@ class IPC:
                 logging.warning("IPC: Poll: {}".format(error_output))
 
         except Exception as e:
-            logging.error("IPC: {}".format(e))
-            raise IOError("IPC: Rtg cache file not found!")
+            raise IOError("IPC: {}".format(e))
 
         # Shell reader
 
@@ -91,8 +96,11 @@ class IPC:
         """
 
         logging.warning("IPC: Quitting.")
-        self.subprocess.terminate()
-
+        try:
+          self.subprocess.terminate()
+        except OSError:
+            pass
+          
         self.thread_stop.set()
 
         try:
