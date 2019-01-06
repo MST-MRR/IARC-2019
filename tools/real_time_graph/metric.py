@@ -137,6 +137,8 @@ class Metric:
             The string that the function was created with
         """
 
+        return self._raw_func
+        
     @property
     def x_stream(self):
         """
