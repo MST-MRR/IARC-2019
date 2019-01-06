@@ -57,6 +57,8 @@ Run in 2.7 or 3.6, __unit test can be run from main if uncommented__.
 ## Real Time Grapher
 Graphs data as it comes in from drone in real time. Run with the inter-process communication.
 
+IF IN UBUNTU: Need to have apt package python-tk otherwise the IPC will throw weird errors!
+
 Currently is most easily __implemented with rtg_cache__.
 
 Created and managed by *rtg_cache*, outputs with matplotlib.
