@@ -35,7 +35,7 @@ class IPC:
 
         filename = __file__.split(IPC.working_filename)[0]  # Get this files location
 
-        if filename[-1] not in ["\\", "/"]:
+        if filename and filename[-1] not in ["\\", "/"]:
             filename += '/'
         
         filename += IPC.target_path
@@ -46,7 +46,7 @@ class IPC:
             # Attempt start
 
             if reader:
-                self.subprocess = subprocess.Popen(shlex.split('{} {}'.format(IPC.python_command, filename)), stdin=subprocess.PIPE,
+                self.subprocess = subprocess.Popen(shlex.split('{} {}'.format(IPC.python_command, filename), posix=0), stdin=subprocess.PIPE,
                                                    stdout=subprocess.PIPE)
             else:
                 self.subprocess = subprocess.Popen(shlex.split('{} {}'.format(IPC.python_command, filename)), stdin=subprocess.PIPE)
