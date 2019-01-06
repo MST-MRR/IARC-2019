@@ -32,10 +32,13 @@ class IPC:
 
         # Get filename
 
-        filename = __file__.split(IPC.working_filename)[0]  # Get this files location
+        filename = os.path.dirname(os.path.realpath('__file__')).split(IPC.working_filename)[0]  # Get this files location
 
+        if filename[-1] not in ["\\", "/"]:
+            filename += '/'
+        
         filename += IPC.target_path
-
+        print(filename)
         # Start subprocess
 
         try:
@@ -56,8 +59,7 @@ class IPC:
                 logging.warning("IPC: Poll: {}".format(error_output))
 
         except Exception as e:
-            logging.error("IPC: {}".format(e))
-            raise IOError("IPC: Rtg cache file not found!")
+            raise IOError("IPC: {}".format(e))
 
         # Shell reader
 
