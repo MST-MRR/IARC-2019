@@ -107,16 +107,3 @@ def write_config(filename, data):
     # Write
     with open(filename, 'w') as g:
         g.write(xml_to_string(desiredgraphs))
-
-
-if __name__ == '__main__':
-    def test_parse_config():
-        print(parse_config('test_config1.xml'))
-
-    def test_write_config():
-        write_config('test_config2.xml', parse_config('test_config1.xml'))
-
-    def test_possible_metrics():
-        print(possible_metrics('test_config1.xml'))
-
-    test_possible_metrics()
