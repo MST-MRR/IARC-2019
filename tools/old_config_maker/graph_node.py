@@ -90,7 +90,7 @@ class GraphNode:
             try:
                 output = file_io.possible_metrics(filename)
             except IOError:
-                pass
+                print("Failed to read file: {}".format(filename))
 
         if not output:
             raise IOError("Possible metrics file not found!")
