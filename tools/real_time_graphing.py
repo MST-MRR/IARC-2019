@@ -299,13 +299,3 @@ class RealTimeGraph:
         self.plot_count += 1
 
         return [metric.output for metric in self.tracked_data]
-
-
-if __name__ == '__main__':
-    try:
-        from tools.real_time_graph.demo_data_gen import get_demo_data
-    except ImportError:
-        from real_time_graph.demo_data_gen import get_demo_data
-
-    test_object = RealTimeGraph(get_demo_data)
-    test_object.run()
