@@ -77,20 +77,6 @@ class RTGTest():
         except Exception as e:
             print("Success!")
 
-    @staticmethod
-    def plotter_empty():
-        """
-        Runs real time graph.
-        """
-
-        test_object = RealTimeGraph(get_demo_data)
-
-        test_object.config_filename = RTGTest.base_path + "empty.xml"
-
-        print("Empty Window: Should be seeing an empty plot.")
-
-        test_object.run()
-
 
 if __name__ == '__main__':
     RTGTest().main()
