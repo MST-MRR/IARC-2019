@@ -72,10 +72,6 @@ class RealTimeGraph:
 
         self.fig.subplots_adjust(hspace=1, wspace=0.75)  # Avoid subplot overlap
 
-        self.parse_rtg_config()
-
-        self.ani = animation.FuncAnimation(self.fig, self.plot_data, blit=False, interval=20, repeat=False)
-
         # Threading
         self.sleep_time = kwargs['sleep_time'] if 'sleep_time' in kwargs.keys() else 1e-1
 
@@ -84,6 +80,10 @@ class RealTimeGraph:
         self.thread_queue = Queue()
 
     def run(self):
+        self.parse_rtg_config()
+
+        self.ani = animation.FuncAnimation(self.fig, self.plot_data, blit=False, interval=20, repeat=False)
+
         threads = {
             'reader': threading.Thread(target=self.read_data, args=(self.thread_queue,)),
             'processor': threading.Thread(target=self.process_data, args=(self.thread_queue,))
