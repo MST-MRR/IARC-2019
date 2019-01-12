@@ -11,6 +11,7 @@ from file_oi import file_io
 
 
 class FileIOTest(unittest.TestCase):
+    file0 = 'test_configs/file_io/possible_metrics.xml'
     file1 = 'test_configs/file_io/test_config1.xml'
     file2 = 'test_configs/file_io/test_config2.xml'
     """
@@ -30,17 +31,15 @@ class FileIOTest(unittest.TestCase):
         """
         Should return list of metrics
         """
-        print(file_io.possible_metrics(FileIOTest.file1))
-        self.assertEqual(file_io.possible_metrics(FileIOTest.file1),
-                         {'P + R': [('roll', 'pitch', None), 'x + (2*y)'],
-                          'Target': [('target_roll_velocity', None, None), None],
+        # print(file_io.possible_metrics(FileIOTest.file0))
+        self.assertEqual(file_io.possible_metrics(FileIOTest.file0),
+                         {'Airspeed': [('airspeed', None, None), None],
+                          'Voltage': [('voltage', None, None), None],
                           'Pitch': [('pitch', None, None), None],
-                          'Main': [('pitch', None, None), None],
-                          'Roll': [('roll', None, None), 'log(x)'],
-                          'Testeroni': [('pitch', None, None), 'x/3'],
-                          'voltage': [('voltage', None, None), None]})
+                          'Yaw': [('yaw', None, None), None],
+                          'Altitude': [('altitude', None, None), None],
+                          'Roll': [('roll', None, None), None]})
 
 
 if __name__ == '__main__':
-    print(file_io.possible_metrics(FileIOTest.file1))
     unittest.main()
