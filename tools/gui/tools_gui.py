@@ -9,25 +9,25 @@ import ttk
 class PlotterGUI:
   def __init__(self, master):
     self.notebook = ttk.Notebook(master) #Makes tabs for the GUI
-    self.notebook.pack() #TODO Switch to the grid system for organizing GUI elements
+    self.notebook.grid(column=0, row=0) #TODO Switch to the grid system for organizing GUI elements
 
     #Contents of first tab
     #TODO Make the plotter for the first tab
     self.plotter_frame = ttk.Frame(master)
-    self.label = ttk.Label(self.plotter_frame, text="WIP: Plotter functionality will be added soon")
-
-    #Organizing contents of first tab
-    self.plotter_frame.pack()
-    self.label.pack()
+    self.plotter_label = ttk.Label(self.plotter_frame, text="WIP: Plotter functionality will be added soon")
 
     #Contents of second tab
     #TODO Make the config maker for the second tab
     self.config_mk_frame = ttk.Frame(master)
-    self.label = tk.Label(self.config_mk_frame, text="WIP: Config maker functionality will be added soon")
+    self.config_mk_label = tk.Label(self.config_mk_frame, text="WIP: Config maker functionality will be added soon")
+
+    #Organizing contents of first tab
+    self.plotter_frame.grid(column=0, row=0)
+    self.plotter_label.grid(column=0, row=0)
 
     #Organizing contents of second tab
-    self.config_mk_frame.pack()
-    self.label.pack()
+    self.config_mk_frame.grid(column=0, row=0)
+    self.config_mk_label.grid(column=0, row=0)
 
     #Creating the tabs themselves
     self.notebook.add(self.plotter_frame, text="Plotter")
@@ -40,7 +40,7 @@ root.title("MST IARC Plotter and Config Maker")
 
 #Sets the favicon at top-leftmost of the Tkinter GUI
 icon_name = 'ninja_icon.gif'
-icon_img = tk.PhotoImage(file='./tools/tools_gui/' + icon_name)
+icon_img = tk.PhotoImage(file='./tools/gui/' + icon_name)
 root.tk.call('wm', 'iconphoto', root._w, icon_img)
 
 root.mainloop()
