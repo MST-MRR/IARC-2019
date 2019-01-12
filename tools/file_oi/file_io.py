@@ -74,7 +74,7 @@ def possible_metrics(filename):
     metrics = {}
 
     raw_data = parse_config(filename)
-    
+
     for graph in raw_data:
         for metric in graph['metrics']:
             metrics.update({metric['label']: [(metric['x_stream'], metric['y_stream'], metric['z_stream']), metric['func']]})

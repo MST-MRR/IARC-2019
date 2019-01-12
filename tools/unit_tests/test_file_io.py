@@ -14,19 +14,31 @@ class FileIOTest(unittest.TestCase):
     file0 = 'test_configs/file_io/possible_metrics.xml'
     file1 = 'test_configs/file_io/test_config1.xml'
     file2 = 'test_configs/file_io/test_config2.xml'
-    """
+
+    expected_parse = [{'title': 'Multivariable test', 'metrics': [], 'xlabel': 'Seconds', 'ylabel': 'x', 'output': None, 'legend': None},
+                          {'title': 'Test 1', 'metrics': [], 'xlabel': 'Seconds', 'ylabel': 'Pitch', 'output': None, 'legend': 'no'},
+                          {'title': 'Test 2', 'metrics': [], 'xlabel': 'Seconds', 'ylabel': 'Roll', 'output': None, 'legend': None},
+                          {'title': None, 'metrics': [], 'xlabel': None, 'ylabel': None, 'output': 'text', 'legend': None}]
+
     def test_parse_config(self):
-        ""
+        """
         Should return a certain set of data
-        ""
-        print(file_io.parse_config(FileIOTest.file1))
+        """
+        self.assertEqual(file_io.parse_config(FileIOTest.file1), FileIOTest.expected_parse)
 
     def test_write_config(self):
-        ""
+        """
         The file should contain the same data as the one it pulled from
-        ""
-        file_io.write_config(FileIOTest.file1, file_io.parse_config(FileIOTest.file2))
-    """
+        """
+
+        if os._exists(FileIOTest.file2): os.remove(FileIOTest.file2)
+
+        file_io.write_config(FileIOTest.file2, file_io.parse_config(FileIOTest.file1))
+
+        # Parsing must work for this test
+
+        self.assertEqual(file_io.parse_config(FileIOTest.file2), FileIOTest.expected_parse)
+
     def test_possible_metrics(self):
         """
         Should return list of metrics
