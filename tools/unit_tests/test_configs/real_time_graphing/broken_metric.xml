@@ -1,6 +1,6 @@
 <?xml version="1.0" ?>
 <desiredgraphs>
   <graph title="Multivariable test" xlabel="Seconds" ylabel="x" >
-    <metric />
+    <metric y=3/>
   </graph>
 </desiredgraphs>

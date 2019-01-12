@@ -136,8 +136,9 @@ class RealTimeGraph:
         # Total number of subplots
         graph_count = [graph["output"] == 'text' for graph in output].count(False)
 
-        nrows = min(graph_count, RealTimeGraph.max_rows)
-        ncols = int(graph_count / nrows) + (graph_count % nrows > 0)
+        nrows = max(min(graph_count, RealTimeGraph.max_rows), 1)
+
+        ncols = int(graph_count / nrows) + (graph_count % nrows)
 
         def unique_color_generator(colors_taken):
             color_list = ['blue', 'orange', 'red', 'green', 'yellow', 'black', 'Ran out of colors!']
