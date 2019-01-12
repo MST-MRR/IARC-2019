@@ -145,34 +145,3 @@ class IPC:
 
             if not out == "":
                 print("IPC: Received: {}".format(out))
-
-
-if __name__ == '__main__':
-    from math import sin, cos
-
-    logging.basicConfig(level=logging.INFO)
-
-    with IPC() as demo:
-        for j in range(0, 10000, 3):
-            i = j * 1
-            demo.send({
-                'airspeed': cos(i),
-                'velocity_x': sin(i),
-                'velocity_y': cos(i),
-                'velocity_z': sin(i),
-                'altitude': sin(i),
-                'target_altitude': sin(i),
-                'roll': cos(i),
-                'pitch': sin(i),
-                'yaw': cos(i),
-                'target_roll_velocity': cos(i),
-                'target_pitch_velocity': cos(i),
-                'target_yaw': sin(i),
-                'voltage': cos(i)
-            })
-
-            sleep(.1)
-
-            if not demo.alive:
-                logging.info("IPC: splitter.poll(): {}".format(demo.subprocess.poll()))
-                break
