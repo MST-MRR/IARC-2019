@@ -24,8 +24,6 @@ class IPC:
 
     python_command = 'python'  # Command to start python 2.7
 
-    working_filename = 'interprocess_communication.py'  # The name of this file
-
     target_path = "rtg_cache.py"  # Relative path to target file
 
     def __init__(self, reader=True, thread_stop=threading.Event()):
@@ -33,7 +31,7 @@ class IPC:
 
         # Get filename
 
-        filename = __file__.split(IPC.working_filename)[0]  # Get this files location
+        filename = os.path.dirname(__file__)# __file__.split(IPC.working_filename)[0]  # Get this files location
 
         if filename and filename[-1] is not os.path.sep:
             filename += '/'
