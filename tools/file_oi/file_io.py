@@ -4,7 +4,16 @@ from xml.dom.minidom import parseString
 
 def xml_to_string(xml_tag):
     """
-    Makes xml objects into string formatted in a readable way
+    Makes xml objects into string formatted in a readable way.
+
+    Parameters
+    ----------
+    xml_tag: xml.etree.ElementTree
+        Raw xml element tree to be redone.
+
+    Returns
+    -------
+    Pretty xml tree.
     """
     return parseString(ET.tostring(xml_tag)).toprettyxml(indent="  ")
 
