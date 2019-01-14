@@ -35,7 +35,7 @@ class IPC:
 
         filename = __file__.split(IPC.working_filename)[0]  # Get this files location
 
-        if filename and filename[-1] not in ["\\", "/"]:
+        if filename and filename[-1] is not os.path.sep:
             filename += '/'
         
         filename += IPC.target_path
