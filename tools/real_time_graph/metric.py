@@ -179,7 +179,7 @@ class Metric:
         return self._z_stream
 
     @x_stream.setter
-    def set_x_stream(self, stream):
+    def x_stream(self, stream):
         """
         x_stream setter.
 
@@ -192,7 +192,7 @@ class Metric:
         self._x_stream = stream
 
     @y_stream.setter
-    def set_y_stream(self, stream):
+    def y_stream(self, stream):
         """
         y_stream setter.
 
@@ -205,7 +205,7 @@ class Metric:
         self._y_stream = stream
 
     @z_stream.setter
-    def set_z_stream(self, stream):
+    def z_stream(self, stream):
         """
         z_stream setter.
 
