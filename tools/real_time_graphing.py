@@ -42,6 +42,8 @@ class RealTimeGraph:
 
     figure_size = (8, 6)
 
+    animation_interval = 20
+
     def __init__(self, get_data, **kwargs):
         printer = logging.getLogger()
 
@@ -84,7 +86,7 @@ class RealTimeGraph:
     def run(self):
         self.parse_rtg_config()
 
-        self.ani = animation.FuncAnimation(self.fig, self.plot_data, blit=False, interval=20, repeat=False)
+        self.ani = animation.FuncAnimation(self.fig, self.plot_data, blit=False, interval=RealTimeGraph.animation_interval, repeat=False)
 
         threads = {
             'reader': threading.Thread(target=self.read_data, args=(self.thread_queue,)),
