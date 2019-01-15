@@ -24,9 +24,7 @@ class IPC:
 
     python_command = 'python'  # Command to start python 2.7
 
-    target_path = "rtg_cache.py"  # Relative path to target file
-
-    def __init__(self, reader=True, thread_stop=threading.Event()):
+    def __init__(self, reader=True, thread_stop=threading.Event(), target_path="rtg_cache.py"):
         self.thread_stop = thread_stop
 
         # Get filename
@@ -36,7 +34,7 @@ class IPC:
         if filename and filename[-1] is not os.path.sep:
             filename += '/'
         
-        filename += IPC.target_path
+        filename += target_path
 
         # Start subprocess
 
