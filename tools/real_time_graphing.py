@@ -120,8 +120,6 @@ class RealTimeGraph:
 
         config_path = os.path.dirname(__file__)  # Get this files location
 
-        print(os.path.dirname(__file__))
-
         config_path += RealTimeGraph.REL_CONFIG_PATH
 
         return config_path
