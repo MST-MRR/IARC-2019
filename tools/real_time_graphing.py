@@ -40,6 +40,8 @@ class RealTimeGraph:
 
     title = 'Real Time Graphing'  # Window title
 
+    figure_size = (8, 6)
+
     def __init__(self, get_data, **kwargs):
         printer = logging.getLogger()
 
@@ -67,7 +69,7 @@ class RealTimeGraph:
         # Initializes figure for real_time_graph
         plt.rcParams['toolbar'] = 'None'  # Disable matplot toolbar
 
-        self.fig = plt.figure(figsize=(8, 6))
+        self.fig = plt.figure(figsize=RealTimeGraph.figure_size)
         self.fig.canvas.set_window_title(RealTimeGraph.title)
 
         self.fig.subplots_adjust(hspace=1, wspace=0.75)  # Avoid subplot overlap
