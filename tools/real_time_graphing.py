@@ -29,34 +29,36 @@ class RealTimeGraph:
         Time in seconds to display previous data
     """
 
-    log_level = logging.INFO
+    LOG_LEVEL = logging.INFO
 
-    max_rows = 3  # Rows of subplots per column
+    ROW_PER_COLUMN = 3  # Rows of subplots per column
 
-    data_freq_warning = .5  # If time values are this far apart warn the user
+    DATA_FREQ_WARNING = .5  # If time values are this far apart warn the user
 
-    pan_width = 10  # Seconds of previous data to show
+    PAN_WIDTH = 10  # Seconds of previous data to show
 
-    relative_config_path = "real_time_graph/config.xml"  # Path from this file to config file
+    REL_CONFIG_PATH = "real_time_graph/config.xml"  # Path from this file to config file
 
-    title = 'Real Time Graphing'  # Window title
+    TITLE = 'Real Time Graphing'  # Window title
 
-    figure_size = (8, 6)
+    FIGURE_SIZE = (8, 6)
 
-    animation_interval = 20
+    ANIMATION_INTERVAL = 20
+
+    AXIS_BOUNDS = [0, 100, 0, 10]
 
     def __init__(self, get_data, **kwargs):
         printer = logging.getLogger()
 
         if not printer.handlers:
-            printer.setLevel(RealTimeGraph.log_level)
+            printer.setLevel(RealTimeGraph.LOG_LEVEL)
             handler = logging.StreamHandler()
-            handler.setLevel(RealTimeGraph.log_level)
+            handler.setLevel(RealTimeGraph.LOG_LEVEL)
             printer.addHandler(handler)
 
         if not get_data: logging.critical("RTG: No data pull function!")
         self.get_data = get_data
-        self.pan_width = abs(kwargs['pan_width']) if 'pan_width' in kwargs.keys() else RealTimeGraph.pan_width
+        self.PAN_WIDTH = abs(kwargs['pan_width']) if 'pan_width' in kwargs.keys() else RealTimeGraph.PAN_WIDTH
 
         # Stored which data items we are interested in
         self.tracked_data = []
@@ -72,8 +74,8 @@ class RealTimeGraph:
         # Initializes figure for real_time_graph
         plt.rcParams['toolbar'] = 'None'  # Disable matplot toolbar
 
-        self.fig = plt.figure(figsize=RealTimeGraph.figure_size)
-        self.fig.canvas.set_window_title(RealTimeGraph.title)
+        self.fig = plt.figure(figsize=RealTimeGraph.FIGURE_SIZE)
+        self.fig.canvas.set_window_title(RealTimeGraph.TITLE)
 
         self.fig.subplots_adjust(hspace=1, wspace=0.75)  # Avoid subplot overlap
 
@@ -87,7 +89,7 @@ class RealTimeGraph:
     def run(self):
         self.parse_rtg_config()
 
-        self.ani = animation.FuncAnimation(self.fig, self.plot_data, blit=False, interval=RealTimeGraph.animation_interval, repeat=False)
+        self.ani = animation.FuncAnimation(self.fig, self.plot_data, blit=False, interval=RealTimeGraph.ANIMATION_INTERVAL, repeat=False)
 
         threads = {
             'reader': threading.Thread(target=self.read_data, args=(self.thread_queue,)),
@@ -114,7 +116,7 @@ class RealTimeGraph:
 
         config_path = os.path.dirname(__file__)  # Get this files location
 
-        config_path += RealTimeGraph.relative_config_path
+        config_path += RealTimeGraph.REL_CONFIG_PATH
 
         return config_path
 
@@ -141,7 +143,7 @@ class RealTimeGraph:
         # Total number of subplots
         graph_count = [graph["output"] == 'text' for graph in output].count(False)
 
-        nrows = max(min(graph_count, RealTimeGraph.max_rows), 1)
+        nrows = max(min(graph_count, RealTimeGraph.ROW_PER_COLUMN), 1)
 
         ncols = int(graph_count / nrows) + (graph_count % nrows)
 
@@ -179,7 +181,7 @@ class RealTimeGraph:
                 # Make axis
                 ax = self.fig.add_subplot(nrows, ncols, len(self.fig.get_axes()) + 1)
 
-                ax.axis([0, 100, 0, 10])
+                ax.axis(RealTimeGraph.AXIS_BOUNDS)
 
                 # Configure the new axis
                 ax.set_title(graph['title'])
@@ -246,7 +248,7 @@ class RealTimeGraph:
 
                 # Checks data frequency to see if poor quality
                 try:
-                    if self.times[-1] > self.times[-2] + RealTimeGraph.data_freq_warning:
+                    if self.times[-1] > self.times[-2] + RealTimeGraph.DATA_FREQ_WARNING:
                         logging.warning("RTG: Data quality: Sucks")
                         pass
                 except IndexError:
@@ -306,7 +308,7 @@ class RealTimeGraph:
 
             current_time = int(self.times[-1])
 
-            ax.set_xlim(current_time - self.pan_width, current_time + self.pan_width)
+            ax.set_xlim(current_time - self.PAN_WIDTH, current_time + self.PAN_WIDTH)
 
         self.plot_count += 1
 
