@@ -1,5 +1,6 @@
 import logging
 import threading
+from enum import Enum
 from multiprocessing import Queue
 from time import sleep, time
 
@@ -145,19 +146,17 @@ class RealTimeGraph:
         ncols = int(graph_count / nrows) + (graph_count % nrows)
 
         def unique_color_generator(colors_taken):
-           from enum import Enum
-           class Colors(Enum):
-               BLUE = 'blue'
-               ORANGE = 'orange'
-               RED = 'red'
-               GREEN = 'green'
-               YELLOW = 'yellow'
-               BLACK = 'black'
-               UNKNOWN = 'Ran out of colors!'
+            class ColorList(Enum):
+                BLUE = 'blue'
+                ORANGE = 'orange'
+                RED = 'red'
+                GREEN = 'green'
+                YELLOW = 'yellow'
+                BLACK = 'black'
 
             seen = set(colors_taken)
 
-            for elem in color_list:
+            for elem in ColorList:
                 if elem not in seen:
                     yield elem
                     seen.add(elem)
