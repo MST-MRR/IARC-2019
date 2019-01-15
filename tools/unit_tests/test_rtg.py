@@ -65,4 +65,6 @@ class RTGTest():
 
 
 if __name__ == '__main__':
-    RTGTest().main()
+    RTGTest().plotter_normal()
+
+    # RTGTest().main()

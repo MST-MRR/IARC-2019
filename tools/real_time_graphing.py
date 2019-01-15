@@ -261,15 +261,13 @@ class RealTimeGraph:
                     for axis in axes:
                         stream = getattr(metric, '{}_stream'.format(axis))
                         setattr(self, axis, data[stream] if stream else None)
-                    y = data[metric.y_stream] if metric.y_stream else None
-                    z = data[metric.z_stream] if metric.z_stream else None
 
-                    if z is not None:
-                        x_val = func(x, y, z)
-                    elif y is not None:
-                        x_val = func(x, y)
-                    elif x is not None:
-                        x_val = func(x)
+                    if self.z is not None:
+                        x_val = func(self.x, self.y, self.z)
+                    elif self.y is not None:
+                        x_val = func(self.x, self.y)
+                    elif self.x is not None:
+                        x_val = func(self.x)
                     else:
                         x_val = func()
 
