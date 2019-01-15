@@ -299,7 +299,9 @@ class RealTimeGraph:
                 ax.relim()
                 ax.autoscale(axis='y')
             except ValueError as e:
-                logging.error("RGG: Caught '{}'!\nPast 10 times: {}\nPast 10 outputs: {}".format(e, self.times[-10:], metric.data[-10:]))
+                logging.error("RGG: Caught '{}'!\n \
+                              Past 10 times: {}\n \
+                              Past 10 outputs: {}".format(e, self.times[-10:], metric.data[-10:]))
 
             current_time = int(self.times[-1])
 
