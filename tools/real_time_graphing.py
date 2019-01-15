@@ -2,6 +2,7 @@ import logging
 import threading
 from multiprocessing import Queue
 from time import sleep, time
+import os
 
 import numpy as np
 from matplotlib import animation as animation
