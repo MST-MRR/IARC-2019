@@ -141,11 +141,11 @@ class RealTimeGraph:
             return
 
         # Total number of subplots
-        graph_count = [graph["output"] == 'text' for graph in output].count(False)
+        self.graph_count = [graph["output"] == 'text' for graph in output].count(False)
 
-        nrows = max(min(graph_count, RealTimeGraph.ROW_PER_COLUMN), 1)
+        nrows = max(min(self.graph_count, RealTimeGraph.ROW_PER_COLUMN), 1)
 
-        ncols = int(graph_count / nrows) + (graph_count % nrows)
+        ncols = int(self.graph_count / nrows) + (self.graph_count % nrows)
 
         def unique_color_generator(colors_taken):
             class ColorList(Enum):
