@@ -34,20 +34,6 @@ class RTGTest():
         test_object.run()
 
     @staticmethod
-    def plotter_no_metric():
-        """
-        Runs real time graph.
-        """
-
-        test_object = RealTimeGraph(get_demo_data)
-
-        test_object.config_filename = RTGTest.base_path + "no_metrics.xml"
-
-        print("Empty Graph: Should be seeing an empty plot.")
-
-        test_object.run()
-
-    @staticmethod
     def plotter_invalid_metric():
         """
         Runs real time graph.
