@@ -1,5 +1,6 @@
 # Wraps around 2DLine/plt.text object
 
+import string
 from math import *
 
 
@@ -21,12 +22,15 @@ class Metric:
         Data from drone to serve as z variable in function
     """
 
-    possible_data_streams = [
+    POSSIBLE_DATA_STREAMS = [
         'altitude', 'airspeed', 'velocity_x', 'velocity_y', 'velocity_z', 'voltage', 'state', 'mode', 'armed',
         'roll', 'pitch', 'yaw', 'altitude_controller_output', 'altitude_rc_output', 'target_altitude',
         'pitch_controller_output', 'pitch_rc_output', 'target_pitch_velocity', 'roll_controller_output',
         'roll_rc_output', 'target_roll_velocity', 'yaw_controller_output', 'yaw_rc_output', 'target_yaw',
         'color_image', 'depth_image', None]
+
+    SUPPORTED_FUNCTIONS = [',', '.', string.digits, string.whitespace, 'xyz', '()', '+-*/%', 'abs', 'int', 'float', 'sin', 'cos', 'tan' 'h',  # h for sinh
+                           'log']
 
     def __init__(self, output, label=None, func=None, x_stream=None, y_stream=None, z_stream=None):
         self._output = output
@@ -40,23 +44,25 @@ class Metric:
         # Set func
         self._raw_func = func if func else 'x'
 
+        supported_letters = ''.join(Metric.SUPPORTED_FUNCTIONS)
+
         # Func safety check
         for letter in self._raw_func:
-            assert letter in ',.0123456789 xyz()+-*/%absintfloatsincostanhlogp', \
+            assert letter in supported_letters, \
                 "{}: Determined to be potentially unsafe at letter '{}'.".format(func, letter)
 
-        # Init func
+        # Init func                     TODO Fix
         if 'x' in self._raw_func:
             assert x_stream, "X in function but no x_stream!"
-            assert x_stream in Metric.possible_data_streams, "Invalid x_stream: '{}'".format(x_stream)
+            assert x_stream in Metric.POSSIBLE_DATA_STREAMS, "Invalid x_stream: '{}'".format(x_stream)
 
             if 'y' in self._raw_func:
                 assert y_stream, "Y in function but no y_stream!"
-                assert y_stream in Metric.possible_data_streams, "Invalid y_stream: '{}'".format(y_stream)
+                assert y_stream in Metric.POSSIBLE_DATA_STREAMS, "Invalid y_stream: '{}'".format(y_stream)
 
                 if 'z' in self._raw_func:
                     assert z_stream, "Z in function but no z_stream!"
-                    assert z_stream in Metric.possible_data_streams, "Invalid z_stream: '{}'".format(z_stream)
+                    assert z_stream in Metric.POSSIBLE_DATA_STREAMS, "Invalid z_stream: '{}'".format(z_stream)
 
                     self._func = lambda x, y, z: eval(self._raw_func)
                 else:
@@ -66,7 +72,7 @@ class Metric:
         else:
             self._func = lambda: eval(self._raw_func)
 
-        # Set data streams
+        # Set data streams              TODO - Getattr/setattr thing
         self._x_stream = x_stream
         self._y_stream = y_stream
         self._z_stream = z_stream
