@@ -46,6 +46,8 @@ class RealTimeGraph:
 
     AXIS_BOUNDS = [0, 100, 0, 10]
 
+    SLEEP_BALANCING = 1e-5
+
     def __init__(self, get_data, **kwargs):
         printer = logging.getLogger()
 
@@ -211,10 +213,10 @@ class RealTimeGraph:
 
             # Adjust sleep times
             if self.data_count > self.plot_count:
-                self.sleep_time = self.sleep_time + 1e-5
+                self.sleep_time = self.sleep_time + RealTimeGraph.SLEEP_BALANCING
 
             elif self.data_count == self.plot_count:
-                self.sleep_time = self.sleep_time - 1e-5
+                self.sleep_time = self.sleep_time - RealTimeGraph.SLEEP_BALANCING
 
             sleep(self.sleep_time)
 
