@@ -37,7 +37,7 @@ class RealTimeGraph:
 
     PAN_WIDTH = 10  # Seconds of previous data to show
 
-    REL_CONFIG_PATH = "real_time_graph/config.xml"  # Path from this file to config file
+    REL_CONFIG_PATH = "/real_time_graph/config.xml"  # Path from this file to config file
 
     TITLE = 'Real Time Graphing'  # Window title
 
@@ -119,6 +119,8 @@ class RealTimeGraph:
         """
 
         config_path = os.path.dirname(__file__)  # Get this files location
+
+        print(os.path.dirname(__file__))
 
         config_path += RealTimeGraph.REL_CONFIG_PATH
 
