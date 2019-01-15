@@ -48,16 +48,16 @@ class RTGTest():
         test_object.run()
 
     @staticmethod
-    def plotter_broken_metric():
+    def plotter_multiple_graphs():
         """
         Runs real time graph.
         """
 
         test_object = RealTimeGraph(get_demo_data)
 
-        test_object.config_filename = RTGTest.base_path + "broken_metric.xml"
+        test_object.config_filename = RTGTest.base_path + "multiple_graphs.xml"
 
-        print("Broken Metric: Should error out.")
+        print("Multiple Graphs: Should be showing multiple graphs.")
         try:
             test_object.run()
         except Exception as e:
@@ -65,6 +65,4 @@ class RTGTest():
 
 
 if __name__ == '__main__':
-    RTGTest().plotter_normal()
-
-    # RTGTest().main()
+    RTGTest().main()
