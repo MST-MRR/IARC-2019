@@ -257,19 +257,15 @@ class RealTimeGraph:
                 for metric in self.tracked_data:
                     func = metric.func
 
+                    values = []
+
                     axes = list('xyz')
                     for axis in axes:
                         stream = getattr(metric, '{}_stream'.format(axis))
-                        setattr(self, axis, data[stream] if stream else None)
+                        if stream:
+                            values.append(data[stream])
 
-                    if self.z is not None:
-                        x_val = func(self.x, self.y, self.z)
-                    elif self.y is not None:
-                        x_val = func(self.x, self.y)
-                    elif self.x is not None:
-                        x_val = func(self.x)
-                    else:
-                        x_val = func()
+                    x_val = func(*values)
 
                     metric.push_data(x_val)
                 self.data_count += 1
