@@ -160,7 +160,7 @@ class RealTimeGraph:
             if graph['output'] == 'text':
                 i = 0
                 for metric in graph['metrics']:
-                    # Coords are percent
+                    # (Coords are percent of width/height) This is creating a text object w/ a location.
                     text = ax.text(i * (1 / len(graph['metrics'])) + .01, .01, 'matplotlib', transform=plt.gcf().transFigure)
 
                     self.tracked_data.append(Metric(output=text, label=metric['label'], func=metric['func'],
