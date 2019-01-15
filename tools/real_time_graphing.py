@@ -130,7 +130,7 @@ class RealTimeGraph:
         try:
             output = parse_config(self.config_filename)
         except IOError:
-            logging.warning("RTG: Failed to read config file!".format(self.config_filename))
+            logging.warning("RTG: Failed to read config file '{}'!".format(self.config_filename))
             output = None
 
         if output is None:
