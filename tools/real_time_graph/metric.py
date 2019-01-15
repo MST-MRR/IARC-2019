@@ -40,6 +40,11 @@ class Metric:
         except AttributeError:
             self._label = label
 
+        # Set data streams
+        self._x_stream = x_stream
+        self._y_stream = y_stream
+        self._z_stream = z_stream
+
         #
         # Set func
         self._raw_func = func if func else 'x'
@@ -51,31 +56,17 @@ class Metric:
             assert letter in supported_letters, \
                 "{}: Determined to be potentially unsafe at letter '{}'.".format(func, letter)
 
-        # Init func                     TODO Fix
-        if 'x' in self._raw_func:
-            assert x_stream, "X in function but no x_stream!"
-            assert x_stream in Metric.POSSIBLE_DATA_STREAMS, "Invalid x_stream: '{}'".format(x_stream)
+        # Init func
 
-            if 'y' in self._raw_func:
-                assert y_stream, "Y in function but no y_stream!"
-                assert y_stream in Metric.POSSIBLE_DATA_STREAMS, "Invalid y_stream: '{}'".format(y_stream)
+        # Safety check
+        axes = list('xyz')
+        for axis in axes:
+            if axis in self._raw_func:
+                stream = getattr(self, "_{}_stream".format(axis))
+                assert stream, "{} in function but no {}_stream!".format(axis)
+                assert stream in Metric.POSSIBLE_DATA_STREAMS, "Invalid {}_stream: '{}'".format(axis, stream)
 
-                if 'z' in self._raw_func:
-                    assert z_stream, "Z in function but no z_stream!"
-                    assert z_stream in Metric.POSSIBLE_DATA_STREAMS, "Invalid z_stream: '{}'".format(z_stream)
-
-                    self._func = lambda x, y, z: eval(self._raw_func)
-                else:
-                    self._func = lambda x, y: eval(self._raw_func)
-            else:
-                self._func = lambda x: eval(self._raw_func)
-        else:
-            self._func = lambda: eval(self._raw_func)
-
-        # Set data streams              TODO - Getattr/setattr thing
-        self._x_stream = x_stream
-        self._y_stream = y_stream
-        self._z_stream = z_stream
+        self._func = lambda x=0, y=0, z=0: eval(self._raw_func)
 
         # Create data storage
         self._data = []
