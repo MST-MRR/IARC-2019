@@ -141,7 +141,15 @@ class RealTimeGraph:
         ncols = int(graph_count / nrows) + (graph_count % nrows)
 
         def unique_color_generator(colors_taken):
-            color_list = ['blue', 'orange', 'red', 'green', 'yellow', 'black', 'Ran out of colors!']
+           from enum import Enum
+           class Colors(Enum):
+               BLUE = 'blue'
+               ORANGE = 'orange'
+               RED = 'red'
+               GREEN = 'green'
+               YELLOW = 'yellow'
+               BLACK = 'black'
+               UNKNOWN = 'Ran out of colors!'
 
             seen = set(colors_taken)
 
