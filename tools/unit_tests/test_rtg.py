@@ -29,6 +29,18 @@ class RTGTest():
         test_object.run()
 
     @staticmethod
+    def plotter_config():
+        """
+        Runs real time graph.
+        """
+
+        test_object = RealTimeGraph(get_demo_data)
+
+        print("Config Test: Should be using default config file.")
+
+        test_object.run()
+
+    @staticmethod
     def plotter_invalid_metric():
         """
         Runs real time graph.
