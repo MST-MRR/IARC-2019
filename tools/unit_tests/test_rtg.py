@@ -41,20 +41,6 @@ class RTGTest():
         test_object.run()
 
     @staticmethod
-    def plotter_invalid_metric():
-        """
-        Runs real time graph.
-        """
-
-        test_object = RealTimeGraph(get_demo_data)
-
-        test_object.config_filename = RTGTest.base_path + "invalid_metric.xml"
-
-        print("Invalid Metric: Should error, but still show empty plot.")
-
-        test_object.run()
-
-    @staticmethod
     def plotter_multiple_graphs():
         """
         Runs real time graph.

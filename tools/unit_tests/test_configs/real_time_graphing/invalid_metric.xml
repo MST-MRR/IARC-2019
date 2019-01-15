@@ -1,7 +1,0 @@
-<?xml version="1.0" ?>
-<desiredgraphs>
-  <graph title="Graph0">
-    <metric func="y" label="Pitch" x_stream="pitch"/>
-    <metric func="x" label="Roll" x_stream="roll"/>
-  </graph>
-</desiredgraphs>
