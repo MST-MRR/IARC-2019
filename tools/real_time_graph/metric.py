@@ -101,7 +101,7 @@ class Metric:
         return self._label
 
     @label.setter
-    def set_label(self, label):
+    def label(self, label):
         """
         Label setter.
 
