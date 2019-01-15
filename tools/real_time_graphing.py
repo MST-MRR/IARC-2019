@@ -257,7 +257,10 @@ class RealTimeGraph:
                 for metric in self.tracked_data:
                     func = metric.func
 
-                    x = data[metric.x_stream] if metric.x_stream else None
+                    axes = list('xyz')
+                    for axis in axes:
+                        stream = getattr(metric, '{}_stream'.format(axis))
+                        setattr(self, axis, data[stream] if stream else None)
                     y = data[metric.y_stream] if metric.y_stream else None
                     z = data[metric.z_stream] if metric.z_stream else None
 
