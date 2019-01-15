@@ -48,6 +48,8 @@ class RealTimeGraph:
 
     SLEEP_BALANCING = 1e-5
 
+    SLEEP_DEFAULT = 1e-1
+
     def __init__(self, get_data, **kwargs):
         printer = logging.getLogger()
 
@@ -78,10 +80,10 @@ class RealTimeGraph:
         self.fig = plt.figure(figsize=RealTimeGraph.FIGURE_SIZE)
         self.fig.canvas.set_window_title(RealTimeGraph.TITLE)
 
-        self.fig.subplots_adjust(hspace=1, wspace=0.75)  # Avoid subplot overlap
+        self.fig.subplots_adjust(hspace=1, wspace=0.75)  # Avoid subplot covering up titles
 
         # Threading
-        self.sleep_time = kwargs['sleep_time'] if 'sleep_time' in kwargs.keys() else 1e-1
+        self.sleep_time = kwargs['sleep_time'] if 'sleep_time' in kwargs.keys() else RealTimeGraph.SLEEP_DEFAULT
 
         self.thread_stop = kwargs['thread_stop'] if 'thread_stop' in kwargs.keys() else threading.Event()
 
