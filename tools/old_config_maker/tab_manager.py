@@ -145,14 +145,20 @@ class TabManager:
         """
         cur_graph = self._graphs[tab_id] if tab_id else self.curr_tab_graphs
 
-        return [
-            {'title': graph.items['title']['text'], 'lower_time': graph.items['lowerTime_chk'].get(),
-             'upper_time': graph.items['upperTime_chk'].get(),
-             'metric': [{
-                 'label': metric.label, 'func': metric.raw_func, 'x_stream': metric.x_stream,
-                 'y_stream': metric.y_stream, 'z_stream': metric.z_stream
-             } for metric in graph.check_box_values.values() if metric.output.get()]
-             }for graph in cur_graph]
+        output = []
+
+        for graph in cur_graph:
+            metrics = [{
+                    'label': metric.label, 'func': metric.raw_func, 'x_stream': metric.x_stream,
+                    'y_stream': metric.y_stream, 'z_stream': metric.z_stream
+                    } for metric in graph.check_box_values.values() if metric.output.get()]
+
+            output.append(
+                {'title': graph.items['title']['text'], 'lower_time': graph.items['lowerTime_chk'].get(),
+                 'upper_time': graph.items['upperTime_chk'].get(),
+                 'metric': metrics})
+
+        return output
 
 
     # TODO - NOT FOR BASE WORKING
