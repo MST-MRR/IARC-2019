@@ -41,11 +41,13 @@ class IPC:
         try:
             # Attempt start
 
+            command = shlex.split('{} {}'.format(IPC.python_command, filename), posix=0)
+
             if reader:
-                self.subprocess = subprocess.Popen(shlex.split('{} {}'.format(IPC.python_command, filename), posix=0), stdin=subprocess.PIPE,
+                self.subprocess = subprocess.Popen(command, stdin=subprocess.PIPE,
                                                    stdout=subprocess.PIPE)
             else:
-                self.subprocess = subprocess.Popen(shlex.split('{} {}'.format(IPC.python_command, filename)), stdin=subprocess.PIPE)
+                self.subprocess = subprocess.Popen(command, stdin=subprocess.PIPE)
 
             sleep(.1)  # Give time to start / fail to start
 
@@ -99,10 +101,11 @@ class IPC:
           
         self.thread_stop.set()
 
-        try:
-            self.reader_thread.join()
-        except RuntimeError:
-            pass
+        if self.reader_thread:
+            try:
+                self.reader_thread.join()
+            except RuntimeError:
+                pass
 
     def send(self, data):
         """
