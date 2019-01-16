@@ -3,6 +3,7 @@ import threading
 from multiprocessing import Queue
 from time import sleep, time
 import os
+import enum
 
 import numpy as np
 from matplotlib import animation as animation
@@ -152,11 +153,18 @@ class RealTimeGraph:
         ncols = int(self.graph_count / nrows) + (self.graph_count % nrows)
 
         def unique_color_generator(colors_taken):
-            colors = ['blue', 'orange', 'red', 'green', 'yellow', 'black']
+            class Colors(enum.Enum):
+                BLUE = 'blue'
+                ORANGE = 'orange'
+                RED = 'red'
+                GREEN = 'green'
+                YELLOW = 'yellow'
+                BLACK = 'black'
 
             seen = set(colors_taken)
 
-            for elem in colors:
+            for elem in Colors:
+                elem = elem.value
                 if elem not in seen:
                     yield elem
                     seen.add(elem)
