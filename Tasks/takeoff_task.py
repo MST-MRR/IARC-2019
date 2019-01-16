@@ -3,7 +3,6 @@ import threading
 
 # Ours
 from task_base import TaskBase
-from ..Utilities.timer import Timer
 from ..Utilities.drone_exceptions import TakeoffTimeoutException
 
 class TakeoffTask(TaskBase):

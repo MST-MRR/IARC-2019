@@ -2,7 +2,6 @@
 import coloredlogs
 import heapq
 import logging
-import threading
 from time import sleep
 import traceback
 import sys

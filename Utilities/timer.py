@@ -24,7 +24,7 @@ class Timer():
 
     @property
     def num_threads(self):
-        with self._num_threads_lock as lock:
+        with self._num_threads_lock:
             return len(self._event_threads)
 
     def add_callback(self, name, when_to_call, callback, recurring=False):
@@ -69,5 +69,5 @@ class Timer():
             return timer() - self._start
 
     def reset(self):
-        with self._lock as lock:
+        with self._lock:
             self._start = timer()

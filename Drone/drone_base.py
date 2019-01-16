@@ -8,7 +8,6 @@ import threading
 # Ours
 from ..Utilities import constants as c
 from ..Utilities import dronekit_wrappers
-from ..Utilities.drone_exceptions import TakeoffTimeoutException
 from ..Utilities.helper import current_thread_name
 from ..Utilities.timer import Timer
 
