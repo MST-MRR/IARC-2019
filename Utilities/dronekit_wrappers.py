@@ -1,82 +1,68 @@
 # Standard Library
-import coloredlogs
-import dronekit
-import logging
 from math import radians, sin, cos
 from pymavlink import mavutil
-import threading
-from sys import stdout
-from time import sleep, time
 
 # Ours
-import constants as c
+from constants import DronekitBitmasks
 
 def get_velocity_message(message_factory, (velocity_x, velocity_y, velocity_z)):
-    """
-    Returns a DroneKit object that represents a mavlink message which moves
-    the drone at a certain velocity.
+    """Construct a mavlink message for sending velocity.
 
     Parameters
     ----------
-    message_factory: dronekit.vehicle.message_factory
+    message_factory : dronekit.vehicle.message_factory
         Used to create the message
-    (velocity_x, velocity_y, velocity_z): (Double, Double ,Double)
+    (velocity_x, velocity_y, velocity_z) : (Double, Double ,Double)
         The vector to travel along
 
-    Returns:
-    ----------
+    Returns
+    -------
     MAVLink_message (a DroneKit object)
+        Message which moves the drone at a certain velocity.
+
+    see http://python.dronekit.io/examples/guided-set-speed-yaw-demo.html#send-global-velocity
     """
     return message_factory.set_position_target_global_int_encode(
-            0,       # time_boot_ms (not used)
-            0, 0,    # target system, target component
-            mavutil.mavlink.MAV_FRAME_GLOBAL_RELATIVE_ALT_INT, # frame
-            0b0000111111000111, # type_mask (only speeds enabled)
-            0, # lat_int - X Position in WGS84 frame in 1e7 * meters
-            0, # lon_int - Y Position in WGS84 frame in 1e7 * meters
-            0, # alt - Altitude in meters in AMSL altitude(not WGS84 if absolute or relative)
-            # altitude above terrain if GLOBAL_TERRAIN_ALT_INT
-            velocity_x, # X velocity in NED frame in m/s
-            velocity_y, # Y velocity in NED frame in m/s
-            velocity_z, # Z velocity in NED frame in m/s
-            0, 0, 0, # afx, afy, afz acceleration (not supported yet, ignored in GCS_Mavlink)
-            0, 0)    # yaw, yaw_rate (not supported yet, ignored in GCS_Mavlink)
-   
+        0,       # time_boot_ms (not used)
+        0, 0,    # target system, target component
+        mavutil.mavlink.MAV_FRAME_GLOBAL_RELATIVE_ALT_INT, # frame
+        DronekitBitmasks.SEND_VELOCITY_BITMASK.value, # type_mask (only speeds enabled)
+        0, # lat_int - X Position in WGS84 frame in 1e7 * meters
+        0, # lon_int - Y Position in WGS84 frame in 1e7 * meters
+        0, # alt - Altitude in meters in AMSL altitude(not WGS84 if absolute or relative)
+        # altitude above terrain if GLOBAL_TERRAIN_ALT_INT
+        velocity_x, # X velocity in NED frame in m/s
+        velocity_y, # Y velocity in NED frame in m/s
+        velocity_z, # Z velocity in NED frame in m/s
+        0, 0, 0, # afx, afy, afz acceleration (not supported yet, ignored in GCS_Mavlink)
+        0, 0)    # yaw, yaw_rate (not supported yet, ignored in GCS_Mavlink)
 
-def set_attitude(vehicle, roll_angle = 0.0, pitch_angle = 0.0, yaw_rate = 0.0, thrust = 0.5):
-    """
-    NOTE: CURRENTLY NOT USED
-    The follow comments are from the DroneKit website:
 
-    Note that from AC3.3 the message should be re-sent every second (after about 3 seconds
-    with no message the velocity will drop back to zero). In AC3.2.1 and earlier the specified
-    velocity persists until it is canceled. The code below should work on either version
-    (sending the message multiple times does not cause problems).
-
-    The roll and pitch rate cannot be controllbed with rate in radian in AC3.4.4 or earlier,
-    so you must use quaternion to control the pitch and roll for those vehicles.
-    """
+def set_attitude(message_factory, roll_angle = 0.0, pitch_angle = 0.0, yaw_rate = 0.0,
+    thrust = 0.5):
+    """Set the attitude of the drone."""
     # Thrust >  0.5: Ascend
     # Thrust == 0.5: Hold the altitude
     # Thrust <  0.5: Descend
-    msg = vehicle.message_factory.set_attitude_target_encode(
+    return message_factory.set_attitude_target_encode(
         0, # time_boot_ms
         1, # Target system
         1, # Target component
-        0b00000000, # Type mask: bit 1 is LSB
+        DronekitBitmasks.SET_ATTITUDE_BITMASK.value, # Type mask: bit 1 is LSB
         to_quaternion(roll_angle, pitch_angle), # Quaternion
         0, # Body roll rate in radian
         0, # Body pitch rate in radian
         radians(yaw_rate), # Body yaw rate in radian
         thrust  # Thrust
     )
-    vehicle.send_mavlink(msg)
 
 def to_quaternion(roll = 0.0, pitch = 0.0, yaw = 0.0):
-    """
-    NOTE: CURRENTLY NOT USED
+    """Convert degrees to quaternions.
 
-    Convert degrees to quaternions
+    Notes
+    -----
+    Currently not used.
+    see https://en.wikipedia.org/wiki/Conversion_between_quaternions_and_Euler_angles#Source_Code
     """
     t0 = cos(radians(yaw * 0.5))
     t1 = sin(radians(yaw * 0.5))

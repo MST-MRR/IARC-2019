@@ -1,15 +1,15 @@
 import threading
 
-
 class SharedLock():
-    """
+    """A shared lock for timing events.
+
     A class that follows the singleton design pattern. Allows
     any thread that imports this class to get a reference to the
     lock that is to be shared across all threads.
 
-    Data Members
+    Attributes
     ----------
-    lock: threading.Lock
+    lock : threading.Lock
         A static variable that is shared among all threads
     """
     lock = None
@@ -18,7 +18,7 @@ class SharedLock():
         self.lock = None
 
     @staticmethod
-    def getLock():
+    def get_lock():
         if SharedLock.lock is None:
             SharedLock.lock = threading.Lock()
 

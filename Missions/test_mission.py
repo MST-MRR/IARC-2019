@@ -1,8 +1,6 @@
 # Ours
 from ..Drone.drone import Drone
 from ..Drone.drone_controller import DroneController
-from ..tools import logger
-from ..tools.ipc.interprocess_communication import IPC
 
 if __name__ == '__main__':
 

@@ -1,71 +1,72 @@
-class NetworkException(Exception):
-    """
-    Any network or connection errors
-    """
-    pass
-
-
 class AltitudeException(Exception):
     """
-    Too low or too high altitude
+    Thrown when altitude is too low or too high.
     """
     pass
 
 
 class ThrustException(Exception):
     """
-    Too low or too high thrust
+    Thrown when thrust is too low or too high.
     """
     pass
 
 
 class VelocityException(Exception):
     """
-    Too low or too high velocity
+    Thrown when velocity is too low or too high.
     """
     pass
 
-
-class BadArgumentException(Exception):
-    """
-    Caused by wrong call to function or something
-    """
-    pass
 
 class EmergencyLandException(Exception):
     """
-    Caused by wrong call to function or something
+    Thrown when an unrecoverable state is reached and the drone should
+    land for the preservation of its safety and the safety of others.
     """
     pass
+
 
 class VelocityExceededThreshold(Exception):
     """
-    Caused by velocity being too high to be considered safe.
+    Thrown when velocity is too high to be considered safe.
     """
     pass
+
 
 class AltitudeExceededThreshold(Exception):
     """
-    Caused by altitude being too high to be considered safe.
+    Thrown when altitude is too high to be considered safe.
     """
     pass
+
 
 class RangefinderMalfunction(Exception):
     """
-    Caused by a malfunction being detected by the rangefinder.
+    Thrown when it is the rangefinder is returning unusual or suspect values.
     """
     pass
+
 
 class OpticalflowMalfunction(Exception):
     """
-    Caused by a malfunction being detected in the Opticalflow sensor.
+    Thrown when the Opticalflow sensor is returning unusual or suspect values.
     """
     pass
 
+
 class AltitudeNegativeException(Exception):
     """
-    Caused by altitude being negative.
+    Thrown when altitude is observed as negative.
     """
     pass
+
+
+class TakeoffTimeoutException(Exception):
+    """
+    Thrown when takeoff times out.
+    """
+    pass
+
 
 # TODO: Add more safety-related exceptions here

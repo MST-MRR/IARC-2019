@@ -2,13 +2,15 @@
 import abc
 
 class InstructionBase():
-    """
+    """An instruction that a drone can follow.
+
     Responsible for decoding data sent over the network and
     using that data to create tasks.
 
-    NOTE: This class will be import once we start sending
-    messages over the network, but is currently in a simplified
-    state.
+    Notes
+    -----
+    This class will be important once we start sendind messages over the
+    network, but is currently in a simplified state.
     """
     __metaclass__ = abc.ABCMeta
 
@@ -16,26 +18,16 @@ class InstructionBase():
 
     @abc.abstractmethod
     def get_task(self):
-        """
+        """Get a task that the drone can execute.
+
         Decodes the raw instruction data into the appropriate instance
         of a Task object, which should be fully configured and ready
-        for the do() function to be called.
+        for the perform() function to be called. The instruction must be
+        properly initialized before calling this function.
 
-        Parameters
-        ----------
-        None
-        
-        Precondition:
-        ----------
-        The instruction has been properly initialized (given the appropriate
-        raw data for this kind of instruction class).
-
-        Postcondition:
-        ----------
-        None
-
-        Returns:
-        ----------
-        Task object of the appropriate type
+        Returns
+        -------
+        TaskBase subclass
+            The task for the drone to perform.
         """
         pass

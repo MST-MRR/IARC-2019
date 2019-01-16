@@ -2,36 +2,39 @@
 import threading
 
 # Ours
-from ..Drone.drone import Drone
 from task_base import TaskBase
-from ..Utilities import constants as c
+from ..Utilities.timer import Timer
+from ..Utilities.drone_exceptions import TakeoffTimeoutException
 
 class TakeoffTask(TaskBase):
 
     def __init__(self, drone, alt):
-        super(TakeoffTask, self).__init__()
-        self.drone = drone
-        self.stop_event = threading.Event()
-        self.target_alt = alt
-        self.movement = None
-        self.done = False
+        super(TakeoffTask, self).__init__(drone)
+        self._target_alt = alt
+        self._finish_event = None
+        self._error_event = None
 
-    def do(self):
-        if self.movement is None:
-            self.movement = self.drone.takeoff(self.target_alt, self.stop_event)
-        elif self.movement.is_set():
-            self.done = True
+    def perform(self):
+        if self._finish_event is None:
+            self._finish_event, self._error_event = self._drone.takeoff(
+                self._target_alt, self._stop_event)
+        elif self._error_event.is_set():
+            self._error_event = None
+            raise TakeoffTimeoutException
+        elif self._finish_event.is_set():
+            self._done = True
             return True
 
         return False
 
-    def is_done(self):
-        return self.done
+    @property
+    def done(self):
+        return self._done
 
     def exit_task(self):
-        self.stop_event.set()
-        if self.movement is not None:
-            return self.movement
+        self._stop_event.set()
+        if self._finish_event is not None and self._error_event is not None:
+            return self._finish_event
         else:
             cancel_event = threading.Event()
             cancel_event.set()

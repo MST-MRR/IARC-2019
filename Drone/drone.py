@@ -1,18 +1,12 @@
-import threading
-import logging
-
 # Ours
 from drone_base import DroneBase
-from ..Utilities import constants as c
 
 class Drone(DroneBase):
-    """
-    Concrete implementation of DroneBase. See drone__base.py for
-    documentation.
+    """Interface to a drone.
+
+    A drone that can perform various tasks required for Mission 8. See
+    DroneBase for documentation. Add custom drone behavior to this file.
     """
 
-    def loadDevices(self):
+    def load_devices(self):
         pass
-
-    # Other drone specific functions
-    

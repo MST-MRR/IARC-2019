@@ -1,38 +1,34 @@
 # Standard Library
-from time import sleep
 import threading
 
 # Ours
 from task_base import TaskBase
-from ..Drone.drone import Drone
 from ..Utilities import constants as c
 
 class HoverTask(TaskBase):
 
-    def __init__(self, drone, duration=480):
-        super(HoverTask, self).__init__()
-        self.drone = drone
-        self.movement = None
-        self.stop_event = threading.Event()
-        self.duration = duration # 8 minutes default
-        self.done = False
+    def __init__(self, drone, duration=c.DEFAULT_HOVER_DURATION):
+        super(HoverTask, self).__init__(drone)
+        self._movement = None
+        self._duration = duration # 8 minutes default
 
-    def do(self):
-        if self.movement is None:
-            self.movement = self.drone.hover(self.duration, self.stop_event)
-        elif self.movement.is_set():
-            self.done = True
+    def perform(self):
+        if self._movement is None:
+            self._movement = self._drone.hover(self._duration, self._stop_event)
+        elif self._movement.is_set():
+            self._done = True
             return True
 
         return False
 
-    def is_done(self):
-        return self.done
+    @property
+    def done(self):
+        return self._done
 
     def exit_task(self):
-        self.stop_event.set()
-        if self.movement is not None:
-            return self.movement
+        self._stop_event.set()
+        if self._movement is not None:
+            return self._movement
         else:
             cancel_event = threading.Event()
             cancel_event.set()
