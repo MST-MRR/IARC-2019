@@ -1,6 +1,7 @@
 import os
 import logging
 
+import shlex
 import subprocess
 import threading
 from time import sleep
@@ -8,18 +9,12 @@ from time import sleep
 
 class IPC:
     """
-    Creates subprocess in python 2.7 or 3.6 that it can send and receive data from.
-
-    Currently have TCL problems in 3.6 w/ data_splitter! Use 2.7.
+    Creates subprocess in python 2.7 that it can send and receive data from.
 
     Version: python 2.7
 
     Parameters
     ----------
-    version: 2/3, default=2
-        Version of python to create subprocess in.
-        Only tested w/ data splitter in 2.7!
-
     reader: bool, default=True
         Whether or not to use the shell reader.
 
@@ -27,31 +22,32 @@ class IPC:
         The thread stop to be used by shell reader, pass in own thread stop or allow it to create its own.
     """
 
-    py2command = 'python -m'  # Command to start python 2.7
-    py3command = 'python3'  # Command to start python 3.6 (rename python.exe in Python3 folder to python3.exe)
+    python_command = 'python'  # Command to start python 2.7
 
-    def __init__(self, version=2, reader=True, thread_stop=threading.Event()):
+    def __init__(self, reader=True, thread_stop=threading.Event(), target_path="rtg_cache.py"):
         self.thread_stop = thread_stop
 
         # Get filename
 
-        filename = 'IARC-2019.tools.rtg_cache'
-        if 'tools' in os.listdir("."):
-            filename = 'tools/{}'.format(filename)
+        filename = os.path.dirname(__file__)
 
-        # Set python command
-        python_command = IPC.py3command if version != 2 else IPC.py2command
+        if filename and filename[-1] is not os.path.sep:
+            filename += '/'
+        
+        filename += target_path
 
         # Start subprocess
 
         try:
             # Attempt start
 
+            command = shlex.split('{} {}'.format(IPC.python_command, filename), posix=0)
+
             if reader:
-                self.subprocess = subprocess.Popen('{} {}'.format(python_command, filename), stdin=subprocess.PIPE,
-                                                   stdout=subprocess.PIPE, shell=True)
+                self.subprocess = subprocess.Popen(command, stdin=subprocess.PIPE,
+                                                   stdout=subprocess.PIPE)
             else:
-                self.subprocess = subprocess.Popen('{} {}'.format(python_command, filename), stdin=subprocess.PIPE, shell=True)
+                self.subprocess = subprocess.Popen(command, stdin=subprocess.PIPE)
 
             sleep(.1)  # Give time to start / fail to start
 
@@ -62,8 +58,7 @@ class IPC:
                 logging.warning("IPC: Poll: {}".format(error_output))
 
         except Exception as e:
-            logging.error("IPC: {}".format(e))
-            raise IOError("IPC: Rtg cache file not found!")
+            raise IOError("IPC: {}".format(e))
 
         # Shell reader
 
@@ -99,15 +94,18 @@ class IPC:
         """
 
         logging.warning("IPC: Quitting.")
-        self.subprocess.terminate()
-        self.subprocess.kill()
-
+        try:
+          self.subprocess.terminate()
+        except OSError:
+            pass
+          
         self.thread_stop.set()
 
-        try:
-            self.reader_thread.join()
-        except RuntimeError:
-            pass
+        if self.reader_thread:
+            try:
+                self.reader_thread.join()
+            except RuntimeError:
+                pass
 
     def send(self, data):
         """
@@ -146,34 +144,3 @@ class IPC:
 
             if not out == "":
                 print("IPC: Received: {}".format(out))
-
-
-if __name__ == '__main__':
-    from math import sin, cos
-
-    logging.basicConfig(level=logging.INFO)
-
-    with IPC(version=2) as demo:
-        for j in range(0, 10000, 3):
-            i = j * 1
-            demo.send({
-                'airspeed': cos(i),
-                'velocity_x': sin(i),
-                'velocity_y': cos(i),
-                'velocity_z': sin(i),
-                'altitude': sin(i),
-                'target_altitude': sin(i),
-                'roll': cos(i),
-                'pitch': sin(i),
-                'yaw': cos(i),
-                'target_roll_velocity': cos(i),
-                'target_pitch_velocity': cos(i),
-                'target_yaw': sin(i),
-                'voltage': cos(i)
-            })
-
-            sleep(.1)
-
-            if not demo.alive:
-                logging.info("IPC: splitter.poll(): {}".format(demo.subprocess.poll()))
-                break

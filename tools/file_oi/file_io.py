@@ -4,7 +4,16 @@ from xml.dom.minidom import parseString
 
 def xml_to_string(xml_tag):
     """
-    Makes xml objects into string formatted in a readable way
+    Makes xml objects into string formatted in a readable way.
+
+    Parameters
+    ----------
+    xml_tag: xml.etree.ElementTree
+        Raw xml element tree to be redone.
+
+    Returns
+    -------
+    Pretty xml tree.
     """
     return parseString(ET.tostring(xml_tag)).toprettyxml(indent="  ")
 
@@ -107,16 +116,3 @@ def write_config(filename, data):
     # Write
     with open(filename, 'w') as g:
         g.write(xml_to_string(desiredgraphs))
-
-
-if __name__ == '__main__':
-    def test_parse_config():
-        print(parse_config('test_config1.xml'))
-
-    def test_write_config():
-        write_config('test_config2.xml', parse_config('test_config1.xml'))
-
-    def test_possible_metrics():
-        print(possible_metrics('test_config1.xml'))
-
-    test_possible_metrics()
