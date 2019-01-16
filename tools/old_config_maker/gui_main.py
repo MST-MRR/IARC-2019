@@ -1,8 +1,7 @@
-from tkinter import Tk, Menu, PhotoImage, TclError, filedialog
-
-from tab_manager import TabManager
+from tkinter import Menu, PhotoImage, TclError, Tk, filedialog
 
 import file_io
+from tab_manager import TabManager
 
 
 class GUI:

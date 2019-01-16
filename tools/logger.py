@@ -1,8 +1,7 @@
-import logging
-
-import time
 import csv
+import logging
 import os
+import time
 
 from numpy import nan
 
@@ -26,6 +25,8 @@ class Logger:
 
     TIME_HEADER = 'secFromStart'  # Header for time value, log_grapher also uses - must change there too
 
+    SAVE_FOLDER = "generated_logs/"
+
     def __init__(self, desired_headers):
 
         # Setup dict w/ headers matched to desired data stream
@@ -34,7 +35,7 @@ class Logger:
 
         # Find directory and choose filename
 
-        self.resource_file_dir = 'IARC-2019/tools/generated_logs/'
+        self.resource_file_dir = self.find_directory()
 
         date = time.strftime('%x').replace('/', '_')  # Gets today's date & sets / to _ as not mess up the directory
 
@@ -79,10 +80,20 @@ class Logger:
         Finds the generated_logs folder
         """
 
-        resource_file_dir = "generated_logs/"
+        resource_file_dir = os.getcwd()
 
-        if 'tools' in os.listdir("."):
-            resource_file_dir = "tools/" + resource_file_dir
+        project_filename = 'IARC-2019'
+
+        if project_filename in resource_file_dir:
+            resource_file_dir = resource_file_dir.split(project_filename)[0]
+
+        if resource_file_dir[-1] not in ["\\", "/"]:
+            resource_file_dir += '/'
+
+        resource_file_dir += Logger.SAVE_FOLDER
+
+        if not os.path.isdir(resource_file_dir):
+            os.mkdir(resource_file_dir)
 
         return resource_file_dir
 
@@ -93,14 +104,14 @@ class Logger:
 
         return self
 
-    def __exit__(self, exc_type, exc_val, exc_tb):
+    def __exit__(self, *args):
         """
         On with statement exit
         """
 
-        self.exit()
+        self.logging_file.close()
 
-    def exit(self):
+    def quit(self):
         """
         Closes file that was logging data.
         """
@@ -135,42 +146,3 @@ class Logger:
             self.writer.writerow(output_data)
 
             self.last_update_time = current_time
-
-
-if __name__ == '__main__':
-    # Unit test
-
-    import math
-
-    # tempCounter is how long to collect data
-    theTempCounter = int(input("How long to log in seconds? "))
-
-    stopWhile = 0
-
-    my_logger = Logger(['airspeed', 'altitude', 'pitch', 'roll', 'yaw', 'velocity_x',
-                        'velocity_y', 'velocity_z', 'voltage'])
-
-    def func(x):
-        return math.cos(x)
-
-    while stopWhile < theTempCounter:  # main loop
-        myData = {
-            'airspeed' : func(stopWhile) + .0,
-            'altitude' : func(stopWhile) + .1,
-            'pitch' : func(stopWhile) + .2,
-            'roll' : func(stopWhile) + .3,
-            # 'yaw' : func(stopWhile) + .4,
-            'velocity_x' : func(stopWhile) + .5,
-            'velocity_y' : func(stopWhile) + .6,
-            'velocity_z' : func(stopWhile) + .7,
-            'voltage' : func(stopWhile) + .8
-        }
-        my_logger.update(myData)
-
-        currentTime = time.time()
-
-        stopWhile = currentTime - my_logger.start_time
-
-        time.sleep(.00001)
-
-    my_logger.exit()

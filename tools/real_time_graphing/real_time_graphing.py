@@ -1,24 +1,21 @@
-import logging
+import numpy as np
+from matplotlib import pyplot as plt, animation as animation
+
 import threading
 from multiprocessing import Queue
+
 from time import sleep, time
-import os
 
-import numpy as np
-from matplotlib import animation as animation
-from matplotlib import pyplot as plt
+from tools.real_time_graphing.metric import Metric
 
-from file_oi.file_io import parse_config
-from real_time_graph.metric import Metric
+from tools.file_io import file_io
+
+from tools.real_time_graphing.demo_data_gen import get_demo_data
 
 
 class RealTimeGraph:
     """
-    Tool to graph data as it comes in in real time.
-
-    Version: python 2.7 / 3.6
-
-    Requirements: Numpy, Matplotlib
+    Description
 
     Parameters
     ----------
@@ -29,40 +26,15 @@ class RealTimeGraph:
         Time in seconds to display previous data
     """
 
-    LOG_LEVEL = logging.INFO
+    config_filename = 'config.xml'  # Location of configuration file
 
-    ROW_PER_COLUMN = 3  # Rows of subplots per column
+    max_rows = 3  # Rows of subplots per column
 
-    DATA_FREQ_WARNING = .5  # If time values are this far apart warn the user
+    data_freq_warning = .5  # If time values are this far apart warn the user
 
-    PAN_WIDTH = 10  # Seconds of previous data to show
-
-    REL_CONFIG_PATH = "/real_time_graph/config.xml"  # Path from this file to config file
-
-    TITLE = 'Real Time Graphing'  # Window title
-
-    FIGURE_SIZE = (8, 6)
-
-    ANIMATION_INTERVAL = 20
-
-    AXIS_BOUNDS = [0, 100, 0, 10]
-
-    SLEEP_BALANCING = 1e-5
-
-    SLEEP_DEFAULT = 1e-1
-
-    def __init__(self, get_data, **kwargs):
-        printer = logging.getLogger()
-
-        if not printer.handlers:
-            printer.setLevel(RealTimeGraph.LOG_LEVEL)
-            handler = logging.StreamHandler()
-            handler.setLevel(RealTimeGraph.LOG_LEVEL)
-            printer.addHandler(handler)
-
-        if not get_data: logging.critical("RTG: No data pull function!")
+    def __init__(self, get_data=get_demo_data, pan_width=10):
         self.get_data = get_data
-        self.PAN_WIDTH = abs(kwargs['pan_width']) if 'pan_width' in kwargs.keys() else RealTimeGraph.PAN_WIDTH
+        self.pan_width = abs(pan_width)
 
         # Stored which data items we are interested in
         self.tracked_data = []
@@ -75,25 +47,22 @@ class RealTimeGraph:
 
         self.check_time = self.start_time = time()
 
-        # Initializes figure for real_time_graph
+        # Initializes figure for real_time_graphing
         plt.rcParams['toolbar'] = 'None'  # Disable matplot toolbar
 
-        self.fig = plt.figure(figsize=RealTimeGraph.FIGURE_SIZE)
-        self.fig.canvas.set_window_title(RealTimeGraph.TITLE)
+        self.fig = plt.figure(figsize=(8, 6))
+        self.fig.canvas.set_window_title('Real Time Graphing')
 
-        self.fig.subplots_adjust(hspace=1, wspace=0.75)  # Avoid subplot covering up titles
+        self.parse_config()
+
+        self.ani = animation.FuncAnimation(self.fig, self.plot_data, blit=False, interval=20, repeat=False)
 
         # Threading
-        self.sleep_time = kwargs['sleep_time'] if 'sleep_time' in kwargs.keys() else RealTimeGraph.SLEEP_DEFAULT
+        self.sleep_time = 1e-1
 
-        self.thread_stop = kwargs['thread_stop'] if 'thread_stop' in kwargs.keys() else threading.Event()
+        self.thread_stop = threading.Event()
 
         self.thread_queue = Queue()
-
-    def run(self):
-        self.parse_rtg_config()
-
-        self.ani = animation.FuncAnimation(self.fig, self.plot_data, blit=False, interval=RealTimeGraph.ANIMATION_INTERVAL, repeat=False)
 
         threads = {
             'reader': threading.Thread(target=self.read_data, args=(self.thread_queue,)),
@@ -103,6 +72,10 @@ class RealTimeGraph:
         for thread in threads.values():
             thread.start()
 
+        self.fig.subplots_adjust(hspace=1, wspace=0.75)  # Avoid subplot overlap
+
+        #
+        # Code stops here until matplot window closed
         plt.show()
 
         #
@@ -112,19 +85,7 @@ class RealTimeGraph:
         for thread in threads.values():
             thread.join()
 
-    @property
-    def config_filename(self):
-        """
-        Returns the filename of config file.
-        """
-
-        config_path = os.path.dirname(__file__)  # Get this files location
-
-        config_path += RealTimeGraph.REL_CONFIG_PATH
-
-        return config_path
-
-    def parse_rtg_config(self):
+    def parse_config(self):
         """
         Interprets the graph config file
 
@@ -134,29 +95,20 @@ class RealTimeGraph:
             Parsed config file
         """
 
-        try:
-            output = parse_config(self.config_filename)
-        except IOError:
-            logging.warning("RTG: Failed to read config file '{}'!".format(self.config_filename))
-            output = None
-
-        if output is None:
-            logging.critical("RTG: No configuration file found!")
-            return
+        output = file_io.parse_config(RealTimeGraph.config_filename)
 
         # Total number of subplots
-        self.graph_count = [graph["output"] == 'text' for graph in output].count(False)
+        graph_count = [graph["output"] == 'text' for graph in output].count(False)
 
-        nrows = max(min(self.graph_count, RealTimeGraph.ROW_PER_COLUMN), 1)
-
-        ncols = int(self.graph_count / nrows) + (self.graph_count % nrows)
+        nrows = min(graph_count, RealTimeGraph.max_rows)
+        ncols = int(graph_count / nrows) + (graph_count % nrows > 0)
 
         def unique_color_generator(colors_taken):
-            colors = ['blue', 'orange', 'red', 'green', 'yellow', 'black']
+            color_list = ['blue', 'orange', 'red', 'green', 'yellow', 'black', 'Ran out of colors!']
 
             seen = set(colors_taken)
 
-            for elem in colors:
+            for elem in color_list:
                 if elem not in seen:
                     yield elem
                     seen.add(elem)
@@ -165,7 +117,7 @@ class RealTimeGraph:
             if graph['output'] == 'text':
                 i = 0
                 for metric in graph['metrics']:
-                    # (Coords are percent of width/height) This is creating a text object w/ a location.
+                    # Coords are percent
                     text = ax.text(i * (1 / len(graph['metrics'])) + .01, .01, 'matplotlib', transform=plt.gcf().transFigure)
 
                     self.tracked_data.append(Metric(output=text, label=metric['label'], func=metric['func'],
@@ -179,7 +131,7 @@ class RealTimeGraph:
                 # Make axis
                 ax = self.fig.add_subplot(nrows, ncols, len(self.fig.get_axes()) + 1)
 
-                ax.axis(RealTimeGraph.AXIS_BOUNDS)
+                ax.axis([0, 100, 0, 10])
 
                 # Configure the new axis
                 ax.set_title(graph['title'])
@@ -208,18 +160,15 @@ class RealTimeGraph:
         """
 
         while not self.thread_stop.is_set():
-            try:
-                data = self.get_data()
-                thread_queue.put(data)
-            except Exception as error:
-                logging.warning("RTG: {}".format(error))
+            data = self.get_data()
+            thread_queue.put(data)
 
             # Adjust sleep times
             if self.data_count > self.plot_count:
-                self.sleep_time = self.sleep_time + RealTimeGraph.SLEEP_BALANCING
+                self.sleep_time = self.sleep_time + 1e-5
 
             elif self.data_count == self.plot_count:
-                self.sleep_time = self.sleep_time - RealTimeGraph.SLEEP_BALANCING
+                self.sleep_time = self.sleep_time - 1e-5
 
             sleep(self.sleep_time)
 
@@ -237,33 +186,23 @@ class RealTimeGraph:
             while not thread_queue.empty():
                 data = thread_queue.get(False, self.sleep_time)
 
-                if not data:
-                    logging.warning("RTG: No data!")
-                    sleep(.25)
-                    continue
-
                 self.times.append(time() - self.start_time)
 
                 # Checks data frequency to see if poor quality
                 try:
-                    if self.times[-1] > self.times[-2] + RealTimeGraph.DATA_FREQ_WARNING:
-                        logging.warning("RTG: Data quality: Sucks")
-                        pass
+                    if self.times[-1] > self.times[-2] + RealTimeGraph.data_freq_warning:
+                        print("Data quality: Sucks")
                 except IndexError:
                     pass
 
                 for metric in self.tracked_data:
                     func = metric.func
 
-                    values = []
+                    x = data[metric.x_stream] if metric.x_stream else None
+                    y = data[metric.y_stream] if metric.y_stream else None
+                    z = data[metric.z_stream] if metric.z_stream else None
 
-                    axes = list('xyz')
-                    for axis in axes:
-                        stream = getattr(metric, '{}_stream'.format(axis))
-                        if stream:
-                            values.append(data[stream])
-
-                    x_val = func(*values)
+                    x_val = func(x, y, z) if z else (func(x, y) if y else func(x))
 
                     metric.push_data(x_val)
                 self.data_count += 1
@@ -299,14 +238,16 @@ class RealTimeGraph:
                 ax.relim()
                 ax.autoscale(axis='y')
             except ValueError as e:
-                logging.error("RGG: Caught '{}'!\n \
-                              Past 10 times: {}\n \
-                              Past 10 outputs: {}".format(e, self.times[-10:], metric.data[-10:]))
+                print("Caught '{}'!\nPast 10 times: {}\nPast 10 outputs: {}".format(e, self.times[-10:], metric.data[-10:]))
 
             current_time = int(self.times[-1])
 
-            ax.set_xlim(current_time - self.PAN_WIDTH, current_time + self.PAN_WIDTH)
+            ax.set_xlim(current_time - self.pan_width, current_time + self.pan_width)
 
         self.plot_count += 1
 
         return [metric.output for metric in self.tracked_data]
+
+
+if __name__ == '__main__':
+    test_object = RealTimeGraph()
