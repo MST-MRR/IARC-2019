@@ -1,5 +1,6 @@
 import xml.etree.ElementTree as ET
-from xml.dom.minidom import parseString
+from xml.etree.ElementTree import parse
+from defusedxml.minidom import parseString
 
 
 def xml_to_string(xml_tag):
@@ -36,7 +37,7 @@ def parse_config(filename):
 
     output = []
 
-    root = ET.parse(filename).getroot()
+    root = parse(filename).getroot()
 
     for graph in root.findall('graph'):
         output.append({
