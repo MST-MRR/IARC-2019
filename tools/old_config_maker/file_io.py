@@ -1,5 +1,5 @@
 import xml.etree.ElementTree as ET
-from xml.etree.ElementTree import parse
+from defusedxml.ElementTree import parse
 from defusedxml.minidom import parseString
 
 
