@@ -38,7 +38,7 @@ class LoggerTest(unittest.TestCase):
 
         # Make sure altitude didn't get logged
         with self.assertRaises(KeyError):
-            x = data['altitude']
+            data['altitude']
 
 
 if __name__ == '__main__':
