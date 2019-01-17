@@ -199,7 +199,7 @@ class RealTimeGraph:
                         color = metric['color'] if metric['color'] else next(color_gen)
                     except StopIteration:
                         logging.error("Out of metric colors.")
-                        
+
                     m_line, = ax.plot([], [], color=color, label=metric['label'])
 
                     self.tracked_data.append(Metric(output=m_line, func=metric['func'], x_stream=metric['x_stream'],
@@ -259,7 +259,6 @@ class RealTimeGraph:
                 try:
                     if self.times[-1] > self.times[-2] + RealTimeGraph.DATA_FREQ_WARNING:
                         logging.warning("RTG: Data quality: Sucks")
-                        pass
                 except IndexError:
                     pass
 
