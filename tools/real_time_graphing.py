@@ -195,8 +195,11 @@ class RealTimeGraph:
                 ax.set_ylabel(graph['ylabel'])
 
                 for metric in graph['metrics']:
-                    color = metric['color'] if metric['color'] else next(color_gen)
-
+                    try:
+                        color = metric['color'] if metric['color'] else next(color_gen)
+                    except StopIteration:
+                        logging.error("Out of metric colors.")
+                        
                     m_line, = ax.plot([], [], color=color, label=metric['label'])
 
                     self.tracked_data.append(Metric(output=m_line, func=metric['func'], x_stream=metric['x_stream'],
