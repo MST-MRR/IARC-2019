@@ -7,6 +7,5 @@
     <metric label="Yaw" x_stream="yaw"/>
     <metric label="Yaw2" x_stream="yaw" func="x"/>
     <metric label="Yaw" x_stream="yaw"/>
-    <metric label="Yaw2" x_stream="yaw" func="x"/>
   </graph>
 </desiredgraphs>
