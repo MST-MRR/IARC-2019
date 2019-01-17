@@ -9,7 +9,7 @@ class RTGTest():
     base_path = r"test_configs/real_time_graphing/"
 
     def main(self):
-        func_list = [func for func, value in RTGTest.__dict__.items() if type(RTGTest.__dict__[func]) is staticmethod]
+        func_list = [func for func, value in RTGTest.__dict__.items() if isinstance(RTGTest.__dict__[func], staticmethod)]
 
         for func in func_list:
             getattr(self, func)()
@@ -53,7 +53,7 @@ class RTGTest():
         print("Multiple Graphs: Should be showing multiple graphs.")
         try:
             test_object.run()
-        except Exception as e:
+        except Exception:
             print("Success!")
 
 
