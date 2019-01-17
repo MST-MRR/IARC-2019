@@ -8,7 +8,7 @@ from interprocess_communication import IPC
 
 
 def execute_test(obj):
-    for i in range(10):
+    for _ in range(10):
         obj.send({'pitch': 1, 'roll': 2, 'yaw': 3})
 
     tools = obj.active_tools
