@@ -33,6 +33,7 @@ class IPC:
 
         if filename and filename[-1] is not os.path.sep:
             filename += '/'
+
         filename += target_path
 
         # Start subprocess

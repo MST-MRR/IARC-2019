@@ -137,7 +137,7 @@ class Metric:
         """
 
         return self._raw_func
-        
+
     @property
     def x_stream(self):
         """
