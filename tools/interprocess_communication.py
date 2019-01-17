@@ -95,10 +95,9 @@ class IPC:
 
         logging.warning("IPC: Quitting.")
         try:
-          self.subprocess.terminate()
+            self.subprocess.terminate()
         except OSError:
-            pass
-          
+            logging.warning("Failed to terminate subprocess.")
         self.thread_stop.set()
 
         if self.reader_thread:

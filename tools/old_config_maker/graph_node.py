@@ -236,7 +236,7 @@ class GraphNode:
     # TODO - NOT FOR BASE WORKING
     def reset(self, to_reset=None):
         # TODO - Add default item settings
-        if type(to_reset) is not list: to_reset = [to_reset]
+        if not isinstance(to_reset,list): to_reset = [to_reset]
         if not to_reset: to_reset = [key for key in self.items.keys()]
 
         for item in to_reset:
