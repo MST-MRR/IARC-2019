@@ -108,8 +108,8 @@ def write_config(filename, data):
     desiredgraphs = ET.Element('desiredgraphs')
 
     for graph in data:
-        curr_graph = ET.SubElement(desiredgraphs, 'graph', {key: value for key, value in graph.items() if type(value) is not list and value})
-        for key, lst in [(key, value) for key, value in graph.items() if type(value) is list and value]:
+        curr_graph = ET.SubElement(desiredgraphs, 'graph', {key: value for key, value in graph.items() if not isinstance(value, list) and value})
+        for key, lst in [(key, value) for key, value in graph.items() if isinstance(value, list) and value]:
             for item in lst:
                 ET.SubElement(curr_graph, key, {key: value for key, value in item.items() if value})
 

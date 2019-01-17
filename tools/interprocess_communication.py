@@ -54,7 +54,7 @@ class IPC:
             # See if started
 
             if self.subprocess.poll():
-                output, error_output = self.subprocess.communicate()
+                _, error_output = self.subprocess.communicate()
                 logging.warning("IPC: Poll: {}".format(error_output))
 
         except Exception as e:
