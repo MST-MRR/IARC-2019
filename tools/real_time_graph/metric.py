@@ -53,8 +53,8 @@ class Metric:
 
         # Func safety check
         for letter in self._raw_func:
-            assert letter in supported_letters, \
-                "{}: Determined to be potentially unsafe at letter '{}'.".format(func, letter)
+            if letter not in supported_letters:
+                raise ValueError("{}: Determined to be potentially unsafe at letter '{}'.".format(func, letter))
 
         # Init func
 
@@ -63,8 +63,10 @@ class Metric:
         for axis in axes:
             if axis in self._raw_func:
                 stream = getattr(self, "_{}_stream".format(axis))
-                assert stream, "{} in function but no {}_stream!".format(axis)
-                assert stream in Metric.POSSIBLE_DATA_STREAMS, "Invalid {}_stream: '{}'".format(axis, stream)
+                if not stream:
+                    raise ValueError("{0} in function but no {0}_stream!".format(axis))
+                if stream not in Metric.POSSIBLE_DATA_STREAMS:
+                    raise ValueError("Invalid {}_stream: '{}'".format(axis, stream))
 
         self._func = lambda x=0, y=0, z=0: eval(self._raw_func)
 
