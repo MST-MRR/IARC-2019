@@ -4,9 +4,14 @@ All of the constant values used across all of the scripts are located here.
 
 from enum import Enum
 
+class Drones(Enum):
+    LEONARDO_SIM = "Leonardo_Sim"
+    LEONARDO = "Leonardo"
+
+
 DRONES = {
-        'Leonardo_Sim' : 'tcp:127.0.0.1:5762',
-        'Leonardo': '/dev/serial/by-id/usb-3D_Robotics_PX4_FMU_v2.x_0-if00'
+        Drones.LEONARDO_SIM : 'tcp:127.0.0.1:5762',
+        Drones.LEONARDO: '/dev/serial/by-id/usb-3D_Robotics_PX4_FMU_v2.x_0-if00'
         }
 """Drone connection strings.
 
