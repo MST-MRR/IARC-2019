@@ -171,15 +171,13 @@ class RealTimeGraph:
 
         for graph in output:
             if graph['output'] == 'text':
-                i = 0
-                for metric in graph['metrics']:
+                for i, metric in enumerate(graph['metrics']):
                     # (Coords are percent of width/height) This is creating a text object w/ a location.
-                    text = plt.text(i * (1 / len(graph['metrics'])) + .01, .01, 'matplotlib', transform=plt.gcf().transFigure)
+                    text = plt.text((float(i) / float(len(graph['metrics']))) + .01, .01, 'matplotlib', transform=plt.gcf().transFigure)
 
                     self.tracked_data.append(Metric(output=text, label=metric['label'], func=metric['func'],
                                                     x_stream=metric['x_stream'], y_stream=metric['y_stream'],
                                                     z_stream=metric['z_stream']))
-                    i += 1
 
             else:
                 color_gen = unique_color_generator([metric['color'] for metric in graph['metrics']])
