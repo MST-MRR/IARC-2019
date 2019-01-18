@@ -8,4 +8,9 @@
     <metric label="Yaw2" x_stream="yaw" func="x"/>
     <metric label="Yaw" x_stream="yaw"/>
   </graph>
+  <graph title="Text output" xlabel="Seconds" ylabel="x" output="text" >
+    <metric label="Yaw" x_stream="yaw"/>
+    <metric label="Yaw2" x_stream="yaw" func="x"/>
+    <metric label="Yaw3" x_stream="yaw"/>
+  </graph>
 </desiredgraphs>
