@@ -35,6 +35,8 @@ class FileIOTest(unittest.TestCase):
 
         self.assertEqual(file_io.parse_config(FileIOTest.file2), FileIOTest.expected_parse)
 
+        os.remove(FileIOTest.file2)
+
     def test_possible_metrics(self):
         """
         Should return list of metrics
