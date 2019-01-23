@@ -1,7 +1,7 @@
 # Wraps around 2DLine/plt.text object
 
 import string
-from math import sin, cos, tan, sinh, cosh, tanh, log, log10
+from math import sin, cos, tan, sinh, cosh, tanh, log
 
 
 class Metric:
