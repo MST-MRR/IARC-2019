@@ -1,4 +1,6 @@
 # This should probably go with the rest of the code for the plotter tab
+import os
+
 import pandas
 import matplotlib.pyplot as plt
 
@@ -38,7 +40,7 @@ def submit_chosen_columns(filename, column1, column2):
 
     raw_data = pandas.read_csv(filename, usecols=[column1, column2])
 
-    plt.title("{}: {} vs {}".format(filename, column1, column2))
+    plt.title("{}: {} vs {}".format(os.path.basename(filename), column1, column2))
     plt.xlabel(column1)
     plt.ylabel(column2)
 
