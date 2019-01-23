@@ -3,7 +3,7 @@ Python ver 2.7.15
 This is a GUI for any tools that require one, such as the plotter that graphs
 csv files and a config maker to customize graphs.
 
-Awaiting a code review from Cole
+TODO Maaybe move description to the class
 '''
 import Tkinter as tk
 import ttk
@@ -15,6 +15,9 @@ sys.path.append(os.path.join(os.path.dirname(__file__),"plotter"))
 import plotter.plotter_backend as plotter_tool
 
 class PlotterGUI:
+  '''
+  TODO Add explanation of class here
+  '''
   def __init__(self, master):
     self.notebook = ttk.Notebook(master) #Makes tabs for the GUI
     self.notebook.grid(columnspan=2, row=0) #TODO Switch to the grid system for organizing GUI elements
@@ -22,7 +25,7 @@ class PlotterGUI:
     #Contents of first tab
     self.plotter_frame = ttk.Frame(master)
     self.plotter_label = ttk.Label(self.plotter_frame, text="Welcome to the IARC Plotter!")
-    self.file_selecter = ttk.Button(self.plotter_frame, text="Open .csv file", command=self.select_file)
+    self.file_selector = ttk.Button(self.plotter_frame, text="Open .csv file", command=self.select_file)
 
     #Contents of second tab
     #TODO Make the config maker for the second tab
@@ -32,7 +35,7 @@ class PlotterGUI:
     #Positioning contents of first tab
     self.plotter_frame.grid(columnspan=2, row=0)
     self.plotter_label.grid(columnspan=2, row=0)
-    self.file_selecter.grid(columnspan=2, row=1)
+    self.file_selector.grid(columnspan=2, row=1)
 
     #Positioning contents of second tab
     self.config_mk_frame.grid(column=0, row=0)
@@ -66,12 +69,13 @@ class PlotterGUI:
   def submit_plotter_options(self):
     print('Submitted!')
     self.column_1_choice = self.column_options_1.get()
-    self.coulmn_2_choice = self.column_options_2.get()
+    self.column_2_choice = self.column_options_2.get()
     #TODO Pass user chosen headers to backend code
-    plotter_tool.submit_chosen_columns(self.csv_filename, self.column_1_choice, self.coulmn_2_choice)
+    plotter_tool.submit_chosen_columns(self.csv_filename, self.column_1_choice, self.column_2_choice)
 
   #TODO Display the plotted graph that the backend returns
 
+#TODO Move this stuff inside the class
 root = tk.Tk()
 app = PlotterGUI(root) #Adds all GUI contents to the window
 
