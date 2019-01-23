@@ -51,10 +51,8 @@ class RTGTest():
         test_object.config_filename = RTGTest.base_path + "multiple_graphs.xml"
 
         print("Multiple Graphs: Should be showing multiple graphs.")
-        try:
-            test_object.run()
-        except Exception:
-            print("Success!")
+        
+        test_object.run()
 
 
 if __name__ == '__main__':
