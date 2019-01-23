@@ -46,7 +46,8 @@ class IPC:
             # Attempt start
 
             if IPC.command in _command_whitelist and target_path in _filename_whitelist:
-                command_w_args = shlex.split('{} {}'.format(IPC.python_command, filename), posix=0)
+                command_w_args = shlex.split('{} {}'.format(IPC.command, filename), posix=0)
+                command_w_args = shlex.split('{} {}'.format(IPC.command, filename), posix=0)
 
                 if reader:
                     self.subprocess = subprocess.Popen(command_w_args, stdin=subprocess.PIPE, stdout=subprocess.PIPE)
