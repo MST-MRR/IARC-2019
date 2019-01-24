@@ -29,11 +29,18 @@ RANGEFINDER_MIN = 0.29
 RANGEFINDER_EPSILON = 0.03
 DEFAULT_ARM_TIMEOUT = 60
 
-# Values based on heapq, with is a min-heap.
+
 class Priorities(Enum):
+    """Constants for differentiating the priority of items.
+
+    Notes
+    -----
+    Values are based on heapq, with is a min-heap.
+    """
     LOW = 3
     MEDIUM = 2
     HIGH = 1
+
 
 # DroneKit Vehicle Modes
 class Modes(Enum)  :

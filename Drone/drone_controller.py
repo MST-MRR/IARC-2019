@@ -32,7 +32,7 @@ class DroneController(DroneControllerBase):
         self.drone = drone
         self._instruction_queue = PriorityQueue()
 
-        coloredlogs.install(level='DEBUG')
+        coloredlogs.install(level=logging.INFO)
 
         # The following two lines are purely for testing purposes. Instructions
         # will be pushed onto the heap as a result of the swarm controller
@@ -106,7 +106,7 @@ class DroneController(DroneControllerBase):
 
         if isinstance(self._task, HoverTask) or self._task is None:
             # Process remaining instructions
-            if self._instruction_queue.size:
+            if not self._instruction_queue.empty():
                 # Stop hovering, if we were doing so
                 if isinstance(self._task, HoverTask):
                     stop_hover_event = self._task.exit_task()

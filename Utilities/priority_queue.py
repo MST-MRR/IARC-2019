@@ -36,19 +36,29 @@ class PriorityQueue():
         -------
         An item, or None if the priority queue is empty.
         """
-        if (self.size > 0):
+        if len(self):
             # Index 0 is priority, index 1 is the item.
             return heapq.heappop(self._queue)[1]
         else:
             return None
 
-    @property
-    def size(self):
-        """Get the size of the priority queue.
+    def empty(self):
+        """Check if the priority queue is empty.
+
+        Returns
+        -------
+        bool
+            True if the priority queue is empty, and false otherwise.
         """
-        return len(self._queue)
+        if not len(self):
+            return True
+        else:
+            return False
 
     def clear(self):
         """Empty out the priority queue, deleting all the items.
         """
         self.queue = []
+
+    def __len__(self):
+        return len(self._queue)

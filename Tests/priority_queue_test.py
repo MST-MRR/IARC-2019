@@ -14,24 +14,34 @@ class TestPriorityQueue(unittest.TestCase):
         removing items correctly.")
 
     def test_proper_order(self):
-        """Test that a mixed-bag of priorities comes out in the right order.""" 
+        """Test that a mixed-bag of priorities comes out in the right order."""
         queue = PriorityQueue()
         items = [1, 2, 3]
         priorities = [Priorities.LOW, Priorities.MEDIUM, Priorities.HIGH]
-        for x in range(0, 3):
-            queue.push(priorities[x], items[x])
+        for item, priority in zip(items, priorities):
+            queue.push(priority, item)
 
         items.reverse()
-        for x in range(0, 3):
-            self.assertEqual(items[x], queue.pop(), "Not returning items with \
+        for item in items:
+            self.assertEqual(item, queue.pop(), "Not returning items with \
             higher priority first.")
 
-    def test_empty_queue(self):
-        """Test that popping an empty queue does not throw error."""
+    def test_pop_empty_queue(self):
+        """Test that popping an empty queue does not throw an error."""
         queue = PriorityQueue()
-        item = queue.pop()
 
+        item = queue.pop()
         self.assertEqual(item, None)
+
+    def test_empty_function(self):
+        """Test that empty returns false when item are in the queue."""
+        queue = PriorityQueue()
+        self.assertTrue(queue.empty(), "Empty queue claiming it is not empty")
+
+
+        queue.push(Priorities.LOW, "Sample string")
+        self.assertFalse(queue.empty(), "Non-empty queue claiming it is \
+        empty.")
 
 if __name__ == '__main__':
     unittest.main()
