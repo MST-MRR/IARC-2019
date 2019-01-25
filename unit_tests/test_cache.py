@@ -3,7 +3,7 @@ from demo_data_gen import get_demo_data
 import simple_imports
 simple_imports.import_distributor()
 
-from rtg_cache import RTGCache
+from rtg.rtg_cache import RTGCache
 
 
 if __name__ == '__main__':

@@ -5,7 +5,7 @@ from unit_tests.demo_data_gen import get_demo_data
 import simple_imports
 simple_imports.import_distributor()
 
-from interprocess_communication import IPC
+from rtg.interprocess_communication import IPC
 
 
 if __name__ == '__main__':

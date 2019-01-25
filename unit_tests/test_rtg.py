@@ -3,7 +3,7 @@ from demo_data_gen import get_demo_data
 import simple_imports
 simple_imports.import_distributor()
 
-from real_time_graphing import RealTimeGraph
+from rtg.real_time_graphing import RealTimeGraph
 
 
 class RTGTest():

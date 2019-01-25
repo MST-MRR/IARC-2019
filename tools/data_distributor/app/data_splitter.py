@@ -1,6 +1,6 @@
 import logging
 
-from interprocess_communication import IPC
+from rtg.interprocess_communication import IPC
 from logger.logger import Logger
 
 

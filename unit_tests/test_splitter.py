@@ -5,7 +5,6 @@ simple_imports.import_distributor()
 
 from data_splitter import DataSplitter
 
-# from logger.logger import Logger
 
 def execute_test(obj):
     for _ in range(10):
