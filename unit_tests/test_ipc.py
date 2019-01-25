@@ -1,8 +1,9 @@
-import simple_imports
-
 from time import sleep
 
-from demo_data_gen import get_demo_data
+from unit_tests.demo_data_gen import get_demo_data
+
+import simple_imports
+simple_imports.import_distributor()
 
 from interprocess_communication import IPC
 
