@@ -5,6 +5,9 @@ simple_imports.import_distributor()
 
 from data_splitter import DataSplitter
 
+from logger.logger import Logger
+from rtg.interprocess_communication import IPC
+
 
 def execute_test(obj):
     for _ in range(10):
@@ -28,7 +31,7 @@ class RTGTest(unittest.TestCase):
         tools_active = execute_test(demo)
 
         for tool in tools_active:
-            self.assertTrue((tool.__class__ is Logger))
+            self.assertTrue((tool.__class__ is Logger or tool.__class__ is IPC))
 
     def test_use_ipc(self):
         """
