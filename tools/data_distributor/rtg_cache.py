@@ -3,7 +3,7 @@ import sys
 import threading
 from ast import literal_eval
 
-from real_time_graphing import RealTimeGraph
+from tools.data_distributor.real_time_graphing import RealTimeGraph
 
 
 class RTGCache:
