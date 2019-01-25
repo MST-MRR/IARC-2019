@@ -9,7 +9,7 @@ import numpy as np
 from matplotlib import animation as animation
 from matplotlib import pyplot as plt
 
-from tools.file_oi.file_io import parse_config
+from tools.data_distributor.file_oi import parse_config
 from tools.data_distributor.real_time_graph import Metric
 
 
