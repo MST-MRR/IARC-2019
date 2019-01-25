@@ -1,9 +1,10 @@
-import simple_imports
-
 import os
 import unittest
 
-from file_oi import file_io
+import simple_imports
+simple_imports.import_distributor()
+
+from file_io import file_io
 
 
 class FileIOTest(unittest.TestCase):
