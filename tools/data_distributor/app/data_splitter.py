@@ -1,7 +1,7 @@
 import logging
 
-from interprocess_communication import IPC
-from logger import Logger
+from tools.data_distributor.app.interprocess_communication import IPC
+from tools.data_distributor.app.logger import Logger
 
 
 class DataSplitter:

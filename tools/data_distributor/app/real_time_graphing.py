@@ -9,8 +9,8 @@ import numpy as np
 from matplotlib import animation as animation
 from matplotlib import pyplot as plt
 
-from tools.data_distributor.file_oi import parse_config
-from tools.data_distributor.real_time_graph import Metric
+from tools.data_distributor.app.file_oi import parse_config
+from tools.data_distributor.app.real_time_graph import Metric
 
 
 class RealTimeGraph:
