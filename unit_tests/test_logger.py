@@ -1,4 +1,4 @@
-import parent_directory
+import simple_imports
 
 import unittest
 

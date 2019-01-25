@@ -1,4 +1,4 @@
-import parent_directory
+import simple_imports
 
 from time import sleep
 
