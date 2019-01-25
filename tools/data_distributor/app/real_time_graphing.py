@@ -9,8 +9,8 @@ import numpy as np
 from matplotlib import animation as animation
 from matplotlib import pyplot as plt
 
-from tools.data_distributor.app.file_oi import parse_config
-from tools.data_distributor.app.real_time_graph import Metric
+from file_oi import parse_config
+from metric import Metric
 
 
 class RealTimeGraph:
@@ -38,7 +38,7 @@ class RealTimeGraph:
 
     PAN_WIDTH = 10  # Seconds of previous data to show
 
-    REL_CONFIG_PATH = "/real_time_graph/config.xml"  # Path from this file to config file
+    REL_CONFIG_PATH = "/metric/config.xml"  # Path from this file to config file
 
     TITLE = 'Real Time Graphing'  # Window title
 
@@ -76,7 +76,7 @@ class RealTimeGraph:
 
         self.check_time = self.start_time = time()
 
-        # Initializes figure for real_time_graph
+        # Initializes figure for metric
         plt.rcParams['toolbar'] = 'None'  # Disable matplot toolbar
 
         self.fig = plt.figure(figsize=RealTimeGraph.FIGURE_SIZE)

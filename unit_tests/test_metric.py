@@ -2,7 +2,7 @@ import parent_directory
 
 import unittest
 
-from real_time_graph import metric
+from metric import metric
 
 
 class MetricTest(unittest.TestCase):
