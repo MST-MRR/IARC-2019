@@ -1,9 +1,13 @@
 import simple_imports
 
+simple_imports.import_distributor()
+
 import unittest
 
 from pandas import read_csv
+from time import sleep
 from numpy import nan
+
 from logger import Logger
 
 
@@ -15,17 +19,21 @@ class LoggerTest(unittest.TestCase):
         Should return a certain set of data
         """
 
+        loops = 10
+
         my_logger = Logger(['pitch', 'roll', 'yaw'])
 
         def func(x):
             return x % 5
 
-        for i in range(10):  # main loop
+        for i in range(loops):  # main loop
             my_logger.update({
                 'altitude': func(i) + .1,
                 'pitch': func(i) + .2,
                 'roll': func(i) + .3,
             })
+
+            sleep(.1)
 
         filename = my_logger.directory
 
@@ -39,6 +47,8 @@ class LoggerTest(unittest.TestCase):
         # Make sure altitude didn't get logged
         with self.assertRaises(KeyError):
             print(data['altitude'])
+
+        self.assertEqual(len(data['roll']), loops)
 
 
 if __name__ == '__main__':
