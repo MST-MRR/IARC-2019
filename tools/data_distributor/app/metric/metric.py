@@ -30,7 +30,7 @@ class Metric:
         'color_image', 'depth_image', None]
 
     SUPPORTED_FUNCTIONS = [',', '.', string.digits, string.whitespace, 'xyz', '()', '+-*/%', 'abs', 'int', 'float', 'sin', 'cos', 'tan' 'h',  # h for sinh
-                           'log']
+                           'logger']
 
     def __init__(self, output, label=None, func=None, x_stream=None, y_stream=None, z_stream=None):
         self._output = output

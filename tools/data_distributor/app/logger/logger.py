@@ -18,7 +18,7 @@ class Logger:
     Parameters
     ----------
     desired_headers: list
-        List of headers of data streams to log.
+        List of headers of data streams to logger.
     """
 
     EMPTY_VALUE = nan  # (np.nan) Value to put in csv if no data given

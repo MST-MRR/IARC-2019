@@ -1,7 +1,7 @@
 import logging
 
 from interprocess_communication import IPC
-from logger import Logger
+from logger.logger import Logger
 
 
 class DataSplitter:
@@ -13,7 +13,7 @@ class DataSplitter:
     Parameters
     ----------
     logger_desired_headers: list, default=[]
-        Headers for logger to log data for. Logger object not created if no headers given.
+        Headers for logger to logger data for. Logger object not created if no headers given.
 
     use_rtg: bool, default=True
         Whether to use the real time grapher or not.

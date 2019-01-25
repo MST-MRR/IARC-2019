@@ -8,7 +8,7 @@ from pandas import read_csv
 from time import sleep
 from numpy import nan
 
-from logger import Logger
+from logger.logger import Logger
 
 
 class LoggerTest(unittest.TestCase):
