@@ -1,6 +1,7 @@
-import simple_imports
-
 from demo_data_gen import get_demo_data
+
+import simple_imports
+simple_imports.import_distributor()
 
 from rtg_cache import RTGCache
 
