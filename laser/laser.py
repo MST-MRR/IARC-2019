@@ -1,12 +1,12 @@
 """
-This file contains the class for the laser.
+Contains the control object for the laser mounted on the drones
 """
 from RPi import GPIO
 
 class Laser:
 """
-This has two functions to make 
-turing the laser on and off easier
+This class is a controller for the laser on the drone 
+and will manipulate different variables of the laser
 
 Parameters
 ----------
@@ -25,12 +25,12 @@ Attributes
 
     def on(self):
         """
-        This funtion turns on the laser bound to the laser object
+        Turns on the laser mounted on the drone
         """
         GPIO.output(self._laser_pin, GPIO.HIGH)
 
     def off(self):
         """
-        This funtion turns off the laser bound to the laser object
+        Turns off the laser mounted on the drone
         """
         GPIO.output(self._laser_pin, GPIO.LOW)
