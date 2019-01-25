@@ -1,6 +1,8 @@
-import simple_imports
-
 import unittest
+
+import simple_imports
+simple_imports.import_distributor()
+
 from data_splitter import DataSplitter
 
 from logger import Logger
