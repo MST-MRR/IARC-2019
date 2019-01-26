@@ -12,6 +12,8 @@ class PriorityQueue():
         The priority queue.
     """
 
+    count = 987654
+
     def __init__(self):
         self._queue = []
 
@@ -27,7 +29,9 @@ class PriorityQueue():
             The data being inserted into the queue.
 
         """
-        heapq.heappush(self._queue, (priority.value, item))
+        val = int('{}{}'.format(priority.value, PriorityQueue.count))
+        PriorityQueue.count = PriorityQueue.count + 1
+        heapq.heappush(self._queue, (val, item))
 
     def pop(self):
         """Remove the next item from the priortiy queue.
