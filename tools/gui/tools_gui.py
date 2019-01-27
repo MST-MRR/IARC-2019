@@ -2,6 +2,8 @@
 Python ver 2.7.15
 This is a GUI for any tools that require one, such as the plotter that graphs
 csv files and a config maker to customize graphs.
+
+NOTE: There is a test file under tools/test/test_csv to test out the plotter.
 '''
 import Tkinter as tk
 import ttk, tkFileDialog
@@ -49,7 +51,8 @@ class multiToolGUI:
     #Creates the actual tab
     self.notebook.add(self.plotter_frame, text="Plotter")
 
-    #Contents of second tab
+    '''
+    Second tab contents for future tool.
     #TODO Make the drone swarm controller simulator for the second tab
     self.tab_2_frame = ttk.Frame(self.main_window)
     self.tab_2_label = tk.Label(self.tab_2_frame,
@@ -60,6 +63,7 @@ class multiToolGUI:
     self.tab_2_label.grid(column=0, row=0)
 
     self.notebook.add(self.tab_2_frame, text="WIP Tool")
+    '''
 
     self.main_window.mainloop() #Starts the GUI event loop
 
