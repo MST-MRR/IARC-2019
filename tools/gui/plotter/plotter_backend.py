@@ -43,12 +43,8 @@ def submit_chosen_columns(filename, column1, column2):
 
     raw_data = pandas.read_csv(filename, encoding = "utf-8")
 
-    plt.title("{}{}".format(column1, column2).encode('utf-8'))
+    plt.title(os.path.basename(filename) + " : " + column1 + " vs. " + column2)
 
-    '''
-{}:
-os.path.basename(filename), 
-    '''
     plt.xlabel(column1)
     plt.ylabel(column2)
 
