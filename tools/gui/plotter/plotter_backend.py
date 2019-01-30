@@ -2,8 +2,11 @@
 import os
 
 import pandas
+import matplotlib
 import matplotlib.pyplot as plt
 
+matplotlib.rc('font', **{'sans-serif' : 'Arial',
+                         'family' : 'sans-serif'})
 
 def get_csv_headers(filename):
     """
@@ -19,7 +22,7 @@ def get_csv_headers(filename):
     list: List of column names from filename
     """
 
-    return pandas.read_csv(filename).columns.tolist()
+    return pandas.read_csv(filename, encoding = "utf-8").columns.tolist()
 
 
 def submit_chosen_columns(filename, column1, column2):
@@ -38,9 +41,14 @@ def submit_chosen_columns(filename, column1, column2):
         Name of column to be used
     """
 
-    raw_data = pandas.read_csv(filename, usecols=[column1, column2])
+    raw_data = pandas.read_csv(filename, encoding = "utf-8")
 
-    plt.title("{}: {} vs {}".format(os.path.basename(filename), column1, column2))
+    plt.title("{}{}".format(column1, column2).encode('utf-8'))
+
+    '''
+{}:
+os.path.basename(filename), 
+    '''
     plt.xlabel(column1)
     plt.ylabel(column2)
 
@@ -50,8 +58,8 @@ def submit_chosen_columns(filename, column1, column2):
 
 
 if __name__ == '__main__':
-    test_filename = 'test_csv/test_1.csv'
+    test_filename = 'C:/Users/TomD3/Desktop/Test csv stuff/RampTest_2018-10-08_192523.csv'
 
     print(get_csv_headers(test_filename))
 
-    submit_chosen_columns(test_filename, 'b', 'a')
+    submit_chosen_columns(test_filename, 'ESC signal (s)', 'Time (s)')
