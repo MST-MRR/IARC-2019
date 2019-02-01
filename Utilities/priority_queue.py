@@ -12,7 +12,7 @@ class PriorityQueue():
         The priority queue.
     """
 
-    count = 987654
+    count = 900000
 
     def __init__(self):
         self._queue = []
