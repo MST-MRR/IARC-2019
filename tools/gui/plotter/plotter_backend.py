@@ -3,6 +3,7 @@ import os
 
 import pandas
 import matplotlib
+matplotlib.use('tkagg')
 import matplotlib.pyplot as plt
 
 matplotlib.rc('font', **{'sans-serif' : 'Arial',
