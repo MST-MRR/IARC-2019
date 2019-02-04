@@ -3,7 +3,7 @@ import unittest
 import simple_imports
 simple_imports.import_distributor()
 
-from metric.metric import Metric
+from rtg.metric import metric
 
 
 class MetricTest(unittest.TestCase):
@@ -12,7 +12,7 @@ class MetricTest(unittest.TestCase):
         Should return a certain set of data
         """
 
-        test = Metric(None, func="x * 5", x_stream="yaw")
+        test = metric.Metric(None, func="x * 5", x_stream="yaw")
 
         self.assertEqual(test.raw_func, "x * 5")
 
