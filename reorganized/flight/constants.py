@@ -20,7 +20,11 @@ See http://python.dronekit.io/guide/connecting_vehicle.html
 and http://ardupilot.org/dev/docs/learning-ardupilot-the-example-sketches.html.
 """
 
+# Misc
+DEBUG = True
+
 # Safety
+DEFAULT_ALTITUDE = 1
 DEFAULT_SPEED = 0.50
 SPEED_THRESHOLD = 2
 MINIMUM_ALLOWED_ALTITUDE = 0.5
@@ -57,10 +61,6 @@ class Directions(Enum):
     FORWARD = (1, 0, 0)
     BACKWARD = (-1, 0, 0)
 
-class DronekitBitmasks(Enum):
-    SEND_VELOCITY_BITMASK = 0b0000111111000111
-    SET_ATTITUDE_BITMASK = 0b00000000
-
 # Movement
 DEFAULT_TAKEOFF_THRUST = 0.7
 SMOOTH_TAKEOFF_THRUST = 0.6
@@ -69,7 +69,7 @@ PERCENT_ALTITUDE_THRUST_ADJUSTMENT_THRESHOLD = 0.6
 SIMULATION_MULTIPLIER = 1 # Divide 1 by your average real-time factor
 
 # Durations
-DELAY_INTERVAL = 0.1
+SHORT_INTERVAL = 0.01
 ARM_RETRY_DELAY = 1
 MAV_ATTITUDE_MSG_RESEND_DELAY = 0.25
 MAV_VELOCITY_MSG_RESEND_DELAY = 1
