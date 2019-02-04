@@ -1,48 +1,52 @@
+import coloredlogs
 from dronekit import connect, VehicleMode
 import logging
-import coloredlogs
+import sys
+from threading import Event
 from time import sleep
 import traceback
-import sys
 
-import exceptions
 from drone import Drone
-from ..tasks.task_base import TaskBase
+import exceptions
 from .. import constants as c
 from ..tasks.hover_task import HoverTask
-from ..tasks.takeoff_task import TakeoffTask
 from ..tasks.linear_movement_task import LinearMovementTask
+from ..tasks.takeoff_task import TakeoffTask
+from ..tasks.task_base import TaskBase
 from ..utils.priority_queue import PriorityQueue
 from ..utils.timer import Timer
 
 class DroneController(object):
-    """Base class for controlling the actions of a drone.
+    """Controls the actions of a drone.
 
-    Responsible for managing the execution of tasks, maintaining a queue of
-    instructions, and responding gracefully to emergency landing events.
+    Responsible for managing the execution of tasks and checking for unsafe
+    conditions.
 
     Attributes
     ----------
-    _id : int
-        Identification number used by the swarm controller to distinguish
-        between the drones.
-    instruction_queue : list of InstructionBase subclass
-        A priority queue holding instruction sent from the swarm controller or
-        inter-drone communication.
-    current_instruction : InstructionBase subclass
-        The instruction currently being processed.
-    task : TaskBase subclass
+    _current_task : TaskBase subclass
         The task the drone is currently working on.
+    _task_queue : list of InstructionBase subclass
+        A PriorityQueue holding tasks to be performed.
+    _safety_event : Event
+        Set when an unsafe condition is observed.
     """
 
     def __init__(self, drone):
-        """drone is a member of the Drone enum"""
+        """Construct a drone controller.
+
+        Parameters
+        ----------
+        drone : c.Drone.{DRONE_NAME}"""
         self._task_queue = PriorityQueue()
         self._current_task = None
+        self._safety_event = Event()
 
+        # Initialize the logger
         self._logger = logging.getLogger(__name__)
         coloredlogs.install(level=logging.INFO)
 
+        # Connect to the drone
         self._logger.info('Connecting...')
         connection_string = c.CONNECTION_STR_DICT[drone]
         self._drone = connect(
@@ -52,17 +56,33 @@ class DroneController(object):
         self._logger.info('Connected')
 
     def run(self):
-        self._logger.info('Controller starting')
+        """Start the controller.
 
+        Notes
+        -----
+        This method will block execution until it has finished.
+        """
+        self._logger.info('Controller starting')
         try:
             # Arm the drone for flight
             self._arm()
 
-            # NOTE: the only way to stop the loop is to raise an exceptions,
+            # Start up safety checking
+            safety_checks_timer = Timer()
+            safety_checks_timer.add_callback(
+                "safety_checks", c.SAFETY_CHECKS_DELAY, self._do_safety_checks,
+                recurring=True)
+
+            # NOTE: the only way to stop the loop is to raise an exception,
             # such as with a keyboard interrupt
             while True:
-                self._do_safety_checks()
+                # Check that safe conditions have not been violated
+                if self._safety_event.is_set():
+                    safety_checks_timer.shutdown()
+                    raise self._exception
+                # Perform one iteration of control logic
                 self._update()
+                # Let the program breath
                 sleep(c.DELAY_INTERVAL)
 
         except BaseException as e:
@@ -80,30 +100,55 @@ class DroneController(object):
             self._logger.info('Controller exiting')
 
     def add_hover_task(self, altitude, duration, priority=c.Priorities.LOW):
+        """Instruct the drone to hover.
+
+        Parameters
+        ----------
+        altitude : double
+            The target altitude to hover at.
+        duration : double
+            How long to hover for.
+        priority : Priorities.{LOW, MEDIUM, HIGH}, optional
+            The importance of this task.
+        """
         new_task = HoverTask(self._drone, altitude, duration)
         self._task_queue.push(priority, new_task)
 
     def add_takeoff_task(self, altitude):
+        """Instruct the drone to takeoff.
+
+        Parameters
+        ----------
+        altitude : double
+            The target altitude to hover at.
+        duration : double
+            How long to hover for.
+
+        Notes
+        -----
+        Internally, the priority of this task is always set to HIGH.
+        """
         new_task = TakeoffTask(self._drone, altitude)
         self._task_queue.push(c.Priorities.HIGH, new_task)
 
     def add_linear_movement_task(
             self, direction, duration, priority=c.Priorities.MEDIUM):
+        """Instruct the drone to move along one of cardinal axes.
+
+        Parameters
+        ----------
+        direction : Directions.{UP, DOWN, LEFT, RIGHT, FORWARD, BACKWARD}
+            The direction to travel in.
+        duration : double
+            How long to move for.
+        priority : Priorities.{LOW, MEDIUM, HIGH}, optional
+            The importance of this task.
+        """
         new_task = LinearMovementTask(self._drone, direction, duration)
         self._task_queue.push(c.Priorities.HIGH, new_task)
 
     def _update(self):
-        """Execute one iteration of control logic.
-
-        Checks that a land event has not been set and executes the
-        next iteration of the current task, if one exists.
-
-        Returns
-        -------
-        bool
-            False if the update should continue to be called and false
-            otherwise
-        """
+        """Execute one iteration of control logic."""
         if self._current_task is not None:
             # Do one iteration of whichever task we are in
             result = self._current_task.perform()
@@ -115,11 +160,14 @@ class DroneController(object):
                 self._logger.info('Finished {}...'.format(self._current_task))
                 self._task_queue.pop()
 
+        # Grab reference of previous task for comparison
         prev_task = self._current_task
 
+        # Set new task, if one of higher priority exists
         self._current_task = self._task_queue.top()
 
-        if prev_task is not self._current_task:
+        # If this condition is true, we have ourselves a new task
+        if prev_task is not self._current_task and prev_task is not None:
             self._logger.info('Starting {}...'.format(self._current_task))
 
         # If there are no more tasks, begin to hover.
@@ -128,19 +176,23 @@ class DroneController(object):
 
     def _do_safety_checks(self):
         """Check for exceptional conditions."""
-        if self._drone.airspeed > c.SPEED_THRESHOLD:
-            raise exceptions.VelocityExceededThreshold()
+        try:
+            if self._drone.airspeed > c.SPEED_THRESHOLD:
+                raise exceptions.VelocityExceededThreshold()
 
-        if (self._drone.rangefinder.distance > c.MAXIMUM_ALLOWED_ALTITUDE):
-            raise exceptions.AltitudeExceededThreshold()
+            if (self._drone.rangefinder.distance > c.MAXIMUM_ALLOWED_ALTITUDE):
+                raise exceptions.AltitudeExceededThreshold()
 
-        if (self._drone.rangefinder.distance
-                < c.RANGEFINDER_MIN - c.RANGEFINDER_EPSILON -.5):
-            raise exceptions.RangefinderMalfunction()
+            if (self._drone.rangefinder.distance
+                    < c.RANGEFINDER_MIN - c.RANGEFINDER_EPSILON -.5):
+                raise exceptions.RangefinderMalfunction()
+        except Exception as e:
+            self._exception = e
+            self._safety_event.set()
 
         # TODO: Add more safety checks here
 
-    def _arm(self, timeout=c.DEFAULT_ARM_TIMEOUT, mode=c.Modes.GUIDED.value):
+    def _arm(self, mode=c.Modes.GUIDED.value):
         """Arm the drone for flight.
 
         Upon successfully arming, the drone is now suitable to take off. The
@@ -148,15 +200,8 @@ class DroneController(object):
 
         Parameters
         ----------
-        timeout : int, optional
-            The duration in seconds that arming should be attempted before
-            timing out
         mode : {GUIDED}, optional
 
-        Returns
-        -------
-        bool
-            True if successfully armed and false otherwise.
 
         Notes
         -----
@@ -165,8 +210,7 @@ class DroneController(object):
         self._drone.mode = VehicleMode(mode)
 
         self._logger.info('Arming...')
-        timer = Timer()
-        while (not self._drone.armed) and (timer.elapsed < timeout):
+        while not self._drone.armed:
             self._drone.armed = True
             sleep(c.ARM_RETRY_DELAY)
 

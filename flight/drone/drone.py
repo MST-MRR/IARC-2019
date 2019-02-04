@@ -9,17 +9,17 @@ from .. import constants as c
 from ..utils.timer import Timer
 
 class Drone(dronekit.Vehicle):
-    """Interface to drone and to sensors.
+    """Interface to drone and its sensors.
 
     Attributes
     ----------
-    _logger
-        Write messages to command line.
+    _id : int
+        A unique identifier for this drone.
     """
 
     def __init__(self, *args):
         super(Drone, self).__init__(*args)
-        self._connected = False
+        self._id = None
         self._logger = logging.getLogger(__name__)
 
     @property
@@ -33,10 +33,42 @@ class Drone(dronekit.Vehicle):
         self._id = identifier
 
     def set_attitude(self, roll, pitch, yaw, thrust):
+        """Set the drones attitude.
+
+        Parameters
+        ----------
+        roll : double
+            The roll angle.
+        pitch : double
+            The pitch angle.
+        yaw : double
+            The yaw rate.
+        thrust : double between 0 and 1
+            The thrust value.
+
+        Notes
+        -----
+        If thrust < 0.5, the drone will lose altitude
+        If thrust == 0.5, the drone will retain its altitude
+        If thrust > 0.5, the drone will gain altitude
+        """
         msg = self._make_attitude_message(roll, pitch, yaw, thrust)
         self.send_mavlink(msg)
 
     def send_velocity(self, north, east, down):
+        """Send velocity to the drone.
+
+        Parameters
+        ----------
+        north : double
+        east : double
+        down : double
+
+        Notes
+        -----
+        This method used the NED coordinate system. Of note is that sending a
+        positive value for down will make the drone lose altitude.
+        """
         msg = self._make_velocity_message(north, east, down)
         self.send_mavlink(msg)
 
@@ -45,6 +77,9 @@ class Drone(dronekit.Vehicle):
 
         Parameters
         ----------
+        north : double
+        east : double
+        down : double
 
         Returns
         -------
@@ -69,7 +104,19 @@ class Drone(dronekit.Vehicle):
             0, 0)    # yaw, yaw_rate (not supported yet, ignored in GCS_Mavlink)
 
     def _make_attitude_message(self, roll, pitch, yaw, thrust):
-        """Set the attitude of the drone."""
+        """Set the attitude of the drone.
+
+        Parameters
+        ----------
+        roll : double
+            The roll angle.
+        pitch : double
+            The pitch angle.
+        yaw : double
+            The yaw rate.
+        thrust : double between 0 and 1
+            The thrust value.
+        """
         # Thrust >  0.5: Ascend
         # Thrust == 0.5: Hold the altitude
         # Thrust <  0.5: Descend
