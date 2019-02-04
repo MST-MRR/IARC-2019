@@ -6,7 +6,7 @@ import traceback
 import sys
 
 import exceptions
-from custom_vehicle import Drone
+from drone import Drone
 from ..tasks.task_base import TaskBase
 from .. import constants as c
 from ..tasks.hover_task import HoverTask

@@ -12,7 +12,9 @@ class HoverTask(TaskBase):
 
     def perform(self):
         # Get control value
-        zv = -self._pid_alt(self._drone.rangefinder.altitude)
+        zv = -self._pid_alt(self._drone.rangefinder.distance)
+        print self._drone.rangefinder.distance
+        print zv
         # Send 0 velocities to drone (excepting altitude correction)
         self._drone.send_velocity(0, 0, zv)
         self._count -= 1

@@ -17,8 +17,8 @@ class Drone(dronekit.Vehicle):
         Write messages to command line.
     """
 
-    def __init__(self):
-        super(Drone, self).__init__()
+    def __init__(self, *args):
+        super(Drone, self).__init__(*args)
         self._connected = False
         self._logger = logging.getLogger(__name__)
 
@@ -33,11 +33,11 @@ class Drone(dronekit.Vehicle):
         self._id = identifier
 
     def set_attitude(self, roll, pitch, yaw, thrust):
-        msg = _make_attitude_message(roll, pitch, yaw, thrust)
+        msg = self._make_attitude_message(roll, pitch, yaw, thrust)
         self.send_mavlink(msg)
 
     def send_velocity(self, north, east, down):
-        msg = _make_velocity_message(north, east, down)
+        msg = self._make_velocity_message(north, east, down)
         self.send_mavlink(msg)
 
     def _make_velocity_message(self, north, east, down):
@@ -62,9 +62,9 @@ class Drone(dronekit.Vehicle):
             0, # lon_int - Y Position in WGS84 frame in 1e7 * meters
             0, # alt - Altitude in meters in AMSL altitude(not WGS84 if absolute or relative)
             # altitude above terrain if GLOBAL_TERRAIN_ALT_INT
-            velocity_x, # X velocity in NED frame in m/s
-            velocity_y, # Y velocity in NED frame in m/s
-            velocity_z, # Z velocity in NED frame in m/s
+            north, # X velocity in NED frame in m/s
+            east, # Y velocity in NED frame in m/s
+            down, # Z velocity in NED frame in m/s
             0, 0, 0, # afx, afy, afz acceleration (not supported yet, ignored in GCS_Mavlink)
             0, 0)    # yaw, yaw_rate (not supported yet, ignored in GCS_Mavlink)
 
@@ -78,14 +78,14 @@ class Drone(dronekit.Vehicle):
             1, # Target system
             1, # Target component
             0b00000000, # Type mask: bit 1 is LSB
-            _to_quaternion(roll_angle, pitch_angle), # Quaternion
+            self._to_quaternion(roll, pitch), # Quaternion
             0, # Body roll rate in radian
             0, # Body pitch rate in radian
-            radians(yaw_rate), # Body yaw rate in radian
+            radians(yaw), # Body yaw rate in radian
             thrust  # Thrust
         )
 
-    def _to_quaternion(roll = 0.0, pitch = 0.0, yaw = 0.0):
+    def _to_quaternion(self, roll = 0.0, pitch = 0.0, yaw = 0.0):
         """Convert degrees to quaternions.
 
         See https://en.wikipedia.org/wiki/Conversion_between_quaternions_and_Euler_angles#Source_Code
