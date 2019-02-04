@@ -4,7 +4,7 @@ import unittest
 import simple_imports
 simple_imports.import_distributor()
 
-from file_io import file_io
+from rtg.file_io import file_io
 
 
 class FileIOTest(unittest.TestCase):
