@@ -8,7 +8,7 @@ class Drones(Enum):
     LEONARDO_SIM = "Leonardo_Sim"
     LEONARDO = "Leonardo"
 
-DRONES = {
+CONNECTION_STR_DICT = {
         Drones.LEONARDO_SIM : 'tcp:127.0.0.1:5762',
         Drones.LEONARDO: '/dev/serial/by-id/usb-3D_Robotics_PX4_FMU_v2.x_0-if00'
         }
@@ -69,7 +69,7 @@ PERCENT_ALTITUDE_THRUST_ADJUSTMENT_THRESHOLD = 0.6
 SIMULATION_MULTIPLIER = 1 # Divide 1 by your average real-time factor
 
 # Durations
-SHORT_INTERVAL = 0.01
+DELAY_INTERVAL = 0.1
 ARM_RETRY_DELAY = 1
 MAV_ATTITUDE_MSG_RESEND_DELAY = 0.25
 MAV_VELOCITY_MSG_RESEND_DELAY = 1

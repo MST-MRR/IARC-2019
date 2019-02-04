@@ -45,7 +45,7 @@ class PriorityQueue():
     def top(self):
         if len(self):
         # Index 0 is priority, index 1 is the item.
-            return heapq[0][1]
+            return self._queue[0][1]
         else:
             return None
 

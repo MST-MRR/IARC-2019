@@ -23,7 +23,6 @@ class TaskBase():
     def __init__(self, drone):
         self._drone = drone
         self._done = False
-        self._stop_event = threading.Event()
 
     @abc.abstractmethod
     def perform(self):
@@ -37,28 +36,5 @@ class TaskBase():
         pass
 
     @property
-    @abc.abstractmethod
     def done(self):
-        """Get the status of this task.
-
-        Returns
-        -------
-        bool
-            True if the task is done doing whatever is does, and False
-            otherwise.
-        """
-        pass
-
-    @abc.abstractmethod
-    def exit_task(self):
-        """Cancel this task.
-
-        Takes the necessary actions to for the controller to safely exit the
-        current task (ex. halting movement).
-
-        Returns
-        -------
-        threading.Event
-            The task has been safely exited once this event is set.
-        """
-        pass
+        return self._done

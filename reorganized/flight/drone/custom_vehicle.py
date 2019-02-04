@@ -5,10 +5,8 @@ import threading
 from math import radians, sin, cos
 from pymavlink import mavutil
 
-from ..Utilities import constants as c
-from ..Utilities import dronekit_wrappers
-from ..Utilities.helper import current_thread_name
-from ..Utilities.timer import Timer
+from .. import constants as c
+from ..utils.timer import Timer
 
 class Drone(dronekit.Vehicle):
     """Interface to drone and to sensors.
@@ -20,8 +18,9 @@ class Drone(dronekit.Vehicle):
     """
 
     def __init__(self):
+        super(Drone, self).__init__()
         self._connected = False
-        self._logger = logging.getLogger(__name__)e
+        self._logger = logging.getLogger(__name__)
 
     @property
     def id(self):
