@@ -37,9 +37,9 @@ class Logger:
 
         self.resource_file_dir = self.find_directory()
 
-        date = time.strftime('%x').replace('/', '_')  # Gets today's date & sets / to _ as not mess up the directory
+        date = time.strftime('%x').replace('/', '-')  # Gets today's date & sets / to _ as not mess up the directory
 
-        file_name_start = '{}_Flight_Num_'.format(date)
+        file_name_start = '{}_flight_'.format(date)
 
         if os.listdir(self.resource_file_dir):
             # For each file in the directory with the same date, find the highest flight number
