@@ -80,7 +80,7 @@ class DroneController(object):
             self._logger.info('Controller exiting')
 
     def add_hover_task(self, altitude, duration, priority=c.Priorities.LOW):
-        new_task = HoverTask(self._drone, duration, altitude)
+        new_task = HoverTask(self._drone, altitude, duration)
         self._task_queue.push(priority, new_task)
 
     def add_takeoff_task(self, altitude):
