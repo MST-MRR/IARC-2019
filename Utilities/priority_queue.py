@@ -1,5 +1,7 @@
 import heapq
 
+DEFAULT_COUNT = 900000
+
 class PriorityQueue():
     """Custom priority queue implementation.
 
@@ -12,7 +14,7 @@ class PriorityQueue():
         The priority queue.
     """
 
-    count = 900000
+    count = DEFAULT_COUNT
 
     def __init__(self):
         self._queue = []
@@ -30,7 +32,7 @@ class PriorityQueue():
 
         """
         val = int('{}{}'.format(priority.value, PriorityQueue.count))
-        PriorityQueue.count = PriorityQueue.count + 1
+        PriorityQueue.count += 1
         heapq.heappush(self._queue, (val, item))
 
     def pop(self):
