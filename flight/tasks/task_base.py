@@ -6,8 +6,8 @@ class TaskBase():
     """A task the the drone can perform.
 
     Responsible for implementing the core logic of the various actions that a
-    drone can take (ex. Movement, Follow, Heal, Decode). Must, at a minimum,
-    implement do(), is_done(), and exit_task().
+    drone can take (ex. Movement, Follow, Heal, Decode). Must implement
+    perform().
 
     Attributes
     ----------
@@ -15,8 +15,6 @@ class TaskBase():
         An interface to the drone.
     _done: bool
         The status of the task.
-    _stop_event: threading.Event
-        An event which is set when the task is exited.
     """
     __metaclass__ = abc.ABCMeta
 

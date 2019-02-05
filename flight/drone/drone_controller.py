@@ -10,6 +10,7 @@ from drone import Drone
 import exceptions
 from .. import constants as c
 from ..tasks.hover_task import HoverTask
+from ..tasks.land_task import LandTask
 from ..tasks.linear_movement_task import LinearMovementTask
 from ..tasks.takeoff_task import TakeoffTask
 from ..tasks.task_base import TaskBase
@@ -51,7 +52,7 @@ class DroneController(object):
         connection_string = c.CONNECTION_STR_DICT[drone]
         self._drone = connect(
             connection_string, wait_ready=True,
-            heartbeat_timeout=c.HEARTBEAT_TIMEOUT, status_printer=None,
+            heartbeat_timeout=c.CONNECT_TIMEOUT, status_printer=None,
             vehicle_class=Drone)
         self._logger.info('Connected')
 
@@ -145,7 +146,18 @@ class DroneController(object):
             The importance of this task.
         """
         new_task = LinearMovementTask(self._drone, direction, duration)
-        self._task_queue.push(c.Priorities.HIGH, new_task)
+        self._task_queue.push(priority, new_task)
+
+    def add_land_task(self, priority=c.Priorities.MEDIUM):
+        """Instruct the drone to land.
+
+        Parameters
+        ----------
+        priority : Priorities.{LOW, MEDIUM, HIGH}, optional
+            The importance of this task.
+        """
+        new_task = LandTask(self._drone)
+        self._task_queue.push(priority, new_task)
 
     def _update(self):
         """Execute one iteration of control logic."""
@@ -157,7 +169,8 @@ class DroneController(object):
             # we can move on to the next instruction
             if result:
                 # We are done with the task
-                self._logger.info('Finished {}...'.format(self._current_task))
+                self._logger.info('Finished {}...'.format(
+                    type(self._current_task).__name__))
                 self._task_queue.pop()
 
         # Grab reference of previous task for comparison
@@ -167,12 +180,18 @@ class DroneController(object):
         self._current_task = self._task_queue.top()
 
         # If this condition is true, we have ourselves a new task
-        if prev_task is not self._current_task and prev_task is not None:
-            self._logger.info('Starting {}...'.format(self._current_task))
+        if (prev_task is not self._current_task and
+                self._current_task is not None):
+            self._logger.info('Starting {}...'.format(
+                type(self._current_task).__name__))
+
+        # TODO: if task is a of type LandTask, provide a way for update() to
+        # stop being called after completion of task.
 
         # If there are no more tasks, begin to hover.
         if self._current_task is None:
-            self.add_hover_task(c.DEFAULT_ALTITUDE, 480)
+            self._logger.info('No more tasks - beginning long hover')
+            self.add_hover_task(c.DEFAULT_ALTITUDE, c.DEFAULT_HOVER_DURATION)
 
     def _do_safety_checks(self):
         """Check for exceptional conditions."""
@@ -183,9 +202,6 @@ class DroneController(object):
             if (self._drone.rangefinder.distance > c.MAXIMUM_ALLOWED_ALTITUDE):
                 raise exceptions.AltitudeExceededThreshold()
 
-            if (self._drone.rangefinder.distance
-                    < c.RANGEFINDER_MIN - c.RANGEFINDER_EPSILON -.5):
-                raise exceptions.RangefinderMalfunction()
         except Exception as e:
             self._exception = e
             self._safety_event.set()

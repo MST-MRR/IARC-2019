@@ -20,18 +20,18 @@ See http://python.dronekit.io/guide/connecting_vehicle.html
 and http://ardupilot.org/dev/docs/learning-ardupilot-the-example-sketches.html.
 """
 
-# Misc
+# Set to true for more detailed error messages and backtraces
 DEBUG = True
 
-# Safety
+# How high in meters the drone will default flight
 DEFAULT_ALTITUDE = 1
+# How fast (in meters/s) to move by default
 DEFAULT_SPEED = 0.50
-SPEED_THRESHOLD = 2
-MINIMUM_ALLOWED_ALTITUDE = 0.5
+# Maximum speed (in meters/s) before being considered unsafe
+SPEED_THRESHOLD = 1
+# Maximum altitude (in meters) before being considered unsafe
 MAXIMUM_ALLOWED_ALTITUDE = 1.5
-RANGEFINDER_MIN = 0.29
-RANGEFINDER_EPSILON = 0.03
-DEFAULT_ARM_TIMEOUT = 60
+# How often to run safety checks
 SAFETY_CHECKS_DELAY = 0.5
 
 
@@ -49,12 +49,22 @@ class Priorities(Enum):
 
 # DroneKit Vehicle Modes
 class Modes(Enum)  :
+    """The various modes of flight."""
     GUIDED = "GUIDED"
     LAND = "LAND"
     FLOW_HOLD = "FLOW_HOLD"
     FOLLOW = "FOLLOW"
 
 class Directions(Enum):
+    """Directions along each axis.
+
+    Notes
+    -----
+    RIGHT => positive x
+    LEFT => negative x
+    FORWARD => positive y
+    BACKWARD => negative y
+    """
     UP = (0, 0, 1)
     DOWN = (0, 0, -1)
     LEFT = (0, 1, 0)
@@ -62,17 +72,20 @@ class Directions(Enum):
     FORWARD = (1, 0, 0)
     BACKWARD = (-1, 0, 0)
 
-# Movement
+# Thrust level during takeoff
 DEFAULT_TAKEOFF_THRUST = 0.7
+# Consider takeoff complete after reaching this percent of target takeoff
+# altitude
 PERCENT_TARGET_ALTITUDE = 0.3
-SIMULATION_MULTIPLIER = 1 # Divide 1 by your average real-time factor
+# Expands or contracts time calculations (divide 1 by your average real-time
+# factor in Gazebo simulator)
+SIMULATION_MULTIPLIER = 1
 
-# Durations
+# How often to run main control loop
 DELAY_INTERVAL = 0.1
+# How often to retry arming during arm function
 ARM_RETRY_DELAY = 1
-MAV_ATTITUDE_MSG_RESEND_DELAY = 0.25
-MAV_VELOCITY_MSG_RESEND_DELAY = 1
-MAV_HOVER_MSG_RESEND_DELAY = 1
-DEFAULT_TAKEOFF_TIMEOUT = 10
+# How long to wait before timing out a connection attempt
+CONNECT_TIMEOUT = 60
+
 DEFAULT_HOVER_DURATION = 480
-HEARTBEAT_TIMEOUT = 60

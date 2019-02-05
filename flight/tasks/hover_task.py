@@ -3,11 +3,28 @@ from simple_pid import PID
 from task_base import TaskBase
 from .. import constants as c
 
+KP = 1
+KI = 0.1
+KD = 0.05
+
 class HoverTask(TaskBase):
+    """A task that makes drone hover for a period of time."""
+
     def __init__(self, drone, altitude, duration):
+        """Initialize a task for hovering.
+
+        Parameters
+        ----------
+        drone : dronekit.Vehicle
+            The drone being controlled.
+        altitude : double
+            Target altitude to maintain during hover.
+        duration : double
+            How many seconds to hover for.
+        """
         super(HoverTask, self).__init__(drone)
         self._duration = duration
-        self._pid_alt = PID(1, 0.1, 0.05, setpoint=altitude)
+        self._pid_alt = PID(KP, KI, KP, setpoint=altitude)
         self._count = duration * (1.0/c.DELAY_INTERVAL)
 
     def perform(self):

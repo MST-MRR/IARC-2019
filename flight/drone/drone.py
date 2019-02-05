@@ -132,7 +132,7 @@ class Drone(dronekit.Vehicle):
             thrust  # Thrust
         )
 
-    def _to_quaternion(self, roll = 0.0, pitch = 0.0, yaw = 0.0):
+    def _to_quaternion(self, roll=0.0, pitch=0.0, yaw=0.0):
         """Convert degrees to quaternions.
 
         See https://en.wikipedia.org/wiki/Conversion_between_quaternions_and_Euler_angles#Source_Code
