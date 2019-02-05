@@ -76,13 +76,11 @@ class DroneController(object):
 
             # NOTE: the only way to stop the loop is to raise an exception,
             # such as with a keyboard interrupt
-            while True:
+            while self._update():
                 # Check that safe conditions have not been violated
                 if self._safety_event.is_set():
                     safety_checks_timer.shutdown()
                     raise self._exception
-                # Perform one iteration of control logic
-                self._update()
                 # Let the program breath
                 sleep(c.DELAY_INTERVAL)
 
@@ -98,7 +96,7 @@ class DroneController(object):
 
             # Land the drone
             self._land()
-            self._logger.info('Controller exiting')
+            self._logger.info('Finished emergency land')
 
     def add_hover_task(self, altitude, duration, priority=c.Priorities.LOW):
         """Instruct the drone to hover.
@@ -160,7 +158,12 @@ class DroneController(object):
         self._task_queue.push(priority, new_task)
 
     def _update(self):
-        """Execute one iteration of control logic."""
+        """Execute one iteration of control logic.
+
+        Returns
+        -------
+        True if should be called again, and false otherwise.
+        """
         if self._current_task is not None:
             # Do one iteration of whichever task we are in
             result = self._current_task.perform()
@@ -171,6 +174,8 @@ class DroneController(object):
                 # We are done with the task
                 self._logger.info('Finished {}...'.format(
                     type(self._current_task).__name__))
+                if isinstance(self._current_task, LandTask):
+                    return False
                 self._task_queue.pop()
 
         # Grab reference of previous task for comparison
@@ -192,6 +197,8 @@ class DroneController(object):
         if self._current_task is None:
             self._logger.info('No more tasks - beginning long hover')
             self.add_hover_task(c.DEFAULT_ALTITUDE, c.DEFAULT_HOVER_DURATION)
+
+        return True
 
     def _do_safety_checks(self):
         """Check for exceptional conditions."""
@@ -251,9 +258,9 @@ class DroneController(object):
         self._logger.info('Starting land...')
         while not self._drone.mode == land_mode:
             self._drone.mode = land_mode
-        self._logger.info('Finished land')
 
         self._logger.info('Waiting for disarm...')
         while self._drone.armed:
             sleep(c.DELAY_INTERVAL)
         self._logger.info('Disarm complete')
+        self._logger.info('Finished land')
