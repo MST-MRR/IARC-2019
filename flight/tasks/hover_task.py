@@ -8,7 +8,17 @@ KI = 0
 KD = 0
 
 class HoverTask(TaskBase):
-    """A task that makes drone hover for a period of time."""
+    """A task that makes drone hover for a period of time.
+
+    Attributes
+    ----------
+    _duration : float
+        How long to hover for in seconds.
+    _pid_alt : simple_pid.PID
+        A PID controller used for altitude.
+    _count : int
+        An internval variable for keeping track of state.
+    """
 
     def __init__(self, drone, altitude, duration):
         """Initialize a task for hovering.
@@ -17,9 +27,9 @@ class HoverTask(TaskBase):
         ----------
         drone : dronekit.Vehicle
             The drone being controlled.
-        altitude : double
+        altitude : float
             Target altitude to maintain during hover.
-        duration : double
+        duration : float
             How many seconds to hover for.
         """
         super(HoverTask, self).__init__(drone)
@@ -34,7 +44,4 @@ class HoverTask(TaskBase):
         self._drone.send_velocity(0, 0, zv)
         self._count -= 1
 
-        if self._count <= 0:
-            return True
-        else:
-            return False
+        return self._count <= 0

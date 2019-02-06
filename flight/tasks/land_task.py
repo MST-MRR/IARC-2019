@@ -4,7 +4,13 @@ from task_base import TaskBase
 from .. import constants as c
 
 class LandTask(TaskBase):
-    """A task that makes the drone land."""
+    """A task that makes the drone land.
+
+    Attributes
+    ----------
+    _land_mode : dronekit.VehicleMode
+        A reference to dronekit's land mode object
+    """
 
     def __init__(self, drone):
         """Initialize a task for landing.
@@ -21,7 +27,5 @@ class LandTask(TaskBase):
         if not self._drone.mode == self._land_mode:
             self._drone.mode = self._land_mode
             return False
-        elif self._drone.armed:
-            return False
-        else:
-            return True
+
+        return not self._drone.armed

@@ -12,7 +12,7 @@ class LinearMovementTask(TaskBase):
             The drone being controlled.
         direction : Directions.{UP, DOWN, LEFT, RIGHT, FORWARD, BACK}
             The direction to travel in.
-        duration : double
+        duration : float
             How many seconds to travel for.
         """
         super(LinearMovementTask, self).__init__(drone)

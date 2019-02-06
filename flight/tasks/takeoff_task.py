@@ -2,7 +2,13 @@ from task_base import TaskBase
 from .. import constants as c
 
 class TakeoffTask(TaskBase):
-    """A task that takes off the drone from the ground."""
+    """A task that takes off the drone from the ground.
+
+    Attributes
+    ----------
+    _target_alt : float
+        How many meters off the ground to take off to.
+    """
     def __init__(self, drone, altitude):
         """Initialize a task for taking off.
 
@@ -10,7 +16,7 @@ class TakeoffTask(TaskBase):
         ----------
         drone : dronekit.Vehicle
             The drone being controlled
-        altitude : double
+        altitude : float
             How many meters off the ground to take off to.
         """
         super(TakeoffTask, self).__init__(drone)

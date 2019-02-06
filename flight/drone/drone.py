@@ -16,6 +16,13 @@ class Drone(Vehicle):
     ----------
     _id : int
         A unique identifier for this drone.
+    _optical_flow : OpticalFlow
+        An interface to the optical flow sensor
+
+    Notes
+    -----
+    See http://python.dronekit.io/guide/vehicle_state_and_parameters.html for
+    all of the attributes we get by subclassing dronekit.Vehicle.
     """
 
     def __init__(self, *args):
@@ -26,7 +33,7 @@ class Drone(Vehicle):
         self._optical_flow = OpticalFlow()
 
         # Allow us to listen for optical flow dat
-        @self.on_message('OPTICAL_FLOW')
+        @self.on_message(c.OPTICAL_FLOW_MESSAGE)
         def listener(self, name, message):
             """
             The listener is called for messages that contain the string specified
@@ -36,7 +43,7 @@ class Drone(Vehicle):
             self._optical_flow.sensor_id = message.sensor_id
             self._optical_flow.flow_x = message.flow_x
             self._optical_flow.flow_y = message.flow_y
-            self._optical_flow.flow_comp_m_x = message.quality
+            self._optical_flow.flow_comp_m_x = message.flow_comp_m_x
             self._optical_flow.flow_comp_m_y = message.flow_comp_m_y
             self._optical_flow.quality = message.quality
             self._optical_flow.ground_distance = message.ground_distance
@@ -44,7 +51,8 @@ class Drone(Vehicle):
             # Notify all observers of new message (with new value)
             #   Note that argument `cache=False` by default so listeners
             #   are updaed with every new message
-            self.notify_attribute_listeners('optical_flow', self._optical_flow)
+            self.notify_attribute_listeners(
+                c.OPTICAL_FLOW_MESSAGE.lower(), self._optical_flow)
 
     @property
     def optical_flow(self):
@@ -71,13 +79,13 @@ class Drone(Vehicle):
 
         Parameters
         ----------
-        roll : double
+        roll : float
             The roll angle.
-        pitch : double
+        pitch : float
             The pitch angle.
-        yaw : double
+        yaw : float
             The yaw rate.
-        thrust : double between 0 and 1
+        thrust : float between 0 and 1
             The thrust value.
 
         Notes
@@ -87,6 +95,7 @@ class Drone(Vehicle):
         If thrust > 0.5, the drone will gain altitude
         """
         msg = self._make_attitude_message(roll, pitch, yaw, thrust)
+
         self.send_mavlink(msg)
 
     def send_velocity(self, north, east, down):
@@ -94,9 +103,9 @@ class Drone(Vehicle):
 
         Parameters
         ----------
-        north : double
-        east : double
-        down : double
+        north : float
+        east : float
+        down : float
 
         Notes
         -----
@@ -111,9 +120,9 @@ class Drone(Vehicle):
 
         Parameters
         ----------
-        north : double
-        east : double
-        down : double
+        north : float
+        east : float
+        down : float
 
         Returns
         -------
@@ -126,7 +135,7 @@ class Drone(Vehicle):
             0,       # time_boot_ms (not used)
             0, 0,    # target system, target component
             mavutil.mavlink.MAV_FRAME_GLOBAL_RELATIVE_ALT_INT, # frame
-            0b0000111111000111, # type_mask (only speeds enabled)
+            c.MavBitmasks.SET_POSITION_TARGET.value, # type_mask (only speeds enabled)
             0, # lat_int - X Position in WGS84 frame in 1e7 * meters
             0, # lon_int - Y Position in WGS84 frame in 1e7 * meters
             0, # alt - Altitude in meters in AMSL altitude(not WGS84 if absolute or relative)
@@ -142,13 +151,13 @@ class Drone(Vehicle):
 
         Parameters
         ----------
-        roll : double
+        roll : float
             The roll angle.
-        pitch : double
+        pitch : float
             The pitch angle.
-        yaw : double
+        yaw : float
             The yaw rate.
-        thrust : double between 0 and 1
+        thrust : float between 0 and 1
             The thrust value.
         """
         # Thrust >  0.5: Ascend
@@ -158,11 +167,11 @@ class Drone(Vehicle):
             0, # time_boot_ms
             1, # Target system
             1, # Target component
-            0b00000000, # Type mask: bit 1 is LSB
+            c.MavBitmasks.SET_ATTITUDE_TARGET.value, # Type mask: bit 1 is LSB
             self._to_quaternion(roll, pitch), # Quaternion
-            0, # Body roll rate in radian
-            0, # Body pitch rate in radian
-            radians(yaw), # Body yaw rate in radian
+            0, # Body roll rate in radians
+            0, # Body pitch rate in radians
+            radians(yaw), # Body yaw rate in radians
             thrust  # Thrust
         )
 

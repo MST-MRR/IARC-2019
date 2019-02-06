@@ -80,7 +80,7 @@ class DroneController(object):
                 # Check that safe conditions have not been violated
                 if self._safety_event.is_set():
                     safety_checks_timer.shutdown()
-                    raise self._exception
+                    raise self._exception # Only set when exception is found
                 # Let the program breath
                 sleep(c.DELAY_INTERVAL)
 
@@ -103,9 +103,9 @@ class DroneController(object):
 
         Parameters
         ----------
-        altitude : double
+        altitude : float
             The target altitude to hover at.
-        duration : double
+        duration : float
             How long to hover for.
         priority : Priorities.{LOW, MEDIUM, HIGH}, optional
             The importance of this task.
@@ -118,9 +118,9 @@ class DroneController(object):
 
         Parameters
         ----------
-        altitude : double
+        altitude : float
             The target altitude to hover at.
-        duration : double
+        duration : float
             How long to hover for.
 
         Notes
@@ -138,7 +138,7 @@ class DroneController(object):
         ----------
         direction : Directions.{UP, DOWN, LEFT, RIGHT, FORWARD, BACKWARD}
             The direction to travel in.
-        duration : double
+        duration : float
             How long to move for.
         priority : Priorities.{LOW, MEDIUM, HIGH}, optional
             The importance of this task.
@@ -190,9 +190,6 @@ class DroneController(object):
             self._logger.info('Starting {}...'.format(
                 type(self._current_task).__name__))
 
-        # TODO: if task is a of type LandTask, provide a way for update() to
-        # stop being called after completion of task.
-
         # If there are no more tasks, begin to hover.
         if self._current_task is None:
             self._logger.info('No more tasks - beginning long hover')
@@ -210,7 +207,7 @@ class DroneController(object):
                 raise exceptions.AltitudeExceededThreshold()
 
         except Exception as e:
-            self._exception = e
+            self._exception = e # This variable only set when exception found
             self._safety_event.set()
 
         # TODO: Add more safety checks here
