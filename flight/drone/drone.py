@@ -1,13 +1,11 @@
 from dronekit import Vehicle
 import logging
-import time
-import threading
-from math import radians, sin, cos
+from math import radians
 from pymavlink import mavutil
 
 from optical_flow_attribute import OpticalFlow
 from .. import constants as c
-from ..utils.timer import Timer
+from ..utils.helpers import to_quaternion
 
 class Drone(Vehicle):
     """Interface to drone and its sensors.
@@ -168,28 +166,9 @@ class Drone(Vehicle):
             1, # Target system
             1, # Target component
             c.MavBitmasks.SET_ATTITUDE_TARGET.value, # Type mask: bit 1 is LSB
-            self._to_quaternion(roll, pitch), # Quaternion
+            to_quaternion(roll, pitch), # Quaternion
             0, # Body roll rate in radians
             0, # Body pitch rate in radians
             radians(yaw), # Body yaw rate in radians
             thrust  # Thrust
         )
-
-    def _to_quaternion(self, roll=0.0, pitch=0.0, yaw=0.0):
-        """Convert degrees to quaternions.
-
-        See https://en.wikipedia.org/wiki/Conversion_between_quaternions_and_Euler_angles#Source_Code
-        """
-        t0 = cos(radians(yaw * 0.5))
-        t1 = sin(radians(yaw * 0.5))
-        t2 = cos(radians(roll * 0.5))
-        t3 = sin(radians(roll * 0.5))
-        t4 = cos(radians(pitch * 0.5))
-        t5 = sin(radians(pitch * 0.5))
-
-        w = t0 * t2 * t4 + t1 * t3 * t5
-        x = t0 * t3 * t4 - t1 * t2 * t5
-        y = t0 * t2 * t5 + t1 * t3 * t4
-        z = t1 * t2 * t4 - t0 * t3 * t5
-
-        return [w, x, y, z]

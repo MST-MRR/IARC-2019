@@ -1,6 +1,5 @@
 # Standard Library
 import abc
-import threading
 
 class TaskBase():
     """A task the the drone can perform.
