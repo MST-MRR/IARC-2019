@@ -4,8 +4,8 @@ from task_base import TaskBase
 from .. import constants as c
 
 KP = 1
-KI = 0.1
-KD = 0.05
+KI = 0
+KD = 0
 
 class HoverTask(TaskBase):
     """A task that makes drone hover for a period of time."""

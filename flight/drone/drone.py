@@ -1,14 +1,15 @@
-import dronekit
+from dronekit import Vehicle
 import logging
 import time
 import threading
 from math import radians, sin, cos
 from pymavlink import mavutil
 
+from optical_flow_attribute import OpticalFlow
 from .. import constants as c
 from ..utils.timer import Timer
 
-class Drone(dronekit.Vehicle):
+class Drone(Vehicle):
     """Interface to drone and its sensors.
 
     Attributes
@@ -21,6 +22,39 @@ class Drone(dronekit.Vehicle):
         super(Drone, self).__init__(*args)
         self._id = None
         self._logger = logging.getLogger(__name__)
+
+        self._optical_flow = OpticalFlow()
+
+        # Allow us to listen for optical flow dat
+        @self.on_message('OPTICAL_FLOW')
+        def listener(self, name, message):
+            """
+            The listener is called for messages that contain the string specified
+            in the decorator,passing the vehicle, message name, and the message.
+            """
+            self._optical_flow.time_usec = message.time_usec
+            self._optical_flow.sensor_id = message.sensor_id
+            self._optical_flow.flow_x = message.flow_x
+            self._optical_flow.flow_y = message.flow_y
+            self._optical_flow.flow_comp_m_x = message.quality
+            self._optical_flow.flow_comp_m_y = message.flow_comp_m_y
+            self._optical_flow.quality = message.quality
+            self._optical_flow.ground_distance = message.ground_distance
+
+            # Notify all observers of new message (with new value)
+            #   Note that argument `cache=False` by default so listeners
+            #   are updaed with every new message
+            self.notify_attribute_listeners('optical_flow', self._optical_flow)
+
+    @property
+    def optical_flow(self):
+        """Get data from the optical flow sensor.
+
+        Notes
+        -----
+        See optical_flow_attribute.py for what kind of data you can get.
+        """
+        return self._optical_flow
 
     @property
     def id(self):
