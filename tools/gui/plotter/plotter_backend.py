@@ -53,7 +53,7 @@ def submit_chosen_columns(filename, column1, column2):
 
     plt.show()
 
-
+#TODO Put this in a separate directory
 if __name__ == '__main__':
     test_filename = 'C:/Users/TomD3/Desktop/Test csv stuff/RampTest_2018-10-08_192523.csv'
 

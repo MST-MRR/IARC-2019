@@ -7,12 +7,13 @@ NOTE: There is a test file under tools/test/test_csv to test out the plotter.
 '''
 import Tkinter as tk
 import ttk, tkFileDialog
-#Importing the plotter backend. 
+#Importing the plotter backend.
 import sys, os
-sys.path.append(os.path.join(os.path.dirname(__file__),"plotter"))
+#TODO See if I need sys.path.append to import other python files
+#sys.path.append(os.path.join(os.path.dirname(__file__),"plotter"))
 import plotter.plotter_backend as plotter_tool
 
-class multiToolGUI:
+class MultiToolGUI:
   '''
   A class used to represent the GUI for the plotter (and future tools).
 
@@ -23,15 +24,16 @@ class multiToolGUI:
     user to choose their graph labels in a drop-down menu
   submit_graph_options()
     Retrieves user-selected graph labels and plots a graph
-  setIcon()
+  set_icon()
     Sets the GUI favicon
   '''
 
   def __init__(self):
     self.main_window = tk.Tk() #Creates the application window
     self.main_window.title("MST Multirotor Multitool")
+    #TODO Convert ninga_icon.gif to an .ico file
     self.icon_name = 'ninja_icon.gif'
-    self.setIcon(self.icon_name)
+    self.set_icon(self.icon_name)
 
     self.notebook = ttk.Notebook(self.main_window) #Allows the creation of tabs
     self.notebook.grid(columnspan=2, row=0)
@@ -51,19 +53,7 @@ class multiToolGUI:
     #Creates the actual tab
     self.notebook.add(self.plotter_frame, text="Plotter")
 
-    '''
-    Second tab contents for future tool.
     #TODO Make the drone swarm controller simulator for the second tab
-    self.tab_2_frame = ttk.Frame(self.main_window)
-    self.tab_2_label = tk.Label(self.tab_2_frame,
-                                    text="WIP: Reserved for second tool")
-
-    #Positioning second tab widgets
-    self.tab_2_frame.grid(column=0, row=0)
-    self.tab_2_label.grid(column=0, row=0)
-
-    self.notebook.add(self.tab_2_frame, text="WIP Tool")
-    '''
 
     self.main_window.mainloop() #Starts the GUI event loop
 
@@ -108,7 +98,7 @@ class multiToolGUI:
     plotter_tool.submit_chosen_columns(self.csv_filepath, self.column_1_choice,
                                        self.column_2_choice)
 
-  def setIcon(self, icon_name):
+  def set_icon(self, icon_name):
     '''
     Sets the favicon at top-leftmost of the Tkinter GUI
 
@@ -124,12 +114,13 @@ class multiToolGUI:
     try:
       self.icon_path = os.path.join(os.path.dirname(__file__), self.icon_name)
       self.icon_img = tk.PhotoImage(file=self.icon_path)
-      self.main_window.call('wm', 'iconphoto', self.main_window._w, 
-                            self.icon_img)
+      self.main_window.iconbitmap(self.icon_img)
       print("Ninja icon set successful, check the top-left part of the GUI!")
-    except:
+    except tk.TclError:
+      #The python2 docs for tkinter don't really talk about errors/exceptions
       print('Unable to set the awesome ninja icon for the application.')
+      print('You probably have the wrong filepath, or your icon isn\t a .ico')
 
 if __name__ == '__main__':
   #Initializes the class and creates the application
-  multiToolGUI()
+  MultiToolGUI()
