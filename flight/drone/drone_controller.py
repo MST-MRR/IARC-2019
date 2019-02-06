@@ -147,6 +147,7 @@ class DroneController(object):
         new_task = LinearMovementTask(self._drone, direction, duration)
         self._task_queue.push(priority, new_task)
 
+
     def add_land_task(self, priority=c.Priorities.MEDIUM):
         """Instruct the drone to land.
 

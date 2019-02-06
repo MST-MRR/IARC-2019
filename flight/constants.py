@@ -46,8 +46,8 @@ class Directions(Enum):
     DOWN = (0, 0, -1)
     LEFT = (0, 1, 0)
     RIGHT = (0, -1, 0)
-    FORWARD = (1, 0, 0)
-    BACKWARD = (-1, 0, 0)
+    FORWARD = (-1, 0, 0)
+    BACKWARD = (1, 0, 0)
 
 class MavBitmasks(Enum):
     """Bitmasks that enable or disable the various field of a mavlink message.
