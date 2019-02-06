@@ -16,6 +16,7 @@ from ..tasks.takeoff_task import TakeoffTask
 from ..tasks.task_base import TaskBase
 from ..utils.priority_queue import PriorityQueue
 from ..utils.timer import Timer
+from ... import flightconfig as f
 
 class DroneController(object):
     """Controls the actions of a drone.
@@ -89,7 +90,7 @@ class DroneController(object):
 
             # Only print stack trace for completely unexpected things
             self._logger.critical(type(e).__name__)
-            if c.DEBUG is True:
+            if f.DEBUG is True:
                 exc_type, exc_value, exc_traceback = sys.exc_info()
                 traceback.print_exception(exc_type, exc_value, exc_traceback,
                               limit=2, file=sys.stdout)
@@ -200,10 +201,10 @@ class DroneController(object):
     def _do_safety_checks(self):
         """Check for exceptional conditions."""
         try:
-            if self._drone.airspeed > c.SPEED_THRESHOLD:
+            if self._drone.airspeed > f.SPEED_THRESHOLD:
                 raise exceptions.VelocityExceededThreshold()
 
-            if (self._drone.rangefinder.distance > c.MAXIMUM_ALLOWED_ALTITUDE):
+            if (self._drone.rangefinder.distance > f.MAXIMUM_ALLOWED_ALTITUDE):
                 raise exceptions.AltitudeExceededThreshold()
 
         except Exception as e:
