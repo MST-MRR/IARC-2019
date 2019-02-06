@@ -16,7 +16,7 @@ class OpticalFlow(object):
     :param quality: Optical flow quality / confidence. 0: bad, 255: maximum quality
     :param ground_distance: Ground distance. Positive value: distance known. Negative value: Unknown distance   
     """
-    def __init__(self, time_usec=None, sensor_id=None, flow_x=None, flow_y=None, xygro=None, flow_comp_m_y=None, quality=None, ground_distance=None):
+    def __init__(self, time_usec=None, sensor_id=None, flow_x=None, flow_y=None, flow_comp_m_x=None, flow_comp_m_y=None, quality=None, ground_distance=None):
         """
         RawIMU object constructor.
         """
