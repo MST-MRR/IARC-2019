@@ -1,5 +1,4 @@
 from task_base import TaskBase
-from .. import constants as c
 from ... import flightconfig as f
 
 class TakeoffTask(TaskBase):
