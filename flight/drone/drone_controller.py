@@ -66,9 +66,6 @@ class DroneController(object):
         """
         self._logger.info('Controller starting')
         try:
-            # Arm the drone for flight
-            self._drone.arm()
-
             # Start up safety checking
             safety_checks_timer = Timer()
             safety_checks_timer.add_callback(
@@ -129,7 +126,7 @@ class DroneController(object):
         Internally, the priority of this task is always set to HIGH.
         """
         new_task = TakeoffTask(self._drone, altitude)
-        self._task_queue.push(c.Priorities.MEDIUM, new_task)
+        self._task_queue.push(c.Priorities.HIGH, new_task)
 
     def add_linear_movement_task(
             self, direction, duration, priority=c.Priorities.MEDIUM):
@@ -160,15 +157,14 @@ class DroneController(object):
         self._task_queue.push(priority, new_task)
 
     def add_exit_task(self):
-        """Instruct the drone to land.
+        """Causes the controller to shut itself down.
 
-        Parameters
-        ----------
-        priority : Priorities.{LOW, MEDIUM, HIGH}, optional
-            The importance of this task.
+        Notes
+        -----
+        Always has high priority
         """
         new_task = ExitTask(self._drone)
-        self._task_queue.push(c.Priorities.MEDIUM, new_task)
+        self._task_queue.push(c.Priorities.HIGH, new_task)
 
     def _update(self):
         """Execute one iteration of control logic.
@@ -197,14 +193,14 @@ class DroneController(object):
         # Set new task, if one of higher priority exists
         self._current_task = self._task_queue.top()
 
-        # If this condition is true, we have ourselves a new task
+        # If task has been updated and not updated to None...
         if (prev_task is not self._current_task and
                 self._current_task is not None):
             self._logger.info('Starting {}...'.format(
                 type(self._current_task).__name__))
 
         # If there are no more tasks, begin to hover.
-        if self._current_task is None:
+        if self._drone.armed and self._current_task is None:
             self._logger.info('No more tasks - beginning long hover')
             self.add_hover_task(f.DEFAULT_ALTITUDE, c.DEFAULT_HOVER_DURATION)
 

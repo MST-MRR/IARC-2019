@@ -22,12 +22,11 @@ def input_loop(controller):
         command = command.lower()
         commands = command.split()
         if len(commands) == 1 and commands[0] == "exit":
-            controller.add_land_task(c.Priorities.HIGH)
+            controller.add_exit_task()
             return
         elif len(commands) == 2 and commands[0] == "land":
             priority = get_priority(commands[1])
             controller.add_land_task(priority)
-            return
         elif len(commands) == 3 and commands[0] == "hover":
             priority = get_priority(commands[2])
             controller.add_hover_task(
@@ -65,8 +64,6 @@ def get_priority(string):
 
 # Make the controller object
 controller = DroneController(c.Drones.LEONARDO_SIM)
-# Add takeoff task here for now; safety concern otherwise!
-controller.add_takeoff_task(f.DEFAULT_ALTITUDE)
 
 # Make a thread whose target is a command line interface
 input_thread = threading.Thread(target=input_loop, args=(controller,))

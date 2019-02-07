@@ -20,7 +20,7 @@ class ExitTask(TaskBase):
 
     def perform(self):
         # If exit task was called while still in flight, then land.
-        if self._drone.mode is not VehicleMode(c.Modes.LAND):
+        if self._drone.armed:
             raise EmergencyLandException
 
         # Since this is just a flag task, return immediately

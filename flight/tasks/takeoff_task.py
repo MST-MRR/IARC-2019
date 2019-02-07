@@ -21,7 +21,6 @@ class TakeoffTask(TaskBase):
         """
         super(TakeoffTask, self).__init__(drone)
         self._target_alt = altitude
-        self.iter = 0
     def perform(self):
         if not self._drone.armed:
             self._drone.arm()
@@ -32,8 +31,6 @@ class TakeoffTask(TaskBase):
             return True
 
         thrust = f.DEFAULT_TAKEOFF_THRUST
-        self.iter += 1
-        print self.iter
 
         self._drone.set_attitude(0, 0, 0, thrust)
         return False
