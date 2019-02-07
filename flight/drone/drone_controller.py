@@ -9,6 +9,7 @@ import traceback
 from drone import Drone
 import exceptions
 from .. import constants as c
+from ..tasks.exit_task import ExitTask
 from ..tasks.hover_task import HoverTask
 from ..tasks.land_task import LandTask
 from ..tasks.linear_movement_task import LinearMovementTask
@@ -66,7 +67,7 @@ class DroneController(object):
         self._logger.info('Controller starting')
         try:
             # Arm the drone for flight
-            self._arm()
+            self._drone.arm()
 
             # Start up safety checking
             safety_checks_timer = Timer()
@@ -128,7 +129,7 @@ class DroneController(object):
         Internally, the priority of this task is always set to HIGH.
         """
         new_task = TakeoffTask(self._drone, altitude)
-        self._task_queue.push(c.Priorities.HIGH, new_task)
+        self._task_queue.push(c.Priorities.MEDIUM, new_task)
 
     def add_linear_movement_task(
             self, direction, duration, priority=c.Priorities.MEDIUM):
@@ -158,6 +159,17 @@ class DroneController(object):
         new_task = LandTask(self._drone)
         self._task_queue.push(priority, new_task)
 
+    def add_exit_task(self):
+        """Instruct the drone to land.
+
+        Parameters
+        ----------
+        priority : Priorities.{LOW, MEDIUM, HIGH}, optional
+            The importance of this task.
+        """
+        new_task = ExitTask(self._drone)
+        self._task_queue.push(c.Priorities.MEDIUM, new_task)
+
     def _update(self):
         """Execute one iteration of control logic.
 
@@ -175,7 +187,7 @@ class DroneController(object):
                 # We are done with the task
                 self._logger.info('Finished {}...'.format(
                     type(self._current_task).__name__))
-                if isinstance(self._current_task, LandTask):
+                if isinstance(self._current_task, ExitTask):
                     return False
                 self._task_queue.pop()
 
@@ -212,33 +224,6 @@ class DroneController(object):
             self._safety_event.set()
 
         # TODO: Add more safety checks here
-
-    def _arm(self, mode=c.Modes.GUIDED.value):
-        """Arm the drone for flight.
-
-        Upon successfully arming, the drone is now suitable to take off. The
-        drone should be connected before calling this function.
-
-        Parameters
-        ----------
-        mode : {GUIDED}, optional
-
-
-        Notes
-        -----
-        Only guided mode is currently supported.
-        """
-        self._drone.mode = VehicleMode(mode)
-
-        self._logger.info('Arming...')
-        while not self._drone.armed:
-            self._drone.armed = True
-            sleep(c.ARM_RETRY_DELAY)
-
-        status_msg = 'Failed to arm' if not self._drone.armed else 'Armed'
-        logging_function = (self._logger.info if self._drone.armed
-            else self._logger.error)
-        logging_function('{}'.format(status_msg))
 
     def _land(self):
         """Land the drone.
