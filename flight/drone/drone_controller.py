@@ -10,7 +10,7 @@ from drone import Drone
 from dronekit import VehicleMode, connect
 
 from .. import constants as c
-from ... import flightconfig as f
+import flightconfig as f
 from ..tasks.hover_task import HoverTask
 from ..tasks.land_task import LandTask
 from ..tasks.linear_movement_task import LinearMovementTask

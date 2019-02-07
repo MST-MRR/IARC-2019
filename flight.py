@@ -44,48 +44,48 @@ def list_tasks():
 
 @commands.route('/', methods=["POST"])
 def push_command():
-    data = request.json()
-    if args.debug:
-        if not ("command" in data and "meta" in data):
-            return "command and meta required", 400
-        command = data["type"].lower()
-        meta = data["meta"]
-        try:
-            debug_add_task(command, meta)
-            return "success", 200
-        except InvalidDirectionException as e:
-            return jsonify(e), 400
-        except InvalidPriorityException as e:
-            return jsonify(e), 400
-        except:
-            logging.error("Unexpected error, killing drone")
-            debug_add_task("exit", {})
-            sys.exit(1)
-    elif args.routine:
+    data = request.get_json()
+    #if args.debug:
+    if not ("command" in data and "meta" in data):
+        return "command and meta required", 400
+    command = data["command"].lower()
+    meta = data["meta"]
+    try:
+        debug_add_task(command, meta)
+        return "success", 200
+    except InvalidDirectionException as e:
+        return jsonify(e), 400
+    except InvalidPriorityException as e:
+        return jsonify(e), 400
+    except:
+        logging.error("Unexpected error, killing drone")
+        debug_add_task("exit", {})
+        sys.exit(1)
+    #elif args.routine:
         # get push data and check if start or kill
         # if command == "start":
         #     start routine
         # elif command == "kill":
         #     force into land
-        return "routine " + args.routine + " in progress", 200
+        #return "routine " + args.routine + " in progress", 200
 
 
 def debug_add_task(command, meta):
     if "priority" in meta:
         priority = get_priority(meta["priority"])
     if "direction" in meta:
-        direction = get_direction(meta.direction)
+        direction = get_direction(meta["direction"])
 
     if command == "exit":
         controller.add_land_task(c.Priorities.HIGH)
     elif command == "land":
         controller.add_land_task(priority)
     elif command == "hover":
-        controller.add_hover_task(fc.DEFAULT_ALTITUDE, meta.time, priority)
+        controller.add_hover_task(fc.DEFAULT_ALTITUDE, meta["time"], priority)
     elif command == "takeoff":
-        controller.add_takeoff_task(meta.altitude)
+        controller.add_takeoff_task(meta["altitude"])
     elif command == "move":
-        controller.add_linear_movement_task(direction, meta.time, priority)
+        controller.add_linear_movement_task(direction, meta["time"], priority)
 
 
 def get_priority(priority):
@@ -119,9 +119,8 @@ def flask_thread():
 
 def main():
     server_thread = threading.Thread(target=flask_thread)
-    controller.run()
     server_thread.start()
-
+    controller.run()
 
 if __name__ == "__main__":
     main()
