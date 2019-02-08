@@ -73,6 +73,7 @@ def create_routes(args, controller):
     @commands.route('/', methods=["POST"])
     def push_command():
         data = request.get_json()
+
         if args.debug:
             # If in debug mode
             if not ("command" in data and "meta" in data):
@@ -122,27 +123,25 @@ def debug_add_task(controller, command, meta):
 
 
 def get_priority(priority):
-    if priority == "high":
-        return c.Priorities.HIGH
-    elif priority == "med":
-        return c.Priorities.MEDIUM
-    elif priority == "low":
-        return c.Priorities.LOW
+    converted_form = None
+    key = priority.upper()
+    if hasattr(c.Priorities, key):
+        return getattr(c.Priorities, key)
     else:
-        raise InvalidPriorityException
+        raise InvalidPriorityException(
+            'Expected value for type {}, got {}.'.format(
+                type(c.Priorities), priority))
 
 
 def get_direction(direction):
-    if direction == "forward":
-        return c.Directions.FORWARD
-    if direction == "back":
-        return c.Directions.BACKWARD
-    if direction == "left":
-        return c.Directions.LEFT
-    if direction == "right":
-        return c.Directions.RIGHT
+    converted_form = None
+    key = direction.upper()
+    if hasattr(c.Directions, key):
+        return getattr(c.Directions, key)
     else:
-        raise InvalidDirectionException
+        raise InvalidDirectionException(
+            'Expected value for type {}, got {}.'.format(
+                type(c.Directions), direction))
 
 
 def flask_thread(args, controller):
