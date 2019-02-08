@@ -1,3 +1,4 @@
+"""CLI wrapper for flight, runs flight code using HTTP commands"""
 import argparse
 import logging
 import sys
@@ -11,66 +12,98 @@ from flight.drone.drone_controller import DroneController
 
 
 class InvalidDirectionException(Exception):
+    """Thrown when specified direction is invalid"""
     pass
 
 
 class InvalidPriorityException(Exception):
+    """Thrown when specified priority is invalid"""
     pass
 
 
-parser = argparse.ArgumentParser(
-    description='MRRDT flight command line interface. Used to fly the drone.')
-parser.add_argument('-d', '--debug', action="store_true")
-parser.add_argument('routine', nargs="?", default="stall", type=str)
+def parse_args():
+    """
 
-args = parser.parse_args()
+    Take in Command Line Arguments and give back args to program.
 
-if not args.debug and not args.routine:
-    logging.error("Please specify routine.")
-    sys.exit(1)
+    Returns
+    -------
+    argparse.Namespace
+        Arguments assembled by argparse.
 
-controller = DroneController(c.Drones.LEONARDO_SIM)
-controller.add_takeoff_task(fc.DEFAULT_ALTITUDE)
+    """
+    parser = argparse.ArgumentParser(
+        description=
+        'MRRDT flight command line interface. Used to fly the drone.')
+    parser.add_argument('-d', '--debug', action="store_true")
+    parser.add_argument('routine', nargs="?", default=None, type=str)
 
-app = Flask(__name__)
+    args = parser.parse_args()
 
-commands = Blueprint('commands', __name__, url_prefix='/commands')
-
-
-@commands.route('/', methods=["GET"])
-def list_tasks():
-    return jsonify(controller.queue), 200
-
-
-@commands.route('/', methods=["POST"])
-def push_command():
-    data = request.get_json()
-    #if args.debug:
-    if not ("command" in data and "meta" in data):
-        return "command and meta required", 400
-    command = data["command"].lower()
-    meta = data["meta"]
-    try:
-        debug_add_task(command, meta)
-        return "success", 200
-    except InvalidDirectionException as e:
-        return jsonify(e), 400
-    except InvalidPriorityException as e:
-        return jsonify(e), 400
-    except:
-        logging.error("Unexpected error, killing drone")
-        debug_add_task("exit", {})
+    if not args.debug and not args.routine:
+        logging.error("Please specify routine.")
         sys.exit(1)
-    #elif args.routine:
-        # get push data and check if start or kill
-        # if command == "start":
-        #     start routine
-        # elif command == "kill":
-        #     force into land
-        #return "routine " + args.routine + " in progress", 200
+    return args
 
 
-def debug_add_task(command, meta):
+def create_routes(args, controller):
+    """
+
+    Constructs all routes necessary for network flight
+
+    Parameters
+    ----------
+    args : argparse.Namespace
+        Arguments assembled by argparse.
+    controller : flight.drone.drone_controller.DroneController
+        The second parameter.
+
+    Returns
+    -------
+    list
+        Blueprints to be added to Flask app
+
+    """
+    commands = Blueprint('commands', __name__, url_prefix='/commands')
+
+    @commands.route('/', methods=["GET"])
+    def list_tasks():
+        return jsonify(controller.queue), 200
+
+    @commands.route('/', methods=["POST"])
+    def push_command():
+        data = request.get_json()
+        if args.debug:
+            # If in debug mode
+            if not ("command" in data and "meta" in data):
+                return "command and meta required", 400
+            command = data["command"].lower()
+            meta = data["meta"]
+            try:
+                debug_add_task(controller, command, meta)
+                return "success", 200
+            except (InvalidDirectionException, InvalidPriorityException) as e:
+                return jsonify(e), 400
+            except Exception as e:
+                logging.error("Unexpected error, killing drone")
+                debug_add_task(controller, "exit", {})
+                return "Unexpected error, killing drone " + str(e), 400
+        elif args.routine:
+            # If in production mode, starting or stopping drone is only option
+            """
+            get push data and check if start or kill
+            if command == "start":
+                start routine
+            elif command == "kill":
+                force into land
+            """
+
+            return "routine " + args.routine + " in progress", 200
+
+    return [commands]
+
+
+def debug_add_task(controller, command, meta):
     if "priority" in meta:
         priority = get_priority(meta["priority"])
     if "direction" in meta:
@@ -112,15 +145,30 @@ def get_direction(direction):
         raise InvalidDirectionException
 
 
-def flask_thread():
-    app.register_blueprint(commands)
+def flask_thread(args, controller):
+    blueprints = create_routes(args, controller)
+    app = Flask(__name__)
+    for x in blueprints:
+        app.register_blueprint(x)
     app.run("127.0.0.1", 8000)
 
 
 def main():
-    server_thread = threading.Thread(target=flask_thread)
+    # Get Command Line Arguments
+    args = parse_args()
+
+    # Establish controller
+    controller = DroneController(c.Drones.LEONARDO_SIM)
+    # Run Flask server on seperate thread
+    server_thread = threading.Thread(
+        target=flask_thread, args=(args, controller))
+
     server_thread.start()
     controller.run()
+
+    # After controller has stopped, exit Flask server.
+    sys.exit(0)
+
 
 if __name__ == "__main__":
     main()
