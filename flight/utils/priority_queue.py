@@ -2,6 +2,7 @@ import heapq
 
 DEFAULT_COUNT = 900000
 
+
 class PriorityQueue():
     """Custom priority queue implementation.
 
@@ -50,7 +51,7 @@ class PriorityQueue():
 
     def top(self):
         if len(self):
-        # Index 0 is priority, index 1 is the item.
+            # Index 0 is priority, index 1 is the item.
             return self._queue[0][1]
         else:
             return None
@@ -75,3 +76,6 @@ class PriorityQueue():
 
     def __len__(self):
         return len(self._queue)
+
+    def __str__(self):
+        return str(self._queue)
