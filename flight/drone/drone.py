@@ -136,10 +136,10 @@ class Drone(Vehicle):
             self.armed = True
             time.sleep(c.ARM_RETRY_DELAY)
 
-        status_msg = 'Failed to arm' if not self.armed else 'Armed'
-        logging_function = (self._logger.info if self.armed
-            else self._logger.error)
-        logging_function('{}'.format(status_msg))
+        if self.armed:
+            self._logger.info('Armed')
+        else:
+            self._logger.error('Failed to arm')
 
     def _make_velocity_message(self, north, east, down):
         """Construct a mavlink message for sending velocity.

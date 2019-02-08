@@ -10,16 +10,15 @@ def input_loop(controller):
     exit: lands and terminates program
     land: land <priority>
     hover: hover <duration> <priority>
-    takeoff: currently not used for safety reasons
-    move: move <FOWARD,BACK,LEFT,RIGHT> <duration> <priority>
+    takeoff: takeoff <altitude>
+    move: move <FOWARD,BACKWARD,LEFT,RIGHT> <duration> <priority>
 
     Notes
     -----
     Priority is one of "high", "med", or "low".
     """
     while True:
-        command = raw_input('> ')
-        command = command.lower()
+        command = raw_input('> ').lower()
         commands = command.split()
         if len(commands) == 1 and commands[0] == "exit":
             controller.add_exit_task()
@@ -35,32 +34,42 @@ def input_loop(controller):
             controller.add_takeoff_task(float(commands[1]))
         elif len(commands) == 4 and commands[0] == "move":
             priority = get_priority(commands[3])
-            if commands[1] == "forward":
-                dir = c.Directions.FORWARD
-            elif commands[1] == "backward":
-                dir = c.Directions.BACKWARD
-            elif commands[1] == "left":
-                dir = c.Directions.LEFT
-            elif commands[1] == "right":
-                dir = c.Directions.RIGHT
-            else:
+            direction = get_direction(commands[1])
+
+            if priority is None or direction is None:
                 print "> Invalid movement command"
                 continue
-            controller.add_linear_movement_task(
-                dir, float(commands[2]), priority)
+            else:
+                controller.add_linear_movement_task(
+                    direction, float(commands[2]), priority)
         else:
             print "> Unknown command"
 
 def get_priority(string):
-    """Gets priority level from string."""
+    """Gets priority level from a string."""
+    priority = None
     if string == "high":
-        return c.Priorities.HIGH
+        priority = c.Priorities.HIGH
     elif string == "med":
-        return c.Priorities.MEDIUM
+        priority = c.Priorities.MEDIUM
     elif string == "low":
-        return c.Priorities.LOW
-    else:
-        return None
+        priority = c.Priorities.LOW
+
+    return priority
+
+def get_direction(string):
+    """Gets direction from a string."""
+    direction = None
+    if string == "forward":
+        direction = c.Directions.FORWARD
+    elif string == "backward":
+        direction = c.Directions.BACKWARD
+    elif string == "left":
+        direction = c.Directions.LEFT
+    elif string == "right":
+        direction = c.Directions.RIGHT
+
+    return direction
 
 # Make the controller object
 controller = DroneController(c.Drones.LEONARDO_SIM)

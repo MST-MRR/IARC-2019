@@ -111,7 +111,7 @@ class DroneController(object):
         new_task = HoverTask(self._drone, altitude, duration)
         self._task_queue.push(priority, new_task)
 
-    def add_takeoff_task(self, altitude):
+    def add_takeoff_task(self, altitude, priority=c.Priorities.HIGH):
         """Instruct the drone to takeoff.
 
         Parameters
@@ -126,7 +126,7 @@ class DroneController(object):
         Internally, the priority of this task is always set to HIGH.
         """
         new_task = TakeoffTask(self._drone, altitude)
-        self._task_queue.push(c.Priorities.HIGH, new_task)
+        self._task_queue.push(priority, new_task)
 
     def add_linear_movement_task(
             self, direction, duration, priority=c.Priorities.MEDIUM):
@@ -156,7 +156,7 @@ class DroneController(object):
         new_task = LandTask(self._drone)
         self._task_queue.push(priority, new_task)
 
-    def add_exit_task(self):
+    def add_exit_task(self, priority=c.Priorities.HIGH):
         """Causes the controller to shut itself down.
 
         Notes
@@ -164,7 +164,7 @@ class DroneController(object):
         Always has high priority
         """
         new_task = ExitTask(self._drone)
-        self._task_queue.push(c.Priorities.HIGH, new_task)
+        self._task_queue.push(priority, new_task)
 
     def _update(self):
         """Execute one iteration of control logic.
