@@ -1,4 +1,10 @@
-# This should probably go with the rest of the code for the plotter tab
+'''
+The plotter backend contains the tools needed to generate a graph from a
+set of values provided from a .csv file.
+
+NOTE: This plotter backend is meant to be ran through the tools  GUI
+TODO: Eventually integrate backend into the GUI in a more structured way
+'''
 import os
 
 import pandas
@@ -6,8 +12,10 @@ import matplotlib
 matplotlib.use('tkagg')
 import matplotlib.pyplot as plt
 
-matplotlib.rc('font', **{'sans-serif' : 'Arial',
-                         'family' : 'sans-serif'})
+PLOT_FONT_PARAMETERS = {'sans-serif' : 'Arial', 'family' : 'sans-serif'}
+matplotlib.rc('font', **PLOT_FONT_PARAMETERS)
+
+DEFAULT_MARKER_COLOR = 'black'
 
 def get_csv_headers(filename):
     """
@@ -26,7 +34,7 @@ def get_csv_headers(filename):
     return pandas.read_csv(filename, encoding = "utf-8").columns.tolist()
 
 
-def submit_chosen_columns(filename, column1, column2):
+def submit_chosen_columns(filename, x_axis_label, y_axis_label):
     """
     Parse csv file and plot the two columns against each other.
 
@@ -35,28 +43,23 @@ def submit_chosen_columns(filename, column1, column2):
     filename: str
         Filename of csv to be parsed
 
-    column1: str
+    x_axis_label: str
         Name of column to be used
 
-    column2: str
+    y_axis_label: str
         Name of column to be used
     """
 
     raw_data = pandas.read_csv(filename, encoding = "utf-8")
 
-    plt.title("".join([os.path.basename(filename), " : ", column1, " vs. ", column2]))
+    plt.title("".join([os.path.basename(filename), " : ", x_axis_label, " vs. ", y_axis_label]))
 
-    plt.xlabel(column1)
-    plt.ylabel(column2)
+    plt.xlabel(x_axis_label)
+    plt.ylabel(y_axis_label)
 
-    plt.scatter(raw_data[column1], raw_data[column2], c='black')
+    plt.scatter(raw_data[x_axis_label], raw_data[y_axis_label], c=DEFAULT_MARKER_COLOR)
 
     plt.show()
 
 #TODO Put this in a separate directory
-if __name__ == '__main__':
-    test_filename = 'C:/Users/TomD3/Desktop/Test csv stuff/RampTest_2018-10-08_192523.csv'
 
-    print(get_csv_headers(test_filename))
-
-    submit_chosen_columns(test_filename, 'ESC signal (s)', 'Time (s)')

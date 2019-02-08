@@ -1,16 +1,16 @@
 '''
-Python ver 2.7.15
+Python ver 3.7.1
 This is a GUI for any tools that require one, such as the plotter that graphs
 csv files and a config maker to customize graphs.
 
 NOTE: There is a test file under tools/test/test_csv to test out the plotter.
+TODO: Create a unit test for the GUI
 '''
-import Tkinter as tk
-import ttk, tkFileDialog
+import tkinter as tk
+import tkinter.ttk as ttk
+import tkinter.filedialog
+import logging, os
 #Importing the plotter backend.
-import sys, os
-#TODO See if I need sys.path.append to import other python files
-#sys.path.append(os.path.join(os.path.dirname(__file__),"plotter"))
 import plotter.plotter_backend as plotter_tool
 
 class MultiToolGUI:
@@ -27,13 +27,20 @@ class MultiToolGUI:
   set_icon()
     Sets the GUI favicon
   '''
+  #Class constants
+  ICON_ERROR_MESSAGE = "Unable to set the icon for the program."
+  ICON_NAME = 'ninja_icon.gif'
+  #Builds a filepath based to the icon
+  ICON_PATH = os.path.join(os.path.dirname(__file__), ICON_NAME)
+  #Only two variables can be graphed by the plotter as of right now
+  NUM_COLUMN_OPTIONS = 2
+  
 
   def __init__(self):
     self.main_window = tk.Tk() #Creates the application window
     self.main_window.title("MST Multirotor Multitool")
     #TODO Convert ninga_icon.gif to an .ico file
-    self.icon_name = 'ninja_icon.gif'
-    self.set_icon(self.icon_name)
+    self.set_icon(self.ICON_PATH)
 
     self.notebook = ttk.Notebook(self.main_window) #Allows the creation of tabs
     self.notebook.grid(columnspan=2, row=0)
@@ -62,26 +69,27 @@ class MultiToolGUI:
     Gets the filename and path of a user-selected file.
     Then it creates two pull-down menus for the user to chose graph labels.
     '''
-    self.csv_filepath = tkFileDialog.askopenfilename(filetypes=[
+    self.csv_filepath = tkinter.filedialog.askopenfilename(filetypes=[
                                                      ("CSV Files", "*.csv"),
                                                      ("All files","*.*")])
 
     if self.csv_filepath:
-      print(self.csv_filepath)
+      logging.debug("Icon filepath at: " + self.csv_filepath)
       #Plotter backend retrieves list of possible graph labels
       self.column_headers = plotter_tool.get_csv_headers(self.csv_filepath)
-      #Creates pull-down menus with graph label options and a submit button
-      self.column_options_1 = ttk.Combobox(self.plotter_frame,
-                                           values=self.column_headers)
-      self.column_options_2 = ttk.Combobox(self.plotter_frame,
-                                           values=self.column_headers)
+
+      #Creates widgets for number of column options
+      for column_index in range(self.NUM_COLUMN_OPTIONS):
+        attr_name = 'column_options{}'.format(column_index)
+        combobox = ttk.Combobox(self.plotter_frame, values=self.column_headers)
+
+        #Widget positioning
+        setattr(self, attr_name, combobox)
+        getattr(self, attr_name).grid(column=column_index, row=2)
+
       self.plotter_submit_button = ttk.Button(self.plotter_frame,
                                               text="Submit",
                                               command=self.submit_graph_options)
-
-      #Widget positioning
-      self.column_options_1.grid(column=0, row=2)
-      self.column_options_2.grid(column=1, row=2)
       self.plotter_submit_button.grid(columnspan=2, row=3)
 
   def submit_graph_options(self):
@@ -92,13 +100,17 @@ class MultiToolGUI:
     Note that if the user doesn't close that graph and submits their options
     again, the plotter points will be plotted on top of the original graph.
     '''
-    print('Submitted options, you should see a separate window with a')
-    self.column_1_choice = self.column_options_1.get()
-    self.column_2_choice = self.column_options_2.get()
-    plotter_tool.submit_chosen_columns(self.csv_filepath, self.column_1_choice,
-                                       self.column_2_choice)
+    logging.info('Submitted options, you should see a separate window with a')
+    #TODO CONVERT TO DRY
+    for column_index in range(self.NUM_COLUMN_OPTIONS):
+      column_val = 'column_val{}'.format(column_index)
+      column = 'column_options{}'.format(column_index)
+      setattr(self, column_val, getattr(self, column).get())
 
-  def set_icon(self, icon_name):
+    plotter_tool.submit_chosen_columns(self.csv_filepath, self.column_val0,
+                                       self.column_val1)
+
+  def set_icon(self, icon_path):
     '''
     Sets the favicon at top-leftmost of the Tkinter GUI
 
@@ -112,14 +124,14 @@ class MultiToolGUI:
       If the icon can't be set, a warning outputs to the terminal
     '''
     try:
-      self.icon_path = os.path.join(os.path.dirname(__file__), self.icon_name)
-      self.icon_img = tk.PhotoImage(file=self.icon_path)
+      #Cannot be set before init since it calls a tk method
+      self.icon_img = tk.PhotoImage(file=icon_path)
       self.main_window.iconbitmap(self.icon_img)
-      print("Ninja icon set successful, check the top-left part of the GUI!")
+      logging.info("Icon set successful, check the top-left part of the GUI!")
     except tk.TclError:
-      #The python2 docs for tkinter don't really talk about errors/exceptions
-      print('Unable to set the awesome ninja icon for the application.')
-      print('You probably have the wrong filepath, or your icon isn\t a .ico')
+      #tk.TclError is the error raised when the icon file can't be found
+      #or if the wrong filetype is used (anything not .ico)
+      logging.error(self.ICON_ERROR_MESSAGE)
 
 if __name__ == '__main__':
   #Initializes the class and creates the application
