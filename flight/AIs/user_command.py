@@ -13,7 +13,10 @@ def main():
     controller = DroneController(c.Drones.LEONARDO_SIM)
 
     # Make a thread whose target is a command line interface
-    input_thread = threading.Thread(target=input_loop, args=(controller,))
+    input_thread = threading.Thread(
+        target=input_loop, args=(controller,))
+
+    input_thread.daemon = True
 
     input_thread.start()
 
@@ -51,7 +54,7 @@ class Command(object):
         populates the _parameters.
         """
         if len(args) != len(self._expected_order):
-            raise TypeError('Expected {}, got {}.'.format(
+            raise TypeError('Expected {} arguments, got {}.'.format(
                 len(args),  len(self._expected_order)))
 
         for param, cast in zip(args, self._expected_order):
