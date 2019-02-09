@@ -110,7 +110,7 @@ def debug_add_task(controller, command, meta):
         direction = get_direction(meta["direction"])
 
     if command == "exit":
-        controller.add_land_task(c.Priorities.HIGH)
+        controller.add_exit_task(c.Priorities.HIGH)
     elif command == "land":
         controller.add_land_task(priority)
     elif command == "hover":
@@ -158,6 +158,7 @@ def main():
     # Run Flask server on seperate thread
     server_thread = threading.Thread(
         target=flask_thread, args=(args, controller))
+    server_thread.daemon = True
 
     server_thread.start()
     controller.run()

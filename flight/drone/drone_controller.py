@@ -12,6 +12,7 @@ from drone import Drone
 from dronekit import VehicleMode, connect
 
 from .. import constants as c
+from ... import flightconfig as f
 from ..tasks.exit_task import ExitTask
 from ..tasks.hover_task import HoverTask
 from ..tasks.land_task import LandTask
