@@ -1,8 +1,132 @@
+import sys
 import threading
+import traceback
 
-from ..drone.drone_controller import DroneController
 from .. import constants as c
 from ... import flightconfig as f
+from ..drone.drone_controller import DroneController
+
+PROMPT_FOR_COMMAND = '> '
+
+
+def main():
+    # Make the controller object
+    controller = DroneController(c.Drones.LEONARDO_SIM)
+
+    # Make a thread whose target is a command line interface
+    input_thread = threading.Thread(target=input_loop, args=(controller, ))
+
+    input_thread.daemon = True
+
+    input_thread.start()
+
+    controller.run()
+
+
+class ExitRequested(Exception):
+    """Raised when the input loop should stop."""
+    pass
+
+
+class Command(object):
+    """A command line argument that can be translated into a drone command.
+
+    Attributes
+    ----------
+    _controller : DroneController
+        Interface to adding a command to the drone.
+    """
+
+    def __init__(self, controller):
+        """Initialize the given command.
+
+        Notes
+        -----
+        Subclasses must assign a list to self._expected_order or else this
+        class will break. The list contains the types (in expected order) that
+        the given command takes.
+        """
+        self._controller = controller
+
+    def matches(self, *args):
+        """Validates the command line arguments.
+
+        Notes
+        -----
+        This function must be called before calling __call__, because it
+        populates the _parameters.
+        """
+        if len(args) != len(self._expected_order):
+            raise TypeError('Expected {} arguments, got {}.'.format(
+                len(args), len(self._expected_order)))
+
+        for param, cast in zip(args, self._expected_order):
+            self._parameters.append(cast(param))
+
+    def __call__(self, *args):
+        """Adds the command as a task on the drone controller."""
+        # implement command here:
+        pass
+
+
+class HoverCommand(Command):
+    def __init__(self, controller):
+        super(HoverCommand, self).__init__(controller)
+        self._expected_order = [int, get_priority]
+        self._parameters = []
+
+    def __call__(self, *args):
+        self._controller.add_hover_task(*self._parameters)
+
+
+class MoveCommand(Command):
+    def __init__(self, controller):
+        super(MoveCommand, self).__init__(controller)
+        self._expected_order = [get_direction, int, get_priority]
+        self._parameters = []
+
+    def __call__(self, *args):
+        self._controller.add_linear_movement_task(*self._parameters)
+
+
+class TakeoffCommand(Command):
+    def __init__(self, controller):
+        super(TakeoffCommand, self).__init__(controller)
+        self._expected_order = [int]
+        self._parameters = []
+
+    def __call__(self, *args):
+        self._controller.add_takeoff_task(*self._parameters)
+
+
+class LandCommand(Command):
+    def __init__(self, controller):
+        super(LandCommand, self).__init__(controller)
+        self._expected_order = [get_priority]
+        self._parameters = []
+
+    def __call__(self, *args):
+        self._controller.add_land_task(*self._parameters)
+
+
+class ExitCommand(Command):
+    def __init__(self, controller):
+        super(ExitCommand, self).__init__(controller)
+        self._expected_order = []
+
+    def __call__(self, *args):
+        self._controller.add_exit_task(c.Priorities.HIGH)
+        raise ExitRequested
+
+
+NAME_TO_COMMAND = {
+    'hover': HoverCommand,
+    'move': MoveCommand,
+    'takeoff': TakeoffCommand,
+    'land': LandCommand,
+    'exit': ExitCommand
+}
+
 
 def input_loop(controller):
     """Simple command line interface to drone controller.
@@ -10,67 +134,56 @@ def input_loop(controller):
     exit: lands and terminates program
     land: land <priority>
     hover: hover <duration> <priority>
-    takeoff: currently not used for safety reasons
-    move: move <FOWARD,BACK,LEFT,RIGHT> <duration> <priority>
+    takeoff: takeoff <altitude>
+    move: move <FOWARD,BACKWARD,LEFT,RIGHT> <duration> <priority>
 
     Notes
     -----
     Priority is one of "high", "med", or "low".
     """
     while True:
-        command = raw_input('> ')
-        command = command.lower()
-        commands = command.split()
-        if len(commands) == 1 and commands[0] == "exit":
-            controller.add_land_task(c.Priorities.HIGH)
-            return
-        elif len(commands) == 2 and commands[0] == "land":
-            priority = get_priority(commands[1])
-            controller.add_land_task(priority)
-            return
-        elif len(commands) == 3 and commands[0] == "hover":
-            priority = get_priority(commands[2])
-            controller.add_hover_task(
-                f.DEFAULT_ALTITUDE, float(commands[1]), priority)
-        elif len(commands) == 2 and commands[0] == "takeoff":
-            controller.add_takeoff_task(float(commands[1]))
-        elif len(commands) == 4 and commands[0] == "move":
-            priority = get_priority(commands[3])
-            if commands[1] == "forward":
-                dir = c.Directions.FORWARD
-            elif commands[1] == "backward":
-                dir = c.Directions.BACKWARD
-            elif commands[1] == "left":
-                dir = c.Directions.LEFT
-            elif commands[1] == "right":
-                dir = c.Directions.RIGHT
-            else:
-                print "> Invalid movement command"
+        try:
+            args = raw_input(PROMPT_FOR_COMMAND).lower().split()
+            if not len(args):
                 continue
-            controller.add_linear_movement_task(
-                dir, float(commands[2]), priority)
-        else:
-            print "> Unknown command"
+            command = args[0]
+            if command in NAME_TO_COMMAND:
+                command_instance = NAME_TO_COMMAND[command](controller)
+                command_instance.matches(*args[1:])
+                command_instance()
+            else:
+                raise ValueError('Unknown command: {}'.format(command))
+        except Exception as e:
+            if isinstance(e, ExitRequested):
+                print('Closing session.')
+                return
 
-def get_priority(string):
-    """Gets priority level from string."""
-    if string == "high":
-        return c.Priorities.HIGH
-    elif string == "med":
-        return c.Priorities.MEDIUM
-    elif string == "low":
-        return c.Priorities.LOW
+            print('{}{}: {}'.format(PROMPT_FOR_COMMAND, type(e).__name__, e))
+
+
+def get_priority(priority):
+    """Gets priority level from a string."""
+    key = priority.upper()
+    if hasattr(c.Priorities, key):
+        converted_form = getattr(c.Priorities, key)
     else:
-        return None
+        raise TypeError('Expected value for type {}, got {}.'.format(
+            type(c.Priorities).__name__, priority))
 
-# Make the controller object
-controller = DroneController(c.Drones.LEONARDO_SIM)
-# Add takeoff task here for now; safety concern otherwise!
-controller.add_takeoff_task(f.DEFAULT_ALTITUDE)
+    return converted_form
 
-# Make a thread whose target is a command line interface
-input_thread = threading.Thread(target=input_loop, args=(controller,))
 
-input_thread.start()
+def get_direction(direction):
+    """Gets direction from a string."""
+    key = direction.upper()
+    if hasattr(c.Directions, key):
+        converted_form = getattr(c.Directions, key)
+    else:
+        raise TypeError('Expected value for type {}, got {}.'.format(
+            type(c.Directions).__name__, direction))
 
-controller.run()
+    return converted_form
+
+
+if __name__ == '__main__':
+    main()
