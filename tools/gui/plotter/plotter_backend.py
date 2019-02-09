@@ -60,6 +60,3 @@ def submit_chosen_columns(filename, x_axis_label, y_axis_label):
     plt.scatter(raw_data[x_axis_label], raw_data[y_axis_label], c=DEFAULT_MARKER_COLOR)
 
     plt.show()
-
-#TODO Put this in a separate directory
-

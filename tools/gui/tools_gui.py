@@ -101,14 +101,9 @@ class MultiToolGUI:
     again, the plotter points will be plotted on top of the original graph.
     '''
     logging.info('Submitted options, you should see a separate window with a')
-    #TODO CONVERT TO DRY
-    for column_index in range(self.NUM_COLUMN_OPTIONS):
-      column_val = 'column_val{}'.format(column_index)
-      column = 'column_options{}'.format(column_index)
-      setattr(self, column_val, getattr(self, column).get())
 
-    plotter_tool.submit_chosen_columns(self.csv_filepath, self.column_val0,
-                                       self.column_val1)
+    plotter_tool.submit_chosen_columns(self.csv_filepath, self.column_options0.get(),
+                                       self.column_options1.get())
 
   def set_icon(self, icon_path):
     '''
