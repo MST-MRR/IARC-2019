@@ -1,3 +1,5 @@
+"""Drone Controller Class"""
+
 import exceptions
 import logging
 import sys
