@@ -56,7 +56,7 @@ class MultiToolGUI:
     '''
     #Class constants
     ICON_ERR_MSG = "Unable to set the icon for the program."
-    ICON_NAME = 'ninja_icon.gif'
+    ICON_NAME = 'ninja_icon.ico'
     ICON_PATH = os.path.join(os.path.dirname(__file__), ICON_NAME)
     FRAME1_NAME = "Plotter"
     SUBMIT_TEXT = "Submit"
@@ -72,7 +72,7 @@ class MultiToolGUI:
     def __init__(self):
         self.main_window = tk.Tk() #Creates the application window
         self.main_window.title(self.PROGRAM_TITLE)
-        #TODO Convert ninga_icon.gif to an .ico file
+        #TODO Convert ninga_icon.ico to an .ico file
         self.set_icon(self.ICON_PATH)
 
         self.notebook = ttk.Notebook(self.main_window) #Allows the creation of tabs
@@ -158,8 +158,7 @@ class MultiToolGUI:
         '''
         try:
             #Cannot be set before init since it calls a tk method
-            self.icon_img = tk.PhotoImage(file=icon_path)
-            self.main_window.iconbitmap(self.icon_img)
+            self.main_window.iconbitmap(icon_path)
             logging.info("Icon set successful, check the top-left part of the GUI!")
         except tk.TclError:
             #tk.TclError is the error raised when the icon file can't be found
