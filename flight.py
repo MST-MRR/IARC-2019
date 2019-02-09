@@ -83,21 +83,20 @@ def create_routes(args, controller):
             try:
                 debug_add_task(controller, command, meta)
                 return "success", 200
-            except (InvalidDirectionException, InvalidPriorityException) as e:
-                return jsonify(e), 400
-            except Exception as e:
+            except (InvalidDirectionException,
+                    InvalidPriorityException) as err:
+                return jsonify(err), 400
+            except Exception as err:
                 logging.error("Unexpected error, killing drone")
                 debug_add_task(controller, "exit", {})
-                return "Unexpected error, killing drone " + str(e), 400
+                return "Unexpected error, killing drone " + str(err), 400
         elif args.routine:
             # If in production mode, starting or stopping drone is only option
-            """
-            get push data and check if start or kill
-            if command == "start":
-                start routine
-            elif command == "kill":
-                force into land
-            """
+            # get push data and check if start or kill
+            # if command == "start":
+            #     start routine
+            # elif command == "kill":
+            #     force into land
 
             return "routine " + args.routine + " in progress", 200
 
@@ -123,7 +122,6 @@ def debug_add_task(controller, command, meta):
 
 
 def get_priority(priority):
-    converted_form = None
     key = priority.upper()
     if hasattr(c.Priorities, key):
         return getattr(c.Priorities, key)
@@ -134,7 +132,6 @@ def get_priority(priority):
 
 
 def get_direction(direction):
-    converted_form = None
     key = direction.upper()
     if hasattr(c.Directions, key):
         return getattr(c.Directions, key)
@@ -147,8 +144,8 @@ def get_direction(direction):
 def flask_thread(args, controller):
     blueprints = create_routes(args, controller)
     app = Flask(__name__)
-    for x in blueprints:
-        app.register_blueprint(x)
+    for blueprint in blueprints:
+        app.register_blueprint(blueprint)
     app.run("127.0.0.1", 8000)
 
 

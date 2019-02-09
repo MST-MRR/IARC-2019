@@ -7,34 +7,34 @@ if len(sys.argv) < 2:
     logging.error("Please specify a host")
     sys.exit(1)
 
-url = 'http://{}:8000/commands/'.format(sys.argv[1])
+URL = 'http://{}:8000/commands/'.format(sys.argv[1])
 
 
 def gen_req(command, **kwargs):
-    r = requests.post(url, data={"command": command, "meta": kwargs})
-    if not (r.status_code == requests.codes.ok):
-        logging.error(r.text)
+    resp = requests.post(URL, data={"command": command, "meta": kwargs})
+    if resp.status_code != requests.codes.ok:
+        logging.error(resp.text)
 
 
 while True:
-    params = input("> ").split()
+    PARAMS = input("> ").split()
     try:
-        command = params[0]
-        if command == "exit":
-            gen_req(command)
-        elif command == "land":
-            gen_req(command, priority=params[1])
-        elif command == "hover":
-            gen_req(command, priority=params[2], time=params[1])
-        elif command == "takeoff":
-            gen_req(command, altitude=params[1])
-        elif command == "move":
+        COMMAND = PARAMS[0]
+        if COMMAND == "exit":
+            gen_req(COMMAND)
+        elif COMMAND == "land":
+            gen_req(COMMAND, priority=PARAMS[1])
+        elif COMMAND == "hover":
+            gen_req(COMMAND, priority=PARAMS[2], time=PARAMS[1])
+        elif COMMAND == "takeoff":
+            gen_req(COMMAND, altitude=PARAMS[1])
+        elif COMMAND == "move":
             gen_req(
-                command,
-                priority=params[3],
-                direction=params[1],
-                time=params[2])
+                COMMAND,
+                priority=PARAMS[3],
+                direction=PARAMS[1],
+                time=PARAMS[2])
         else:
-            logging.warning("Not a command. Try again.", e)
-    except Exception as e:
-        logging.error(e)
+            logging.warning("Not a command. Try again.")
+    except Exception as err:
+        logging.error(err)
