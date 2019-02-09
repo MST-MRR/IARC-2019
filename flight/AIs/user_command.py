@@ -1,3 +1,5 @@
+"""Allows for controlling the drone with natural language"""
+
 import sys
 import threading
 import traceback
