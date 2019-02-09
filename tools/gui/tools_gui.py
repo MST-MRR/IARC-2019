@@ -64,7 +64,7 @@ class MultiToolGUI:
     WELCOME_TEXT = "Welcome to the Multirotor Plotter!"
     OPEN_CSV = "Open .csv file"
 
-    SUPPORTED_FILETYPES = [("CSV Files", "*.csv"), ("All files","*.*")]
+    SUPPORTED_FILETYPES = [("CSV Files", "*.csv"), ("All files", "*.*")]
 
     NUM_COL_OPTIONS = 2
 

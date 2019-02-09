@@ -31,7 +31,7 @@ def get_csv_headers(filename):
     list: List of column names from filename
     """
 
-    return pandas.read_csv(filename, encoding = "utf-8").columns.tolist()
+    return pandas.read_csv(filename, encoding="utf-8").columns.tolist()
 
 
 def submit_chosen_columns(filename, x_axis_label, y_axis_label):
@@ -50,7 +50,7 @@ def submit_chosen_columns(filename, x_axis_label, y_axis_label):
         Name of column to be used
     """
 
-    raw_data = pandas.read_csv(filename, encoding = "utf-8")
+    raw_data = pandas.read_csv(filename, encoding="utf-8")
 
     plt.title("".join([os.path.basename(filename), " : ", x_axis_label, " vs. ", y_axis_label]))
 
