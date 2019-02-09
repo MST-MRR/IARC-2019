@@ -25,6 +25,18 @@ class MultiToolGUI:
     Name of the icon file for the application, must be a .ico file
   ICON_PATH : str
     File path to the icon, should adapt to any OS
+  FRAME1_NAME : str
+    Name of the first tab. Currently "Plotter" since the first tab is a plotter
+  SUBMIT_TEXT : str
+    Text parameter for the submit button. Content is "Submit"
+  PROGRAM_TITLE : str
+    Title of the application that'll show up on the title bar
+  WELCOME_TEXT :
+    The welcome message when you open up the program. 
+  OPEN_CSV : str
+    The text that indicates the user to open a .csv file
+  SUPPORTED_FILETYPES : list of str
+    Supported filetypes for the plotter. Right now it only supports .csv
   NUM_COL_OPTIONS : int
     Specifies the maximum number of variables that can be plotted at a time.
     For now the plotter only plots two variables at a single time
@@ -46,13 +58,20 @@ class MultiToolGUI:
   ICON_ERR_MSG = "Unable to set the icon for the program."
   ICON_NAME = 'ninja_icon.gif'
   ICON_PATH = os.path.join(os.path.dirname(__file__), ICON_NAME)
-  #Only two variables can be graphed by the plotter as of right now
+  FRAME1_NAME = "Plotter"
+  SUBMIT_TEXT = "Submit"
+  PROGRAM_TITLE = "MST Multirotor Multitool"
+  WELCOME_TEXT = "Welcome to the Multirotor Plotter!"
+  OPEN_CSV = "Open .csv file"
+
+  SUPPORTED_FILETYPES = [("CSV Files", "*.csv"), ("All files","*.*")]
+
   NUM_COL_OPTIONS = 2
   
 
   def __init__(self):
     self.main_window = tk.Tk() #Creates the application window
-    self.main_window.title("MST Multirotor Multitool")
+    self.main_window.title(self.PROGRAM_TITLE)
     #TODO Convert ninga_icon.gif to an .ico file
     self.set_icon(self.ICON_PATH)
 
@@ -62,8 +81,8 @@ class MultiToolGUI:
     #Positioning first tab widgets
     self.plotter_frame = ttk.Frame(self.main_window)
     self.plotter_label = ttk.Label(self.plotter_frame,
-                                   text="Welcome to the Multirotor Plotter!")
-    self.file_selector = ttk.Button(self.plotter_frame, text="Open .csv file",
+                                   text=self.WELCOME_TEXT)
+    self.file_selector = ttk.Button(self.plotter_frame, text=OPEN_CSV,
                                     command=self.select_file)
 
     #Positioning contents of first tab
@@ -72,7 +91,7 @@ class MultiToolGUI:
     self.file_selector.grid(columnspan=2, row=1)
 
     #Creates the actual tab
-    self.notebook.add(self.plotter_frame, text="Plotter")
+    self.notebook.add(self.plotter_frame, text=self.FRAME1_NAME)
 
     #TODO Make the drone swarm controller simulator for the second tab
 
@@ -83,9 +102,7 @@ class MultiToolGUI:
     Gets the filename and path of a user-selected file.
     Then it gets the headers provided by the .csv file.
     '''
-    self.csv_filepath = tkinter.filedialog.askopenfilename(filetypes=[
-                                                     ("CSV Files", "*.csv"),
-                                                     ("All files","*.*")])
+    self.csv_filepath = tkinter.filedialog.askopenfilename(filetypes=self.SUPPORTED_FILETYPES)
 
     if self.csv_filepath:
       logging.debug("Icon filepath at: " + self.csv_filepath)
@@ -122,7 +139,7 @@ class MultiToolGUI:
       getattr(self, attr_name).grid(column=column_index, row=2)
 
     self.plotter_submit_button = ttk.Button(self.plotter_frame,
-                                            text="Submit",
+                                            text=self.SUBMIT_TEXT,
                                             command=self.submit_graph_options)
     self.plotter_submit_button.grid(columnspan=2, row=3)
 
