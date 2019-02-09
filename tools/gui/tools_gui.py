@@ -17,23 +17,37 @@ class MultiToolGUI:
   '''
   A class used to represent the GUI for the plotter (and future tools).
 
+  Attributes
+  ----------
+  ICON_ERR_MSG : str
+    Const string that for error logging when the icon fails to be set
+  ICON_NAME : str
+    Name of the icon file for the application, must be a .ico file
+  ICON_PATH : str
+    File path to the icon, should adapt to any OS
+  NUM_COL_OPTIONS : int
+    Specifies the maximum number of variables that can be plotted at a time.
+    For now the plotter only plots two variables at a single time
+
   Methods
   -------
   select_file()
     Gets the user chosen filename and filepath and creates widgets for the
     user to choose their graph labels in a drop-down menu
   submit_graph_options()
-    Retrieves user-selected graph labels and plots a graph
-  set_icon()
+    Retrieves user-selected graph labels (column headers)
+  create_column_widgets()
+    Creates the widgets required to select the column headers and allows
+    the plotted graph to be made
+  set_icon(icon_path)
     Sets the GUI favicon
   '''
   #Class constants
-  ICON_ERROR_MESSAGE = "Unable to set the icon for the program."
+  ICON_ERR_MSG = "Unable to set the icon for the program."
   ICON_NAME = 'ninja_icon.gif'
-  #Builds a filepath based to the icon
   ICON_PATH = os.path.join(os.path.dirname(__file__), ICON_NAME)
   #Only two variables can be graphed by the plotter as of right now
-  NUM_COLUMN_OPTIONS = 2
+  NUM_COL_OPTIONS = 2
   
 
   def __init__(self):
@@ -67,7 +81,7 @@ class MultiToolGUI:
   def select_file(self):
     '''
     Gets the filename and path of a user-selected file.
-    Then it creates two pull-down menus for the user to chose graph labels.
+    Then it gets the headers provided by the .csv file.
     '''
     self.csv_filepath = tkinter.filedialog.askopenfilename(filetypes=[
                                                      ("CSV Files", "*.csv"),
@@ -78,19 +92,7 @@ class MultiToolGUI:
       #Plotter backend retrieves list of possible graph labels
       self.column_headers = plotter_tool.get_csv_headers(self.csv_filepath)
 
-      #Creates widgets for number of column options
-      for column_index in range(self.NUM_COLUMN_OPTIONS):
-        attr_name = 'column_options{}'.format(column_index)
-        combobox = ttk.Combobox(self.plotter_frame, values=self.column_headers)
-
-        #Widget positioning
-        setattr(self, attr_name, combobox)
-        getattr(self, attr_name).grid(column=column_index, row=2)
-
-      self.plotter_submit_button = ttk.Button(self.plotter_frame,
-                                              text="Submit",
-                                              command=self.submit_graph_options)
-      self.plotter_submit_button.grid(columnspan=2, row=3)
+      self.create_column_widgets()
 
   def submit_graph_options(self):
     '''
@@ -105,14 +107,33 @@ class MultiToolGUI:
     plotter_tool.submit_chosen_columns(self.csv_filepath, self.column_options0.get(),
                                        self.column_options1.get())
 
+  def create_column_widgets(self):
+    '''
+    Creates the GUI elements for selecting and submitting the column headers
+    for the plotter
+    '''
+    #Creates widgets for number of column options
+    for column_index in range(self.NUM_COL_OPTIONS):
+      attr_name = 'column_options{}'.format(column_index)
+      combobox = ttk.Combobox(self.plotter_frame, values=self.column_headers)
+
+      #Widget positioning
+      setattr(self, attr_name, combobox)
+      getattr(self, attr_name).grid(column=column_index, row=2)
+
+    self.plotter_submit_button = ttk.Button(self.plotter_frame,
+                                            text="Submit",
+                                            command=self.submit_graph_options)
+    self.plotter_submit_button.grid(columnspan=2, row=3)
+
   def set_icon(self, icon_path):
     '''
     Sets the favicon at top-leftmost of the Tkinter GUI
 
     Parameters
     ----------
-    icon_name : str
-      Filename of the icon to be used for the GUI
+    icon_path : str
+      Filename and path of the icon to be used for the GUI
 
     Exceptions
     ----------
@@ -126,7 +147,7 @@ class MultiToolGUI:
     except tk.TclError:
       #tk.TclError is the error raised when the icon file can't be found
       #or if the wrong filetype is used (anything not .ico)
-      logging.error(self.ICON_ERROR_MESSAGE)
+      logging.error(self.ICON_ERR_MSG)
 
 if __name__ == '__main__':
   #Initializes the class and creates the application
