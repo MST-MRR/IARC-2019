@@ -22,4 +22,6 @@
     - pip:
         requirements: /root/IARC-2019/requirements.txt
 
+    - command: drone_console
+
     - command: python2 /root/IARC-2019/flight.py -d
