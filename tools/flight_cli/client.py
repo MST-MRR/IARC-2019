@@ -11,7 +11,7 @@ URL = 'http://{}/commands/'.format(sys.argv[1])
 
 
 def gen_req(command, **kwargs):
-    resp = requests.post(URL, data={"command": command, "meta": kwargs})
+    resp = requests.post(URL, json={"command": command, "meta": kwargs})
     if resp.status_code != requests.codes.ok:
         logging.error(resp.text)
 
