@@ -7,7 +7,7 @@ if len(sys.argv) < 2:
     logging.error("Please specify a host")
     sys.exit(1)
 
-URL = 'http://{}:8000/commands/'.format(sys.argv[1])
+URL = 'http://{}/commands/'.format(sys.argv[1])
 
 
 def gen_req(command, **kwargs):
