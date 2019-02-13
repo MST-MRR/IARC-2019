@@ -94,6 +94,7 @@ def create_routes(args, controller):
         elif args.routine:
             # If in production mode, starting or stopping drone is only option
             # get push data and check if start or kill
+            command = data["command"].lower()
             if command == "start":
                 # start routine
                 start_ai(args.routine)
