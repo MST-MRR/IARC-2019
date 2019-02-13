@@ -1,5 +1,6 @@
 """CLI wrapper for flight, runs flight code using HTTP commands"""
 import argparse
+import importlib
 import logging
 import sys
 import threading
@@ -93,10 +94,12 @@ def create_routes(args, controller):
         elif args.routine:
             # If in production mode, starting or stopping drone is only option
             # get push data and check if start or kill
-            # if command == "start":
-            #     start routine
-            # elif command == "kill":
-            #     force into land
+            if command == "start":
+                # start routine
+                start_ai(args.routine)
+            elif command == "kill":
+                # force into land
+                kill_ai()
 
             return "routine " + args.routine + " in progress", 200
 
@@ -139,6 +142,14 @@ def get_direction(direction):
         raise InvalidDirectionException(
             'Expected value for type {}, got {}.'.format(
                 type(c.Directions), direction))
+
+
+def start_ai(routine):
+    importlib.import_module("flight.AIs.{}".format(routine))
+
+
+def kill_ai():
+    pass
 
 
 def flask_thread(args, controller):
