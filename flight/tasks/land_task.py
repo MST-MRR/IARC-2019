@@ -1,7 +1,7 @@
 from dronekit import VehicleMode
 
 from task_base import TaskBase
-from .. import constants as c
+from flight import constants as c
 
 class LandTask(TaskBase):
     """A task that makes the drone land.

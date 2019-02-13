@@ -2,9 +2,9 @@ import threading
 import sys
 import traceback
 
-from ..drone.drone_controller import DroneController
-from .. import constants as c
-from ... import flightconfig as f
+from flight.drone.drone_controller import DroneController
+from flight import constants as c
+from flight import flightconfig as f
 
 PROMPT_FOR_COMMAND = '> '
 

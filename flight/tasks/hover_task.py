@@ -1,7 +1,7 @@
 from simple_pid import PID
 
 from task_base import TaskBase
-from .. import constants as c
+from flight import constants as c
 
 KP = 1
 KI = 0

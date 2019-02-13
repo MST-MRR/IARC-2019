@@ -5,8 +5,8 @@ from pymavlink import mavutil
 import time
 
 from optical_flow_attribute import OpticalFlow
-from .. import constants as c
-from ..utils.helpers import to_quaternion
+from flight import constants as c
+from flight.utils.helpers import to_quaternion
 
 class Drone(Vehicle):
     """Interface to drone and its sensors.

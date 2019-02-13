@@ -2,8 +2,8 @@ from simple_pid import PID
 from dronekit import VehicleMode
 
 from task_base import TaskBase
-from .. import constants as c
-from ..drone.exceptions import EmergencyLandException
+from flight import constants as c
+from flight.drone.exceptions import EmergencyLandException
 
 class ExitTask(TaskBase):
     """A task that terminates control of the drone."""

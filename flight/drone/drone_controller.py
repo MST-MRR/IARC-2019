@@ -8,15 +8,15 @@ import traceback
 
 from drone import Drone
 import exceptions
-from .. import constants as c
-from ..tasks.exit_task import ExitTask
-from ..tasks.hover_task import HoverTask
-from ..tasks.land_task import LandTask
-from ..tasks.linear_movement_task import LinearMovementTask
-from ..tasks.takeoff_task import TakeoffTask
-from ..utils.priority_queue import PriorityQueue
-from ..utils.timer import Timer
-from ... import flightconfig as f
+from flight import constants as c
+from flight.tasks.exit_task import ExitTask
+from flight.tasks.hover_task import HoverTask
+from flight.tasks.land_task import LandTask
+from flight.tasks import HoverTask, TakeoffTask, ExitTask, LinearMovementTask, LandTask
+from flight.tasks.takeoff_task import TakeoffTask
+from flight.utils.priority_queue import PriorityQueue
+from flight.utils.timer import Timer
+from flight import flightconfig as f
 
 class DroneController(object):
     """Controls the actions of a drone.
