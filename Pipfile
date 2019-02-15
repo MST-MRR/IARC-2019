@@ -1,0 +1,19 @@
+[[source]]
+name = "pypi"
+url = "https://pypi.org/simple"
+verify_ssl = true
+
+[dev-packages]
+
+[packages]
+dronekit = "==2.9.1"
+pymavlink = "==2.2.21"
+coloredlogs = "*"
+simple-pid = "*"
+matplotlib = "*"
+numpy = "*"
+MAVProxy = "==1.7.7"
+Flask = "*"
+
+[requires]
+python_version = "3.7"
