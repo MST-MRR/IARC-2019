@@ -113,23 +113,20 @@ def debug_add_task(controller, command, meta):
 
 
 def get_priority(priority):
-    key = priority.upper()
-    if hasattr(c.Priorities, key):
-        return getattr(c.Priorities, key)
-    else:
-        raise InvalidPriorityException(
-            'Expected value for type {}, got {}.'.format(
-                type(c.Priorities), priority))
+    return get_enum(c.Priorities, priority)
 
 
 def get_direction(direction):
-    key = direction.upper()
-    if hasattr(c.Directions, key):
-        return getattr(c.Directions, key)
+    return get_enum(c.Directions, direction)
+
+
+def get_enum(enum, key):
+    item = key.upper()
+    if hasattr(enum, item):
+        return getattr(enum, item)
     else:
         raise InvalidDirectionException(
-            'Expected value for type {}, got {}.'.format(
-                type(c.Directions), direction))
+            'Expected value for type {}, got {}.'.format(type(enum), item))
 
 
 def start_ai(controller, routine):
@@ -175,32 +172,34 @@ def add_task(args, controller, data):
 
 
 def tcp_thread(args, controller):
+    TCP_IP = '0.0.0.0'
+    TCP_PORT = 5005
+    BUFFER_SIZE = 1024
+
+    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    set_keepalive_osx(s)
+    #set_keepalive_linux(s, max_fails=2)
+    s.bind((TCP_IP, TCP_PORT))
+    s.listen(1)
+    conn, addr = s.accept()
+    print('Connection address:', addr)
+    succ = True
+
     try:
-        TCP_IP = '127.0.0.1'
-        TCP_PORT = 5005
-        BUFFER_SIZE = 1024
-
-        s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        set_keepalive_osx(s)
-        #set_keepalive_linux(s, max_fails=2)
-        s.bind((TCP_IP, TCP_PORT))
-        s.listen(1)
-
-        conn, addr = s.accept()
-        print('Connection address:', addr)
-        while True:
+        while succ:
             data = conn.recv(BUFFER_SIZE)
             print("received data:", data)
             if data:
                 succ = add_task(args, controller, json.loads(data))
                 if succ:
-                    conn.send("success")
-                else:
-                    logging.info("Ending session")
-                    conn.close()
+                    conn.send("Success")
     except socket.error:
-        # kill DroneController
+        controller.add_exit_task(c.Priorities.HIGH)
         print("Killing drone because of connection loss")
+
+    conn.send("Killing session")
+    logging.info("Ending session")
+    conn.close()
 
 
 def main():
@@ -209,7 +208,7 @@ def main():
 
     # Establish controller
     controller = DroneController(c.Drones.LEONARDO_SIM)
-    # Run Flask server on seperate thread
+    # Run TCP server on seperate thread
     server_thread = threading.Thread(
         target=tcp_thread, args=(args, controller))
     server_thread.daemon = True

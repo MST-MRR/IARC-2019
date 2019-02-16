@@ -25,34 +25,45 @@ def main():
     s.connect((TCP_HOST, TCP_PORT))
 
     while True:
-        PARAMS = input("> ").split()
+        params = input("> ").split()
         try:
-            COMMAND = PARAMS[0]
-            if COMMAND == "exit":
-                gen_req(s, COMMAND)
+            command = params[0]
+            if command == "exit":
+                gen_req(s, command)
                 s.shutdown(socket.SHUT_WR)
                 s.close()
                 return
-            elif COMMAND == "land":
-                gen_req(s, COMMAND, priority=PARAMS[1])
-            elif COMMAND == "hover":
-                gen_req(s, COMMAND, priority=PARAMS[2], time=PARAMS[1])
-            elif COMMAND == "takeoff":
-                gen_req(s, COMMAND, altitude=PARAMS[1])
-            elif COMMAND == "move":
+            elif command == "land":
+                gen_req(s, command, priority=params[1])
+            elif command == "hover":
+                gen_req(s, command, priority=params[2], time=params[1])
+            elif command == "takeoff":
+                gen_req(s, command, altitude=params[1])
+            elif command == "move":
                 gen_req(
                     s,
-                    COMMAND,
-                    priority=PARAMS[3],
-                    direction=PARAMS[1],
-                    time=PARAMS[2])
+                    command,
+                    priority=params[3],
+                    direction=params[1],
+                    time=params[2])
             else:
                 logging.warning("Not a command. Try again.")
             data = s.recv(BUFFER_SIZE)
             if not data:
-                raise Exception
+                raise Exception("No data recieved")
+            elif data == "Success":
+                logging.info(data)
+            else:
+                logging.info("Session ended")
+                return
+
+        except IndexError:
+            logging.error("Malformed input, try again.")
         except Exception as err:
             logging.error(err)
+            gen_req(s, "exit")
+            s.shutdown(socket.SHUT_WR)
+            s.close()
 
 
 if __name__ == "__main__":
