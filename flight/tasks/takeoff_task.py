@@ -1,4 +1,5 @@
 from task_base import TaskBase
+from .. import constants as c
 from ... import flightconfig as f
 
 class TakeoffTask(TaskBase):
@@ -21,16 +22,19 @@ class TakeoffTask(TaskBase):
         """
         super(TakeoffTask, self).__init__(drone)
         self._target_alt = altitude
+        self._count = 10 / c.DELAY_INTERVAL
+        self._began_takeoff = False
     def perform(self):
         if not self._drone.armed:
             self._drone.arm()
+        elif not self._began_takeoff:
+            print "HERE"
+            self._drone.simple_takeoff(self._target_alt)
+            self._began_takeoff = True
+        else:
+            self._count -= 1
 
-        current_altitude = self._drone.rangefinder.distance
-
-        if current_altitude >= self._target_alt * f.PERCENT_TARGET_ALTITUDE:
+        if self._count <= 0:
             return True
-
-        thrust = f.DEFAULT_TAKEOFF_THRUST
-
-        self._drone.set_attitude(0, 0, 0, thrust)
-        return False
+        else:
+            return False

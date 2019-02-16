@@ -1,6 +1,7 @@
 import coloredlogs
 from dronekit import connect, VehicleMode
 import logging
+from pymavlink import mavutil
 import sys
 from threading import Event
 from time import sleep
@@ -53,9 +54,28 @@ class DroneController(object):
         connection_string = c.CONNECTION_STR_DICT[drone]
         self._drone = connect(
             connection_string, wait_ready=True,
-            heartbeat_timeout=c.CONNECT_TIMEOUT, status_printer=None,
+            heartbeat_timeout=c.CONNECT_TIMEOUT,
             vehicle_class=Drone)
         self._logger.info('Connected')
+
+        # See https://mavlink.io/en/messages/common.html#MAV_CMD_DO_SET_HOME
+        self._logger.info('Setting EKF Origin...')
+        for _ in range(0, 25):
+            self._drone._master.mav.command_long_send(
+                    0x01,  # target_system
+                    0x01, # target_component
+                    mavutil.mavlink.MAVLINK_MSG_ID_SET_GPS_GLOBAL_ORIGIN, # command
+                    0, # confirmation
+                    0, # param1
+                    37.9509324, # param2
+                    -91.7708076, # param3
+                    341, # param4
+                    0,
+                    0,
+                    0
+                    )
+            sleep(0.1)
+        self._logger.info('EKF Origin set')
 
     def run(self):
         """Start the controller.
