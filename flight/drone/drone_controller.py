@@ -276,13 +276,30 @@ class DroneController(object):
         Used to send a dictionary of data to a DataSplitter object, which logs
         and potential graphs the data.
 
+        Some of the attributes we graph require pulling class attributes:
+            Ex. rangefinder.distance
+        While for other just the class itself is fine:
+            Ex. airspeed
+        In addition, some attributes require you to index into them for data:
+            Ex. velocity[0] => x velocity
+
+        Hence the ugly if elif elif structure beow.
+
         Returns
         -------
         dict
         """
         data = {}
-        for attribute, function_suffix in c.ATTRIBUTE_TO_FUNCTION.iteritems():
-            data[attribute] = eval("self._drone.{}".format(function_suffix))
+        for attr_name, attr in c.ATTRIBUTE_TO_FUNCTION.iteritems():
+            if len(attr) == 1:
+                data[attr_name] = getattr(self._drone, attr[c.ATTR_NAME])
+            elif len(attr) == 2 and isinstance(attr[c.ATTR_DETAIL], int):
+                data[attr_name] = getattr(
+                    self._drone, attr[c.ATTR_NAME])[attr[c.ATTR_DETAIL]]
+            elif len(attr) == 2 and isinstance(attr[c.ATTR_DETAIL], str):
+                data[attr_name] = getattr(
+                    getattr(self._drone, attr[c.ATTR_NAME]),
+                    attr[c.ATTR_DETAIL])
 
         return data
 
