@@ -9,8 +9,7 @@ import threading
 
 import flight.constants as c
 import flightconfig as fc
-
-# from flight.drone.drone_controller import DroneController
+from flight.drone.drone_controller import DroneController
 
 
 def set_keepalive_linux(sock, after_idle_sec=1, interval_sec=3, max_fails=5):
@@ -133,7 +132,7 @@ def get_direction(direction):
                 type(c.Directions), direction))
 
 
-def start_ai(routine):
+def start_ai(controller, routine):
     importlib.import_module("flight.AIs.{}".format(routine))
 
 
@@ -167,7 +166,7 @@ def add_task(args, controller, data):
         command = data["command"].lower()
         if command == "start":
             # start routine
-            start_ai(args.routine)
+            start_ai(controller, args.routine)
         elif command == "kill":
             # force into land
             kill_ai(controller)
@@ -183,6 +182,7 @@ def tcp_thread(args, controller):
 
         s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         set_keepalive_osx(s)
+        #set_keepalive_linux(s, max_fails=2)
         s.bind((TCP_IP, TCP_PORT))
         s.listen(1)
 
@@ -208,15 +208,14 @@ def main():
     args = parse_args()
 
     # Establish controller
-    # controller = DroneController(c.Drones.LEONARDO_SIM)
+    controller = DroneController(c.Drones.LEONARDO_SIM)
     # Run Flask server on seperate thread
-    # server_thread = threading.Thread(
-    #     target=tcp_thread, args=(args, controller))
-    # server_thread.daemon = True
+    server_thread = threading.Thread(
+        target=tcp_thread, args=(args, controller))
+    server_thread.daemon = True
 
-    # server_thread.start()
-    # controller.run()
-    tcp_thread(args, None)
+    server_thread.start()
+    controller.run()
 
     # After controller has stopped, exit Flask server.
     sys.exit(0)
