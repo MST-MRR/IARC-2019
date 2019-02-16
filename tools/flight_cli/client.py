@@ -5,7 +5,6 @@ import sys
 
 import requests
 
-TCP_PORT = 5005
 BUFFER_SIZE = 1024
 
 
@@ -15,11 +14,12 @@ def gen_req(s, command, **kwargs):
 
 
 def main():
-    if len(sys.argv) < 2:
-        logging.error("Please specify a host")
+    if len(sys.argv) < 3:
+        logging.error("Please specify a host and port")
         sys.exit(1)
 
     TCP_HOST = sys.argv[1]
+    TCP_PORT = int(sys.argv[2])
 
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     s.connect((TCP_HOST, TCP_PORT))
@@ -28,6 +28,7 @@ def main():
         params = input("> ").split()
         try:
             command = params[0]
+            logging.info(command)
             if command == "exit":
                 gen_req(s, command)
                 s.shutdown(socket.SHUT_WR)
@@ -47,20 +48,29 @@ def main():
                     direction=params[1],
                     time=params[2])
             else:
+                print("Not a command. Try again.")
                 logging.warning("Not a command. Try again.")
+
+            print("Sent command")
+            logging.info("Sent")
             data = s.recv(BUFFER_SIZE)
             if not data:
-                raise Exception("No data recieved")
-            elif data == "Success":
+                print("No data recieved")
+                logging.error("No data recieved")
+            elif data == b"Success":
+                print(data)
                 logging.info(data)
             else:
+                print("Session ended:", data)
                 logging.info("Session ended")
                 return
 
         except IndexError:
+            print("Bad input")
             logging.error("Malformed input, try again.")
         except Exception as err:
-            logging.error(err)
+            print("Kill", str(err))
+            logging.error("Kill " + err)
             gen_req(s, "exit")
             s.shutdown(socket.SHUT_WR)
             s.close()

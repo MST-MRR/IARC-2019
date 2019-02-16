@@ -11,6 +11,10 @@ import flight.constants as c
 import flightconfig as fc
 from flight.drone.drone_controller import DroneController
 
+TCP_IP = '0.0.0.0'
+TCP_PORT = 5005
+BUFFER_SIZE = 1024
+
 
 def set_keepalive_linux(sock, after_idle_sec=1, interval_sec=3, max_fails=5):
     """Set TCP keepalive on an open socket.
@@ -104,11 +108,11 @@ def debug_add_task(controller, command, meta):
     elif command == "land":
         controller.add_land_task(priority)
     elif command == "hover":
-        controller.add_hover_task(fc.DEFAULT_ALTITUDE, meta["time"], priority)
+        controller.add_hover_task(fc.DEFAULT_ALTITUDE, int(meta["time"]), priority)
     elif command == "takeoff":
-        controller.add_takeoff_task(meta["altitude"])
+        controller.add_takeoff_task(int(meta["altitude"]))
     elif command == "move":
-        controller.add_linear_movement_task(direction, meta["time"], priority)
+        controller.add_linear_movement_task(direction, int(meta["time"]), priority)
     return True
 
 
@@ -154,7 +158,7 @@ def add_task(args, controller, data):
         except (InvalidDirectionException, InvalidPriorityException) as err:
             return err
         except Exception as err:
-            logging.error("Unexpected error, killing drone")
+            logging.error("Unexpected error, killing drone" + str(err))
             debug_add_task(controller, "exit", {})
             return False
     elif args.routine:
@@ -172,13 +176,10 @@ def add_task(args, controller, data):
 
 
 def tcp_thread(args, controller):
-    TCP_IP = '0.0.0.0'
-    TCP_PORT = 5005
-    BUFFER_SIZE = 1024
 
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    set_keepalive_osx(s)
-    #set_keepalive_linux(s, max_fails=2)
+    # set_keepalive_osx(s)
+    set_keepalive_linux(s, max_fails=2)
     s.bind((TCP_IP, TCP_PORT))
     s.listen(1)
     conn, addr = s.accept()
@@ -193,6 +194,8 @@ def tcp_thread(args, controller):
                 succ = add_task(args, controller, json.loads(data))
                 if succ:
                     conn.send("Success")
+	    else:
+		conn.send("stop")
     except socket.error:
         controller.add_exit_task(c.Priorities.HIGH)
         print("Killing drone because of connection loss")
@@ -215,9 +218,6 @@ def main():
 
     server_thread.start()
     controller.run()
-
-    # After controller has stopped, exit Flask server.
-    sys.exit(0)
 
 
 if __name__ == "__main__":

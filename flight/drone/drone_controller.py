@@ -245,7 +245,7 @@ class DroneController(object):
             The finished event is set upon successful landing
         """
 
-        land_mode = VehicleMode(c.Modes.LAND.value)
+        land_mode = VehicleMode(c.Modes.LAND)
 
         self._logger.info('Starting land...')
         while not self._drone.mode == land_mode:

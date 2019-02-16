@@ -26,7 +26,7 @@ class LinearMovementTask(TaskBase):
         self._pid_alt = PID(KP, KI, KP, setpoint=f.DEFAULT_ALTITUDE)
         self._count = duration * (1.0/c.DELAY_INTERVAL)
         velocities = []
-        for v in direction.value:
+        for v in direction:
             velocities.append(v * f.DEFAULT_SPEED)
         self._vx = velocities[0]
         self._vy = velocities[1]

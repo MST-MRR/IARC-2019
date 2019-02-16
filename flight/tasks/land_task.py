@@ -21,7 +21,7 @@ class LandTask(TaskBase):
             The drone being controlled.
         """
         super(LandTask, self).__init__(drone)
-        self._land_mode = VehicleMode(c.Modes.LAND.value)
+        self._land_mode = VehicleMode(c.Modes.LAND)
 
     def perform(self):
         if not self._drone.mode == self._land_mode:
