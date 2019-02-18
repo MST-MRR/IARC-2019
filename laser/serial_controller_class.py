@@ -1,6 +1,6 @@
 import serial
 
-class serialController:
+class SerialController:
 """ A controller to simplify the connection of the Serial port as well as simplifying sending the commands
 Parameters
 ----------
@@ -15,16 +15,16 @@ write_to(self,cmdString)
     Simplifies the sending of commands via Serial connection
 """
     def __init__(self,port_string,baudrate):
-        self.ser = serial.Serial(port_string,baudrate)
+        self.servo = serial.Serial(port_string,baudrate)
 
-    def write_to(self,cmdString):
+    def write_to(self, cmd_string):
         """
         Writes the given string command to the Serial Connection
 
         Parameters
         ----------
-        cmdString : str
+        cmd_string : str
             The string command that you want to send over Serial
         """
-        self.ser.write(cmdString.encode())
+        self.servo.write(cmd_string.encode())
 
