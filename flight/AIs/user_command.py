@@ -10,7 +10,7 @@ PROMPT_FOR_COMMAND = '> '
 
 def main():
     # Make the controller object
-    controller = DroneController(c.Drones.LEONARDO_SIM)
+    controller = DroneController(c.Drones.LEONARDO_SIM, is_simulation=True)
 
     # Make a thread whose target is a command line interface
     input_thread = threading.Thread(

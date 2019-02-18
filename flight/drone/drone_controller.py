@@ -15,6 +15,7 @@ from ..tasks.hover_task import HoverTask
 from ..tasks.land_task import LandTask
 from ..tasks.linear_movement_task import LinearMovementTask
 from ..tasks.takeoff_task import TakeoffTask
+from ..tasks.takeoff_task_sim import TakeoffTaskSim
 from ..utils.priority_queue import PriorityQueue
 from ..utils.timer import Timer
 from ... import flightconfig as f
@@ -33,17 +34,22 @@ class DroneController(object):
         A PriorityQueue holding tasks to be performed.
     _safety_event : Event
         Set when an unsafe condition is observed.
+    _is_simulation : bool
+        Set to true when the code is intended for the simulator.
     """
 
-    def __init__(self, drone):
+    def __init__(self, drone, is_simulation=False):
         """Construct a drone controller.
 
         Parameters
         ----------
-        drone : c.Drone.{DRONE_NAME}"""
+        drone : c.Drone.{DRONE_NAME}
+        """
         self._task_queue = PriorityQueue()
         self._current_task = None
         self._safety_event = Event()
+
+        self._is_simulation = is_simulation
 
         # Initialize the logger
         self._logger = logging.getLogger(__name__)
@@ -54,28 +60,9 @@ class DroneController(object):
         connection_string = c.CONNECTION_STR_DICT[drone]
         self._drone = connect(
             connection_string, wait_ready=True,
-            heartbeat_timeout=c.CONNECT_TIMEOUT,
+            heartbeat_timeout=c.CONNECT_TIMEOUT, status_printer=None,
             vehicle_class=Drone)
         self._logger.info('Connected')
-
-        # See https://mavlink.io/en/messages/common.html#MAV_CMD_DO_SET_HOME
-        self._logger.info('Setting EKF Origin...')
-        for _ in range(0, 25):
-            self._drone._master.mav.command_long_send(
-                    0x01,  # target_system
-                    0x01, # target_component
-                    mavutil.mavlink.MAVLINK_MSG_ID_SET_GPS_GLOBAL_ORIGIN, # command
-                    0, # confirmation
-                    0, # param1
-                    37.9509324, # param2
-                    -91.7708076, # param3
-                    341, # param4
-                    0,
-                    0,
-                    0
-                    )
-            sleep(0.1)
-        self._logger.info('EKF Origin set')
 
     def run(self):
         """Start the controller.
@@ -145,7 +132,11 @@ class DroneController(object):
         -----
         Internally, the priority of this task is always set to HIGH.
         """
-        new_task = TakeoffTask(self._drone, altitude)
+        if self._is_simulation:
+            new_task = TakeoffTaskSim(self._drone, altitude)
+        else:
+            new_task = TakeoffTask(self._drone, altitude)
+
         self._task_queue.push(priority, new_task)
 
     def add_linear_movement_task(
