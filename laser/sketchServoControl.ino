@@ -9,10 +9,14 @@ Servo myservo;//creates the servo object
 int pos = 0;//used for changing the angle of the motor
 int currentPos = 0; //used to keep track of where the motor is currently
 int usrInt = 0;//used to keep track of the number the user inputted
+const int servoLimit = 180;
+const int pinNum = 12;
+const int baudrateNum = 9600;
+const int msDelay = 10;
 
 void setup() { //this runs only once when it starts
-  Serial.begin(9600);//start the serial connection at 9600 baudrate
-  myservo.attach(12);//attach the servo to the pin 12
+  Serial.begin(baudrateNum);//start the serial connection at baudrateNum baudrate
+  myservo.attach(pinNum);//attach the servo to the pin pinNum
   myservo.write(0); //Resets the servo to 0 degrees
 
 }
@@ -27,13 +31,13 @@ void loop() { //loops forever (with power after setup)
   }
 
 
-  if(usrInt >180)//if over 180 mod the input by 180 to make it in range
+  if(usrInt >servoLimit)//if over servoLimit mod the input by servoLimit to make it in range
   {
-    usrInt = usrInt%180;
+    usrInt = usrInt%servoLimit;
   }
-  else if(usrInt < 0)//else if under 180 mod the absolute value of the input by 180 to get it in range
+  else if(usrInt < 0)//else if under servoLimit mod the absolute value of the input by servoLimit to get it in range
   {
-    usrInt = abs(usrInt)%180;
+    usrInt = abs(usrInt)%servoLimit;
   }
   Serial.println(usrInt); //print the number the user inputted back to the user
 
@@ -41,7 +45,7 @@ void loop() { //loops forever (with power after setup)
   {
     for(pos = currentPos; pos <= usrInt; pos += 1) {//starting at the currentPos number, as long as the pos (counter) is less than the input,
       myservo.write(pos);                           //write the servo to 1 more degrees than before until it reaches the input
-      delay(10);//wait 10 ms
+      delay(msDelay);//wait msDelay ms
       currentPos += 1; //increment the currentPos counter
     }
   }
@@ -50,7 +54,7 @@ void loop() { //loops forever (with power after setup)
   {
     for(pos = currentPos; pos >= usrInt; pos -= 1) {//starting at the currentPos number, as long as the pos (counter) is more than the input,
       myservo.write(pos);                           //write the servo to 1 less degrees than before until it reaches the input
-      delay(10);//wait 10 ms
+      delay(msDelay);//wait msDelay ms
       currentPos -= 1;//decrement the currentPos counter
     }
   }
