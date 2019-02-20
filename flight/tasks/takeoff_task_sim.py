@@ -14,7 +14,7 @@ class TakeoffTaskSim(TaskBase):
     -----
     This method of takeoff is unstable on the real drone.
     """
-    def __init__(self, drone, altitude):
+    def __init__(self, drone, altitude, roll=0, pitch=0, yaw=0):
         """Initialize a task for taking off.
         Parameters
         ----------
@@ -25,6 +25,9 @@ class TakeoffTaskSim(TaskBase):
         """
         super(TakeoffTaskSim, self).__init__(drone)
         self._target_alt = altitude
+        self._roll = roll
+        self._pitch = pitch
+        self._yaw = yaw
 
     def perform(self):
         if not self._drone.armed:
@@ -37,5 +40,5 @@ class TakeoffTaskSim(TaskBase):
 
         thrust = f.DEFAULT_TAKEOFF_THRUST
 
-        self._drone.set_attitude(0, 0, 0, thrust)
+        self._drone.set_attitude(self._roll, self._pitch, self._yaw, thrust)
         return False

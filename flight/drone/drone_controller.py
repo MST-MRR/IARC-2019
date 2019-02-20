@@ -20,6 +20,8 @@ from ..utils.priority_queue import PriorityQueue
 from ..utils.timer import Timer
 from ... import flightconfig as f
 
+LOG_LEVEL = logging.INFO
+
 class DroneController(object):
     """Controls the actions of a drone.
 
@@ -44,6 +46,8 @@ class DroneController(object):
         Parameters
         ----------
         drone : c.Drone.{DRONE_NAME}
+        is_simulation : bool, optional
+            Set to true if being run with the simualator.
         """
         self._task_queue = PriorityQueue()
         self._current_task = None
@@ -53,7 +57,7 @@ class DroneController(object):
 
         # Initialize the logger
         self._logger = logging.getLogger(__name__)
-        coloredlogs.install(level=logging.INFO)
+        coloredlogs.install(LOG_LEVEL)
 
         # Connect to the drone
         self._logger.info('Connecting...')

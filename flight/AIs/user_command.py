@@ -9,8 +9,17 @@ from ... import flightconfig as f
 PROMPT_FOR_COMMAND = '> '
 
 def main():
+    if len(sys.argv) == 2:
+        if sys.argv[1] == '--sim':
+            sim = True
+        else:
+            print("Usage: ./user_command.py [--sim]")
+            sys.exit()
+    else:
+        sim = False
+
     # Make the controller object
-    controller = DroneController(c.Drones.LEONARDO_SIM, is_simulation=True)
+    controller = DroneController(c.Drones.LEONARDO_SIM, is_simulation=sim)
 
     # Make a thread whose target is a command line interface
     input_thread = threading.Thread(
