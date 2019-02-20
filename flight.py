@@ -29,25 +29,11 @@ def set_keepalive_linux(sock, after_idle_sec=1, interval_sec=3, max_fails=5):
     sock.setsockopt(socket.IPPROTO_TCP, socket.TCP_KEEPCNT, max_fails)
 
 
-def set_keepalive_osx(sock, after_idle_sec=1, interval_sec=3, max_fails=5):
-    """Set TCP keepalive on an open socket.
+class BadParams(Exception):
+    """Thrown when parameters are incorrect for task"""
 
-    sends a keepalive ping once every 3 seconds (interval_sec)
-    """
-    # scraped from /usr/include, not exported by python's socket module
-    tcp_keepalive = 0x10
-    sock.setsockopt(socket.SOL_SOCKET, socket.SO_KEEPALIVE, 1)
-    sock.setsockopt(socket.IPPROTO_TCP, tcp_keepalive, interval_sec)
-
-
-class InvalidDirectionException(Exception):
-    """Thrown when specified direction is invalid"""
-    pass
-
-
-class InvalidPriorityException(Exception):
-    """Thrown when specified priority is invalid"""
-    pass
+    def __str__(self):
+        return str(self)
 
 
 def parse_args():
@@ -62,10 +48,9 @@ def parse_args():
 
     """
     parser = argparse.ArgumentParser(
-        description=
-        'MRRDT flight command line interface. Used to fly the drone.')
+        description='MRRDT flight command line interface.')
     parser.add_argument('-d', '--debug', action="store_true")
-    parser.add_argument('routine', nargs="?", default=None, type=str)
+    parser.add_argument('routine', nargs="?", default="", type=str)
 
     args = parser.parse_args()
 
@@ -75,109 +60,152 @@ def parse_args():
     return args
 
 
-def create_routes(args, controller):
+def debug_add_task(controller, command, meta):
     """
 
-    Constructs all routes necessary for network flight
+    Gives command to drone controller in the case of debug flight
+
+    Parameters
+    ----------
+    controller : flight.drone.drone_controller.DroneController
+        Drone controller object used for handling tasks
+    command : str
+        Command name
+    meta : dict
+        Contains other information needed to perform specified command
+
+    """
+
+    if command == "exit":
+        controller.add_exit_task(c.Priorities.HIGH)
+    elif command == "takeoff":
+        if "altitude" in meta:
+            controller.add_takeoff_task(int(meta["altitude"]))
+        else:
+            raise BadParams("altitude not specified")
+    elif command == "land":
+        if "priority" in meta:
+            priority = get_enum(c.Priorities, meta["priority"])
+            controller.add_land_task(priority)
+        else:
+            raise BadParams("priority not specified")
+    elif command == "hover":
+        if "priority" in meta:
+            priority = get_enum(c.Priorities, meta["priority"])
+            controller.add_hover_task(fc.DEFAULT_ALTITUDE, int(meta["time"]),
+                                      priority)
+        else:
+            raise BadParams("priority not specified")
+    elif command == "move":
+        if "priority" in meta and "direction" in meta:
+            priority = get_enum(c.Priorities, meta["priority"])
+            direction = get_enum(c.Directions, meta["direction"])
+            controller.add_linear_movement_task(direction, int(meta["time"]),
+                                                priority)
+        else:
+            raise BadParams("priority or direction not specified")
+
+
+def get_enum(enum, key):
+    """
+
+    Retrieves key from enum if it exists
+
+    Parameters
+    ----------
+    enum : enum.Enum
+        The enum that is being searched
+    key : str
+        The key that is supposed to exist in the enum
+
+    Returns
+    -------
+    any
+        Value of enum from corresponding key
+
+    """
+    item = key.upper()
+    if hasattr(enum, item):
+        return getattr(enum, item)
+    else:
+        raise BadParams(
+            'Expected value for type {}, got {}.'.format(type(enum), item))
+
+
+def start_ai(routine):
+    """
+
+    Starts the specified AI
+
+    Parameters
+    ----------
+    routine : str
+        Name of the routine being asked to run
+
+    """
+    # TODO grab ai class and run it
+    importlib.import_module("flight.AIs.{}".format(routine))
+
+
+def kill_ai(controller):
+    """
+
+    Kills the AI being run and subsequently, the drone
+
+    Parameters
+    ----------
+    controller : flight.drone.drone_controller.DroneController
+        Drone controller object used for handling tasks
+
+    """
+    controller.add_exit_task(c.Priorities.HIGH)
+
+
+def parse_message(args, controller, message):
+    """
+
+    Takes message and decides how to execute it
 
     Parameters
     ----------
     args : argparse.Namespace
         Arguments assembled by argparse.
     controller : flight.drone.drone_controller.DroneController
-        The second parameter.
-
-    Returns
-    -------
-    list
-        Blueprints to be added to Flask app
+        Drone controller object used for handling tasks
+    message : str
+        Data for the task in json
 
     """
-    pass
-
-
-def debug_add_task(controller, command, meta):
-    if "priority" in meta:
-        priority = get_priority(meta["priority"])
-    if "direction" in meta:
-        direction = get_direction(meta["direction"])
-
-    if command == "exit":
-        controller.add_exit_task(c.Priorities.HIGH)
-        return False
-    elif command == "land":
-        controller.add_land_task(priority)
-    elif command == "hover":
-        controller.add_hover_task(fc.DEFAULT_ALTITUDE, int(meta["time"]),
-                                  priority)
-    elif command == "takeoff":
-        controller.add_takeoff_task(int(meta["altitude"]))
-    elif command == "move":
-        controller.add_linear_movement_task(direction, int(meta["time"]),
-                                            priority)
-    return True
-
-
-def get_priority(priority):
-    return get_enum(c.Priorities, priority)
-
-
-def get_direction(direction):
-    return get_enum(c.Directions, direction)
-
-
-def get_enum(enum, key):
-    item = key.upper()
-    if hasattr(enum, item):
-        return getattr(enum, item)
-    else:
-        raise InvalidDirectionException(
-            'Expected value for type {}, got {}.'.format(type(enum), item))
-
-
-def start_ai(controller, routine):
-    importlib.import_module("flight.AIs.{}".format(routine))
-
-
-def kill_ai(controller):
-    pass
-
-
-def list_tasks(controller):
-    return controller.queue
-
-
-def add_task(args, controller, data):
-    if args.debug:
+    data = json.loads(message)
+    if args.debug and "command" in data and "meta" in data:
         # If in debug mode
-        if not ("command" in data and "meta" in data):
-            logging.error("command and meta required")
-            return True
-        command = data["command"].lower()
-        meta = data["meta"]
-        try:
-            return debug_add_task(controller, command, meta)
-        except (InvalidDirectionException, InvalidPriorityException) as err:
-            return err
-        except Exception as err:
-            logging.error("Unexpected error, killing drone" + str(err))
-            debug_add_task(controller, "exit", {})
-            return False
-    elif args.routine:
+        debug_add_task(controller, data["command"], data["meta"])
+    elif args.routine and "command" in data:
         # If in production mode, starting or stopping drone is only option
-        # get push data and check if start or kill
-        command = data["command"].lower()
+        command = data["command"]
         if command == "start":
-            # start routine
-            start_ai(controller, args.routine)
+            start_ai(args.routine)
         elif command == "kill":
-            # force into land
             kill_ai(controller)
-
-        return "routine " + args.routine + " in progress"
+    elif args.debug:
+        logging.error("command and meta required in debug mode")
+    elif args.routine:
+        logging.error("command required in production mode")
 
 
 def tcp_thread(args, controller):
+    """
+
+    Starts the tcp server
+
+    Parameters
+    ----------
+    args : argparse.Namespace
+        Arguments assembled by argparse.
+    controller : flight.drone.drone_controller.DroneController
+        Drone controller object used for handling tasks
+
+    """
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     # set_keepalive_osx(s)
     set_keepalive_linux(sock, max_fails=2)
@@ -185,40 +213,54 @@ def tcp_thread(args, controller):
     sock.listen(1)
     conn, addr = sock.accept()
     print('Connection address:', addr)
-    succ = True
 
     try:
-        while succ:
-            data = conn.recv(BUFFER_SIZE)
-            print("received data:", data)
-            if data:
-                succ = add_task(args, controller, json.loads(data))
-                if succ:
+        while True:
+            # Get data from TCP connection
+            message = conn.recv(BUFFER_SIZE)
+            print("received data:", message)
+
+            if message:
+                # if not empty
+                try:
+                    parse_message(args, controller, message)
                     conn.send("Success")
+                except BadParams as err:
+                    logging.error(err)
             else:
+                logging.warning("Received empty message")
                 conn.send("stop")
     except socket.error:
-        controller.add_exit_task(c.Priorities.HIGH)
-        print("Killing drone because of connection loss")
+        logging.error("Killing drone because of connection loss")
+    except Exception as err:
+        logging.error("Unexpected error, killing drone" + str(err))
+    finally:
+        logging.info("Ending session")
 
-    conn.send("Killing session")
-    logging.info("Ending session")
-    conn.close()
+        conn.send("Killing session")
+        kill_ai(controller)
+        conn.close()
+
+    return
 
 
 def main():
+    """
+    Runs the flight code
+    """
     # Get Command Line Arguments
     args = parse_args()
 
     # Establish controller
     controller = DroneController(c.Drones.LEONARDO_SIM)
-    # Run TCP server on seperate thread
+    # Run TCP server on separate thread
     server_thread = threading.Thread(
         target=tcp_thread, args=(args, controller))
     server_thread.daemon = True
 
     server_thread.start()
     controller.run()
+    server_thread.join()
 
 
 if __name__ == "__main__":
