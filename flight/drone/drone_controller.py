@@ -17,7 +17,7 @@ from ..tasks.takeoff_task import TakeoffTask
 from ...tools.data_distributor.data_splitter import DataSplitter
 from ..utils.priority_queue import PriorityQueue
 from ..utils.timer import Timer
-from ... import flightconfig as f
+from ... import config as f
 
 SAFETY_CHECKS_TAG = "Safety Checks"
 LOGGING_AND_RTG_TAG = "Logging and RTG"

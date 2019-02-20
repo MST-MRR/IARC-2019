@@ -1,5 +1,5 @@
 from task_base import TaskBase
-from ... import flightconfig as f
+from ... import config as f
 
 class TakeoffTask(TaskBase):
     """A task that takes off the drone from the ground.

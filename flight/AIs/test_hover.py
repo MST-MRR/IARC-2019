@@ -1,6 +1,6 @@
 from ..drone.drone_controller import DroneController
 from .. import constants as c
-from ... import flightconfig as f
+from ... import config as f
 
 HOVERTASK_DURATION = 10
 
