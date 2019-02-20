@@ -3,14 +3,12 @@ import logging
 import socket
 import sys
 
-import requests
-
 BUFFER_SIZE = 1024
 
 
-def gen_req(s, command, **kwargs):
+def gen_req(sock, command, **kwargs):
     message = json.dumps({"command": command, "meta": kwargs})
-    s.send(message.encode())
+    sock.send(message.encode())
 
 
 def main():
@@ -18,11 +16,11 @@ def main():
         logging.error("Please specify a host and port")
         sys.exit(1)
 
-    TCP_HOST = sys.argv[1]
-    TCP_PORT = int(sys.argv[2])
+    tcp_host = sys.argv[1]
+    tcp_port = int(sys.argv[2])
 
-    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    s.connect((TCP_HOST, TCP_PORT))
+    sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    sock.connect((tcp_host, tcp_port))
 
     while True:
         params = input("> ").split()
@@ -30,19 +28,19 @@ def main():
             command = params[0]
             logging.info(command)
             if command == "exit":
-                gen_req(s, command)
-                s.shutdown(socket.SHUT_WR)
-                s.close()
+                gen_req(sock, command)
+                sock.shutdown(socket.SHUT_WR)
+                sock.close()
                 return
             elif command == "land":
-                gen_req(s, command, priority=params[1])
+                gen_req(sock, command, priority=params[1])
             elif command == "hover":
-                gen_req(s, command, priority=params[2], time=params[1])
+                gen_req(sock, command, priority=params[2], time=params[1])
             elif command == "takeoff":
-                gen_req(s, command, altitude=params[1])
+                gen_req(sock, command, altitude=params[1])
             elif command == "move":
                 gen_req(
-                    s,
+                    sock,
                     command,
                     priority=params[3],
                     direction=params[1],
@@ -53,7 +51,7 @@ def main():
 
             print("Sent command")
             logging.info("Sent")
-            data = s.recv(BUFFER_SIZE)
+            data = sock.recv(BUFFER_SIZE)
             if not data:
                 print("No data recieved")
                 logging.error("No data recieved")
@@ -71,9 +69,9 @@ def main():
         except Exception as err:
             print("Kill", str(err))
             logging.error("Kill " + err)
-            gen_req(s, "exit")
-            s.shutdown(socket.SHUT_WR)
-            s.close()
+            gen_req(sock, "exit")
+            sock.shutdown(socket.SHUT_WR)
+            sock.close()
 
 
 if __name__ == "__main__":

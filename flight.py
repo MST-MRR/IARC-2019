@@ -11,7 +11,7 @@ import flight.constants as c
 import flightconfig as fc
 from flight.drone.drone_controller import DroneController
 
-TCP_IP = '0.0.0.0'
+TCP_IP = '192.168.0.1'
 TCP_PORT = 5005
 BUFFER_SIZE = 1024
 
@@ -35,9 +35,9 @@ def set_keepalive_osx(sock, after_idle_sec=1, interval_sec=3, max_fails=5):
     sends a keepalive ping once every 3 seconds (interval_sec)
     """
     # scraped from /usr/include, not exported by python's socket module
-    TCP_KEEPALIVE = 0x10
+    tcp_keepalive = 0x10
     sock.setsockopt(socket.SOL_SOCKET, socket.SO_KEEPALIVE, 1)
-    sock.setsockopt(socket.IPPROTO_TCP, TCP_KEEPALIVE, interval_sec)
+    sock.setsockopt(socket.IPPROTO_TCP, tcp_keepalive, interval_sec)
 
 
 class InvalidDirectionException(Exception):
