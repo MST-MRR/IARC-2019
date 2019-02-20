@@ -36,6 +36,3 @@ class TaskBase():
     @property
     def done(self):
         return self._done
-
-    def __str__(self):
-        return self.__class__.__name__

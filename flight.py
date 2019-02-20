@@ -187,6 +187,9 @@ def parse_message(args, controller, message):
             start_ai(args.routine)
         elif command == "kill":
             kill_ai(controller)
+        else:
+            raise BadParams(
+                "Commands for production are either \"start\" or \"kill\"")
     elif args.debug:
         logging.error("command and meta required in debug mode")
     elif args.routine:
@@ -207,7 +210,6 @@ def tcp_thread(args, controller):
 
     """
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    # set_keepalive_osx(s)
     set_keepalive_linux(sock, max_fails=2)
     sock.bind((TCP_IP, TCP_PORT))
     sock.listen(1)
