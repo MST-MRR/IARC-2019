@@ -1,3 +1,9 @@
+"""
+A class for managing the order in which tasks are given to the drone,
+checking for unsafe conditions, and sending data out to be graphed and
+logged.
+"""
+
 import coloredlogs
 from dronekit import connect, VehicleMode
 import logging
@@ -10,7 +16,7 @@ from drone import Drone
 import exceptions
 
 from flight import constants as c
-import flight.tasks
+from flight.tasks import Hover, Takeoff, LinearMovement, Land, Exit
 from flight.utils.priority_queue import PriorityQueue
 from flight.utils.timer import Timer
 from flight import flightconfig as f
@@ -130,7 +136,7 @@ class DroneController(object):
         priority : Priorities.{LOW, MEDIUM, HIGH}, optional
             The importance of this task.
         """
-        new_task = flight.tasks.Hover(self._drone, altitude, duration)
+        new_task = Hover(self._drone, altitude, duration)
         self._task_queue.push(priority, new_task)
 
     def add_takeoff_task(self, altitude, priority=c.Priorities.HIGH):
@@ -147,7 +153,7 @@ class DroneController(object):
         -----
         Internally, the priority of this task is always set to HIGH.
         """
-        new_task = flight.tasks.Takeoff(self._drone, altitude)
+        new_task = Takeoff(self._drone, altitude)
         self._task_queue.push(priority, new_task)
 
     def add_linear_movement_task(
@@ -163,7 +169,7 @@ class DroneController(object):
         priority : Priorities.{LOW, MEDIUM, HIGH}, optional
             The importance of this task.
         """
-        new_task = flight.tasks.LinearMovement(self._drone, direction, duration)
+        new_task = LinearMovement(self._drone, direction, duration)
         self._task_queue.push(priority, new_task)
 
 
@@ -175,7 +181,7 @@ class DroneController(object):
         priority : Priorities.{LOW, MEDIUM, HIGH}, optional
             The importance of this task.
         """
-        new_task = flight.tasks.Land(self._drone)
+        new_task = Land(self._drone)
         self._task_queue.push(priority, new_task)
 
     def add_exit_task(self, priority=c.Priorities.HIGH):
@@ -185,7 +191,7 @@ class DroneController(object):
         -----
         Always has high priority
         """
-        new_task = flight.tasks.Exit(self._drone)
+        new_task = Exit(self._drone)
         self._task_queue.push(priority, new_task)
 
     def _update(self):
@@ -205,7 +211,7 @@ class DroneController(object):
                 # We are done with the task
                 self._logger.info('Finished {}...'.format(
                     type(self._current_task).__name__))
-                if isinstance(self._current_task, flight.tasks.Exit):
+                if isinstance(self._current_task, Exit):
                     return False
                 self._task_queue.pop()
 

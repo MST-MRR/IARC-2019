@@ -1,3 +1,5 @@
+"""A TaskBase subclass for shutting down the drone controller."""
+
 from simple_pid import PID
 from dronekit import VehicleMode
 
@@ -19,6 +21,12 @@ class Exit(TaskBase):
         super(Exit, self).__init__(drone)
 
     def perform(self):
+        """Exit the controller.
+
+        Notes
+        -----
+        This is a sentinel task that will cause the controller to shut down.
+        """
         # If exit task was called while still in flight, then land.
         if self._drone.armed:
             raise EmergencyLandException

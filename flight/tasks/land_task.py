@@ -1,3 +1,5 @@
+"""A TaskBase subclass for landing the drone."""
+
 from dronekit import VehicleMode
 
 from task_base import TaskBase
@@ -24,6 +26,7 @@ class Land(TaskBase):
         self._land_mode = VehicleMode(c.Modes.LAND.value)
 
     def perform(self):
+        """Perform one iteration of land."""
         if not self._drone.mode == self._land_mode:
             self._drone.mode = self._land_mode
             return False

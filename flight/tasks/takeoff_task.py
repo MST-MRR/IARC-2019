@@ -1,3 +1,5 @@
+"""A TaskBase subclass for taking off the drone."""
+
 from task_base import TaskBase
 from flight import flightconfig as f
 
@@ -22,6 +24,7 @@ class Takeoff(TaskBase):
         super(Takeoff, self).__init__(drone)
         self._target_alt = altitude
     def perform(self):
+        """Perform one iteration of takeoff."""
         if not self._drone.armed:
             self._drone.arm()
 

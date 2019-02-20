@@ -1,11 +1,17 @@
+"""
+A TaskBase subclass for moving forward, backward, left, right, up,
+and down.
+"""
+
 from task_base import TaskBase
 from simple_pid import PID
 from flight import constants as c
 from flight import flightconfig as f
 
-KP = 1
-KI = 0
-KD = 0
+# See https://en.wikipedia.org/wiki/PID_controller
+KP = 1 # Proportional term
+KI = 0 # Integral term
+KD = 0 # Derivative term
 
 class LinearMovement(TaskBase):
     """A task that moves the drone along an axis."""
@@ -33,6 +39,7 @@ class LinearMovement(TaskBase):
         self._vz = velocities[2]
 
     def perform(self):
+        """Perform one iteration of linear movement."""
         # Get control value
         zv = -self._pid_alt(self._drone.rangefinder.distance)
         # Send 0 velocities to drone (excepting altitude correction)

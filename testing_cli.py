@@ -1,3 +1,5 @@
+"""Provides a continuous command line prompt for testing drone capabilities."""
+
 import threading
 import sys
 import traceback
@@ -55,7 +57,7 @@ class Command(object):
         """
         if len(args) != len(self._expected_order):
             raise TypeError('Expected {} arguments, got {}.'.format(
-                len(args),  len(self._expected_order)))#might need to flip these
+                len(self._expected_order),  len(args)))
 
         for param, cast in zip(args, self._expected_order):
             self._parameters.append(cast(param))
@@ -68,7 +70,7 @@ class Command(object):
 class HoverCommand(Command):
     def __init__(self, controller):
         super(HoverCommand, self).__init__(controller)
-        self._expected_order = [int, get_priority]
+        self._expected_order = [float, float, get_priority]
         self._parameters = []
 
     def __call__(self, *args):
@@ -77,7 +79,7 @@ class HoverCommand(Command):
 class MoveCommand(Command):
     def __init__(self, controller):
         super(MoveCommand, self).__init__(controller)
-        self._expected_order = [get_direction, int, get_priority]
+        self._expected_order = [get_direction, float, get_priority]
         self._parameters = []
 
     def __call__(self, *args):
@@ -86,7 +88,7 @@ class MoveCommand(Command):
 class TakeoffCommand(Command):
     def __init__(self, controller):
         super(TakeoffCommand, self).__init__(controller)
-        self._expected_order = [int]
+        self._expected_order = [float]
         self._parameters = []
 
     def __call__(self, *args):

@@ -1,3 +1,8 @@
+"""
+A class that acts as an interface to the physical drone, allowing for the
+reading of sensor data and control of movement.
+"""
+
 from dronekit import Vehicle, VehicleMode
 import logging
 from math import radians

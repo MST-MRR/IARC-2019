@@ -1,11 +1,14 @@
+"""A TaskBase subclass for hovering a set duration."""
+
 from simple_pid import PID
 
 from task_base import TaskBase
 from flight import constants as c
 
-KP = 1
-KI = 0
-KD = 0
+# See https://en.wikipedia.org/wiki/PID_controller
+KP = 1 # Proportional term
+KI = 0 # Integral term
+KD = 0 # Derivative term
 
 class Hover(TaskBase):
     """A task that makes drone hover for a period of time.
@@ -38,6 +41,7 @@ class Hover(TaskBase):
         self._count = duration * (1.0/c.DELAY_INTERVAL)
 
     def perform(self):
+        """Perform one iteration of hover."""
         # Get control value
         zv = -self._pid_alt(self._drone.rangefinder.distance)
         # Send 0 velocities to drone (excepting altitude correction)

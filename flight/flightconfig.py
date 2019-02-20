@@ -1,3 +1,5 @@
+"""Values which may be configured frequently."""
+
 # Set to true for more detailed error messages and backtraces
 DEBUG = True
 
