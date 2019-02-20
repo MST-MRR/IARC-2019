@@ -55,7 +55,7 @@ class Command(object):
         """
         if len(args) != len(self._expected_order):
             raise TypeError('Expected {} arguments, got {}.'.format(
-                len(args),  len(self._expected_order)))
+                len(args),  len(self._expected_order)))#might need to flip these
 
         for param, cast in zip(args, self._expected_order):
             self._parameters.append(cast(param))
