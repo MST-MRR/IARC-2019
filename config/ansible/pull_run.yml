@@ -1,6 +1,6 @@
 ---
 
-- hosts: dummies
+- hosts: all
   vars_prompt: 
       - name: "branch" 
         prompt: "Enter IARC-2019 branch to grab." 
@@ -22,4 +22,5 @@
     - pip:
         requirements: /root/IARC-2019/requirements.txt
 
-    - command: python2 /root/IARC-2019/flight.py -d
+    - command: pipenv install --skip-lock
+    - command: pipenv run python /root/IARC-2019/flight.py -d

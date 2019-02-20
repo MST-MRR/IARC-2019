@@ -22,6 +22,7 @@ serial = "*"
 MAVProxy = "==1.7.7"
 Flask = "*"
 enum = "*"
+pipenv = "*"
 
 [requires]
 python_version = "2.7"

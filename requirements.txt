@@ -14,3 +14,4 @@ opencv-python
 scipy
 sklearn
 serial
+pipenv
