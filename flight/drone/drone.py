@@ -115,8 +115,6 @@ class Drone(Vehicle):
         self.send_mavlink(msg)
 
     def send_yaw(self, heading, yaw_speed=0, yaw_direction=1, relative=False):
-        else:
-            is_relative=0 #yaw is an absolute angle
         # create the CONDITION_YAW command using command_long_encode()
         msg = self._make_yaw_message(heading, yaw_speed, yaw_direction, relative)
         # send command to vehicle
@@ -141,8 +139,7 @@ class Drone(Vehicle):
 
         self._logger.info('Arming...')
         while not self.armed:
-            if self.is_armable:
-                self.armed = True
+            self.armed = True
             time.sleep(c.ARM_RETRY_DELAY)
 
         if self.armed:
