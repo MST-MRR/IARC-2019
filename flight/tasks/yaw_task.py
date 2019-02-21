@@ -7,7 +7,7 @@ class YawTask(TaskBase):
     """
     DOCSTRING
     """
-    def __init__(self, heading, yaw_speed=0, yaw_direction=1, relative=False):
+    def __init__(self, drone, heading, yaw_speed=0, yaw_direction=1, relative=False):
         """
         DOCSTRING
         """
