@@ -1,12 +1,14 @@
-from dronekit import Vehicle, VehicleMode
 import logging
-from math import radians
-from pymavlink import mavutil
 import time
+from math import radians
 
+from dronekit import Vehicle, VehicleMode
 from optical_flow_attribute import OpticalFlow
+from pymavlink import mavutil
+
 from .. import constants as c
 from ..utils.helpers import to_quaternion
+
 
 class Drone(Vehicle):
     """Interface to drone and its sensors.
@@ -133,7 +135,8 @@ class Drone(Vehicle):
 
         self._logger.info('Arming...')
         while not self.armed:
-            self.armed = True
+            if self.is_armable:
+                self.armed = True
             time.sleep(c.ARM_RETRY_DELAY)
 
         if self.armed:

@@ -7,8 +7,9 @@ import socket
 import sys
 import threading
 
-import flight.constants as c
 import flightconfig as fc
+
+import flight.constants as c
 from flight.drone.drone_controller import DroneController
 
 TCP_IP = '192.168.0.1'

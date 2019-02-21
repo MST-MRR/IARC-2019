@@ -23,4 +23,4 @@
         requirements: /root/IARC-2019/requirements.txt
 
     - command: pipenv install --skip-lock
-    - command: pipenv run python /root/IARC-2019/flight.py -d
+    - command: pipenv run python /root/IARC-2019/run.py -d

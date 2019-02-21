@@ -1,11 +1,8 @@
 """Allows for controlling the drone with natural language"""
 
-import sys
 import threading
-import traceback
 
 from .. import constants as c
-from ... import flightconfig as f
 from ..drone.drone_controller import DroneController
 
 PROMPT_FOR_COMMAND = '> '
@@ -169,8 +166,9 @@ def get_priority(priority):
     if hasattr(c.Priorities, key):
         converted_form = getattr(c.Priorities, key)
     else:
-        raise TypeError('Expected value for type {}, got {}.'.format(
-            type(c.Priorities).__name__, priority))
+        raise TypeError(
+            'Expected value for type {}, got {}.'.format(
+                type(c.Priorities).__name__, priority))
 
     return converted_form
 
@@ -181,8 +179,9 @@ def get_direction(direction):
     if hasattr(c.Directions, key):
         converted_form = getattr(c.Directions, key)
     else:
-        raise TypeError('Expected value for type {}, got {}.'.format(
-            type(c.Directions).__name__, direction))
+        raise TypeError(
+            'Expected value for type {}, got {}.'.format(
+                type(c.Directions).__name__, direction))
 
     return converted_form
 
