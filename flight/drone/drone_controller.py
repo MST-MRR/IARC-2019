@@ -14,6 +14,7 @@ from ..tasks.hover_task import HoverTask
 from ..tasks.land_task import LandTask
 from ..tasks.linear_movement_task import LinearMovementTask
 from ..tasks.takeoff_task import TakeoffTask
+from ..tasks.yaw_task import YawTask
 from ...tools.data_distributor.data_splitter import DataSplitter
 from ..utils.priority_queue import PriorityQueue
 from ..utils.timer import Timer
@@ -188,6 +189,13 @@ class DroneController(object):
         Always has high priority
         """
         new_task = ExitTask(self._drone)
+        self._task_queue.push(priority, new_task)
+    
+    def add_yaw_task(self, heading, priority):
+        """Causes the controller to shut itself down.
+        DOCSTRING
+        """
+        new_task = YawTask(self._drone, heading, relative=True)
         self._task_queue.push(priority, new_task)
 
     def _update(self):
