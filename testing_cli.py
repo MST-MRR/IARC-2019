@@ -6,7 +6,6 @@ import traceback
 
 from flight.drone.drone_controller import DroneController
 from flight import constants as c
-from flight import flightconfig as f
 
 PROMPT_FOR_COMMAND = '> '
 
@@ -57,7 +56,7 @@ class Command(object):
         """
         if len(args) != len(self._expected_order):
             raise TypeError('Expected {} arguments, got {}.'.format(
-                len(self._expected_order),  len(args)))
+                len(self._expected_order), len(args)))
 
         for param, cast in zip(args, self._expected_order):
             self._parameters.append(cast(param))
