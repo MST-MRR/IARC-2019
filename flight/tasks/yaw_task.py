@@ -22,6 +22,7 @@ class YawTask(TaskBase):
         if not self._has_started:
             self.start_heading = self._drone.heading
             self._drone.send_yaw(self._new_heading, self._yaw_speed, self._yaw_direction, self._relative)
+            self._has_started = True
             print("1")
         elif ((not self._relative and abs(self._drone.heading - self._new_heading) > DEGREE_BUFFER) or 
                 (self._relative and abs(self._drone.heading - self.start_heading) < self._new_heading - DEGREE_BUFFER)):
