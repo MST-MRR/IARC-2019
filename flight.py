@@ -74,10 +74,16 @@ def debug_add_task(controller, command, meta):
     meta : dict
         Contains other information needed to perform specified command
 
+    Returns
+    -------
+    bool
+        Should the program continue?
+
     """
 
     if command == "exit":
         controller.add_exit_task(c.Priorities.HIGH)
+        return False
     elif command == "takeoff":
         if "altitude" in meta:
             controller.add_takeoff_task(int(meta["altitude"]))
@@ -104,6 +110,7 @@ def debug_add_task(controller, command, meta):
                                                 priority)
         else:
             raise BadParams("priority or direction not specified")
+    return True
 
 
 def get_enum(enum, key):
@@ -161,6 +168,21 @@ def kill_ai(controller):
     controller.add_exit_task(c.Priorities.HIGH)
 
 
+def close_server(connection):
+    """
+
+    Kills the AI being run and subsequently, the drone
+
+    Parameters
+    ----------
+    connection : socket.socket
+        Server socket object
+
+    """
+    connection.send("Killing session")
+    connection.close()
+
+
 def parse_message(args, controller, message):
     """
 
@@ -179,7 +201,8 @@ def parse_message(args, controller, message):
     data = json.loads(message)
     if args.debug and "command" in data and "meta" in data:
         # If in debug mode
-        debug_add_task(controller, data["command"], data["meta"])
+        if not debug_add_task(controller, data["command"], data["meta"]):
+            return False
     elif args.routine and "command" in data:
         # If in production mode, starting or stopping drone is only option
         command = data["command"]
@@ -194,6 +217,8 @@ def parse_message(args, controller, message):
         logging.error("command and meta required in debug mode")
     elif args.routine:
         logging.error("command required in production mode")
+
+    return True
 
 
 def tcp_thread(args, controller):
@@ -225,8 +250,11 @@ def tcp_thread(args, controller):
             if message:
                 # if not empty
                 try:
-                    parse_message(args, controller, message)
-                    conn.send("Success")
+                    if parse_message(args, controller, message):
+                        conn.send("Success")
+                    else:
+                        close_server(conn)
+                        return
                 except BadParams as err:
                     logging.error(err)
             else:
@@ -239,11 +267,8 @@ def tcp_thread(args, controller):
     finally:
         logging.info("Ending session")
 
-        conn.send("Killing session")
         kill_ai(controller)
-        conn.close()
-
-    return
+        close_server(conn)
 
 
 def main():
