@@ -17,7 +17,7 @@ import exceptions
 
 import config
 from flight import constants as c
-from flight.tasks import Hover, Takeoff, LinearMovement, Land, Exit
+from flight.tasks import Hover, Takeoff, LinearMovement, Land, Exit, TaskFactory
 from flight.utils.priority_queue import PriorityQueue
 from flight.utils.timer import Timer
 from tools.data_distributor.data_splitter import DataSplitter
@@ -34,6 +34,8 @@ class DroneController(object):
 
     Attributes
     ----------
+    task_factory : flight.tasks.TaskFactory
+        Decodes binary strings into tasks.
     _current_task : TaskBase subclass
         The task the drone is currently working on.
     _task_queue : list of InstructionBase subclass
@@ -74,6 +76,8 @@ class DroneController(object):
             heartbeat_timeout=c.CONNECT_TIMEOUT, status_printer=None,
             vehicle_class=Drone)
         self._logger.info('Connected')
+
+        self.task_factory = TaskFactory(self._drone)
 
     def run(self):
         """Start the controller.
@@ -127,78 +131,18 @@ class DroneController(object):
             sleep(c.DELAY_INTERVAL)  # Sleep in case was doing write operation
             self._splitter.exit()
 
-    def add_hover_task(self, altitude, duration, priority=c.Priorities.LOW):
+    def add_task(self, msg):
         """Instruct the drone to hover.
 
         Parameters
         ----------
-        altitude : float
-            The target altitude to hover at.
-        duration : float
-            How long to hover for.
-        priority : Priorities.{LOW, MEDIUM, HIGH}, optional
-            The importance of this task.
+        msg : str
+            String to be decoded into a task.
         """
-        new_task = Hover(self._drone, altitude, duration)
-        self._task_queue.push(priority, new_task)
-
-    def add_takeoff_task(self, altitude, priority=c.Priorities.HIGH):
-        """Instruct the drone to takeoff.
-
-        Parameters
-        ----------
-        altitude : float
-            The target altitude to hover at.
-        duration : float
-            How long to hover for.
-
-        Notes
-        -----
-        Internally, the priority of this task is always set to HIGH.
-        """
-        new_task = Takeoff(self._drone, altitude)
-        self._task_queue.push(priority, new_task)
-
-    def add_linear_movement_task(
-            self, direction, duration, priority=c.Priorities.MEDIUM):
-        """Instruct the drone to move along one of cardinal axes.
-
-        Parameters
-        ----------
-        direction : Directions.{UP, DOWN, LEFT, RIGHT, FORWARD, BACKWARD}
-            The direction to travel in.
-        duration : float
-            How long to move for.
-        priority : Priorities.{LOW, MEDIUM, HIGH}, optional
-            The importance of this task.
-        """
-        new_task = LinearMovement(self._drone, direction, duration)
-        self._task_queue.push(priority, new_task)
-
-    def add_land_task(self, priority=c.Priorities.MEDIUM):
-        """Instruct the drone to land.
-
-        Parameters
-        ----------
-        priority : Priorities.{LOW, MEDIUM, HIGH}, optional
-            The importance of this task.
-        """
-        new_task = Land(self._drone)
-        self._task_queue.push(priority, new_task)
-
-    def add_exit_task(self, priority=c.Priorities.HIGH):
-        """Causes the controller to shut itself down.
-
-        Notes
-        -----
-        Always has high priority
-        """
-        new_task = Exit(self._drone)
-        self._task_queue.push(priority, new_task)
+        self._task_queue.push(msg)
 
     def _update(self):
         """Execute one iteration of control logic.
-
         Returns
         -------
         True if should be called again, and false otherwise.
@@ -232,8 +176,8 @@ class DroneController(object):
         # If there are no more tasks, begin to hover.
         if self._drone.armed and self._current_task is None:
             self._logger.info('No more tasks - beginning long hover')
-            self.add_hover_task(config.DEFAULT_ALTITUDE,
-                                c.DEFAULT_HOVER_DURATION)
+            new_task = Hover(self._drone, config.DEFAULT_ALTITUDE, c.DEFAULT_HOVER_DURATION)
+            self._task_queue.push((c.Priorities.LOW, new_task))
 
         return True
 

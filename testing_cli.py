@@ -18,7 +18,37 @@ def main():
 
     input_thread.daemon = True
 
-    input_thread.start()
+    #input_thread.start()
+
+    # For temporary testing purposes...
+
+    # Takeoff task, high priority, 1 meter
+    msg = controller.task_factory.decode("0202010000000000")
+    controller.add_task(msg)
+
+    # Hover task, med priority, 1 meter
+    msg = controller.task_factory.decode("0401050100000000")
+    controller.add_task(msg)
+
+    # Move task, med priority, right
+    msg = controller.task_factory.decode("0301050400000000")
+    controller.add_task(msg)
+
+    # Move task, med priority, left
+    msg = controller.task_factory.decode("0301050500000000")
+    controller.add_task(msg)
+
+    # Land task, med priority
+    msg = controller.task_factory.decode("0101000000000000")
+    controller.add_task(msg)
+
+    # Takeoff task, med priority, 1 meter
+    msg = controller.task_factory.decode("0201010000000000")
+    controller.add_task(msg)
+
+    # Exit task, med priority, 1 meter
+    msg = controller.task_factory.decode("0001000000000000")
+    controller.add_task(msg)
 
     controller.run()
 

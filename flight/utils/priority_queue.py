@@ -33,7 +33,7 @@ class PriorityQueue():
     def __init__(self):
         self._queue = []
 
-    def push(self, priority, item):
+    def push(self, item):
         """Insert an item onto the priority queue.
 
         Parameters
@@ -50,6 +50,9 @@ class PriorityQueue():
         pushed, the current front will be dequed.
 
         """
+        priority = item[0]
+        value = item[1]
+
         # Interrupt tasks of equal or lesser priority
         if len(self._queue) and (priority.value <=
                 self._queue[FRONT][PRIORITY] // PRIORITY_MASK):
@@ -57,7 +60,7 @@ class PriorityQueue():
 
         val = int('{}{}'.format(priority.value, PriorityQueue.count))
         PriorityQueue.count += 1
-        heapq.heappush(self._queue, (val, item))
+        heapq.heappush(self._queue, (val, value))
 
     def pop(self):
         """Remove the next item from the priortiy queue.

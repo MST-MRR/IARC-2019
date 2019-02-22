@@ -28,6 +28,7 @@ class Takeoff(TaskBase):
     def perform(self):
         """Perform one iteration of takeoff."""
         if not self._drone.armed:
+
             self._drone.arm()
 
         current_altitude = self._drone.rangefinder.distance
