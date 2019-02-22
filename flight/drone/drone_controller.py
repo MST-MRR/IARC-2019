@@ -40,7 +40,7 @@ class DroneController(object):
         Set to true when the code is intended for the simulator.
     """
 
-    def __init__(self, drone, is_simulation=False):
+    def __init__(self, is_simulation=False):
         """Construct a drone controller.
 
         Parameters
@@ -49,6 +49,12 @@ class DroneController(object):
         is_simulation : bool, optional
             Set to true if being run with the simualator.
         """
+
+        if is_simulation:
+            drone_version = c.Drones.LEONARDO_SIM
+        else:
+            drone_version = c.Drones.LEONARDO
+
         self._task_queue = PriorityQueue()
         self._current_task = None
         self._safety_event = Event()
@@ -61,7 +67,7 @@ class DroneController(object):
 
         # Connect to the drone
         self._logger.info('Connecting...')
-        connection_string = c.CONNECTION_STR_DICT[drone]
+        connection_string = c.CONNECTION_STR_DICT[drone_version]
         self._drone = connect(
             connection_string, wait_ready=True,
             heartbeat_timeout=c.CONNECT_TIMEOUT, status_printer=None,

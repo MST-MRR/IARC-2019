@@ -14,11 +14,7 @@ def main():
     args = parser.parse_args()
 
     # Make the controller object
-    if args.sim:
-        drone_version = c.Drones.LEONARDO_SIM
-    else:
-        drone_version = c.Drones.LEONARDO
-    controller = DroneController(drone_version, is_simulation=args.sim)
+    controller = DroneController(is_simulation=args.sim)
 
     # Make a thread whose target is a command line interface
     input_thread = threading.Thread(
