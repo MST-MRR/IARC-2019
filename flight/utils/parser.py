@@ -11,7 +11,7 @@ def parse(message):
         print(req_params)
         try:
             for index, value in enumerate(message[1:]):
-                command.add(req_params[index], int(value))
+                command.add(req_params[index], value)
         except IndexError:
             raise BadParams("Too many elements")
 
