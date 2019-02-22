@@ -1,6 +1,5 @@
 """CLI wrapper for flight, runs flight code using HTTP commands"""
 import argparse
-import importlib
 import json
 import logging
 import socket
@@ -12,6 +11,7 @@ from . import config
 import flight.constants as c
 from flight.drone.drone_controller import DroneController
 from flight.utils.exceptions import BadParams
+from flight.AIs import AIS
 
 TCP_IP = '192.168.0.1'
 TCP_PORT = 5005
@@ -135,19 +135,24 @@ def get_enum(enum, key):
             'Expected value for type {}, got {}.'.format(type(enum), item))
 
 
-def start_ai(routine):
+def start_ai(controller, routine):
     """
 
     Starts the specified AI
 
     Parameters
     ----------
+    controller : flight.drone.drone_controller.DroneController
+        Controller object
     routine : str
         Name of the routine being asked to run
 
     """
-    # TODO grab ai class and run it
-    importlib.import_module("flight.AIs.{}".format(routine))
+    if routine in AIS:
+        AIS[routine](controller)
+    else:
+        # Todo handle fail
+        print("fail")
 
 
 def kill_ai(controller):
@@ -203,7 +208,7 @@ def parse_message(args, controller, message):
         # If in production mode, starting or stopping drone is only option
         command = data["command"]
         if command == "start":
-            start_ai(args.routine)
+            start_ai(controller, args.routine)
         elif command == "kill":
             kill_ai(controller)
         else:

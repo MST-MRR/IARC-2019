@@ -2,19 +2,27 @@
 
 import threading
 
-from .ai_base import AIBase
 from .. import constants as c
 
 PROMPT_FOR_COMMAND = '> '
 
 
-class UserCommand(AIBase):
-    def start(self):
-        # Make a thread whose target is a command line interface
-        input_thread = threading.Thread(target=input_loop, args=(
-            self._controller, ))
-        input_thread.daemon = True
-        input_thread.start()
+def user_command(controller):
+    """
+
+        Allows for arbitrary task execution with user input
+
+        Parameters
+        ----------
+        controller : flight.drone.drone_controller.DroneController
+            Drone controller object used for handling tasks
+
+    """
+    # Make a thread whose target is a command line interface
+    input_thread = threading.Thread(target=input_loop, args=(
+        controller, ))
+    input_thread.daemon = True
+    input_thread.start()
 
 
 class ExitRequested(Exception):
