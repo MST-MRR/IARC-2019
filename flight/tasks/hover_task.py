@@ -6,7 +6,7 @@ from task_base import TaskBase
 from flight import constants as c
 
 # See https://en.wikipedia.org/wiki/PID_controller
-KP = 1 # Proportional term
+KP = 0.25 # Proportional term
 KI = 0 # Integral term
 KD = 0 # Derivative term
 
@@ -37,14 +37,20 @@ class Hover(TaskBase):
         """
         super(Hover, self).__init__(drone)
         self._duration = duration
+        self._target_altitude = altitude
         self._pid_alt = PID(KP, KI, KP, setpoint=altitude)
         self._count = duration * (1.0/c.DELAY_INTERVAL)
 
     def perform(self):
         """Perform one iteration of hover."""
-        # Get control value
-        zv = -self._pid_alt(self._drone.rangefinder.distance)
-        # Send 0 velocities to drone (excepting altitude correction)
+        # Determine if we need to correct altitude
+        current_alt = self._drone.rangefinder.distance
+        if abs(current_alt - self._target_altitude) > c.ACCEPTABLE_ALTITUDE_DEVIATION:
+            zv = -self._pid_alt(self._drone.rangefinder.distance)
+        else:
+            zv = 0
+
+        # Send 0 velocities to drone (and possibly and altitude correction)
         self._drone.send_velocity(0, 0, zv)
         self._count -= 1
 

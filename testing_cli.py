@@ -1,13 +1,12 @@
 """Provides a continuous command line prompt for testing drone capabilities."""
 
 import threading
-import sys
-import traceback
 
 from flight.drone.drone_controller import DroneController
 from flight import constants as c
 
 PROMPT_FOR_COMMAND = '> '
+
 
 def main():
     # Make the controller object
@@ -23,9 +22,11 @@ def main():
 
     controller.run()
 
+
 class ExitRequested(Exception):
     """Raised when the input loop should stop."""
     pass
+
 
 class Command(object):
     """A command line argument that can be translated into a drone command.
@@ -35,6 +36,7 @@ class Command(object):
     _controller : DroneController
         Interface to adding a command to the drone.
     """
+
     def __init__(self, controller):
         """Initialize the given command.
 
@@ -66,6 +68,7 @@ class Command(object):
         # implement command here:
         pass
 
+
 class HoverCommand(Command):
     def __init__(self, controller):
         super(HoverCommand, self).__init__(controller)
@@ -74,6 +77,7 @@ class HoverCommand(Command):
 
     def __call__(self, *args):
         self._controller.add_hover_task(*self._parameters)
+
 
 class MoveCommand(Command):
     def __init__(self, controller):
@@ -84,6 +88,7 @@ class MoveCommand(Command):
     def __call__(self, *args):
         self._controller.add_linear_movement_task(*self._parameters)
 
+
 class TakeoffCommand(Command):
     def __init__(self, controller):
         super(TakeoffCommand, self).__init__(controller)
@@ -92,6 +97,7 @@ class TakeoffCommand(Command):
 
     def __call__(self, *args):
         self._controller.add_takeoff_task(*self._parameters)
+
 
 class LandCommand(Command):
     def __init__(self, controller):
@@ -102,6 +108,7 @@ class LandCommand(Command):
     def __call__(self, *args):
         self._controller.add_land_task(*self._parameters)
 
+
 class ExitCommand(Command):
     def __init__(self, controller):
         super(ExitCommand, self).__init__(controller)
@@ -111,6 +118,7 @@ class ExitCommand(Command):
         self._controller.add_exit_task(c.Priorities.HIGH)
         raise ExitRequested
 
+
 NAME_TO_COMMAND = {
     'hover': HoverCommand,
     'move': MoveCommand,
@@ -118,6 +126,7 @@ NAME_TO_COMMAND = {
     'land': LandCommand,
     'exit': ExitCommand
 }
+
 
 def input_loop(controller):
     """Simple command line interface to drone controller.
@@ -151,6 +160,7 @@ def input_loop(controller):
 
             print('{}{}: {}'.format(PROMPT_FOR_COMMAND, type(e).__name__, e))
 
+
 def get_priority(priority):
     """Gets priority level from a string."""
     key = priority.upper()
@@ -159,9 +169,10 @@ def get_priority(priority):
     else:
         raise TypeError(
             'Expected value for type {}, got {}.'.format(
-                type(c.Priorities).__name__,  priority))
+                type(c.Priorities).__name__, priority))
 
     return converted_form
+
 
 def get_direction(direction):
     """Gets direction from a string."""
@@ -171,9 +182,10 @@ def get_direction(direction):
     else:
         raise TypeError(
             'Expected value for type {}, got {}.'.format(
-                type(c.Directions).__name__,  direction))
+                type(c.Directions).__name__, direction))
 
     return converted_form
+
 
 if __name__ == '__main__':
     main()
