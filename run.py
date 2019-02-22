@@ -7,7 +7,7 @@ import socket
 import sys
 import threading
 
-import flightconfig as fc
+from . import config
 
 import flight.constants as c
 from flight.drone.drone_controller import DroneController
@@ -30,11 +30,6 @@ def set_keepalive_linux(sock, after_idle_sec=1, interval_sec=3, max_fails=5):
     sock.setsockopt(socket.IPPROTO_TCP, socket.TCP_KEEPCNT, max_fails)
 
 
-class BadParams(Exception):
-    """Thrown when parameters are incorrect for task"""
-
-    def __str__(self):
-        return str(self)
 
 
 def parse_args():
@@ -99,7 +94,8 @@ def debug_add_task(controller, command, meta):
     elif command == "hover":
         if "priority" in meta:
             priority = get_enum(c.Priorities, meta["priority"])
-            controller.add_hover_task(fc.DEFAULT_ALTITUDE, int(meta["time"]),
+            controller.add_hover_task(config.DEFAULT_ALTITUDE, int(meta[
+                                                                       "time"]),
                                       priority)
         else:
             raise BadParams("priority not specified")
@@ -180,7 +176,7 @@ def close_server(connection):
         Server socket object
 
     """
-    connection.send("Killing session")
+    connection.send("Killing session".encode())
     connection.close()
 
 
@@ -222,6 +218,29 @@ def parse_message(args, controller, message):
     return True
 
 
+def make_server(ip, port):
+    """
+    Creates the server socket
+
+    Parameters
+    ----------
+    ip : str
+        IP address to open for server
+    port : int
+        Port to open for server
+
+    Returns
+    -------
+    socket.socket
+        server socket
+    """
+    sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    set_keepalive_linux(sock, max_fails=2)
+    sock.bind((ip, port))
+    sock.listen(1)
+    return sock
+
+
 def tcp_thread(args, controller):
     """
 
@@ -235,10 +254,7 @@ def tcp_thread(args, controller):
         Drone controller object used for handling tasks
 
     """
-    sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    set_keepalive_linux(sock, max_fails=2)
-    sock.bind((TCP_IP, TCP_PORT))
-    sock.listen(1)
+    sock = make_server(TCP_IP, TCP_PORT)
     conn, addr = sock.accept()
     print('Connection address:', addr)
 
@@ -248,19 +264,16 @@ def tcp_thread(args, controller):
             message = conn.recv(BUFFER_SIZE)
             print("received data:", message)
 
-            if message:
-                # if not empty
-                try:
-                    if parse_message(args, controller, message):
-                        conn.send("Success")
-                    else:
-                        close_server(conn)
-                        return
-                except BadParams as err:
-                    logging.error(err)
-            else:
-                logging.warning("Received empty message")
-                conn.send("stop")
+            try:
+                if parse_message(args, controller, message):
+                    conn.send(b"1")
+                else:
+                    # User exited the server
+                    close_server(conn)
+                    return
+            except BadParams as err:
+                logging.error(err)
+                conn.send(bytes(str(err)))
     except socket.error:
         logging.error("Killing drone because of connection loss")
     except Exception as err:
@@ -285,7 +298,6 @@ def main():
     server_thread = threading.Thread(
         target=tcp_thread, args=(args, controller))
     server_thread.daemon = True
-
     server_thread.start()
     controller.run()
     server_thread.join()

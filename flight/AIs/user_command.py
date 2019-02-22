@@ -2,24 +2,19 @@
 
 import threading
 
+from .ai_base import AIBase
 from .. import constants as c
-from ..drone.drone_controller import DroneController
 
 PROMPT_FOR_COMMAND = '> '
 
 
-def main():
-    # Make the controller object
-    controller = DroneController(c.Drones.LEONARDO_SIM)
-
-    # Make a thread whose target is a command line interface
-    input_thread = threading.Thread(target=input_loop, args=(controller, ))
-
-    input_thread.daemon = True
-
-    input_thread.start()
-
-    controller.run()
+class UserCommand(AIBase):
+    def start(self):
+        # Make a thread whose target is a command line interface
+        input_thread = threading.Thread(target=input_loop, args=(
+            self._controller, ))
+        input_thread.daemon = True
+        input_thread.start()
 
 
 class ExitRequested(Exception):
@@ -184,7 +179,3 @@ def get_direction(direction):
                 type(c.Directions).__name__, direction))
 
     return converted_form
-
-
-if __name__ == '__main__':
-    main()
