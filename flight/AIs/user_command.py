@@ -14,7 +14,11 @@ def main():
     args = parser.parse_args()
 
     # Make the controller object
-    controller = DroneController(c.Drones.LEONARDO_SIM, is_simulation=args.sim)
+    if args.sim:
+        drone_version = c.Drones.LEONARDO_SIM
+    else:
+        drone_version = c.Drones.LEONARDO
+    controller = DroneController(drone_version, is_simulation=args.sim)
 
     # Make a thread whose target is a command line interface
     input_thread = threading.Thread(
@@ -33,7 +37,7 @@ def create_parser():
                         dest='sim',
                         action='store_true',
                         default=False,
-                        help='run simulator compatable flight code')
+                        help='run simulator compatible flight code')
     return parser
 
 class ExitRequested(Exception):
