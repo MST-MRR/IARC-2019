@@ -11,6 +11,7 @@ from . import config
 
 import flight.constants as c
 from flight.drone.drone_controller import DroneController
+from flight.utils.exceptions import BadParams
 
 TCP_IP = '192.168.0.1'
 TCP_PORT = 5005
@@ -28,8 +29,6 @@ def set_keepalive_linux(sock, after_idle_sec=1, interval_sec=3, max_fails=5):
     sock.setsockopt(socket.IPPROTO_TCP, socket.TCP_KEEPIDLE, after_idle_sec)
     sock.setsockopt(socket.IPPROTO_TCP, socket.TCP_KEEPINTVL, interval_sec)
     sock.setsockopt(socket.IPPROTO_TCP, socket.TCP_KEEPCNT, max_fails)
-
-
 
 
 def parse_args():
@@ -117,7 +116,7 @@ def get_enum(enum, key):
 
     Parameters
     ----------
-    enum : enum.Enum
+    enum : any
         The enum that is being searched
     key : str
         The key that is supposed to exist in the enum
@@ -218,13 +217,13 @@ def parse_message(args, controller, message):
     return True
 
 
-def make_server(ip, port):
+def make_server(addr, port):
     """
     Creates the server socket
 
     Parameters
     ----------
-    ip : str
+    addr : str
         IP address to open for server
     port : int
         Port to open for server
@@ -236,7 +235,7 @@ def make_server(ip, port):
     """
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     set_keepalive_linux(sock, max_fails=2)
-    sock.bind((ip, port))
+    sock.bind((addr, port))
     sock.listen(1)
     return sock
 
