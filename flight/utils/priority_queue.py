@@ -54,8 +54,9 @@ class PriorityQueue():
         value = item[1]
 
         # Interrupt tasks of equal or lesser priority
-        if len(self._queue) and (priority.value <=
+        if len(self._queue) and (priority.value <
                 self._queue[FRONT][PRIORITY] // PRIORITY_MASK):
+            print "got here"
             self._queue.pop()
 
         val = int('{}{}'.format(priority.value, PriorityQueue.count))

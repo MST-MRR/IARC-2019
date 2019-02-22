@@ -21,7 +21,49 @@ def main():
     #input_thread.start()
 
     # For temporary testing purposes...
+    encoded_msg = controller.task_factory.takeoff_task_encode()
+    decoded_msg = controller.task_factory.decode(encoded_msg)
+    controller.add_task(decoded_msg)
 
+    encoded_msg = controller.task_factory.hover_task_encode(5) # Duration
+    decoded_msg = controller.task_factory.decode(encoded_msg)
+    controller.add_task(decoded_msg)
+
+    encoded_msg = controller.task_factory.linear_movement_task_encode(
+                    5, # Duration
+                    c.Directions.RIGHT
+                    )
+    decoded_msg = controller.task_factory.decode(encoded_msg)
+    controller.add_task(decoded_msg)
+
+    encoded_msg = controller.task_factory.hover_task_encode(3)
+    decoded_msg = controller.task_factory.decode(encoded_msg)
+    controller.add_task(decoded_msg)
+
+    encoded_msg = controller.task_factory.linear_movement_task_encode(
+                    5, # Duration
+                    c.Directions.LEFT
+                    )
+    decoded_msg = controller.task_factory.decode(encoded_msg)
+    controller.add_task(decoded_msg)
+
+    encoded_msg = controller.task_factory.hover_task_encode(3)
+    decoded_msg = controller.task_factory.decode(encoded_msg)
+    controller.add_task(decoded_msg)
+
+    encoded_msg = controller.task_factory.land_task_encode()
+    decoded_msg = controller.task_factory.decode(encoded_msg)
+    controller.add_task(decoded_msg)
+
+    encoded_msg = controller.task_factory.takeoff_task_encode()
+    decoded_msg = controller.task_factory.decode(encoded_msg)
+    controller.add_task(decoded_msg)
+
+    encoded_msg = controller.task_factory.exit_task_encode(priority=c.Priorities.MEDIUM)
+    decoded_msg = controller.task_factory.decode(encoded_msg)
+    controller.add_task(decoded_msg)
+
+    """
     # Takeoff task, high priority, 1 meter
     msg = controller.task_factory.decode("0202010000000000")
     controller.add_task(msg)
@@ -49,6 +91,7 @@ def main():
     # Exit task, med priority, 1 meter
     msg = controller.task_factory.decode("0001000000000000")
     controller.add_task(msg)
+    """
 
     controller.run()
 
