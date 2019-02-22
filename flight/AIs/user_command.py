@@ -1,3 +1,4 @@
+import argparse
 import threading
 import sys
 import traceback
@@ -9,17 +10,11 @@ from ... import flightconfig as f
 PROMPT_FOR_COMMAND = '> '
 
 def main():
-    if len(sys.argv) == 2:
-        if sys.argv[1] == '--sim':
-            sim = True
-        else:
-            print("Usage: ./user_command.py [--sim]")
-            sys.exit()
-    else:
-        sim = False
+    parser = create_parser()
+    args = parser.parse_args()
 
     # Make the controller object
-    controller = DroneController(c.Drones.LEONARDO_SIM, is_simulation=sim)
+    controller = DroneController(c.Drones.LEONARDO_SIM, is_simulation=args.sim)
 
     # Make a thread whose target is a command line interface
     input_thread = threading.Thread(
@@ -30,6 +25,16 @@ def main():
     input_thread.start()
 
     controller.run()
+
+def create_parser():
+    """Returns a configured argument parser."""
+    parser = argparse.ArgumentParser(description='Test flight commands.')
+    parser.add_argument('--sim',
+                        dest='sim',
+                        action='store_true',
+                        default=False,
+                        help='run simulator compatable flight code')
+    return parser
 
 class ExitRequested(Exception):
     """Raised when the input loop should stop."""
