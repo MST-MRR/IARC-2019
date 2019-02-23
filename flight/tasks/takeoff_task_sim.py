@@ -1,8 +1,7 @@
+import config
 from task_base import TaskBase
-from .. import constants as c
-from ... import flightconfig as f
 
-class TakeoffTaskSim(TaskBase):
+class TakeoffSim(TaskBase):
     """A task that takes off the drone from the ground (meant for simulator).
 
     Attributes
@@ -23,7 +22,7 @@ class TakeoffTaskSim(TaskBase):
         altitude : float
             How many meters off the ground to take off to.
         """
-        super(TakeoffTaskSim, self).__init__(drone)
+        super(TakeoffSim, self).__init__(drone)
         self._target_alt = altitude
         self._roll = roll
         self._pitch = pitch
@@ -35,10 +34,10 @@ class TakeoffTaskSim(TaskBase):
 
         current_altitude = self._drone.rangefinder.distance
 
-        if current_altitude >= self._target_alt * f.PERCENT_TARGET_ALTITUDE:
+        if current_altitude >= self._target_alt * config.PERCENT_TARGET_ALTITUDE:
             return True
 
-        thrust = f.DEFAULT_TAKEOFF_THRUST
+        thrust = config.DEFAULT_TAKEOFF_THRUST
 
         self._drone.set_attitude(self._roll, self._pitch, self._yaw, thrust)
         return False

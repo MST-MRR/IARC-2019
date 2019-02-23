@@ -1,3 +1,5 @@
+""""A class that allows for the execution of arbitrary code at set intervals."""
+
 from time import sleep
 from timeit import default_timer as timer
 import threading
@@ -39,7 +41,7 @@ class Timer():
 
         def handle_event(stop_event):
             while recurring and not stop_event.is_set():
-                sleep(when_to_call-self.elapsed)
+                sleep(max(when_to_call-self.elapsed, 0))
                 event_handled = False
                 while (((not event_handled) or recurring) and
                     not stop_event.is_set()):
