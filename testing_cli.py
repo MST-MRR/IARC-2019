@@ -16,7 +16,7 @@ INT_MIN = 0     # Minimum encodable int value ("00")
 
 def main():
     # Make the controller object
-    controller = DroneController(constants.Drones.LEONARDO_SIM)
+    controller = DroneController(constants.Drones.LEONARDO)
 
     # Make a thread whose target is a command line interface
     input_thread = threading.Thread(
@@ -66,7 +66,7 @@ def create_command_parser():
 
     # Linear movement sub-parser
     parser_linear_move = subparsers.add_parser('move', help='move help')
-    parser_linear_move.add_argument('--duration',
+    parser_linear_move.add_argument('-d', '--duration',
         dest='duration',
         action=store_int(),
         required=True,
@@ -176,12 +176,10 @@ def input_loop(controller):
             continue
         except argparse.ArgumentTypeError as e:
             print e
-        except ExitRequested:
-            if isinstance(e, ExitRequested):
-                print('Ending input loop.')
-                return
+        except ExitRequested as e:
+            print('Ending input loop.')
+            return
         except Exception as e:
-            print "Unknown error: {}".format(e)
             exc_type, exc_value, exc_traceback = sys.exc_info()
             traceback.print_exception(exc_type, exc_value, exc_traceback,
                                         limit=2, file=sys.stdout)
@@ -242,7 +240,9 @@ def add_exit_task(controller, namespace):
         Contains parameter names mapped to values.
     """
     msg_enc = controller.task_factory.exit_task_encode(priority=namespace.priority)
+    print msg_enc
     msg_dec = controller.task_factory.decode(msg_enc)
+    print msg_dec
     controller.add_task(msg_dec)
     raise ExitRequested # Tell input loop to stop
 
@@ -257,7 +257,9 @@ def add_land_task(controller, namespace):
         Contains parameter names mapped to values.
     """
     msg_enc = controller.task_factory.land_task_encode(priority=namespace.priority)
+    print msg_enc
     msg_dec = controller.task_factory.decode(msg_enc)
+    print msg_dec
 
     controller.add_task(msg_dec)
 
@@ -274,7 +276,9 @@ def add_takeoff_task(controller, namespace):
     """
     msg_enc = controller.task_factory.takeoff_task_encode(priority=namespace.priority,
             altitude=namespace.altitude)
+    print msg_enc
     msg_dec = controller.task_factory.decode(msg_enc)
+    print msg_dec
     controller.add_task(msg_dec)
 
 
@@ -292,7 +296,9 @@ def add_linear_move_task(controller, namespace):
             duration=namespace.duration,
             direction=namespace.direction,
             altitude=namespace.altitude)
+    print msg_enc
     msg_dec = controller.task_factory.decode(msg_enc)
+    print msg_dec
     controller.add_task(msg_dec)
 
 
@@ -309,7 +315,9 @@ def add_hover_task(controller, namespace):
     msg_enc = controller.task_factory.hover_task_encode(priority=namespace.priority,
             duration=namespace.duration,
             altitude=namespace.altitude)
+    print msg_enc
     msg_dec = controller.task_factory.decode(msg_enc)
+    print msg_dec
     controller.add_task(msg_dec)
 
 # Maps command name (set in argparser) to function for adding task
