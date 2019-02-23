@@ -7,7 +7,7 @@ from optical_flow_attribute import OpticalFlow
 from pymavlink import mavutil
 
 from .. import constants as c
-from ..utils.helpers import to_quaternion
+from flight.utils.helpers import to_quaternion
 
 
 class Drone(Vehicle):

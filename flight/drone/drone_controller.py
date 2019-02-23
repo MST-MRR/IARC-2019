@@ -17,8 +17,8 @@ from ..tasks.hover_task import HoverTask
 from ..tasks.land_task import LandTask
 from ..tasks.linear_movement_task import LinearMovementTask
 from ..tasks.takeoff_task import TakeoffTask
-from ..utils.priority_queue import PriorityQueue
-from ..utils.timer import Timer
+from flight.utils import PriorityQueue
+from flight.utils.timer import Timer
 from ... import config
 from ...tools.data_distributor.data_splitter import DataSplitter
 

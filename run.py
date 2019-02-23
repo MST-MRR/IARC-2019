@@ -10,7 +10,7 @@ from . import config
 
 import flight.constants as c
 from flight.drone.drone_controller import DroneController
-from flight.utils.exceptions import BadParams
+from flight.utils import BadParams
 from flight.AIs import AIS
 
 TCP_IP = '192.168.0.1'

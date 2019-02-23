@@ -3,7 +3,7 @@ Takes a given message and attempts to parse out the parameters and
 commands
 """
 from flight.utils.commands import COMMANDS
-from flight.utils.exceptions import BadParams
+from flight.utils import BadParams
 
 
 def parse_message(message):

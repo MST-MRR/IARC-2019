@@ -1,6 +1,6 @@
 import unittest
 
-from ..flight.utils.priority_queue import PriorityQueue
+from flight.utils import PriorityQueue
 from ..flight.constants import Priorities
 
 class TestPriorityQueue(unittest.TestCase):
