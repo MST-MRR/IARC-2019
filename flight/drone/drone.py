@@ -119,7 +119,7 @@ class Drone(Vehicle):
         msg = self._make_velocity_message(north, east, down)
         self.send_mavlink(msg)
 
-    def arm(self, mode=c.Modes.GUIDED.value):
+    def arm(self, mode=c.Modes.GUIDED):
         """Arm the drone for flight.
 
         Upon successfully arming, the drone is now suitable to take off. The
@@ -166,7 +166,7 @@ class Drone(Vehicle):
             0,       # time_boot_ms (not used)
             0, 0,    # target system, target component
             mavutil.mavlink.MAV_FRAME_GLOBAL_RELATIVE_ALT_INT, # frame
-            c.MavBitmasks.SET_POSITION_TARGET.value, # type_mask (only speeds enabled)
+            c.MavBitmasks.SET_POSITION_TARGET, # type_mask (only speeds enabled)
             0, # lat_int - X Position in WGS84 frame in 1e7 * meters
             0, # lon_int - Y Position in WGS84 frame in 1e7 * meters
             0, # alt - Altitude in meters in AMSL altitude(not WGS84 if absolute or relative)
@@ -198,7 +198,7 @@ class Drone(Vehicle):
             0, # time_boot_ms
             1, # Target system
             1, # Target component
-            c.MavBitmasks.SET_ATTITUDE_TARGET.value, # Type mask: bit 1 is LSB
+            c.MavBitmasks.SET_ATTITUDE_TARGET, # Type mask: bit 1 is LSB
             to_quaternion(roll, pitch), # Quaternion
             0, # Body roll rate in radians
             0, # Body pitch rate in radians

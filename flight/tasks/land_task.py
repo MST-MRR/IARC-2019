@@ -1,9 +1,9 @@
 """A TaskBase subclass for landing the drone."""
 
 from dronekit import VehicleMode
-
-from task_base import TaskBase
 from flight import constants as c
+from task_base import TaskBase
+
 
 class Land(TaskBase):
     """A task that makes the drone land.
@@ -23,7 +23,7 @@ class Land(TaskBase):
             The drone being controlled.
         """
         super(Land, self).__init__(drone)
-        self._land_mode = VehicleMode(c.Modes.LAND.value)
+        self._land_mode = VehicleMode(c.Modes.LAND)
 
     def perform(self):
         """Perform one iteration of land."""

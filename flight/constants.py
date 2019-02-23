@@ -2,17 +2,17 @@
 Constant values which are changed rarely.
 """
 
-from enum import Enum
-
 ###################################
 # Enum Classes
 ###################################
 
-class Drones(Enum):
+
+class Drones:
     LEONARDO_SIM = "Leonardo_Sim"
     LEONARDO = "Leonardo"
 
-class Priorities(Enum):
+
+class Priorities:
     """Constants for differentiating the priority of items.
 
     Notes
@@ -23,16 +23,18 @@ class Priorities(Enum):
     MEDIUM = 2
     HIGH = 1
 
+
 # DroneKit Vehicle Modes
-class Modes(Enum)  :
+class Modes:
     """The various modes of flight."""
     GUIDED = "GUIDED"
     LAND = "LAND"
     FLOW_HOLD = "FLOW_HOLD"
     FOLLOW = "FOLLOW"
 
+
 # Directions along x, y, and z axes.
-class Directions(Enum):
+class Directions:
     """Directions along each axis.
 
     Notes
@@ -49,7 +51,8 @@ class Directions(Enum):
     FORWARD = (-1, 0, 0)
     BACKWARD = (1, 0, 0)
 
-class MavBitmasks(Enum):
+
+class MavBitmasks:
     """Bitmasks that enable or disable the various field of a mavlink message.
 
     Values
@@ -67,6 +70,7 @@ class MavBitmasks(Enum):
     SET_POSITION_TARGET = 0b0000111111000111
     SET_ATTITUDE_TARGET = 0b00000000
 
+
 ATTR_NAME = 0
 ATTR_DETAIL = 1
 
@@ -74,29 +78,29 @@ ATTR_DETAIL = 1
 # Get a list of attributes with ATTRIBUTE_TO_FUNCTION.keys().
 # Get a list of (attribute, function) tubles with ATTRIBUTE_TO_FUNCTION.iteritems().
 ATTRIBUTE_TO_FUNCTION = {
-    "pitch":            ["attitude", "pitch"],
-    "yaw":              ["attitude", "yaw"],
-    "roll":             ["attitude", "roll"],
-    "vx":               ["velocity", 0],
-    "vy":               ["velocity", 1],
-    "vz":               ["velocity", 2],
-    "battery_voltage":  ["battery", "voltage"],
-    "altitude":         ["rangefinder", "distance"],
-    "heading":          ["heading"],
-    "airspeed":         ["airspeed"],
-    "flow_x":           ["optical_flow", "flow_x"],
-    "flow_y":           ["optical_flow", "flow_y"],
-    "flow_quality":     ["optical_flow", "quality"],
-    "flow_distance":    ["optical_flow", "ground_distance"]
+    "pitch": ["attitude", "pitch"],
+    "yaw": ["attitude", "yaw"],
+    "roll": ["attitude", "roll"],
+    "vx": ["velocity", 0],
+    "vy": ["velocity", 1],
+    "vz": ["velocity", 2],
+    "battery_voltage": ["battery", "voltage"],
+    "altitude": ["rangefinder", "distance"],
+    "heading": ["heading"],
+    "airspeed": ["airspeed"],
+    "flow_x": ["optical_flow", "flow_x"],
+    "flow_y": ["optical_flow", "flow_y"],
+    "flow_quality": ["optical_flow", "quality"],
+    "flow_distance": ["optical_flow", "ground_distance"]
 }
 
 # Drone enum types mapped to connection strings
 # See http://python.dronekit.io/guide/connecting_vehicle.html
 # and http://ardupilot.org/dev/docs/learning-ardupilot-the-example-sketches.html.
 CONNECTION_STR_DICT = {
-        Drones.LEONARDO_SIM : 'tcp:127.0.0.1:5762',
-        Drones.LEONARDO: '/dev/serial/by-id/usb-3D_Robotics_PX4_FMU_v2.x_0-if00'
-        }
+    Drones.LEONARDO_SIM: 'tcp:127.0.0.1:5762',
+    Drones.LEONARDO: '/dev/serial/by-id/usb-3D_Robotics_PX4_FMU_v2.x_0-if00'
+}
 
 # How often to run safety checks
 SAFETY_CHECKS_DELAY = 0.5

@@ -16,6 +16,7 @@ PRIORITY = 0
 # Item part of stored values
 ITEM = 1
 
+
 class PriorityQueue():
     """Custom priority queue implementation.
 
@@ -51,11 +52,11 @@ class PriorityQueue():
 
         """
         # Interrupt tasks of equal or lesser priority
-        if len(self._queue) and (priority.value <=
-                self._queue[FRONT][PRIORITY] // PRIORITY_MASK):
+        if len(self._queue) and (
+                priority <= self._queue[FRONT][PRIORITY] // PRIORITY_MASK):
             self._queue.pop()
 
-        val = int('{}{}'.format(priority.value, PriorityQueue.count))
+        val = int('{}{}'.format(priority, PriorityQueue.count))
         PriorityQueue.count += 1
         heapq.heappush(self._queue, (val, item))
 
@@ -74,7 +75,7 @@ class PriorityQueue():
 
     def top(self):
         if len(self):
-        # Index 0 is priority, index 1 is the item.
+            # Index 0 is priority, index 1 is the item.
             return self._queue[FRONT][ITEM]
         else:
             return None

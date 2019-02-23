@@ -4,19 +4,19 @@ checking for unsafe conditions, and sending data out to be graphed and
 logged.
 """
 
-import coloredlogs
-from dronekit import connect, VehicleMode
+import exceptions
 import logging
 import sys
+import traceback
 from threading import Event
 from time import sleep
-import traceback
 
+import coloredlogs
 import config
-from flight import constants as c
 from drone import Drone
-import exceptions
-from flight.tasks import Hover, Takeoff, LinearMovement, Land, Exit, TakeoffSim
+from dronekit import VehicleMode, connect
+from flight import constants as c
+from flight.tasks import Exit, Hover, Land, LinearMovement, Takeoff, TakeoffSim
 from flight.utils.priority_queue import PriorityQueue
 from flight.utils.timer import Timer
 from tools.data_distributor.data_splitter import DataSplitter
@@ -25,6 +25,7 @@ SAFETY_CHECKS_TAG = "Safety Checks"
 LOGGING_AND_RTG_TAG = "Logging and RTG"
 
 LOG_LEVEL = logging.INFO
+
 
 class DroneController(object):
     """Controls the actions of a drone.
@@ -74,17 +75,19 @@ class DroneController(object):
         # Initialize the data splitter
         # NOTE: Real-time graphing not yet tested
         self._splitter = DataSplitter(
-            logger_desired_headers=[header for header in
-                                    c.ATTRIBUTE_TO_FUNCTION.keys()],
-            use_rtg=False
-        )
+            logger_desired_headers=[
+                header for header in c.ATTRIBUTE_TO_FUNCTION.keys()
+            ],
+            use_rtg=False)
 
         # Connect to the drone
         self._logger.info('Connecting...')
         connection_string = c.CONNECTION_STR_DICT[drone_version]
         self._drone = connect(
-            connection_string, wait_ready=True,
-            heartbeat_timeout=c.CONNECT_TIMEOUT, status_printer=None,
+            connection_string,
+            wait_ready=True,
+            heartbeat_timeout=c.CONNECT_TIMEOUT,
+            status_printer=None,
             vehicle_class=Drone)
         self._logger.info('Connected')
 
@@ -100,16 +103,18 @@ class DroneController(object):
             timer = Timer()
             # Start up safety checking
             timer.add_callback(
-                SAFETY_CHECKS_TAG, c.SAFETY_CHECKS_DELAY,
+                SAFETY_CHECKS_TAG,
+                c.SAFETY_CHECKS_DELAY,
                 self._do_safety_checks,
                 recurring=True)
 
             # Start up logging/real-time-graphing (if active)
             if self._splitter.active_tools:
-                timer.add_callback(LOGGING_AND_RTG_TAG, c.LOGGING_DELAY,
-                                   lambda: self._splitter.send(
-                                       self._gather_data()),
-                                   recurring=True)
+                timer.add_callback(
+                    LOGGING_AND_RTG_TAG,
+                    c.LOGGING_DELAY,
+                    lambda: self._splitter.send(self._gather_data()),
+                    recurring=True)
 
             # NOTE: the only way to stop the loop is to raise an exception,
             # such as with a keyboard interrupt
@@ -128,8 +133,12 @@ class DroneController(object):
             self._logger.critical(type(e).__name__)
             if config.DEBUG is True:
                 exc_type, exc_value, exc_traceback = sys.exc_info()
-                traceback.print_exception(exc_type, exc_value, exc_traceback,
-                                          limit=2, file=sys.stdout)
+                traceback.print_exception(
+                    exc_type,
+                    exc_value,
+                    exc_traceback,
+                    limit=2,
+                    file=sys.stdout)
 
             # Land the drone
             self._land()
@@ -176,8 +185,10 @@ class DroneController(object):
 
         self._task_queue.push(priority, new_task)
 
-    def add_linear_movement_task(
-            self, direction, duration, priority=c.Priorities.MEDIUM):
+    def add_linear_movement_task(self,
+                                 direction,
+                                 duration,
+                                 priority=c.Priorities.MEDIUM):
         """Instruct the drone to move along one of cardinal axes.
 
         Parameters
@@ -241,8 +252,8 @@ class DroneController(object):
         self._current_task = self._task_queue.top()
 
         # If task has been updated and not updated to None...
-        if (prev_task is not self._current_task and
-                self._current_task is not None):
+        if (prev_task is not self._current_task
+                and self._current_task is not None):
             self._logger.info('Starting {}...'.format(
                 type(self._current_task).__name__))
 
@@ -260,8 +271,8 @@ class DroneController(object):
             if self._drone.airspeed > config.SPEED_THRESHOLD:
                 raise exceptions.VelocityExceededThreshold()
 
-            if (
-                    self._drone.rangefinder.distance > config.MAXIMUM_ALLOWED_ALTITUDE):
+            if (self._drone.rangefinder.distance >
+                    config.MAXIMUM_ALLOWED_ALTITUDE):
                 raise exceptions.AltitudeExceededThreshold()
 
         except Exception as e:
@@ -281,7 +292,7 @@ class DroneController(object):
             The finished event is set upon successful landing
         """
 
-        land_mode = VehicleMode(c.Modes.LAND.value)
+        land_mode = VehicleMode(c.Modes.LAND)
 
         self._logger.info('Starting land...')
         while not self._drone.mode == land_mode:
