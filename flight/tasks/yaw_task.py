@@ -13,7 +13,7 @@ class YawTask(TaskBase):
         """
         super(YawTask, self).__init__(drone)
         self._has_started = False
-        self._new_heading = heading
+        self._new_heading = heading%360
         self._yaw_speed = yaw_speed
         self._yaw_direction = yaw_direction
         self._relative = relative
