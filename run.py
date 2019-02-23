@@ -6,15 +6,17 @@ import socket
 import sys
 import threading
 
-from . import config
+import config
 
 import flight.constants as c
 from flight.drone.drone_controller import DroneController
-from flight.utils import BadParams
+from flight.utils.exceptions import BadParams
 from flight.AIs import AIS
+from flight.utils.parser import parse_message2
 
-TCP_IP = '192.168.0.1'
-TCP_PORT = 5005
+# TCP_IP = '192.168.0.1'
+TCP_IP = '0.0.0.0'
+TCP_PORT = 5006
 BUFFER_SIZE = 1024
 
 
@@ -76,21 +78,21 @@ def debug_add_task(controller, command, meta):
 
     """
 
-    if command == "exit":
+    if command == "EXIT":
         controller.add_exit_task(c.Priorities.HIGH)
         return False
-    elif command == "takeoff":
+    elif command == "TAKEOFF":
         if "altitude" in meta:
             controller.add_takeoff_task(int(meta["altitude"]))
         else:
             raise BadParams("altitude not specified")
-    elif command == "land":
+    elif command == "LAND":
         if "priority" in meta:
             priority = get_enum(c.Priorities, meta["priority"])
             controller.add_land_task(priority)
         else:
             raise BadParams("priority not specified")
-    elif command == "hover":
+    elif command == "HOVER":
         if "priority" in meta:
             priority = get_enum(c.Priorities, meta["priority"])
             controller.add_hover_task(config.DEFAULT_ALTITUDE, int(meta[
@@ -98,7 +100,7 @@ def debug_add_task(controller, command, meta):
                                       priority)
         else:
             raise BadParams("priority not specified")
-    elif command == "move":
+    elif command == "LINEAR_MOVEMENT":
         if "priority" in meta and "direction" in meta:
             priority = get_enum(c.Priorities, meta["priority"])
             direction = get_enum(c.Directions, meta["direction"])
@@ -199,7 +201,10 @@ def parse_message(args, controller, message):
         Data for the task in json
 
     """
-    data = json.loads(message)
+    # data = json.loads(message)
+    print("hi")
+    data = parse_message2(message)
+    print(data)
     if args.debug and "command" in data and "meta" in data:
         # If in debug mode
         if not debug_add_task(controller, data["command"], data["meta"]):
@@ -207,13 +212,13 @@ def parse_message(args, controller, message):
     elif args.routine and "command" in data:
         # If in production mode, starting or stopping drone is only option
         command = data["command"]
-        if command == "start":
-            start_ai(controller, args.routine)
-        elif command == "kill":
-            kill_ai(controller)
-        else:
-            raise BadParams(
-                "Commands for production are either \"start\" or \"kill\"")
+        # if command == "start":
+        start_ai(controller, args.routine)
+        # elif command == "kill":
+        #     kill_ai(controller)
+        # else:
+        #     raise BadParams(
+        #         "Commands for production are either \"start\" or \"kill\"")
     elif args.debug:
         logging.error("command and meta required in debug mode")
     elif args.routine:

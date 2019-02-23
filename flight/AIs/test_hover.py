@@ -1,5 +1,5 @@
 from .. import constants as c
-from ... import config
+import config
 
 HOVER_DURATION = 10
 

@@ -17,10 +17,9 @@ from ..tasks.hover_task import HoverTask
 from ..tasks.land_task import LandTask
 from ..tasks.linear_movement_task import LinearMovementTask
 from ..tasks.takeoff_task import TakeoffTask
-from flight.utils import PriorityQueue
+from flight.utils.priority_queue import PriorityQueue
 from flight.utils.timer import Timer
-from ... import config
-from ...tools.data_distributor.data_splitter import DataSplitter
+import config
 
 SAFETY_CHECKS_TAG = "Safety Checks"
 LOGGING_AND_RTG_TAG = "Logging and RTG"
@@ -60,11 +59,6 @@ class DroneController(object):
 
         # Initialize the data splitter
         # NOTE: Real-time graphing not yet tested
-        self._splitter = DataSplitter(
-            logger_desired_headers=[header for header in
-                                    c.ATTRIBUTE_TO_FUNCTION.keys()],
-            use_rtg=False
-        )
 
         # Connect to the drone
         self._logger.info('Connecting...')
@@ -94,12 +88,6 @@ class DroneController(object):
                 recurring=True)
 
             # Start up logging/real-time-graphing (if active)
-            if self._splitter.active_tools:
-                timer.add_callback(LOGGING_AND_RTG_TAG, c.LOGGING_DELAY,
-                                   lambda: self._splitter.send(
-                                       self._gather_data()),
-                                   recurring=True)
-
             # NOTE: the only way to stop the loop is to raise an exception,
             # such as with a keyboard interrupt
             while self._update():
@@ -127,7 +115,6 @@ class DroneController(object):
             # Stop logging/graphing
             timer.stop_callback(LOGGING_AND_RTG_TAG)
             sleep(c.DELAY_INTERVAL)  # Sleep in case was doing write operation
-            self._splitter.exit()
 
     def add_hover_task(self, altitude, duration, priority=c.Priorities.LOW):
         """Instruct the drone to hover.

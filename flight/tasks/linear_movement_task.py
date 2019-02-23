@@ -1,8 +1,8 @@
 from simple_pid import PID
 from task_base import TaskBase
 
-from .. import constants as c
-from ... import config
+from flight import constants as c
+import config
 
 KP = 0.25
 KI = 0
@@ -31,7 +31,7 @@ class LinearMovementTask(TaskBase):
         movement.
     """
 
-    def __init__(self, drone, direction, duration, altitude=f.DEFAULT_ALTITUDE):
+    def __init__(self, drone, direction, duration, altitude=config.DEFAULT_ALTITUDE):
         """Initialize a task for moving along an axis.
 
         Parameters

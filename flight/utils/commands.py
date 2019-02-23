@@ -4,7 +4,8 @@ the network.
 """
 
 from collections import OrderedDict
-from flight.utils import BadParams
+from flight import constants as c
+from flight.utils.exceptions import BadParams
 
 
 class Command:
@@ -45,6 +46,10 @@ class Command:
         return self._params
 
     @property
+    def name(self):
+        return self._name
+
+    @property
     def required_params(self):
         """List of required parameters"""
         return self._param_list
@@ -79,6 +84,21 @@ class HoverCommand(Command):
     _name = "HOVER"
     _param_list = ["priority", "duration", "altitude"]
 
+
+DIRECTIONS = {
+    "0": "UP",
+    "1": "DOWN",
+    "2": "LEFT",
+    "3": "RIGHT",
+    "4": "FORWARD",
+    "5": "BACKWARD"
+}
+
+PRIORITIES = {
+    "1": "HIGH",
+    "2": "MEDIUM",
+    "3": "LOW"
+}
 
 COMMANDS = {
     "0": ExitCommand,

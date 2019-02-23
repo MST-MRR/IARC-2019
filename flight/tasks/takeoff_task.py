@@ -1,6 +1,6 @@
 from task_base import TaskBase
 
-from ... import config
+import config
 
 
 class TakeoffTask(TaskBase):
