@@ -7,17 +7,15 @@ logged.
 import coloredlogs
 from dronekit import connect, VehicleMode
 import logging
-from pymavlink import mavutil
 import sys
 from threading import Event
 from time import sleep
 import traceback
 
-from drone import Drone
-import exceptions
-
 import config
 from flight import constants as c
+from drone import Drone
+import exceptions
 from flight.tasks import Hover, Takeoff, LinearMovement, Land, Exit, TakeoffSim
 from flight.utils.priority_queue import PriorityQueue
 from flight.utils.timer import Timer
@@ -83,7 +81,7 @@ class DroneController(object):
 
         # Connect to the drone
         self._logger.info('Connecting...')
-        connection_string = c.CONNECTION_STR_DICT[c.Drones.LEONARDO_SIM]
+        connection_string = c.CONNECTION_STR_DICT[drone_version]
         self._drone = connect(
             connection_string, wait_ready=True,
             heartbeat_timeout=c.CONNECT_TIMEOUT, status_printer=None,

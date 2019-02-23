@@ -1,12 +1,9 @@
 """
-A TaskBase subclass for moving taking off the drone.
+A TaskBase subclass for taking off the drone.
 """
 
-from enum import Enum
 import time
 
-import config
-from flight import constants
 from task_base import TaskBase
 
 ALTITUDE_EPSILON = 0.1 # Acceptable error between measured altitude and target altitude

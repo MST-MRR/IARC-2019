@@ -1,3 +1,7 @@
+"""
+A TaskBase subclass for taking off the drone (used for simulation only).
+"""
+
 import config
 from task_base import TaskBase
 
