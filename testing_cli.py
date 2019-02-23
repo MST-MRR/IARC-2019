@@ -37,7 +37,6 @@ def create_parser():
                         help='run simulator compatible flight code')
     return parser
 
-
 class ExitRequested(Exception):
     """Raised when the input loop should stop."""
     pass
