@@ -78,7 +78,7 @@ def create_command_parser():
     parser_takeoff = subparsers.add_parser('takeoff', help='takeoff help')
     parser_takeoff.add_argument('--altitude',
         dest='altitude',
-        action=store_int(),
+        action=store_float(),
         default=config.DEFAULT_ALTITUDE,
         help='altitude to take off to')
 
@@ -86,7 +86,7 @@ def create_command_parser():
     parser_linear_move = subparsers.add_parser('move', help='move help')
     parser_linear_move.add_argument('-d', '--duration',
         dest='duration',
-        action=store_int(),
+        action=store_float(),
         required=True,
         help='altitude to maintain during move')
     parser_linear_move.add_argument('--direction',
@@ -97,19 +97,19 @@ def create_command_parser():
     parser_linear_move.add_argument('--altitude',
         dest='altitude',
         default=config.DEFAULT_ALTITUDE,
-        action=store_int(),
+        action=store_float(),
         help='altitude to maintain during move')
 
     # Hover sub-parser
     parser_hover = subparsers.add_parser('hover', help='hover help')
     parser_hover.add_argument('--duration',
         dest='duration',
-        action=store_int(),
+        action=store_float(),
         required=True,
         help='altitude to maintain during hover')
     parser_hover.add_argument('--altitude',
         dest='altitude',
-        action=store_int(),
+        action=store_float(),
         default=config.DEFAULT_ALTITUDE,
         help='altitude to maintain during hover')
 
