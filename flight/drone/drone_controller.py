@@ -91,6 +91,7 @@ class DroneController(object):
             connection_string, wait_ready=True,
             heartbeat_timeout=c.CONNECT_TIMEOUT, status_printer=None,
             vehicle_class=Drone)
+        self._drone.is_simulation = is_simulation
         self._logger.info('Connected')
 
         self.task_factory = TaskFactory(self._drone)

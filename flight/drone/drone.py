@@ -18,6 +18,8 @@ class Drone(Vehicle):
 
     Attributes
     ----------
+    is_simulation : bool
+        True if the drone is simulator, and false otherwise
     _id : int
         A unique identifier for this drone.
     _optical_flow : OpticalFlow
@@ -27,10 +29,14 @@ class Drone(Vehicle):
     -----
     See http://python.dronekit.io/guide/vehicle_state_and_parameters.html for
     all of the attributes we get by subclassing dronekit.Vehicle.
+
+    is_simulation must be set after instantiation, since dronekit.connect
+    is what calls the constructor.
     """
 
     def __init__(self, *args):
         super(Drone, self).__init__(*args)
+        self.is_simulation = None # Has to be set after instantiation
         self._id = None
         self._logger = logging.getLogger(__name__)
 

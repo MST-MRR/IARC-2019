@@ -1,6 +1,6 @@
 """Constructs and destructs tasks that the drone controller can perform."""
 
-from flight.tasks import Exit, Land, Takeoff, Hover, LinearMovement
+from flight.tasks import Exit, Land, Takeoff, TakeoffSim, Hover, LinearMovement
 import flight.constants as constants
 import config
 
@@ -255,7 +255,12 @@ class TaskFactory(object):
             The msg to be translated into a task.
         """
         altitude = int(msg[FIELD_3:FIELD_3 + FIELD_WIDTH], 16)
-        return Takeoff(self._drone, altitude)
+        print self._drone.is_simulation
+        if self._drone.is_simulation:
+            task = TakeoffSim(self._drone, altitude)
+        else:
+            task = Takeoff(self._drone, altitude)
+        return task
 
     def linear_movement_task_decode(self, msg):
         """Decodes data into a LinearMovement task.
