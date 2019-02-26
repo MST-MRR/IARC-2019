@@ -1,5 +1,7 @@
 """Constructs and destructs tasks that the drone controller can perform."""
 
+import numpy as np
+
 from flight.tasks import Exit, Land, Takeoff, TakeoffSim, Hover, LinearMovement
 import flight.constants as constants
 import config
@@ -7,88 +9,81 @@ import config
 class BadParams(Exception):
     pass
 
-# For future use, perhaps
-"""
-TASK_HOVER = 0b00000000
-
-TASK_LAND = 0b00000001
-
-TASK_TAKEOFF = 0b00000010
-
-TASK_LINEAR_MOVEMENT = 0b00000011
-
-TASK_HOVER = 0b00000100
-"""
-
 # Tasks to ID
+TASK_EXIT = 0
 
-TASK_EXIT = '00'
+TASK_LAND = 1
 
-TASK_LAND = '01'
+TASK_TAKEOFF = 2
 
-TASK_TAKEOFF = '02'
+TASK_LINEAR_MOVEMENT = 3
 
-TASK_LINEAR_MOVEMENT = '03'
+TASK_HOVER = 4
 
-TASK_HOVER = '04'
+YAW = 5
 
-# Fields starting indeces
+CIRCLE = 6
 
-FIELD_1 = 0
+MOVEMENT = 7 # Not yet implemented
 
-FIELD_2 = 2
-
-FIELD_3 = 4
-
-FIELD_4 = 6
-
-FIELD_5 = 8
-
-FIELD_6 = 10
-
-FIELD_7 = 12
-
-FIELD_8 = 14
-
-
-# The width in characters of each field
+# The width in bytes of each field
 FIELD_WIDTH = 2
 
-EMPTY_FIELD = '00'
+# Fields starting indeces
+FIELD_0 = FIELD_WIDTH * 0
+
+FIELD_1 = FIELD_WIDTH * 1
+
+FIELD_2 = FIELD_WIDTH * 2
+
+FIELD_3 = FIELD_WIDTH * 3
+
+FIELD_4 = FIELD_WIDTH * 4
+
+FIELD_5 = FIELD_WIDTH * 5
+
+FIELD_6 = FIELD_WIDTH * 6
+
+FIELD_7 = FIELD_WIDTH * 7
+
+EMPTY_FIELD = np.int16(0).tobytes() # 16 bits
 
 # Map direction encoding to Direction enum
 ENCODING_TO_DIRECTION = {
-    '00':   constants.Directions.UP,
-    '01':   constants.Directions.DOWN,
-    '02':   constants.Directions.LEFT,
-    '03':   constants.Directions.RIGHT,
-    '04':   constants.Directions.FORWARD,
-    '05':   constants.Directions.BACKWARD
+    0:   constants.Directions.UP,
+    1:   constants.Directions.DOWN,
+    2:   constants.Directions.LEFT,
+    3:   constants.Directions.RIGHT,
+    4:   constants.Directions.FORWARD,
+    5:   constants.Directions.BACKWARD
 }
 
 # Map Direction enum to direction encoding
 DIRECTION_TO_ENCODING = {
-    constants.Directions.UP: '00',
-    constants.Directions.DOWN: '01',
-    constants.Directions.LEFT: '02',
-    constants.Directions.RIGHT: '03',
-    constants.Directions.FORWARD: '04',
-    constants.Directions.BACKWARD: '05'
+    constants.Directions.UP: 0,
+    constants.Directions.DOWN: 1,
+    constants.Directions.LEFT: 2,
+    constants.Directions.RIGHT: 3,
+    constants.Directions.FORWARD: 4,
+    constants.Directions.BACKWARD: 5
 }
 
 # Map priority encoding to Priority enum
 ENCODING_TO_PRIORITY = {
-    '00':   constants.Priorities.LOW,
-    '01':   constants.Priorities.MEDIUM,
-    '02':   constants.Priorities.HIGH
+    0:   constants.Priorities.LOW,
+    1:   constants.Priorities.MEDIUM,
+    2:   constants.Priorities.HIGH
 }
 
 # Map Priority enum to priority encoding
 PRIORITY_TO_ENCODING = {
-    constants.Priorities.LOW: '00',
-    constants.Priorities.MEDIUM: '01',
-    constants.Priorities.HIGH: '02'
+    constants.Priorities.LOW: 0,
+    constants.Priorities.MEDIUM: 1,
+    constants.Priorities.HIGH: 2
 }
+
+def get_field(msg, field):
+    return msg[field:field + FIELD_WIDTH]
 
 class TaskFactory(object):
     """Creates Task objects from binary input.
@@ -118,11 +113,12 @@ class TaskFactory(object):
         priority : constants.Priorities
             Priority at which the task should be executed.
         """
-        priority_encoding = PRIORITY_TO_ENCODING[priority]
         num_empty = 6
-        return "{}{}{}".format(TASK_EXIT,
-                               priority_encoding,
-                               EMPTY_FIELD*num_empty).upper()
+        msg = bytearray()
+        msg += np.int16(TASK_EXIT).tobytes() # Task id
+        msg += np.int16(PRIORITY_TO_ENCODING[priority]).tobytes() # Priority
+        msg += EMPTY_FIELD * num_empty # Empty fields
+        return msg
 
     def land_task_encode(self, priority=constants.Priorities.MEDIUM):
         """Translates parameters into an encoded land task.
@@ -133,11 +129,12 @@ class TaskFactory(object):
             Priority at which the task should be executed.
 
         """
-        priority_encoding = PRIORITY_TO_ENCODING[priority]
         num_empty = 6
-        return "{}{}{}".format(TASK_LAND,
-                               priority_encoding,
-                               EMPTY_FIELD*num_empty).upper()
+        msg = bytearray()
+        msg += np.int16(TASK_LAND).tobytes() # Task id
+        msg += np.int16(PRIORITY_TO_ENCODING[priority]).tobytes() # Priority
+        msg += EMPTY_FIELD * num_empty # Empty fields
+        return msg
 
     def takeoff_task_encode(self, altitude=config.DEFAULT_ALTITUDE,
                                 priority=constants.Priorities.MEDIUM):
@@ -150,12 +147,13 @@ class TaskFactory(object):
         altitude : int
             Altitude to takeoff to.
         """
-        priority_encoding = PRIORITY_TO_ENCODING[priority]
         num_empty = 5
-        return "{}{}{:02x}{}".format(TASK_TAKEOFF,
-                                    priority_encoding,
-                                    altitude,
-                                    EMPTY_FIELD*num_empty).upper()
+        msg = bytearray()
+        msg += np.int16(TASK_TAKEOFF).tobytes() # Task id
+        msg += np.int16(PRIORITY_TO_ENCODING[priority]).tobytes() # Priority
+        msg += np.half(altitude).tobytes() # Altitude
+        msg += EMPTY_FIELD * num_empty # Empty fields
+        return msg
 
     def linear_movement_task_encode(self, duration, direction,
             altitude=config.DEFAULT_ALTITUDE, priority=constants.Priorities.MEDIUM):
@@ -170,17 +168,15 @@ class TaskFactory(object):
         altitude : int
             The altitude at which to remain while moving.
         """
-        priority_encoding = PRIORITY_TO_ENCODING[priority]
-        duration_encoding = hex(duration).upper()
-        direction_encoding = DIRECTION_TO_ENCODING[direction]
-        altitude_encoding = alt_encoding = hex(altitude).upper()
         num_empty = 3
-        return "{}{}{:02x}{}{:02x}{}".format(TASK_LINEAR_MOVEMENT,
-                                        priority_encoding,
-                                        duration,
-                                        direction_encoding,
-                                        altitude,
-                                        EMPTY_FIELD*num_empty).upper()
+        msg = bytearray()
+        msg += np.int16(TASK_LINEAR_MOVEMENT).tobytes() # Task id
+        msg += np.int16(PRIORITY_TO_ENCODING[priority]).tobytes() # Priority
+        msg += np.half(duration).tobytes() # Duration
+        msg += np.int16(DIRECTION_TO_ENCODING[direction]).tobytes() # Direction
+        msg += np.half(altitude).tobytes() # Altitude
+        msg += EMPTY_FIELD * num_empty # Empty fields
+        return msg
 
     def hover_task_encode(self, duration, altitude=config.DEFAULT_ALTITUDE,
                             priority=constants.Priorities.MEDIUM):
@@ -195,30 +191,33 @@ class TaskFactory(object):
         altitude : int
             The altitude at which to hover.
         """
-        priority_encoding = PRIORITY_TO_ENCODING[priority]
-        duration_encoding = hex(duration).upper()
-        altitude_encoding = alt_encoding = hex(altitude).upper()
         num_empty = 4
-        return "{}{}{:02x}{:02x}{}".format(TASK_LINEAR_MOVEMENT,
-                                        priority_encoding,
-                                        duration,
-                                        altitude,
-                                        EMPTY_FIELD*num_empty).upper()
+        msg = bytearray()
+        msg += np.int16(TASK_HOVER).tobytes() # Task id
+        msg += np.int16(PRIORITY_TO_ENCODING[priority]).tobytes() # Priority
+        msg += np.half(duration).tobytes() # Duration
+        msg += np.half(altitude).tobytes() # Altitude
+        msg += EMPTY_FIELD * num_empty # Empty fields
+        return msg
 
     def decode(self, msg):
         """Decodes a binary message.
 
         Parameters
         ----------
-        msg : str
-            A string of 16 characters that make up a hexadecimal number.
+        msg : bytearray
+            The encoded task (16 bytes long).
         """
         try:
-            task_type = msg[:2]
-            if task_type in TASK_TO_DECODER.keys():
-                priority_field = msg[FIELD_2:FIELD_2 + FIELD_WIDTH]
-                priority = ENCODING_TO_PRIORITY[priority_field]
-                return (priority, TASK_TO_DECODER[task_type](self, msg))
+            task_id_bytes = get_field(msg, FIELD_0)
+            task_id= np.frombuffer(task_id_bytes, dtype=np.int16, count=1)[0] # returns array, take first and only element
+            if task_id in TASK_TO_DECODER.keys():
+                priority_id_bytes = get_field(msg, FIELD_1)
+                priority_id = np.frombuffer(priority_id_bytes, dtype=np.int16, count=1)[0]
+                priority = ENCODING_TO_PRIORITY[priority_id]
+                return (priority, TASK_TO_DECODER[task_id](self, msg))
+            else:
+                raise BadParams("Invalid task id")
         except BadParams as e:
             print e
         except Exception as e:
@@ -254,8 +253,9 @@ class TaskFactory(object):
         msg : str
             The msg to be translated into a task.
         """
-        altitude = int(msg[FIELD_3:FIELD_3 + FIELD_WIDTH], 16)
-        print self._drone.is_simulation
+        altitude_bytes = get_field(msg, FIELD_2)
+        altitude = np.frombuffer(altitude_bytes, dtype=np.half, count=1)[0]
+
         if self._drone.is_simulation:
             task = TakeoffSim(self._drone, altitude)
         else:
@@ -270,9 +270,17 @@ class TaskFactory(object):
         msg : str
             The msg to be translated into a task.
         """
-        duration = int(msg[FIELD_3:FIELD_3 + FIELD_WIDTH], 16)
-        direction = ENCODING_TO_DIRECTION[msg[FIELD_4:FIELD_4 + FIELD_WIDTH]]
-        return LinearMovement(self._drone, direction, duration)
+        direction_id_bytes = get_field(msg, FIELD_3)
+        direction_id = np.frombuffer(direction_id_bytes, dtype=np.int16, count=1)[0]
+        direction = ENCODING_TO_DIRECTION[direction_id]
+
+        duration_bytes = get_field(msg, FIELD_2)
+        duration = np.frombuffer(duration_bytes, dtype=np.half, count=1)[0]
+
+        altitude_bytes = get_field(msg, FIELD_4)
+        altitude = np.frombuffer(altitude_bytes, dtype=np.half, count=1)[0]
+
+        return LinearMovement(self._drone, direction, duration, altitude=altitude)
 
     def hover_task_decode(self, msg):
         """Decodes data into a Hover task.
@@ -282,8 +290,12 @@ class TaskFactory(object):
         msg : str
             The msg to be translated into a task.
         """
-        duration = int(msg[FIELD_3:FIELD_3 + FIELD_WIDTH], 16)
-        altitude = int(msg[FIELD_4:FIELD_4 + FIELD_WIDTH], 16)
+        altitude_bytes = get_field(msg, FIELD_3)
+        altitude = np.frombuffer(altitude_bytes, dtype=np.half, count=1)[0]
+
+        duration_bytes = get_field(msg, FIELD_2)
+        duration = np.frombuffer(duration_bytes, dtype=np.half, count=1)[0]
+
         return Hover(self._drone, altitude, duration)
 
 # Maps task ID to a function that decodes a binary message for that task

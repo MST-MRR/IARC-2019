@@ -46,7 +46,7 @@ def create_program_input_parser():
 
     parser.add_argument('--sim',
         dest='sim',
-        action='store_false',
+        action='store_true',
         default=False,
         help='whether or not the drone is simulated')
 
