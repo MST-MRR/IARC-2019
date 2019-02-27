@@ -3,7 +3,7 @@ from task_base import TaskBase
 
 DEGREE_BUFFER = .5 #acceptable error of angle in degrees
 
-class YawTask(TaskBase):
+class Yaw(TaskBase):
     """
     A task to make the drone yaw to a given heading either relative or absolute.
 
@@ -37,7 +37,7 @@ class YawTask(TaskBase):
         relative : bool
             The status whether the passed heading is relative or absolute, same as _relative: defaults to True.
         """
-        super(YawTask, self).__init__(drone)
+        super(Yaw, self).__init__(drone)
         self._has_started = False
         self._new_heading = heading%360
         self._yaw_speed = yaw_speed

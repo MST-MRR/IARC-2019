@@ -1,3 +1,9 @@
+"""
+A class for managing the order in which tasks are given to the drone,
+checking for unsafe conditions, and sending data out to be graphed and
+logged.
+"""
+
 import coloredlogs
 from dronekit import connect, VehicleMode
 import logging
@@ -6,22 +12,19 @@ from threading import Event
 from time import sleep
 import traceback
 
+import config
+from flight import constants as c
 from drone import Drone
 import exceptions
-from .. import constants as c
-from ..tasks.exit_task import ExitTask
-from ..tasks.hover_task import HoverTask
-from ..tasks.land_task import LandTask
-from ..tasks.linear_movement_task import LinearMovementTask
-from ..tasks.takeoff_task import TakeoffTask
-from ..tasks.yaw_task import YawTask
-from ...tools.data_distributor.data_splitter import DataSplitter
-from ..utils.priority_queue import PriorityQueue
-from ..utils.timer import Timer
-from ... import flightconfig as f
+from flight.tasks import Hover, Takeoff, LinearMovement, Land, Exit, TakeoffSim, Yaw
+from flight.utils.priority_queue import PriorityQueue
+from flight.utils.timer import Timer
+from tools.data_distributor.data_splitter import DataSplitter
 
 SAFETY_CHECKS_TAG = "Safety Checks"
 LOGGING_AND_RTG_TAG = "Logging and RTG"
+
+LOG_LEVEL = logging.INFO
 
 class DroneController(object):
     """Controls the actions of a drone.
@@ -37,34 +40,48 @@ class DroneController(object):
         A PriorityQueue holding tasks to be performed.
     _safety_event : Event
         Set when an unsafe condition is observed.
+    _is_simulation : bool
+        Set to true when the code is intended for the simulator.
     _splitter : tools.data_distributor.DataSplitter
         Used to send (split) data between the logger and the real-time grapher.
     """
 
-    def __init__(self, drone):
+    def __init__(self, is_simulation=False):
         """Construct a drone controller.
 
         Parameters
         ----------
-        drone : c.Drone.{DRONE_NAME}"""
+        drone : c.Drone.{DRONE_NAME}
+        is_simulation : bool, optional
+            Set to true if being run with the simualator.
+        """
+
+        if is_simulation:
+            drone_version = c.Drones.LEONARDO_SIM
+        else:
+            drone_version = c.Drones.LEONARDO
+
         self._task_queue = PriorityQueue()
         self._current_task = None
         self._safety_event = Event()
 
+        self._is_simulation = is_simulation
+
         # Initialize the logger
         self._logger = logging.getLogger(__name__)
-        coloredlogs.install(level=logging.INFO)
+        coloredlogs.install(LOG_LEVEL)
 
         # Initialize the data splitter
         # NOTE: Real-time graphing not yet tested
         self._splitter = DataSplitter(
-            logger_desired_headers=[header for header in c.ATTRIBUTE_TO_FUNCTION.keys()],
+            logger_desired_headers=[header for header in
+                                    c.ATTRIBUTE_TO_FUNCTION.keys()],
             use_rtg=False
         )
 
         # Connect to the drone
         self._logger.info('Connecting...')
-        connection_string = c.CONNECTION_STR_DICT[drone]
+        connection_string = c.CONNECTION_STR_DICT[drone_version]
         self._drone = connect(
             connection_string, wait_ready=True,
             heartbeat_timeout=c.CONNECT_TIMEOUT, status_printer=None,
@@ -83,14 +100,16 @@ class DroneController(object):
             timer = Timer()
             # Start up safety checking
             timer.add_callback(
-                SAFETY_CHECKS_TAG, c.SAFETY_CHECKS_DELAY, self._do_safety_checks,
+                SAFETY_CHECKS_TAG, c.SAFETY_CHECKS_DELAY,
+                self._do_safety_checks,
                 recurring=True)
 
             # Start up logging/real-time-graphing (if active)
             if self._splitter.active_tools:
                 timer.add_callback(LOGGING_AND_RTG_TAG, c.LOGGING_DELAY,
-                    lambda: self._splitter.send(self._gather_data()),
-                    recurring=True)
+                                   lambda: self._splitter.send(
+                                       self._gather_data()),
+                                   recurring=True)
 
             # NOTE: the only way to stop the loop is to raise an exception,
             # such as with a keyboard interrupt
@@ -98,7 +117,7 @@ class DroneController(object):
                 # Check that safe conditions have not been violated
                 if self._safety_event.is_set():
                     timer.stop_callback(SAFETY_CHECKS_TAG)
-                    raise self._exception # Only set when exception is found
+                    raise self._exception  # Only set when exception is found
                 # Let the program breath
                 sleep(c.DELAY_INTERVAL)
 
@@ -107,10 +126,10 @@ class DroneController(object):
 
             # Only print stack trace for completely unexpected things
             self._logger.critical(type(e).__name__)
-            if f.DEBUG is True:
+            if config.DEBUG is True:
                 exc_type, exc_value, exc_traceback = sys.exc_info()
                 traceback.print_exception(exc_type, exc_value, exc_traceback,
-                              limit=2, file=sys.stdout)
+                                          limit=2, file=sys.stdout)
 
             # Land the drone
             self._land()
@@ -118,7 +137,7 @@ class DroneController(object):
 
             # Stop logging/graphing
             timer.stop_callback(LOGGING_AND_RTG_TAG)
-            sleep(c.DELAY_INTERVAL) # Sleep in case was doing write operation
+            sleep(c.DELAY_INTERVAL)  # Sleep in case was doing write operation
             self._splitter.exit()
 
     def add_hover_task(self, altitude, duration, priority=c.Priorities.LOW):
@@ -133,7 +152,7 @@ class DroneController(object):
         priority : Priorities.{LOW, MEDIUM, HIGH}, optional
             The importance of this task.
         """
-        new_task = HoverTask(self._drone, altitude, duration)
+        new_task = Hover(self._drone, altitude, duration)
         self._task_queue.push(priority, new_task)
 
     def add_takeoff_task(self, altitude, priority=c.Priorities.HIGH):
@@ -150,7 +169,11 @@ class DroneController(object):
         -----
         Internally, the priority of this task is always set to HIGH.
         """
-        new_task = TakeoffTask(self._drone, altitude)
+        if self._is_simulation:
+            new_task = TakeoffSim(self._drone, altitude)
+        else:
+            new_task = Takeoff(self._drone, altitude)
+
         self._task_queue.push(priority, new_task)
 
     def add_linear_movement_task(
@@ -166,9 +189,8 @@ class DroneController(object):
         priority : Priorities.{LOW, MEDIUM, HIGH}, optional
             The importance of this task.
         """
-        new_task = LinearMovementTask(self._drone, direction, duration)
+        new_task = LinearMovement(self._drone, direction, duration)
         self._task_queue.push(priority, new_task)
-
 
     def add_land_task(self, priority=c.Priorities.MEDIUM):
         """Instruct the drone to land.
@@ -178,7 +200,7 @@ class DroneController(object):
         priority : Priorities.{LOW, MEDIUM, HIGH}, optional
             The importance of this task.
         """
-        new_task = LandTask(self._drone)
+        new_task = Land(self._drone)
         self._task_queue.push(priority, new_task)
 
     def add_exit_task(self, priority=c.Priorities.HIGH):
@@ -188,7 +210,7 @@ class DroneController(object):
         -----
         Always has high priority
         """
-        new_task = ExitTask(self._drone)
+        new_task = Exit(self._drone)
         self._task_queue.push(priority, new_task)
     
     def add_yaw_task(self, heading, priority, yaw_speed=0, yaw_direction=1, relative=True):
@@ -206,7 +228,7 @@ class DroneController(object):
         relative : bool
             The status whether the passed heading is relative or absolute, same as _relative: defaults to True.
         """
-        new_task = YawTask(self._drone, heading, yaw_speed, yaw_direction, relative)
+        new_task = Yaw(self._drone, heading, yaw_speed, yaw_direction, relative)
         self._task_queue.push(priority, new_task)
 
     def _update(self):
@@ -226,7 +248,7 @@ class DroneController(object):
                 # We are done with the task
                 self._logger.info('Finished {}...'.format(
                     type(self._current_task).__name__))
-                if isinstance(self._current_task, ExitTask):
+                if isinstance(self._current_task, Exit):
                     return False
                 self._task_queue.pop()
 
@@ -245,21 +267,23 @@ class DroneController(object):
         # If there are no more tasks, begin to hover.
         if self._drone.armed and self._current_task is None:
             self._logger.info('No more tasks - beginning long hover')
-            self.add_hover_task(f.DEFAULT_ALTITUDE, c.DEFAULT_HOVER_DURATION)
+            self.add_hover_task(config.DEFAULT_ALTITUDE,
+                                c.DEFAULT_HOVER_DURATION)
 
         return True
 
     def _do_safety_checks(self):
         """Check for exceptional conditions."""
         try:
-            if self._drone.airspeed > f.SPEED_THRESHOLD:
+            if self._drone.airspeed > config.SPEED_THRESHOLD:
                 raise exceptions.VelocityExceededThreshold()
 
-            if (self._drone.rangefinder.distance > f.MAXIMUM_ALLOWED_ALTITUDE):
+            if (
+                    self._drone.rangefinder.distance > config.MAXIMUM_ALLOWED_ALTITUDE):
                 raise exceptions.AltitudeExceededThreshold()
 
         except Exception as e:
-            self._exception = e # This variable only set when exception found
+            self._exception = e  # This variable only set when exception found
             self._safety_event.set()
 
         # TODO: Add more safety checks here
@@ -321,4 +345,3 @@ class DroneController(object):
                     attr[c.ATTR_DETAIL])
 
         return data
-
