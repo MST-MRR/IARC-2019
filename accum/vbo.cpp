@@ -8,51 +8,15 @@
 using namespace glm;
 
 #include "opennn.h"
+#include <stdexcept>
 
 
-int main(){
-	// Init GLFW
-	glewExperimental = true; // Needed for core profile
-	if( !glfwInit() )
-	{
-		fprintf( stderr, "Failed to initialize GLFW\n" );
-		return -1;
-	}
 
-	glfwWindowHint(GLFW_SAMPLES, 4); // 4x antialiasing
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3); // We want OpenGL 3.3
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
-	glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE); // To make MacOS happy
-	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE); // We don't want the old OpenGL 
-
-	// Open window & add OpenGL context
-	GLFWwindow* window;
-	window = glfwCreateWindow( 1024, 768, "Accumulator", NULL, NULL);
-	if( window == NULL ){
-		fprintf( stderr, "Failed to open GLFW window. If you have an Intel GPU, they are not 3.3 compatible.\n" );
-		glfwTerminate();
-		return -1;
-	}
-	glfwMakeContextCurrent(window); // Initialize GLEW
-	
-	glewExperimental=true; // Needed in core profile
-	if (glewInit() != GLEW_OK) {
-		fprintf(stderr, "Failed to initialize GLEW\n");
-		return -1;
-	}
-
-	// Ensure can capture escape key press
-	glfwSetInputMode(window, GLFW_STICKY_KEYS, GL_TRUE);
-
-	// Create and compile our GLSL program from the shaders
-	GLuint programID = LoadShaders("SimpleVertexShader.vertexshader", "SimpleFragmentShader.fragmentshader" );
-
-	GLuint VertexArrayID;
-	glGenVertexArrays(1, &VertexArrayID);
-	glBindVertexArray(VertexArrayID);
-
-	// 3f/vertex
-	static const GLfloat g_vertex_buffer_data[] = {
+class SickOpenGL{
+// make into a class and make sure state set before tryna do stuff
+  public:
+ 	GLFWwindow* window;
+  	const GLfloat g_vertex_buffer_data[18] = {
 		-1.0f, -1.0f, 0.0f,
 		1.0f, 1.0f, 0.0f,
 		-1.0f,  1.0f, 0.0f,
@@ -62,6 +26,52 @@ int main(){
 	};
 	GLuint v_count = 6;
 
+
+  SickOpenGL(){
+	// Init GLFW
+	glewExperimental = true; // Needed for core profile
+	if( !glfwInit() )
+	{
+		fprintf( stderr, "Failed to initialize GLFW\n" );
+		throw std::runtime_error("Failed to initialize GLFW.");
+	}
+
+	glfwWindowHint(GLFW_SAMPLES, 4); // 4x antialiasing
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3); // We want OpenGL 3.3
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+	glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE); // To make MacOS happy
+	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE); // We don't want the old OpenGL 
+
+	// Open window & add OpenGL context
+	
+	window = glfwCreateWindow( 1024, 768, "Accumulator", NULL, NULL);
+	if( window == NULL ){
+		fprintf( stderr, "Failed to open GLFW window. If you have an Intel GPU, they are not 3.3 compatible.\n" );
+		glfwTerminate();
+		throw std::runtime_error("Failed to open GLFW window. If you have an Intel GPU, they are not 3.3 compatible.");
+	}
+	glfwMakeContextCurrent(window); // Initialize GLEW
+	
+	glewExperimental=true; // Needed in core profile
+	if (glewInit() != GLEW_OK) {
+		fprintf(stderr, "Failed to initialize GLEW\n");
+		throw std::runtime_error("Failed to initialize GLEW");
+	}
+
+	// Ensure can capture escape key press
+	glfwSetInputMode(window, GLFW_STICKY_KEYS, GL_TRUE);
+  }
+  ~SickOpenGL(){
+
+  }
+  void run(){
+	// Create and compile our GLSL program from the shaders
+	GLuint programID = LoadShaders("SimpleVertexShader.vertexshader", "SimpleFragmentShader.fragmentshader" );
+
+	GLuint VertexArrayID;
+	glGenVertexArrays(1, &VertexArrayID);
+	glBindVertexArray(VertexArrayID);
+	
 	// This will identify our vertex buffer
 	GLuint vertexbuffer;
 	// Generate 1 buffer, put the resulting identifier in vertexbuffer
@@ -106,5 +116,13 @@ int main(){
 	while( glfwGetKey(window, GLFW_KEY_ESCAPE ) != GLFW_PRESS &&
 		   glfwWindowShouldClose(window) == 0 );
 
-	return 0;
+	//return 0;
+  }
+};
+
+
+int main(){
+  SickOpenGL x;
+  x.run(); 
+  return 0;
 }
