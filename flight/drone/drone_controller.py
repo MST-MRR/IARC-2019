@@ -213,7 +213,7 @@ class DroneController(object):
         new_task = Exit(self._drone)
         self._task_queue.push(priority, new_task)
     
-    def add_yaw_task(self, heading, priority, yaw_speed=0, yaw_direction=1, relative=True):
+    def add_yaw_task(self, heading, priority=c.Priorities.MEDIUM, yaw_speed=0, yaw_direction=1, relative=True):
         """Instructs the drone to yaw.
         Parameters
         ----------
