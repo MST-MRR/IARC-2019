@@ -1,4 +1,5 @@
-"""Constructs and destructs tasks that the drone controller can perform."""
+"""Constructs and destructs tasks that the drone controller can perform. The
+encoding have been defined in command_encodings.ods (see team drive)."""
 
 import numpy as np
 
@@ -7,6 +8,7 @@ import flight.constants as constants
 import config
 
 class BadParams(Exception):
+    """Thrown when a faulty encoding is encountered."""
     pass
 
 # Tasks to ID
@@ -20,9 +22,9 @@ TASK_LINEAR_MOVEMENT = 3
 
 TASK_HOVER = 4
 
-YAW = 5
+YAW = 5 # Not yet implemented
 
-CIRCLE = 6
+CIRCLE = 6 # Not yet implemented
 
 MOVEMENT = 7 # Not yet implemented
 
@@ -46,7 +48,7 @@ FIELD_6 = FIELD_WIDTH * 6
 
 FIELD_7 = FIELD_WIDTH * 7
 
-EMPTY_FIELD = np.int16(0).tobytes() # 16 bits
+EMPTY_FIELD = np.int16(0).tobytes() # 16 bits, all zero
 
 # Map direction encoding to Direction enum
 ENCODING_TO_DIRECTION = {
@@ -86,12 +88,12 @@ def get_field(msg, field):
     return msg[field:field + FIELD_WIDTH]
 
 class TaskFactory(object):
-    """Creates Task objects from binary input.
+    """Encodes and decodes tasks.
 
     Attributes
     ----------
     _drone : flight.drone.Drone
-        The drone that tasks are being created for.
+        The drone that tasks are being created for. Only needed if decoding.
     """
 
     def __init__(self, drone=None):
@@ -207,6 +209,11 @@ class TaskFactory(object):
         ----------
         msg : bytearray
             The encoded task (16 bytes long).
+
+        Notes
+        -----
+        This function looks at the first field to determine task type, and then
+        calls the appropriate specific decoding function.
         """
         try:
             task_id_bytes = get_field(msg, FIELD_0)
@@ -245,6 +252,7 @@ class TaskFactory(object):
         """
         return Land(self._drone)
 
+
     def takeoff_task_decode(self, msg):
         """Decodes data into a Takeoff task.
 
@@ -261,6 +269,7 @@ class TaskFactory(object):
         else:
             task = Takeoff(self._drone, altitude)
         return task
+
 
     def linear_movement_task_decode(self, msg):
         """Decodes data into a LinearMovement task.
@@ -282,6 +291,7 @@ class TaskFactory(object):
 
         return LinearMovement(self._drone, direction, duration, altitude=altitude)
 
+
     def hover_task_decode(self, msg):
         """Decodes data into a Hover task.
 
@@ -298,6 +308,9 @@ class TaskFactory(object):
 
         return Hover(self._drone, altitude, duration)
 
+
+# NOTE: this has to be at bottom or else python doesn't know about the TaskFactory
+# methods, and so raises an error. Is there a way around this?
 # Maps task ID to a function that decodes a binary message for that task
 TASK_TO_DECODER = {
     TASK_EXIT:    TaskFactory.exit_task_decode,

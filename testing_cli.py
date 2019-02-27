@@ -7,12 +7,9 @@ import traceback
 from flight.drone.drone_controller import DroneController
 from flight import constants
 import flightconfig as config
+import flight.tasks
 
 PROMPT_FOR_COMMAND = '> '
-
-# These values subject to change if encoding changes
-INT_MAX = 255   # Maximum encodable int value ("FF")
-INT_MIN = 0     # Minimum encodable int value ("00")
 
 def main():
     parser = create_program_input_parser()
@@ -22,7 +19,6 @@ def main():
     # Make the controller object
     controller = DroneController(is_simulation=args.sim)
 
-    # Make a thread whose target is a command line interface
     input_thread = threading.Thread(
         target=input_loop, args=(controller,))
 
@@ -84,7 +80,7 @@ def create_command_parser():
 
     # Linear movement sub-parser
     parser_linear_move = subparsers.add_parser('move', help='move help')
-    parser_linear_move.add_argument('-d', '--duration',
+    parser_linear_move.add_argument('--duration',
         dest='duration',
         action=store_float(),
         required=True,
@@ -144,29 +140,8 @@ def store_priority():
     return customAction
 
 
-def store_int():
-    """Converts english integer to an int object."""
-    class customAction(argparse.Action):
-        def __call__(self, parser, args, values, option_string=None):
-            try:
-                converted_int = int(values)
-                # Check that int is within acceptable range
-                if converted_int < INT_MIN or converted_int > INT_MAX:
-                    raise Exception
-            except:
-                msg = 'Value must be an integer between 0 and 255'
-                raise argparse.ArgumentTypeError(msg)
-            setattr(args, self.dest, converted_int)
-    return customAction
-
-
 def store_float():
-    """Converts english floating point number to an float object.
-
-    Notes
-    -----
-    Currently unused because encoding space too small
-    """
+    """Converts english floating point number to an float object."""
     class customAction(argparse.Action):
         def __call__(self, parser, args, values, option_string=None):
             try:
@@ -181,6 +156,10 @@ def store_float():
 def input_loop(controller):
     """Simple command line interface to drone controller.
 
+    Parameters
+    ----------
+    Controller : flight.drone.DroneController
+        The drone controller that tasks should be given to.
     """
     parser = create_command_parser()
     while True:
@@ -189,8 +168,7 @@ def input_loop(controller):
             parsed_args = parser.parse_args(args=raw_args)
             function = COMMAND_TO_FUNCTION[parsed_args.command]
             function(controller, parsed_args)
-        except SystemExit:
-            # Incorrect arguments - help displayed
+        except SystemExit: # argparse throws this when given invalid input
             continue
         except argparse.ArgumentTypeError as e:
             print e
@@ -201,7 +179,6 @@ def input_loop(controller):
             exc_type, exc_value, exc_traceback = sys.exc_info()
             traceback.print_exception(exc_type, exc_value, exc_traceback,
                                         limit=2, file=sys.stdout)
-            continue
 
 
 def get_priority(priority):
@@ -242,11 +219,6 @@ def get_direction(direction):
     return converted_form
 
 
-# NOTE: the following add_xyz functions encode and decode the message since
-# this implementation is not using networked flight. This CLI is meant to be
-# migrated to the server code, where each command will be encoded, sent to a
-# drone, and then decoded on the drone.
-
 def add_exit_task(controller, namespace):
     """Adds an exit task to the drone controller.
 
@@ -257,10 +229,10 @@ def add_exit_task(controller, namespace):
     namespace : argparse.Namespace
         Contains parameter names mapped to values.
     """
-    msg_enc = controller.task_factory.exit_task_encode(priority=namespace.priority)
-    msg_dec = controller.task_factory.decode(msg_enc)
-    controller.add_task(msg_dec)
+    task = (namespace.priority, flight.tasks.Exit(controller._drone))
+    controller.add_task(task)
     raise ExitRequested # Tell input loop to stop
+
 
 def add_land_task(controller, namespace):
     """Adds a land task to the drone controller.
@@ -272,10 +244,8 @@ def add_land_task(controller, namespace):
     namespace : argparse.Namespace
         Contains parameter names mapped to values.
     """
-    msg_enc = controller.task_factory.land_task_encode(priority=namespace.priority)
-    msg_dec = controller.task_factory.decode(msg_enc)
-
-    controller.add_task(msg_dec)
+    task = (namespace.priority, flight.tasks.Land(controller._drone))
+    controller.add_task(task)
 
 
 def add_takeoff_task(controller, namespace):
@@ -288,10 +258,11 @@ def add_takeoff_task(controller, namespace):
     namespace : argparse.Namespace
         Contains parameter names mapped to values.
     """
-    msg_enc = controller.task_factory.takeoff_task_encode(priority=namespace.priority,
-            altitude=namespace.altitude)
-    msg_dec = controller.task_factory.decode(msg_enc)
-    controller.add_task(msg_dec)
+    if controller._is_simulation:
+        task = (namespace.priority, flight.tasks.TakeoffSim(controller._drone, altitude=namespace.altitude))
+    else:
+        task = (namespace.priority, flight.tasks.Takeoff(controller._drone, altitude=namespace.altitude))
+    controller.add_task(task)
 
 
 def add_linear_move_task(controller, namespace):
@@ -304,12 +275,12 @@ def add_linear_move_task(controller, namespace):
     namespace : argparse.Namespace
         Contains parameter names mapped to values.
     """
-    msg_enc = controller.task_factory.linear_movement_task_encode(priority=namespace.priority,
+    task = (namespace.priority, flight.tasks.LinearMovement(controller._drone,
             duration=namespace.duration,
             direction=namespace.direction,
-            altitude=namespace.altitude)
-    msg_dec = controller.task_factory.decode(msg_enc)
-    controller.add_task(msg_dec)
+            altitude=namespace.altitude
+            ))
+    controller.add_task(task)
 
 
 def add_hover_task(controller, namespace):
@@ -322,11 +293,12 @@ def add_hover_task(controller, namespace):
     namespace : argparse.Namespace
         Contains parameter names mapped to values.
     """
-    msg_enc = controller.task_factory.hover_task_encode(priority=namespace.priority,
+    task = (namespace.priority, flight.tasks.Hover(controller._drone,
             duration=namespace.duration,
-            altitude=namespace.altitude)
-    msg_dec = controller.task_factory.decode(msg_enc)
-    controller.add_task(msg_dec)
+            altitude=namespace.altitude
+            ))
+    controller.add_task(task)
+
 
 # Maps command name (set in argparser) to function for adding task
 COMMAND_TO_FUNCTION = {
@@ -336,6 +308,7 @@ COMMAND_TO_FUNCTION = {
     'move': add_linear_move_task,
     'hover': add_hover_task
 }
+
 
 if __name__ == '__main__':
     main()

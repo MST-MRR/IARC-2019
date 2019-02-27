@@ -60,7 +60,6 @@ class DroneController(object):
         is_simulation : bool, optional
             Set to true if being run with the simualator.
         """
-        print is_simulation
         if is_simulation:
             drone_version = c.Drones.LEONARDO_SIM
         else:
