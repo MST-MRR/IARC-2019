@@ -191,11 +191,22 @@ class DroneController(object):
         new_task = ExitTask(self._drone)
         self._task_queue.push(priority, new_task)
     
-    def add_yaw_task(self, heading, priority):
-        """Causes the controller to shut itself down.
-        DOCSTRING
+    def add_yaw_task(self, heading, priority, yaw_speed=0, yaw_direction=1, relative=True):
+        """Instructs the drone to yaw.
+        Parameters
+        ----------
+        heading : int
+            The heading for the drone to go to.
+        priority : constants.Priorities
+            The priority of the yaw task
+        yaw_speed : int
+            The degrees/sec that the drone performs the yaw: defaults to 0.
+        yaw_direction : int
+            The direction which the drone should yaw, same as _yaw_direction: defaults to 1.
+        relative : bool
+            The status whether the passed heading is relative or absolute, same as _relative: defaults to True.
         """
-        new_task = YawTask(self._drone, heading, relative=True)
+        new_task = YawTask(self._drone, heading, yaw_speed, yaw_direction, relative)
         self._task_queue.push(priority, new_task)
 
     def _update(self):
