@@ -19,7 +19,7 @@ import exceptions
 
 import config
 from flight import constants as c
-from flight.tasks import Hover, Takeoff, LinearMovement, Land, Exit, TakeoffSim, TaskFactory
+from flight.tasks import Hover, Exit, TaskFactory
 from flight.utils.priority_queue import PriorityQueue
 from flight.utils.timer import Timer
 from tools.data_distributor.data_splitter import DataSplitter
