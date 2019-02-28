@@ -3,14 +3,15 @@ A class that acts as an interface to the physical drone, allowing for the
 reading of sensor data and control of movement.
 """
 
-from dronekit import Vehicle, VehicleMode
+import config
+from dronekit import connect, Vehicle, VehicleMode
 import logging
 from math import radians
 from pymavlink import mavutil
 import time
 
 from optical_flow_attribute import OpticalFlow
-from flight import constants as c
+from flight import constants as constants
 from flight.utils.helpers import to_quaternion
 
 class Drone(Vehicle):
@@ -18,7 +19,9 @@ class Drone(Vehicle):
 
     Attributes
     ----------
-    is_simulation : bool
+    drone : flight.drone.Drone
+        Static reference to the drone. Only one instance of the drone will ever
+        exist at once.
         True if the drone is simulator, and false otherwise
     _id : int
         A unique identifier for this drone.
@@ -29,10 +32,9 @@ class Drone(Vehicle):
     -----
     See http://python.dronekit.io/guide/vehicle_state_and_parameters.html for
     all of the attributes we get by subclassing dronekit.Vehicle.
-
-    is_simulation must be set after instantiation, since dronekit.connect
-    is what calls the constructor.
     """
+
+    drone = None
 
     def __init__(self, *args):
         super(Drone, self).__init__(*args)
@@ -43,7 +45,7 @@ class Drone(Vehicle):
         self._optical_flow = OpticalFlow()
 
         # Allow us to listen for optical flow dat
-        @self.on_message(c.OPTICAL_FLOW_MESSAGE)
+        @self.on_message(constants.OPTICAL_FLOW_MESSAGE)
         def listener(self, name, message):
             """
             The listener is called for messages that contain the string specified
@@ -62,7 +64,21 @@ class Drone(Vehicle):
             #   Note that argument `cache=False` by default so listeners
             #   are updaed with every new message
             self.notify_attribute_listeners(
-                c.OPTICAL_FLOW_MESSAGE.lower(), self._optical_flow)
+                constants.OPTICAL_FLOW_MESSAGE.lower(), self._optical_flow)
+
+    @staticmethod
+    def get_drone():
+        """Static method which returns the instance of the drone. If an instance
+        does not currently exist, one is made."""
+        if Drone.drone is None:
+            Drone.drone = connect(
+                ip=config.CONNECTION_STRING, # target address
+                wait_ready=True, # wait until attributes have downloaded
+                heartbeat_timeout=constants.CONNECT_TIMEOUT, # raise exception if no heartbeat
+                status_printer=None, # where to print status text
+                vehicle_class=Drone) # sub-class of dronekit.Vehicle
+
+        return Drone.drone
 
     @property
     def optical_flow(self):
@@ -125,7 +141,7 @@ class Drone(Vehicle):
         msg = self._make_velocity_message(north, east, down)
         self.send_mavlink(msg)
 
-    def arm(self, mode=c.Modes.GUIDED.value):
+    def arm(self, mode=constants.Modes.GUIDED.value):
         """Arm the drone for flight.
 
         Upon successfully arming, the drone is now suitable to take off. The
@@ -145,7 +161,7 @@ class Drone(Vehicle):
         self._logger.info('Arming...')
         while not self.armed:
             self.armed = True
-            time.sleep(c.ARM_RETRY_DELAY)
+            time.sleep(constants.ARM_RETRY_DELAY)
 
         if self.armed:
             self._logger.info('Armed')
@@ -172,7 +188,7 @@ class Drone(Vehicle):
             0,       # time_boot_ms (not used)
             0, 0,    # target system, target component
             mavutil.mavlink.MAV_FRAME_GLOBAL_RELATIVE_ALT_INT, # frame
-            c.MavBitmasks.SET_POSITION_TARGET.value, # type_mask (only speeds enabled)
+            constants.MavBitmasks.SET_POSITION_TARGET.value, # type_mask (only speeds enabled)
             0, # lat_int - X Position in WGS84 frame in 1e7 * meters
             0, # lon_int - Y Position in WGS84 frame in 1e7 * meters
             0, # alt - Altitude in meters in AMSL altitude(not WGS84 if absolute or relative)
@@ -204,7 +220,7 @@ class Drone(Vehicle):
             0, # time_boot_ms
             1, # Target system
             1, # Target component
-            c.MavBitmasks.SET_ATTITUDE_TARGET.value, # Type mask: bit 1 is LSB
+            constants.MavBitmasks.SET_ATTITUDE_TARGET.value, # Type mask: bit 1 is LSB
             to_quaternion(roll, pitch), # Quaternion
             0, # Body roll rate in radians
             0, # Body pitch rate in radians

@@ -13,7 +13,7 @@ from time import sleep
 import traceback
 
 import config
-from flight import constants as c
+from flight import constants as constants
 from drone import Drone
 import exceptions
 
@@ -45,31 +45,20 @@ class DroneController(object):
         A PriorityQueue holding tasks to be performed.
     _safety_event : Event
         Set when an unsafe condition is observed.
-    _is_simulation : bool
-        Set to true when the code is intended for the simulator.
     _splitter : tools.data_distributor.DataSplitter
         Used to send (split) data between the logger and the real-time grapher.
     """
 
-    def __init__(self, is_simulation=False):
+    def __init__(self):
         """Construct a drone controller.
 
         Parameters
         ----------
-        drone : c.Drone.{DRONE_NAME}
-        is_simulation : bool, optional
-            Set to true if being run with the simualator.
+        drone : constants.Drone.{DRONE_NAME}
         """
-        if is_simulation:
-            drone_version = c.Drones.LEONARDO_SIM
-        else:
-            drone_version = c.Drones.LEONARDO
-
         self._task_queue = PriorityQueue()
         self._current_task = None
         self._safety_event = Event()
-
-        self._is_simulation = is_simulation
 
         # Initialize the logger
         self._logger = logging.getLogger(__name__)
@@ -79,21 +68,16 @@ class DroneController(object):
         # NOTE: Real-time graphing not yet tested
         self._splitter = DataSplitter(
             logger_desired_headers=[header for header in
-                                    c.ATTRIBUTE_TO_FUNCTION.keys()],
+                                    constants.ATTRIBUTE_TO_FUNCTION.keys()],
             use_rtg=False
         )
 
         # Connect to the drone
         self._logger.info('Connecting...')
-        connection_string = c.CONNECTION_STR_DICT[drone_version]
-        self._drone = connect(
-            connection_string, wait_ready=True,
-            heartbeat_timeout=c.CONNECT_TIMEOUT, status_printer=None,
-            vehicle_class=Drone)
-        self._drone.is_simulation = is_simulation
+        self._drone = Drone.get_drone()
         self._logger.info('Connected')
 
-        self.task_factory = TaskFactory(self._drone)
+        self.task_factory = TaskFactory()
 
     def run(self):
         """Start the controller.
@@ -107,13 +91,13 @@ class DroneController(object):
             timer = Timer()
             # Start up safety checking
             timer.add_callback(
-                SAFETY_CHECKS_TAG, c.SAFETY_CHECKS_DELAY,
+                SAFETY_CHECKS_TAG, constants.SAFETY_CHECKS_DELAY,
                 self._do_safety_checks,
                 recurring=True)
 
             # Start up logging/real-time-graphing (if active)
             if self._splitter.active_tools:
-                timer.add_callback(LOGGING_AND_RTG_TAG, c.LOGGING_DELAY,
+                timer.add_callback(LOGGING_AND_RTG_TAG, constants.LOGGING_DELAY,
                                    lambda: self._splitter.send(
                                        self._gather_data()),
                                    recurring=True)
@@ -126,7 +110,7 @@ class DroneController(object):
                     timer.stop_callback(SAFETY_CHECKS_TAG)
                     raise self._exception  # Only set when exception is found
                 # Let the program breath
-                sleep(c.DELAY_INTERVAL)
+                sleep(constants.DELAY_INTERVAL)
 
         except BaseException as e:
             self._logger.warning('Emergency landing initiated!')
@@ -144,7 +128,7 @@ class DroneController(object):
 
             # Stop logging/graphing
             timer.stop_callback(LOGGING_AND_RTG_TAG)
-            sleep(c.DELAY_INTERVAL)  # Sleep in case was doing write operation
+            sleep(constants.DELAY_INTERVAL)  # Sleep in case was doing write operation
             self._splitter.exit()
 
     def add_task(self, msg):
@@ -192,8 +176,8 @@ class DroneController(object):
         # If there are no more tasks, begin to hover.
         if self._drone.armed and self._current_task is None:
             self._logger.info('No more tasks - beginning long hover')
-            new_task = Hover(self._drone, config.DEFAULT_ALTITUDE, c.DEFAULT_HOVER_DURATION)
-            self._task_queue.push((c.Priorities.LOW, new_task))
+            new_task = Hover(config.DEFAULT_ALTITUDE, constants.DEFAULT_HOVER_DURATION)
+            self._task_queue.push((constants.Priorities.LOW, new_task))
 
         return True
 
@@ -224,7 +208,7 @@ class DroneController(object):
             The finished event is set upon successful landing
         """
 
-        land_mode = VehicleMode(c.Modes.LAND.value)
+        land_mode = VehicleMode(constants.Modes.LAND.value)
 
         self._logger.info('Starting land...')
         while not self._drone.mode == land_mode:
@@ -232,7 +216,7 @@ class DroneController(object):
 
         self._logger.info('Waiting for disarm...')
         while self._drone.armed:
-            sleep(c.DELAY_INTERVAL)
+            sleep(constants.DELAY_INTERVAL)
         self._logger.info('Disarm complete')
         self._logger.info('Finished land')
 
@@ -258,15 +242,15 @@ class DroneController(object):
         dict
         """
         data = {}
-        for attr_name, attr in c.ATTRIBUTE_TO_FUNCTION.iteritems():
+        for attr_name, attr in constants.ATTRIBUTE_TO_FUNCTION.iteritems():
             if len(attr) == 1:
-                data[attr_name] = getattr(self._drone, attr[c.ATTR_NAME])
-            elif len(attr) == 2 and isinstance(attr[c.ATTR_DETAIL], int):
+                data[attr_name] = getattr(self._drone, attr[constants.ATTR_NAME])
+            elif len(attr) == 2 and isinstance(attr[constants.ATTR_DETAIL], int):
                 data[attr_name] = getattr(
-                    self._drone, attr[c.ATTR_NAME])[attr[c.ATTR_DETAIL]]
-            elif len(attr) == 2 and isinstance(attr[c.ATTR_DETAIL], str):
+                    self._drone, attr[constants.ATTR_NAME])[attr[constants.ATTR_DETAIL]]
+            elif len(attr) == 2 and isinstance(attr[constants.ATTR_DETAIL], str):
                 data[attr_name] = getattr(
-                    getattr(self._drone, attr[c.ATTR_NAME]),
-                    attr[c.ATTR_DETAIL])
+                    getattr(self._drone, attr[constants.ATTR_NAME]),
+                    attr[constants.ATTR_DETAIL])
 
         return data

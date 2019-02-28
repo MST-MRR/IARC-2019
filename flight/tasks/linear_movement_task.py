@@ -36,7 +36,7 @@ class LinearMovement(TaskBase):
         movement.
     """
 
-    def __init__(self, drone, direction, duration, altitude=config.DEFAULT_ALTITUDE):
+    def __init__(self, direction, duration, altitude=config.DEFAULT_ALTITUDE):
         """Initialize a task for moving along an axis.
 
         Parameters
@@ -48,7 +48,7 @@ class LinearMovement(TaskBase):
         duration : float
             How many seconds to travel for.
         """
-        super(LinearMovement, self).__init__(drone)
+        super(LinearMovement, self).__init__()
         self._pid_alt = PID(KP, KI, KP, setpoint=config.DEFAULT_ALTITUDE)
         self._count = duration * (1.0/c.DELAY_INTERVAL)
         velocities = []

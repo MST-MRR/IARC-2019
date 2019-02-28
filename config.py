@@ -1,3 +1,13 @@
+"""Values which may be configured frequently."""
+
+import flight.constants as constants
+
+# The connection address to the drone
+CONNECTION_STRING = constants.CONNECTION_STR_DICT[constants.Drones.LEONARDO]
+
+# True if running in the simulator, and false otherwise
+IS_SIMULATION = False
+
 # Set to true for more detailed error messages and backtraces
 DEBUG = True
 

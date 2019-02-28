@@ -9,7 +9,7 @@ from flight.drone.exceptions import EmergencyLandException
 class Exit(TaskBase):
     """A task that terminates control of the drone."""
 
-    def __init__(self, drone):
+    def __init__(self):
         """Initialize a task for terminating control.
 
         Parameters
@@ -17,7 +17,7 @@ class Exit(TaskBase):
         drone : dronekit.Vehicle
             The drone being controlled.
         """
-        super(Exit, self).__init__(drone)
+        super(Exit, self).__init__()
 
     def perform(self):
         """Exit the controller.

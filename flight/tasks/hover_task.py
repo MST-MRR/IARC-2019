@@ -23,7 +23,7 @@ class Hover(TaskBase):
         An internval variable for keeping track of state.
     """
 
-    def __init__(self, drone, altitude, duration):
+    def __init__(self, altitude, duration):
         """Initialize a task for hovering.
 
         Parameters
@@ -35,7 +35,7 @@ class Hover(TaskBase):
         duration : float
             How many seconds to hover for.
         """
-        super(Hover, self).__init__(drone)
+        super(Hover, self).__init__()
         self._duration = duration
         self._target_altitude = altitude
         self._pid_alt = PID(KP, KI, KP, setpoint=altitude)

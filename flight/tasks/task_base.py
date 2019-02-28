@@ -3,6 +3,8 @@
 # Standard Library
 import abc
 
+from flight.drone import Drone
+
 class TaskBase():
     """A task the the drone can perform.
 
@@ -19,8 +21,8 @@ class TaskBase():
     """
     __metaclass__ = abc.ABCMeta
 
-    def __init__(self, drone):
-        self._drone = drone
+    def __init__(self):
+        self._drone = Drone.get_drone()
         self._done = False
 
     @abc.abstractmethod

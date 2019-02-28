@@ -3,9 +3,9 @@ encoding have been defined in command_encodings.ods (see team drive)."""
 
 import numpy as np
 
+import config
 from flight.tasks import Exit, Land, Takeoff, TakeoffSim, Hover, LinearMovement
 import flight.constants as constants
-import config
 
 class BadParams(Exception):
     """Thrown when a faulty encoding is encountered."""
@@ -95,17 +95,6 @@ class TaskFactory(object):
     _drone : flight.drone.Drone
         The drone that tasks are being created for. Only needed if decoding.
     """
-
-    def __init__(self, drone=None):
-        """Initialize a task factory.
-
-        Parameters
-        ----------
-        drone : flight.drone.Drone, optional
-            The drone that tasks are being created for. If a drone object is
-            not supplied, the decode function will not be usable.
-        """
-        self._drone = drone
 
     def exit_task_encode(self, priority=constants.Priorities.HIGH):
         """Translates parameters into an encoded exit task.
@@ -239,7 +228,7 @@ class TaskFactory(object):
         msg : str
             The msg to be translated into a task.
         """
-        return Exit(self._drone)
+        return Exit()
 
 
     def land_task_decode(self, msg):
@@ -250,7 +239,7 @@ class TaskFactory(object):
         msg : str
             The msg to be translated into a task.
         """
-        return Land(self._drone)
+        return Land()
 
 
     def takeoff_task_decode(self, msg):
@@ -264,10 +253,10 @@ class TaskFactory(object):
         altitude_bytes = get_field(msg, FIELD_2)
         altitude = np.frombuffer(altitude_bytes, dtype=np.half, count=1)[0]
 
-        if self._drone.is_simulation:
-            task = TakeoffSim(self._drone, altitude)
+        if config.IS_SIMULATION:
+            task = TakeoffSim(altitude)
         else:
-            task = Takeoff(self._drone, altitude)
+            task = Takeoff(altitude)
         return task
 
 
@@ -289,7 +278,7 @@ class TaskFactory(object):
         altitude_bytes = get_field(msg, FIELD_4)
         altitude = np.frombuffer(altitude_bytes, dtype=np.half, count=1)[0]
 
-        return LinearMovement(self._drone, direction, duration, altitude=altitude)
+        return LinearMovement(direction, duration, altitude=altitude)
 
 
     def hover_task_decode(self, msg):
@@ -306,7 +295,7 @@ class TaskFactory(object):
         duration_bytes = get_field(msg, FIELD_2)
         duration = np.frombuffer(duration_bytes, dtype=np.half, count=1)[0]
 
-        return Hover(self._drone, altitude, duration)
+        return Hover(altitude, duration)
 
 
 # NOTE: this has to be at bottom or else python doesn't know about the TaskFactory

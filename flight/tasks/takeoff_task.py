@@ -28,7 +28,7 @@ class Takeoff(TaskBase):
     This task will not work on the simulated drone.
     """
 
-    def __init__(self, drone, altitude):
+    def __init__(self, altitude):
         """Initialize a task for taking off.
 
         Parameters
@@ -38,7 +38,7 @@ class Takeoff(TaskBase):
         altitude : float
             How many meters off the ground to take off to.
         """
-        super(Takeoff, self).__init__(drone)
+        super(Takeoff, self).__init__()
         self._target_alt = altitude
         self._state_index = 0
         self._agenda = [self._pre_takeoff_procedure,

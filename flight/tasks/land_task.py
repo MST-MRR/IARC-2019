@@ -14,7 +14,7 @@ class Land(TaskBase):
         A reference to dronekit's land mode object
     """
 
-    def __init__(self, drone):
+    def __init__(self):
         """Initialize a task for landing.
 
         Parameters
@@ -22,7 +22,7 @@ class Land(TaskBase):
         drone : dronekit.Vehicle
             The drone being controlled.
         """
-        super(Land, self).__init__(drone)
+        super(Land, self).__init__()
         self._land_mode = VehicleMode(c.Modes.LAND.value)
 
     def perform(self):

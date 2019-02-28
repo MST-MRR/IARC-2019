@@ -4,9 +4,9 @@ import sys
 import threading
 import traceback
 
+import config
 from flight.drone.drone_controller import DroneController
 from flight import constants
-import flightconfig as config
 import flight.tasks
 
 PROMPT_FOR_COMMAND = '> '
@@ -16,8 +16,12 @@ def main():
 
     args = parser.parse_args()
 
+    if args.sim:
+        config.IS_SIMULATION = True
+        config.CONNECTION_STRING = constants.CONNECTION_STR_DICT[constants.Drones.LEONARDO_SIM]
+
     # Make the controller object
-    controller = DroneController(is_simulation=args.sim)
+    controller = DroneController()
 
     input_thread = threading.Thread(
         target=input_loop, args=(controller,))
@@ -229,7 +233,7 @@ def add_exit_task(controller, namespace):
     namespace : argparse.Namespace
         Contains parameter names mapped to values.
     """
-    task = (namespace.priority, flight.tasks.Exit(controller._drone))
+    task = (namespace.priority, flight.tasks.Exit())
     controller.add_task(task)
     raise ExitRequested # Tell input loop to stop
 
@@ -244,7 +248,7 @@ def add_land_task(controller, namespace):
     namespace : argparse.Namespace
         Contains parameter names mapped to values.
     """
-    task = (namespace.priority, flight.tasks.Land(controller._drone))
+    task = (namespace.priority, flight.tasks.Land())
     controller.add_task(task)
 
 
@@ -258,10 +262,10 @@ def add_takeoff_task(controller, namespace):
     namespace : argparse.Namespace
         Contains parameter names mapped to values.
     """
-    if controller._is_simulation:
-        task = (namespace.priority, flight.tasks.TakeoffSim(controller._drone, altitude=namespace.altitude))
+    if config.IS_SIMULATION:
+        task = (namespace.priority, flight.tasks.TakeoffSim(altitude=namespace.altitude))
     else:
-        task = (namespace.priority, flight.tasks.Takeoff(controller._drone, altitude=namespace.altitude))
+        task = (namespace.priority, flight.tasks.Takeoff(altitude=namespace.altitude))
     controller.add_task(task)
 
 
@@ -275,7 +279,7 @@ def add_linear_move_task(controller, namespace):
     namespace : argparse.Namespace
         Contains parameter names mapped to values.
     """
-    task = (namespace.priority, flight.tasks.LinearMovement(controller._drone,
+    task = (namespace.priority, flight.tasks.LinearMovement(
             duration=namespace.duration,
             direction=namespace.direction,
             altitude=namespace.altitude
@@ -293,7 +297,7 @@ def add_hover_task(controller, namespace):
     namespace : argparse.Namespace
         Contains parameter names mapped to values.
     """
-    task = (namespace.priority, flight.tasks.Hover(controller._drone,
+    task = (namespace.priority, flight.tasks.Hover(
             duration=namespace.duration,
             altitude=namespace.altitude
             ))
