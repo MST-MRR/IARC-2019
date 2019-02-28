@@ -1,4 +1,4 @@
-
+from constants import YAW_SPEED
 from task_base import TaskBase
 
 DEGREE_BUFFER = .5 #acceptable error of angle in degrees
@@ -20,7 +20,7 @@ class Yaw(TaskBase):
     __relative : bool
         Stores whether the given heading is relative or absolute: True means relative and False means absolute.
     """
-    def __init__(self, drone, heading, yaw_speed=0, yaw_direction=1, relative=True):
+    def __init__(self, drone, heading):
         """
         Initialize a task for yawing.
 
@@ -30,19 +30,13 @@ class Yaw(TaskBase):
             The drone being controlled.
         heading : int
             The heading for the drone to go to.
-        yaw_speed : int
-            The degrees/sec that the drone performs the yaw: defaults to 0.
-        yaw_direction : int
-            The direction which the drone should yaw, same as _yaw_direction: defaults to 1.
-        relative : bool
-            The status whether the passed heading is relative or absolute, same as _relative: defaults to True.
         """
         super(Yaw, self).__init__(drone)
         self._has_started = False
         self._new_heading = heading%360
-        self._yaw_speed = yaw_speed
-        self._yaw_direction = yaw_direction
-        self._relative = relative
+        self._yaw_speed = YAW_SPEED
+        self._yaw_direction = 1 #defaulted to 1 (clockwise)
+        self._relative = True #defaulted to always be relative
 
     def perform(self):
         """Do one iteration of logic for yawing the drone."""
@@ -50,8 +44,9 @@ class Yaw(TaskBase):
             self.start_heading = self._drone.heading
             self._drone.send_yaw(self._new_heading, self._yaw_speed, self._yaw_direction, self._relative)
             self._has_started = True
-        elif ((not self._relative and abs(self._drone.heading - self._new_heading) > DEGREE_BUFFER) or 
-                (self._relative and abs(self._drone.heading - self.start_heading) < self._new_heading - DEGREE_BUFFER)):
+        self._is_not_finished = (abs(self._drone.heading - self.start_heading) < self._new_heading - DEGREE_BUFFER)
+        #_is_not_finished stores whether the drone has finished the manuever within a certain degree of accuracy
+        elif self._is_not_finished:
             return False
         else:
             return True

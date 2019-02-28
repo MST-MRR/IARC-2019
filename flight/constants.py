@@ -123,3 +123,6 @@ OPTICAL_FLOW_MESSAGE = 'OPTICAL_FLOW'
 # How many meters the drone can be away from target altitude before correcting
 # altitude
 ACCEPTABLE_ALTITUDE_DEVIATION = 0.1
+
+# The speed at which the drone performs a yaw manuever
+YAW_SPEED = 0

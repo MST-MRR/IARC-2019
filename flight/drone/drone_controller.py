@@ -213,7 +213,7 @@ class DroneController(object):
         new_task = Exit(self._drone)
         self._task_queue.push(priority, new_task)
     
-    def add_yaw_task(self, heading, priority=c.Priorities.MEDIUM, yaw_speed=0, yaw_direction=1, relative=True):
+    def add_yaw_task(self, heading, priority=c.Priorities.MEDIUM):
         """Instructs the drone to yaw.
         Parameters
         ----------
@@ -221,14 +221,8 @@ class DroneController(object):
             The heading for the drone to go to.
         priority : constants.Priorities
             The priority of the yaw task
-        yaw_speed : int
-            The degrees/sec that the drone performs the yaw: defaults to 0.
-        yaw_direction : int
-            The direction which the drone should yaw, same as _yaw_direction: defaults to 1.
-        relative : bool
-            The status whether the passed heading is relative or absolute, same as _relative: defaults to True.
         """
-        new_task = Yaw(self._drone, heading, yaw_speed, yaw_direction, relative)
+        new_task = Yaw(self._drone, heading)
         self._task_queue.push(priority, new_task)
 
     def _update(self):
