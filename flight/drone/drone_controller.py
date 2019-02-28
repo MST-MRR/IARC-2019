@@ -249,7 +249,7 @@ class DroneController(object):
         # If there are no more tasks, begin to hover.
         if self._drone.armed and self._current_task is None:
             self._logger.info('No more tasks - beginning long hover')
-            self.add_hover_task(config.DEFAULT_ALTITUDE,
+            self.add_hover_task(self._drone.rangefinder.distance,
                                 c.DEFAULT_HOVER_DURATION)
 
         return True
