@@ -26,8 +26,8 @@ class SickOpenGL{
 		1.0f, 1.0f, 0.0f,
 		-1.0f,  1.0f, 0.0f,
 		1.0f, -1.0f, 0.0f,
-		-1.0f, 0.0f, 0.0f,
-		1.0f,  0.0f, 0.0f,
+		-1.0f, 0.5f, 0.0f,
+		1.0f,  0.5f, 0.0f,
 	};
 	GLuint v_count = 6;
 
@@ -91,6 +91,9 @@ class SickOpenGL{
 			// Clear screen
 			glClear( GL_COLOR_BUFFER_BIT  | GL_DEPTH_BUFFER_BIT);
 			glClearColor(0.0f, 0.0f, 0.4f, 0.0f) ;
+
+			glEnable(GL_BLEND);
+glBlendFunc(GL_ONE_MINUS_DST_COLOR, GL_ZERO);
 			
 			// Set buffer
 			// 1st attribute buffer : vertices
@@ -138,6 +141,6 @@ class SickOpenGL{
 
 int main(){
   SickOpenGL x;
-  x.texture(); 
+  x.run(); 
   return 0;
 }
