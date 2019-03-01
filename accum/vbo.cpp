@@ -11,6 +11,11 @@ using namespace glm;
 #include <stdexcept>
 
 
+// pragma debug thing in shaders for debug mode
+
+// make texture and accumulate with again
+// shared value in texture is shared between program and shader
+
 
 class SickOpenGL{
 // make into a class and make sure state set before tryna do stuff
@@ -118,11 +123,21 @@ class SickOpenGL{
 
 		//return 0;
 	}
+	void texture(){
+
+
+		do{
+			
+
+		} // Check if the ESC key was pressed or the window was closed
+		while( glfwGetKey(window, GLFW_KEY_ESCAPE ) != GLFW_PRESS &&
+			glfwWindowShouldClose(window) == 0 );
+	}
 };
 
 
 int main(){
   SickOpenGL x;
-  x.run(); 
+  x.texture(); 
   return 0;
 }
