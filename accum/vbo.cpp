@@ -92,9 +92,14 @@ class SickOpenGL{
 			glClear( GL_COLOR_BUFFER_BIT  | GL_DEPTH_BUFFER_BIT);
 			glClearColor(0.0f, 0.0f, 0.4f, 0.0f) ;
 
+			// Change this so that it increments by 1/20 and change
+			// starting point to 0, 0, 0
 			glEnable(GL_BLEND);
-glBlendFunc(GL_ONE_MINUS_DST_COLOR, GL_ZERO);
-			
+
+			// arg1: how rgba blending calculated
+			// arg2: how rgba destination computed
+			glBlendFunc(GL_ONE_MINUS_DST_COLOR, GL_ZERO);       // Make this darken indefinentally 
+
 			// Set buffer
 			// 1st attribute buffer : vertices
 			glEnableVertexAttribArray(0);
