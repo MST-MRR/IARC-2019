@@ -21,15 +21,17 @@ class SickOpenGL{
 // make into a class and make sure state set before tryna do stuff
   private:
  	GLFWwindow* window;
-  	const GLfloat g_vertex_buffer_data[18] = {
+  	const GLfloat g_vertex_buffer_data[24] = {
 		-1.0f, -1.0f, 0.0f,
 		1.0f, 1.0f, 0.0f,
 		-1.0f,  1.0f, 0.0f,
 		1.0f, -1.0f, 0.0f,
 		-1.0f, 0.5f, 0.0f,
 		1.0f,  0.5f, 0.0f,
+		0.0f, 1.0f, 0.0f,
+		0.0f, -1.0f, 0.0f
 	};
-	GLuint v_count = 6;
+	GLuint v_count = 8;
 
   public:
 	SickOpenGL(){
@@ -87,6 +89,7 @@ class SickOpenGL{
 		glBufferData(GL_ARRAY_BUFFER, sizeof(g_vertex_buffer_data), g_vertex_buffer_data, GL_STATIC_DRAW);
 
 
+
 		do{
 			// Clear screen
 			glClear( GL_COLOR_BUFFER_BIT  | GL_DEPTH_BUFFER_BIT);
@@ -96,9 +99,16 @@ class SickOpenGL{
 			// starting point to 0, 0, 0
 			glEnable(GL_BLEND);
 
-			// arg1: how rgba blending calculated
-			// arg2: how rgba destination computed
-			glBlendFunc(GL_ONE_MINUS_DST_COLOR, GL_ZERO);       // Make this darken indefinentally 
+			// adds source and destination color values
+			//glBlendEquation(GL_FUNC_ADD);
+			glBlendFunc(GL_ONE_MINUS_DST_COLOR, GL_ZERO);  
+
+			// has upper limit = num bitplanes
+			// src: rgba computation
+			// dest: rgba computation
+			//glBlendFunc(GL_ONE_MINUS_DST_COLOR, GL_ZERO);       // Make this darken indefinentally 
+			
+
 
 			// Set buffer
 			// 1st attribute buffer : vertices
@@ -116,8 +126,11 @@ class SickOpenGL{
 
 			// Use our shader
 			glUseProgram(programID);
-				
+			
 			// Draw
+			glLineWidth(2);
+
+			
 			glDrawArrays(GL_LINES, 0, v_count); // Starting from vertex 0; 3 vertices total -> 1 triangle
 			glDisableVertexAttribArray(0);
 
