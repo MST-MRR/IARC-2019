@@ -11,23 +11,6 @@ class BadParams(Exception):
     """Thrown when a faulty encoding is encountered."""
     pass
 
-# Tasks to ID
-TASK_EXIT = 0
-
-TASK_LAND = 1
-
-TASK_TAKEOFF = 2
-
-TASK_LINEAR_MOVEMENT = 3
-
-TASK_HOVER = 4
-
-YAW = 5 # Not yet implemented
-
-CIRCLE = 6 # Not yet implemented
-
-MOVEMENT = 7 # Not yet implemented
-
 # The width in bytes of each field
 FIELD_WIDTH = 2
 
@@ -50,39 +33,33 @@ FIELD_7 = FIELD_WIDTH * 7
 
 EMPTY_FIELD = np.int16(0).tobytes() # 16 bits, all zero
 
-# Map direction encoding to Direction enum
-ENCODING_TO_DIRECTION = {
-    0:   constants.Directions.UP,
-    1:   constants.Directions.DOWN,
-    2:   constants.Directions.LEFT,
-    3:   constants.Directions.RIGHT,
-    4:   constants.Directions.FORWARD,
-    5:   constants.Directions.BACKWARD
-}
+class TaskEncodings:
+    """Tasks mapped to numeric encoding."""
+    EXIT = 0
+    LAND = 1
+    TAKEOFF = 2
+    LINEAR_MOVEMENT = 3
+    HOVER = 4
+    YAW = 5
+    CIRCLE = 6
+    MOVEMENT = 7
 
-# Map Direction enum to direction encoding
-DIRECTION_TO_ENCODING = {
-    constants.Directions.UP: 0,
-    constants.Directions.DOWN: 1,
-    constants.Directions.LEFT: 2,
-    constants.Directions.RIGHT: 3,
-    constants.Directions.FORWARD: 4,
-    constants.Directions.BACKWARD: 5
-}
+# Map direction encoding to Direction enum
+DIRECTION_ENCODINGS = [
+    constants.Directions.UP,      # 0
+    constants.Directions.DOWN,    # 1
+    constants.Directions.LEFT,    # 2
+    constants.Directions.RIGHT,   # 3
+    constants.Directions.FORWARD, # 4
+    constants.Directions.BACKWARD # 5
+]
 
 # Map priority encoding to Priority enum
-ENCODING_TO_PRIORITY = {
-    0:   constants.Priorities.LOW,
-    1:   constants.Priorities.MEDIUM,
-    2:   constants.Priorities.HIGH
-}
-
-# Map Priority enum to priority encoding
-PRIORITY_TO_ENCODING = {
-    constants.Priorities.LOW: 0,
-    constants.Priorities.MEDIUM: 1,
-    constants.Priorities.HIGH: 2
-}
+PRIORITY_ENCODINGS = [
+    constants.Priorities.LOW,    # 0
+    constants.Priorities.MEDIUM, # 1
+    constants.Priorities.HIGH    # 2
+]
 
 def get_field(msg, field):
     return msg[field:field + FIELD_WIDTH]
@@ -106,8 +83,8 @@ class TaskFactory(object):
         """
         num_empty = 6
         msg = bytearray()
-        msg += np.int16(TASK_EXIT).tobytes() # Task id
-        msg += np.int16(PRIORITY_TO_ENCODING[priority]).tobytes() # Priority
+        msg += np.int16(TaskEncodings.EXIT).tobytes() # Task id
+        msg += np.int16(PRIORITY_ENCODINGS.index(priority)).tobytes() # Priority
         msg += EMPTY_FIELD * num_empty # Empty fields
         return msg
 
@@ -122,8 +99,8 @@ class TaskFactory(object):
         """
         num_empty = 6
         msg = bytearray()
-        msg += np.int16(TASK_LAND).tobytes() # Task id
-        msg += np.int16(PRIORITY_TO_ENCODING[priority]).tobytes() # Priority
+        msg += np.int16(TaskEncodings.LAND).tobytes() # Task id
+        msg += np.int16(PRIORITY_ENCODINGS.index(priority)).tobytes() # Priority
         msg += EMPTY_FIELD * num_empty # Empty fields
         return msg
 
@@ -140,8 +117,8 @@ class TaskFactory(object):
         """
         num_empty = 5
         msg = bytearray()
-        msg += np.int16(TASK_TAKEOFF).tobytes() # Task id
-        msg += np.int16(PRIORITY_TO_ENCODING[priority]).tobytes() # Priority
+        msg += np.int16(TaskEncodings.TAKEOFF).tobytes() # Task id
+        msg += np.int16(PRIORITY_ENCODINGS.index(priority)).tobytes() # Priority
         msg += np.half(altitude).tobytes() # Altitude
         msg += EMPTY_FIELD * num_empty # Empty fields
         return msg
@@ -161,10 +138,10 @@ class TaskFactory(object):
         """
         num_empty = 3
         msg = bytearray()
-        msg += np.int16(TASK_LINEAR_MOVEMENT).tobytes() # Task id
-        msg += np.int16(PRIORITY_TO_ENCODING[priority]).tobytes() # Priority
+        msg += np.int16(TaskEncodings.LINEAR_MOVEMENT).tobytes() # Task id
+        msg += np.int16(PRIORITY_ENCODINGS.index(priority)).tobytes() # Priority
         msg += np.half(duration).tobytes() # Duration
-        msg += np.int16(DIRECTION_TO_ENCODING[direction]).tobytes() # Direction
+        msg += np.int16(DIRECTION_ENCODINGS.index(direction)).tobytes() # Direction
         msg += np.half(altitude).tobytes() # Altitude
         msg += EMPTY_FIELD * num_empty # Empty fields
         return msg
@@ -184,8 +161,8 @@ class TaskFactory(object):
         """
         num_empty = 4
         msg = bytearray()
-        msg += np.int16(TASK_HOVER).tobytes() # Task id
-        msg += np.int16(PRIORITY_TO_ENCODING[priority]).tobytes() # Priority
+        msg += np.int16(TaskEncodings.HOVER).tobytes() # Task id
+        msg += np.int16(PRIORITY_ENCODINGS.index(priority)).tobytes() # Priority
         msg += np.half(duration).tobytes() # Duration
         msg += np.half(altitude).tobytes() # Altitude
         msg += EMPTY_FIELD * num_empty # Empty fields
@@ -210,7 +187,7 @@ class TaskFactory(object):
             if task_id in TASK_TO_DECODER.keys():
                 priority_id_bytes = get_field(msg, FIELD_1)
                 priority_id = np.frombuffer(priority_id_bytes, dtype=np.int16, count=1)[0]
-                priority = ENCODING_TO_PRIORITY[priority_id]
+                priority = PRIORITY_ENCODINGS[priority_id]
                 return (priority, TASK_TO_DECODER[task_id](self, msg))
             else:
                 raise BadParams("Invalid task id")
@@ -270,7 +247,7 @@ class TaskFactory(object):
         """
         direction_id_bytes = get_field(msg, FIELD_3)
         direction_id = np.frombuffer(direction_id_bytes, dtype=np.int16, count=1)[0]
-        direction = ENCODING_TO_DIRECTION[direction_id]
+        direction = DIRECTION_ENCODINGS[direction_id]
 
         duration_bytes = get_field(msg, FIELD_2)
         duration = np.frombuffer(duration_bytes, dtype=np.half, count=1)[0]
@@ -302,9 +279,9 @@ class TaskFactory(object):
 # methods, and so raises an error. Is there a way around this?
 # Maps task ID to a function that decodes a binary message for that task
 TASK_TO_DECODER = {
-    TASK_EXIT:    TaskFactory.exit_task_decode,
-    TASK_LAND:    TaskFactory.land_task_decode,
-    TASK_TAKEOFF:    TaskFactory.takeoff_task_decode,
-    TASK_LINEAR_MOVEMENT:    TaskFactory.linear_movement_task_decode,
-    TASK_HOVER:    TaskFactory.hover_task_decode
+    TaskEncodings.EXIT:             TaskFactory.exit_task_decode,
+    TaskEncodings.LAND:             TaskFactory.land_task_decode,
+    TaskEncodings.TAKEOFF:          TaskFactory.takeoff_task_decode,
+    TaskEncodings.LINEAR_MOVEMENT:  TaskFactory.linear_movement_task_decode,
+    TaskEncodings.HOVER:            TaskFactory.hover_task_decode
 }
