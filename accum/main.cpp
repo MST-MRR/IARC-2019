@@ -144,21 +144,13 @@ class SickOpenGL{
 
 		//return 0;
 	}
-	void texture(){
-
-
-		do{
-			
-
-		} // Check if the ESC key was pressed or the window was closed
-		while( glfwGetKey(window, GLFW_KEY_ESCAPE ) != GLFW_PRESS &&
-			glfwWindowShouldClose(window) == 0 );
-	}
 };
 
 
 int main(){
-  SickOpenGL x;
-  x.run(); 
+  SickOpenGL demo;
+
+  demo.run(); 
+  
   return 0;
 }
