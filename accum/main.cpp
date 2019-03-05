@@ -83,7 +83,7 @@ class SickOpenGL{
 		// Give vertices to OpenGL.
 		glBufferData(GL_ARRAY_BUFFER, sizeof(g_vertex_buffer_data), g_vertex_buffer_data, GL_STATIC_DRAW);
 
-
+		// TODO #~ - Way to pass in verticies
 
 		// TODO #1 - Create texture.
 		// TODO #2 - Give texture arbitrary value storage.
