@@ -87,15 +87,15 @@ class SickOpenGL{
 
 		// TODO #1 - Create texture that works with vbo.
 		// layout (rgba32ui) uniform uimage2D demo_texture;  // image format layout qualifier
-		GLuint tex;
+		GLuint tex, buf;
+
+		glGenBuffers(1, &buf);  // Generate name for buffer
+		glBindBuffer(GL_TEXTURE_BUFFER, buf);  // Bind
+		glBufferData(GL_TEXTURE_BUFFER, 4096, NULL, GL_DYNAMIC_COPY);  // Allocate data
 
 		glGenTextures(1, &tex);  // Gerate name for texture
-		
-		glBindTexture(GL_TEXTURE_2D, tex);  // Bind to 2D target to create
-
-		glTexStorage2D(GL_TEXTURE_2D, 1, GL_RGBA32F, 512, 512);  // Allocate immutable storage for texture
-		
-		glBindTexture(GL_TEXTURE_2D, 0);  // Unbind from 2D texture target
+		glBindTexture(GL_TEXTURE_BUFFER, tex);  // Bind to buffer texture target to create
+		glTexBuffer(GL_TEXTURE_BUFFER, GL_R32F, buf);  // Attatch buffer object to texture as single channel floating point
 
 		glBindImageTexture(0, tex, 0, GL_FALSE, 0, GL_READ_WRITE, GL_RGBA32F);  // bind for r/w in image unit
 
