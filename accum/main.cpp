@@ -85,8 +85,23 @@ class SickOpenGL{
 
 		// TODO #~ - Way to pass in verticies
 
-		// TODO #1 - Create texture.
+		// TODO #1 - Create texture that works with vbo.
+		// layout (rgba32ui) uniform uimage2D demo_texture;  // image format layout qualifier
+		GLuint tex;
+
+		glGenTextures(1, &tex);  // Gerate name for texture
+		
+		glBindTexture(GL_TEXTURE_2D, tex);  // Bind to 2D target to create
+
+		glTexStorage2D(GL_TEXTURE_2D, 1, GL_RGBA32F, 512, 512);  // Allocate immutable storage for texture
+		
+		glBindTexture(GL_TEXTURE_2D, 0);  // Unbind from 2D texture target
+
+		glBindImageTexture(0, tex, 0, GL_FALSE, 0, GL_READ_WRITE, GL_RGBA32F);  // bind for r/w in image unit
+
+
 		// TODO #2 - Give texture arbitrary value storage.
+		// GL_RGBA32F - bits per texel is what is significant for storage
 
 
 		do{
