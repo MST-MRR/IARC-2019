@@ -51,7 +51,7 @@ class SickOpenGL{
 
 		// Open window & add OpenGL context
 		
-		window = glfwCreateWindow( 1024, 768, "Accumulator", NULL, NULL);
+		window = glfwCreateWindow( 1024, 768, "Texture Accumulating Arbitrary Values", NULL, NULL);
 		if( window == NULL ){
 			fprintf( stderr, "Failed to open GLFW window. If you have an Intel GPU, they are not 3.3 compatible.\n" );
 			glfwTerminate();
@@ -68,26 +68,25 @@ class SickOpenGL{
 		// Ensure can capture escape key press
 		glfwSetInputMode(window, GLFW_STICKY_KEYS, GL_TRUE);
 	}
-	~SickOpenGL(){
 
-	}
 	void run(){
-		// Create and compile our GLSL program from the shaders
-		GLuint programID = LoadShaders("vertex.glsl", "fragment.glsl" );
+		GLuint programID = LoadShaders("vertex.glsl", "fragment.glsl" );  // Create and compile our GLSL program from the shaders
 
 		GLuint VertexArrayID;
 		glGenVertexArrays(1, &VertexArrayID);
 		glBindVertexArray(VertexArrayID);
 		
-		// This will identify our vertex buffer
-		GLuint vertexbuffer;
-		// Generate 1 buffer, put the resulting identifier in vertexbuffer
-		glGenBuffers(1, &vertexbuffer);
-		// The following commands will talk about our 'vertexbuffer' buffer
-		glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);
-		// Give our vertices to OpenGL.
+		GLuint vertexbuffer;  // Identifies vertex buffer
+		glGenBuffers(1, &vertexbuffer);  // Generate 1 buffer, & store identifier in vertexbuffer
+		glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);  // The following commands will talk about our 'vertexbuffer' buffer
+		
+		// Give vertices to OpenGL.
 		glBufferData(GL_ARRAY_BUFFER, sizeof(g_vertex_buffer_data), g_vertex_buffer_data, GL_STATIC_DRAW);
 
+
+
+		// TODO #1 - Create texture.
+		// TODO #2 - Give texture arbitrary value storage.
 
 
 		do{
@@ -95,42 +94,18 @@ class SickOpenGL{
 			glClear( GL_COLOR_BUFFER_BIT  | GL_DEPTH_BUFFER_BIT);
 			glClearColor(0.0f, 0.0f, 0.4f, 0.0f) ;
 
-			// Change this so that it increments by 1/20 and change
-			// starting point to 0, 0, 0
-			glEnable(GL_BLEND);
-
-			// adds source and destination color values
-			//glBlendEquation(GL_FUNC_ADD);
-			glBlendFunc(GL_ONE_MINUS_DST_COLOR, GL_ZERO);  
-
-			// has upper limit = num bitplanes
-			// src: rgba computation
-			// dest: rgba computation
-			//glBlendFunc(GL_ONE_MINUS_DST_COLOR, GL_ZERO);       // Make this darken indefinentally 
-			
-
-
 			// Set buffer
 			// 1st attribute buffer : vertices
 			glEnableVertexAttribArray(0);
 			glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);
 
-			glVertexAttribPointer(
-				0,          // attribute 0. No particular reason for 0, but must match the layout in the shader.
-				3,          // size
-				GL_FLOAT,   // type
-				GL_FALSE,   // normalized?
-				0,          // stride
-				(void*)0	// array buffer offset
-			);
+			glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, (void*)0);
 
-			// Use our shader
-			glUseProgram(programID);
+			glUseProgram(programID);  // Use shader
 			
 			// Draw
+			// TODO #3 - Draw w/ arbitrary values in texture.
 			glLineWidth(2);
-
-			
 			glDrawArrays(GL_LINES, 0, v_count); // Starting from vertex 0; 3 vertices total -> 1 triangle
 			glDisableVertexAttribArray(0);
 
@@ -142,7 +117,7 @@ class SickOpenGL{
 		while( glfwGetKey(window, GLFW_KEY_ESCAPE ) != GLFW_PRESS &&
 			glfwWindowShouldClose(window) == 0 );
 
-		//return 0;
+		// TODO #4 - Output texture values.
 	}
 };
 
@@ -151,6 +126,6 @@ int main(){
   SickOpenGL demo;
 
   demo.run(); 
-  
+
   return 0;
 }
