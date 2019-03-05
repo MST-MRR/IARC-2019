@@ -264,11 +264,10 @@ class DroneController(object):
             if (
                     self._drone.rangefinder.distance > config.MAXIMUM_ALLOWED_ALTITUDE):
                 raise exceptions.AltitudeExceededThreshold()
-            
-            if (abs(self._drone.attitude.roll) > radians(c.MAXIMUM_PITCH_ROLL)):
+            if abs(self._drone.attitude.roll) > radians(c.MAXIMUM_PITCH_ROLL):
                 raise exceptions.RollExceededMaximum()
 
-            if (abs(self._drone.attitude.pitch) > radians(c.MAXIMUM_PITCH_ROLL)):
+            if abs(self._drone.attitude.pitch) > radians(c.MAXIMUM_PITCH_ROLL):
                 raise exceptions.PitchExceededMaximum()
 
         except Exception as e:

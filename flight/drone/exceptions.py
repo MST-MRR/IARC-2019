@@ -84,7 +84,6 @@ class PitchExceededMaximum(Exception):
     Thrown when the pitch of the drone exceeds a safe range.
     """
     pass
-    
 
 
 # TODO: Add more safety-related exceptions here
