@@ -4,6 +4,11 @@ import sys
 import threading
 import traceback
 
+
+from flight.tasks.encoder import Encoder
+from flight.tasks.decoder import Decoder
+
+
 import config
 from flight.drone.drone_controller import DroneController
 from flight import constants
@@ -12,6 +17,7 @@ import flight.tasks
 PROMPT_FOR_COMMAND = '> '
 
 def main():
+
     parser = create_program_input_parser()
 
     args = parser.parse_args()
@@ -20,6 +26,14 @@ def main():
         config.IS_SIMULATION = True
         config.CONNECTION_STRING = constants.CONNECTION_STR_DICT[constants.Drones.LEONARDO_SIM]
 
+    msg = Encoder.encode(flight.tasks.LinearMovement, constants.Priorities.HIGH,
+        duration=5.5, direction=constants.Directions.BACKWARD, altitude=3.14)
+
+    task = Decoder.decode(msg)
+
+    print task
+
+    """
     # Make the controller object
     controller = DroneController()
 
@@ -32,6 +46,7 @@ def main():
     input_thread.start()
 
     controller.run()
+    """
 
 
 class ExitRequested(Exception):

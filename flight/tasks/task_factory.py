@@ -4,6 +4,7 @@ encoding have been defined in command_encodings.ods (see team drive)."""
 import numpy as np
 
 import config
+from encodings import Encodings
 from flight.tasks import Exit, Land, Takeoff, TakeoffSim, Hover, LinearMovement
 import flight.constants as constants
 
@@ -11,27 +12,7 @@ class BadParams(Exception):
     """Thrown when a faulty encoding is encountered."""
     pass
 
-# The width in bytes of each field
-FIELD_WIDTH = 2
-
-# Fields starting indeces
-FIELD_0 = FIELD_WIDTH * 0
-
-FIELD_1 = FIELD_WIDTH * 1
-
-FIELD_2 = FIELD_WIDTH * 2
-
-FIELD_3 = FIELD_WIDTH * 3
-
-FIELD_4 = FIELD_WIDTH * 4
-
-FIELD_5 = FIELD_WIDTH * 5
-
-FIELD_6 = FIELD_WIDTH * 6
-
-FIELD_7 = FIELD_WIDTH * 7
-
-EMPTY_FIELD = np.int16(0).tobytes() # 16 bits, all zero
+EMPTY = EMPTY_FIELD = np.int16(0).tobytes() # 16 bits, all zero
 
 class TaskEncodings:
     """Tasks mapped to numeric encoding."""

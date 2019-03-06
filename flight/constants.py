@@ -3,6 +3,7 @@ Constant values which are changed rarely.
 """
 
 from enum import Enum
+import numpy as np
 
 ###################################
 # Enum Classes
@@ -123,3 +124,9 @@ OPTICAL_FLOW_MESSAGE = 'OPTICAL_FLOW'
 # How many meters the drone can be away from target altitude before correcting
 # altitude
 ACCEPTABLE_ALTITUDE_DEVIATION = 0.1
+
+# Integer type used in encoding/decoding
+INT = np.int32
+
+# Floating point type used in encoding/decoding
+FLOAT = np.float32
