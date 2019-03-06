@@ -119,9 +119,9 @@ class Drone(Vehicle):
         msg = self._make_velocity_message(north, east, down)
         self.send_mavlink(msg)
 
-    def send_yaw(self, heading, yaw_speed=0, yaw_direction=1, relative=False):
+    def send_yaw(self, heading):
         # create the CONDITION_YAW command using command_long_encode()
-        msg = self._make_yaw_message(heading, yaw_speed, yaw_direction, relative)
+        msg = self._make_yaw_message(heading)
         # send command to vehicle
         self.send_mavlink(msg)
 
@@ -214,13 +214,13 @@ class Drone(Vehicle):
 
     def _make_yaw_message(self, heading, yaw_speed=0, yaw_direction=1,relative=False):
         return self.message_factory.command_long_encode(
-            0, 0,    # target system, target component
+            0, 0, # target system, target component
             mavutil.mavlink.MAV_CMD_CONDITION_YAW, #command
             0, #confirmation
-            heading,    # param 1, yaw in degrees
-            yaw_speed,          # param 2, yaw speed deg/s
-            yaw_direction,          # param 3, direction -1 ccw, 1 cw
+            heading, # param 1, yaw in degrees
+            yaw_speed, # param 2, yaw speed deg/s
+            yaw_direction, # param 3, direction -1 ccw, 1 cw
             relative, # param 4, relative offset 1, absolute angle 0
-            0, 0, 0)    # param 5 ~ 7 not used
+            0, 0, 0) # param 5 ~ 7 not used
 
     
