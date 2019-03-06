@@ -152,7 +152,7 @@ class DroneController(object):
         priority : Priorities.{LOW, MEDIUM, HIGH}, optional
             The importance of this task.
         """
-        if altitude = None:
+        if altitude == None:
             altitude = self._drone.rangefinder.distance
         new_task = Hover(self._drone, altitude, duration)
         self._task_queue.push(priority, new_task)
