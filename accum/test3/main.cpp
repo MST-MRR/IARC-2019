@@ -107,53 +107,29 @@ class SickOpenGL{
 		glGenTextures(1, &tex);  // Gerate name for texture
 		glBindTexture(GL_TEXTURE_BUFFER, tex);  // Bind to buffer texture target to create
 		glTexBuffer(GL_TEXTURE_BUFFER, GL_R32UI, buf);  // Attatch buffer object to texture as single channel floating point
-	// GL_R32F
+
 		glBindImageTexture(0, tex, 0, GL_FALSE, 0, GL_READ_WRITE, GL_R32UI);  // bind for r/w in image unit
 
 		// TODO #2 - Give texture arbitrary value storage.
 		// GL_RGBA32F - bits per texel is what is significant for storage
-		//GLuint buffer;
-/*		GLuint counters;   /// If i comment out all this nothing hapens
 
-		// Generate buffer name and bind it to generic atomic counter
-		glGenBuffers(1, &counters);
-		glBindBuffer(GL_ATOMIC_COUNTER_BUFFER, counters);
-
-		// Allocate space for 2 GLuints in buffer
-		glBufferData(GL_ATOMIC_COUNTER_BUFFER, sizeof(GLuint),
-					NULL, GL_DYNAMIC_COPY);
-
-		// Map buffer & init
-		//counters = (GLuint)glMapBuffer(GL_ATOMIC_COUNTER_BUFFER,
-		//								GL_WRITE_ONLY);
-										// TODO change the write only?
-		//counters[0] = 0;
-		//glUnmapBuffer(GL_ATOMIC_COUNTER_BUFFER);
-
-		// bind to 0th GL_ATOMIC_COUNTER_BUFFER
-		//glBindBufferBase(GL_ATOMIC_COUNTER_BUFFER, 0, buffer);
-		glBindBuffer(GL_ATOMIC_COUNTER_BUFFER, counters);
-*/
-
-GLuint ac_buffer = 0;
-glGenBuffers(1, &ac_buffer);
-glBindBuffer(GL_ATOMIC_COUNTER_BUFFER, ac_buffer);
-glBufferData(GL_ATOMIC_COUNTER_BUFFER, sizeof(GLuint), NULL, GL_DYNAMIC_DRAW);
+// declare and generate a buffer object name
+GLuint atomicsBuffer;
+glGenBuffers(1, &atomicsBuffer);
+// bind the buffer and define its initial storage capacity
+glBindBuffer(GL_ATOMIC_COUNTER_BUFFER, atomicsBuffer);
+glBufferData(GL_ATOMIC_COUNTER_BUFFER, sizeof(GLuint) * 3, NULL, GL_DYNAMIC_DRAW);
+// unbind the buffer 
 glBindBuffer(GL_ATOMIC_COUNTER_BUFFER, 0);
 
-glBindBufferBase(GL_ATOMIC_COUNTER_BUFFER, 0, ac_buffer);
-
-glBindBuffer(GL_ATOMIC_COUNTER_BUFFER, ac_buffer);
-GLuint* ptr = (GLuint*)glMapBufferRange(GL_ATOMIC_COUNTER_BUFFER, 0, sizeof(GLuint),
-                                        GL_MAP_WRITE_BIT | 
-                                        GL_MAP_INVALIDATE_BUFFER_BIT | 
-                                        GL_MAP_UNSYNCHRONIZED_BIT);
-ptr[0] = value;
-glUnmapBuffer(GL_ATOMIC_COUNTER_BUFFER);
-glBindBuffer(GL_ATOMIC_COUNTER_BUFFER, 0); 
 
 
-		glActiveTexture(GL_TEXTURE_BUFFER);
+glBindBuffer(GL_ATOMIC_COUNTER_BUFFER, atomicsBuffer);
+ 
+GLuint a[3] = {0,0,0};
+glBufferSubData(GL_ATOMIC_COUNTER_BUFFER, 0 , sizeof(GLuint) * 3, a);
+glBindBuffer(GL_ATOMIC_COUNTER_BUFFER, 0);
+
 
 		do{
 			// Clear screen
@@ -185,6 +161,14 @@ glBindBuffer(GL_ATOMIC_COUNTER_BUFFER, 0);
 			glfwWindowShouldClose(window) == 0 );
 
 		// TODO #4 - Output texture values.
+
+		GLuint userCounters[3];
+glBindBuffer(GL_ATOMIC_COUNTER_BUFFER, atomicsBuffer);
+glGetBufferSubData(GL_ATOMIC_COUNTER_BUFFER, 0, sizeof(GLuint) * 3, userCounters);
+glBindBuffer(GL_ATOMIC_COUNTER_BUFFER, 0);
+GLuint redPixels = userCounters[0];
+GLuint greenPixels = userCounters[1];
+GLuint bluePixels = userCounters[2];
 
 	}
 };
