@@ -29,9 +29,12 @@ def main():
     msg = Encoder.encode(flight.tasks.LinearMovement, constants.Priorities.HIGH,
         duration=5.5, direction=constants.Directions.BACKWARD, altitude=3.14)
 
-    task = Decoder.decode(msg)
+    decoded_dict = Decoder.decode(msg)
+
+    task = flight.tasks.TaskFactory.from_dict(**decoded_dict)
 
     print task
+
 
     """
     # Make the controller object

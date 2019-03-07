@@ -65,6 +65,12 @@ class Encodings:
         Hover: [constants.FLOAT, constants.FLOAT]
     }
 
+    # Keyword shared across all tasks for task type
+    TASK_KEYWORD = 'task'
+
+    # Keyword shared across all tasks for priority
+    PRIORITY_KEYWORD = 'priority'
+
     # The keyword arguments that a task expected upon its __init__ function
     # being called
     KeywordArguments = {

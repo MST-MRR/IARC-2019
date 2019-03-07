@@ -32,7 +32,8 @@ class Encoder:
         priority : flight.constants.Priorities
             The priority at which the task should be executed.
         kwargs : dict
-            TODO: (it's extensive)
+            The exact keywords that are in each of the task initialization
+            functions.
         """
         try:
             type_id = Encodings.Tasks[task]
