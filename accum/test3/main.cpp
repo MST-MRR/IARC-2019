@@ -10,18 +10,21 @@ using namespace glm;
 #include "loader.h"
 #include <stdexcept>
 
+#include <iostream>
 
 // pragma debug thing in shaders for debug mode
 
-// make texture and accumulate with again
 // shared value in texture is shared between program and shader
+static void glfwError(int id, const char* description)
+{
+  std::cout << description << std::endl;
+}
 
 
 class SickOpenGL{
-// make into a class and make sure state set before tryna do stuff
   private:
  	GLFWwindow* window;
-  	const GLfloat g_vertex_buffer_data[24] = {
+  	const GLfloat g_vertex_buffer_data[30] = {
 		-1.0f, -1.0f, 0.0f,
 		1.0f, 1.0f, 0.0f,
 		-1.0f,  1.0f, 0.0f,
@@ -29,12 +32,17 @@ class SickOpenGL{
 		-1.0f, 0.5f, 0.0f,
 		1.0f,  0.5f, 0.0f,
 		0.0f, 1.0f, 0.0f,
+		0.0f, -1.0f, 0.0f,
+		0.0f, 1.0f, 0.0f,
 		0.0f, -1.0f, 0.0f
 	};
-	GLuint v_count = 8;
+	GLuint v_count = 12;
 
   public:
 	SickOpenGL(){
+		glEnable( GL_DEBUG_OUTPUT );
+		glfwSetErrorCallback(&glfwError);
+
 		// Init GLFW
 		glewExperimental = true; // Needed for core profile
 		if( !glfwInit() )
@@ -42,9 +50,9 @@ class SickOpenGL{
 			fprintf( stderr, "Failed to initialize GLFW\n" );
 			throw std::runtime_error("Failed to initialize GLFW.");
 		}
-
+	
 		glfwWindowHint(GLFW_SAMPLES, 4); // 4x antialiasing
-		glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3); // We want OpenGL 3.3
+		glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4); // We want OpenGL 3.3
 		glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
 		glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE); // To make MacOS happy
 		glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE); // We don't want the old OpenGL 
@@ -70,7 +78,7 @@ class SickOpenGL{
 	}
 
 	void run(){
-		GLuint programID = LoadShaders("vertex.glsl", "fragment.glsl" );  // Create and compile our GLSL program from the shaders
+		GLuint programID = LoadShaders("vertex.glsl", "atomic-counter.glsl" );  // Create and compile our GLSL program from the shaders
 
 		GLuint VertexArrayID;
 		glGenVertexArrays(1, &VertexArrayID);
@@ -85,6 +93,9 @@ class SickOpenGL{
 
 		// TODO #~ - Way to pass in verticies
 
+		// GOAL - rw memory directly, synchronize shader calls
+		// 		construct data structure in memory
+
 		// TODO #1 - Create texture that works with vbo.
 		// layout (rgba32ui) uniform uimage2D demo_texture;  // image format layout qualifier
 		GLuint tex, buf;
@@ -95,14 +106,54 @@ class SickOpenGL{
 
 		glGenTextures(1, &tex);  // Gerate name for texture
 		glBindTexture(GL_TEXTURE_BUFFER, tex);  // Bind to buffer texture target to create
-		glTexBuffer(GL_TEXTURE_BUFFER, GL_R32F, buf);  // Attatch buffer object to texture as single channel floating point
-
-		glBindImageTexture(0, tex, 0, GL_FALSE, 0, GL_READ_WRITE, GL_RGBA32F);  // bind for r/w in image unit
-
+		glTexBuffer(GL_TEXTURE_BUFFER, GL_R32UI, buf);  // Attatch buffer object to texture as single channel floating point
+	// GL_R32F
+		glBindImageTexture(0, tex, 0, GL_FALSE, 0, GL_READ_WRITE, GL_R32UI);  // bind for r/w in image unit
 
 		// TODO #2 - Give texture arbitrary value storage.
 		// GL_RGBA32F - bits per texel is what is significant for storage
+		//GLuint buffer;
+/*		GLuint counters;   /// If i comment out all this nothing hapens
 
+		// Generate buffer name and bind it to generic atomic counter
+		glGenBuffers(1, &counters);
+		glBindBuffer(GL_ATOMIC_COUNTER_BUFFER, counters);
+
+		// Allocate space for 2 GLuints in buffer
+		glBufferData(GL_ATOMIC_COUNTER_BUFFER, sizeof(GLuint),
+					NULL, GL_DYNAMIC_COPY);
+
+		// Map buffer & init
+		//counters = (GLuint)glMapBuffer(GL_ATOMIC_COUNTER_BUFFER,
+		//								GL_WRITE_ONLY);
+										// TODO change the write only?
+		//counters[0] = 0;
+		//glUnmapBuffer(GL_ATOMIC_COUNTER_BUFFER);
+
+		// bind to 0th GL_ATOMIC_COUNTER_BUFFER
+		//glBindBufferBase(GL_ATOMIC_COUNTER_BUFFER, 0, buffer);
+		glBindBuffer(GL_ATOMIC_COUNTER_BUFFER, counters);
+*/
+
+GLuint ac_buffer = 0;
+glGenBuffers(1, &ac_buffer);
+glBindBuffer(GL_ATOMIC_COUNTER_BUFFER, ac_buffer);
+glBufferData(GL_ATOMIC_COUNTER_BUFFER, sizeof(GLuint), NULL, GL_DYNAMIC_DRAW);
+glBindBuffer(GL_ATOMIC_COUNTER_BUFFER, 0);
+
+glBindBufferBase(GL_ATOMIC_COUNTER_BUFFER, 0, ac_buffer);
+
+glBindBuffer(GL_ATOMIC_COUNTER_BUFFER, ac_buffer);
+GLuint* ptr = (GLuint*)glMapBufferRange(GL_ATOMIC_COUNTER_BUFFER, 0, sizeof(GLuint),
+                                        GL_MAP_WRITE_BIT | 
+                                        GL_MAP_INVALIDATE_BUFFER_BIT | 
+                                        GL_MAP_UNSYNCHRONIZED_BIT);
+ptr[0] = value;
+glUnmapBuffer(GL_ATOMIC_COUNTER_BUFFER);
+glBindBuffer(GL_ATOMIC_COUNTER_BUFFER, 0); 
+
+
+		glActiveTexture(GL_TEXTURE_BUFFER);
 
 		do{
 			// Clear screen
@@ -120,7 +171,8 @@ class SickOpenGL{
 			
 			// Draw
 			// TODO #3 - Draw w/ arbitrary values in texture.
-			glLineWidth(2);
+			// can modify variables in texture through fragment shader!
+
 			glDrawArrays(GL_LINES, 0, v_count); // Starting from vertex 0; 3 vertices total -> 1 triangle
 			glDisableVertexAttribArray(0);
 
@@ -133,6 +185,7 @@ class SickOpenGL{
 			glfwWindowShouldClose(window) == 0 );
 
 		// TODO #4 - Output texture values.
+
 	}
 };
 
