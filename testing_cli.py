@@ -4,17 +4,21 @@ import sys
 import threading
 import traceback
 
-
-from flight.tasks.encoder import Encoder
-from flight.tasks.decoder import Decoder
-
-
 import config
 from flight.drone.drone_controller import DroneController
 from flight import constants
-import flight.tasks
+from flight.tasks import TaskFactory
+from flight.tasks.encodings import Encodings
 
 PROMPT_FOR_COMMAND = '> '
+
+CLI_STR_TO_TASK = {
+    'exit': Encodings.Tasks.EXIT,
+    'land': Encodings.Tasks.LAND,
+    'takeoff': Encodings.Tasks.TAKEOFF,
+    'move': Encodings.Tasks.LINEAR_MOVE,
+    'hover': Encodings.Tasks.HOVER
+}
 
 def main():
 
@@ -26,17 +30,6 @@ def main():
         config.IS_SIMULATION = True
         config.CONNECTION_STRING = constants.CONNECTION_STR_DICT[constants.Drones.LEONARDO_SIM]
 
-    msg = Encoder.encode(flight.tasks.LinearMovement, constants.Priorities.HIGH,
-        duration=5.5, direction=constants.Directions.BACKWARD, altitude=3.14)
-
-    decoded_dict = Decoder.decode(msg)
-
-    task = flight.tasks.TaskFactory.from_dict(**decoded_dict)
-
-    print task
-
-
-    """
     # Make the controller object
     controller = DroneController()
 
@@ -49,7 +42,6 @@ def main():
     input_thread.start()
 
     controller.run()
-    """
 
 
 class ExitRequested(Exception):
@@ -84,7 +76,7 @@ def create_command_parser():
         help='the priority of the task')
 
     # Enable sub-parsing capabilities
-    subparsers = parser.add_subparsers(help='sub-command help', dest='command')
+    subparsers = parser.add_subparsers(help='sub-command help', dest='task')
 
     # Exit sub-parser (has no arguments)
     parser_exit = subparsers.add_parser('exit', help='exit help')
@@ -186,10 +178,11 @@ def input_loop(controller):
     parser = create_command_parser()
     while True:
         try:
-            raw_args = raw_input(PROMPT_FOR_COMMAND).lower().split()
+            raw_args = raw_input(PROMPT_FOR_COMMAND).split()
             parsed_args = parser.parse_args(args=raw_args)
-            function = COMMAND_TO_FUNCTION[parsed_args.command]
-            function(controller, parsed_args)
+            parsed_args.task = CLI_STR_TO_TASK[parsed_args.task]
+            task = TaskFactory.from_args(**vars(parsed_args))
+            controller.add_task(task)
         except SystemExit: # argparse throws this when given invalid input
             continue
         except argparse.ArgumentTypeError as e:
@@ -239,97 +232,6 @@ def get_direction(direction):
                 type(constants.Directions).__name__, direction))
 
     return converted_form
-
-
-def add_exit_task(controller, namespace):
-    """Adds an exit task to the drone controller.
-
-    Parameters
-    ----------
-    controller : flight.drone.DroneController
-        The drone controller.
-    namespace : argparse.Namespace
-        Contains parameter names mapped to values.
-    """
-    task = (namespace.priority, flight.tasks.Exit())
-    controller.add_task(task)
-    raise ExitRequested # Tell input loop to stop
-
-
-def add_land_task(controller, namespace):
-    """Adds a land task to the drone controller.
-
-    Parameters
-    ----------
-    controller : flight.drone.DroneController
-        The drone controller.
-    namespace : argparse.Namespace
-        Contains parameter names mapped to values.
-    """
-    task = (namespace.priority, flight.tasks.Land())
-    controller.add_task(task)
-
-
-def add_takeoff_task(controller, namespace):
-    """Adds a takeoff task to the drone controller.
-
-    Parameters
-    ----------
-    controller : flight.drone.DroneController
-        The drone controller.
-    namespace : argparse.Namespace
-        Contains parameter names mapped to values.
-    """
-    if config.IS_SIMULATION:
-        task = (namespace.priority, flight.tasks.TakeoffSim(altitude=namespace.altitude))
-    else:
-        task = (namespace.priority, flight.tasks.Takeoff(altitude=namespace.altitude))
-    controller.add_task(task)
-
-
-def add_linear_move_task(controller, namespace):
-    """Adds a linear movement task to the drone controller.
-
-    Parameters
-    ----------
-    controller : flight.drone.DroneController
-        The drone controller.
-    namespace : argparse.Namespace
-        Contains parameter names mapped to values.
-    """
-    task = (namespace.priority, flight.tasks.LinearMovement(
-            duration=namespace.duration,
-            direction=namespace.direction,
-            altitude=namespace.altitude
-            ))
-    controller.add_task(task)
-
-
-def add_hover_task(controller, namespace):
-    """Adds a hover task to the drone controller.
-
-    Parameters
-    ----------
-    controller : flight.drone.DroneController
-        The drone controller.
-    namespace : argparse.Namespace
-        Contains parameter names mapped to values.
-    """
-    task = (namespace.priority, flight.tasks.Hover(
-            duration=namespace.duration,
-            altitude=namespace.altitude
-            ))
-    controller.add_task(task)
-
-
-# Maps command name (set in argparser) to function for adding task
-COMMAND_TO_FUNCTION = {
-    'exit': add_exit_task,
-    'land': add_land_task,
-    'takeoff': add_takeoff_task,
-    'move': add_linear_move_task,
-    'hover': add_hover_task
-}
 
 
 if __name__ == '__main__':

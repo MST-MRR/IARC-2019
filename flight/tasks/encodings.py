@@ -1,10 +1,28 @@
 """A class used for encoding/decoding lookups."""
 
+from enum import Enum
 import numpy as np
 
 from flight import constants as constants
-from flight.tasks import *
+from flight.tasks import Tasks as task
 from flight.utils.bidirectional_dictionary import BidirectionalDictionary
+
+class TaskInfo:
+    """Contains the name, ordering of types, and keywords for a task."""
+    def __init__(self, type_order, keywords):
+        """Initialize the information for this kind of task.
+
+        Parameters
+        ----------
+        type_order : list[type]
+            A list of the expected types for an encoded/decoded message, in
+            order.
+        keywords : list[str]
+            A list of the keyword arguments associated with initializing this
+            kind of task.
+        """
+        self.type_order = type_order
+        self.keywords = keywords
 
 class Encodings:
     """Contains encodings defined in https://docs.google.com/spreadsheets/u/1/d/1evjB_2ChFrgppTaEZ03ktKQYPjTJT50ZoAbLgZen3No/edit?usp=drive_web&ouid=112691440415013941668."""
@@ -24,15 +42,41 @@ class Encodings:
     # Index of the priority field
     PRIORITY_FIELD = 1
 
-    # Maps a task type to its ID (its index in the list)
-    Tasks = BidirectionalDictionary([
-        Exit,               # 0
-        Land,               # 1
-        Takeoff,            # 2
-        LinearMovement,     # 3
-        Hover               # 4
-        # TODO: add Yaw, Circle, Movement
-    ])
+    class Tasks(Enum):
+        EXIT = 0
+
+        LAND = 1
+
+        TAKEOFF = 2
+
+        LINEAR_MOVE = 3
+
+        HOVER = 4
+
+    # Keyword shared across all tasks for task type
+    TASK_KEYWORD = 'task'
+
+    # Keyword shared across all tasks for priority
+    PRIORITY_KEYWORD = 'priority'
+
+    # Maps task id to information about the task
+    Info = [
+        TaskInfo([], []),       # 0 Exit
+
+        TaskInfo([], []),       # 1 Land
+
+        TaskInfo(               # 2 Takeoff
+            [constants.FLOAT],
+            ['altitude']),
+
+        TaskInfo(               # 3 Linear Movement
+            [constants.FLOAT, constants.INT, constants.FLOAT],
+            ['duration', 'direction', 'altitude']),
+
+        TaskInfo(               # 4 Hover
+            ['duration', 'altitude'],
+            ['duration', 'altitude'])
+    ]
 
     # Maps a Direction enum type to its ID (its index in the list)
     Directions = BidirectionalDictionary([
@@ -50,40 +94,6 @@ class Encodings:
         constants.Priorities.MEDIUM, # 1
         constants.Priorities.HIGH    # 2
     ])
-
-    # The ordering of types defined for each task (includes all fields after
-    # type_id and priority)
-    TypeOrders =  {
-        Exit: [],
-
-        Land: [],
-
-        Takeoff: [constants.FLOAT],
-
-        LinearMovement: [constants.FLOAT, constants.INT, constants.FLOAT],
-
-        Hover: [constants.FLOAT, constants.FLOAT]
-    }
-
-    # Keyword shared across all tasks for task type
-    TASK_KEYWORD = 'task'
-
-    # Keyword shared across all tasks for priority
-    PRIORITY_KEYWORD = 'priority'
-
-    # The keyword arguments that a task expected upon its __init__ function
-    # being called
-    KeywordArguments = {
-        Exit: [],
-
-        Land: [],
-
-        Takeoff: ['altitude'],
-
-        LinearMovement: ['duration', 'direction', 'altitude'],
-
-        Hover: ['duration', 'altitude']
-    }
 
     # Maps type used for encoding to the native version of the type for the
     # system the code is running on

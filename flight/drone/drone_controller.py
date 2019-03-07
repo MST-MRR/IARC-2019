@@ -19,7 +19,7 @@ import exceptions
 
 import config
 from flight import constants as c
-from flight.tasks import *
+from flight.tasks import Tasks
 from flight.utils.priority_queue import PriorityQueue
 from flight.utils.timer import Timer
 from tools.data_distributor.data_splitter import DataSplitter
@@ -37,8 +37,6 @@ class DroneController(object):
 
     Attributes
     ----------
-    task_factory : flight.tasks.TaskFactory
-        Decodes binary strings into tasks.
     _current_task : TaskBase subclass
         The task the drone is currently working on.
     _task_queue : list of InstructionBase subclass
@@ -76,8 +74,6 @@ class DroneController(object):
         self._logger.info('Connecting...')
         self._drone = Drone.get_drone()
         self._logger.info('Connected')
-
-        self.task_factory = TaskFactory()
 
     def run(self):
         """Start the controller.
@@ -157,7 +153,7 @@ class DroneController(object):
                 # We are done with the task
                 self._logger.info('Finished {}...'.format(
                     type(self._current_task).__name__))
-                if isinstance(self._current_task, Exit):
+                if isinstance(self._current_task, Tasks.Exit):
                     return False
                 self._task_queue.pop()
 
@@ -176,7 +172,7 @@ class DroneController(object):
         # If there are no more tasks, begin to hover.
         if self._drone.armed and self._current_task is None:
             self._logger.info('No more tasks - beginning long hover')
-            new_task = Hover(config.DEFAULT_ALTITUDE, constants.DEFAULT_HOVER_DURATION)
+            new_task = Tasks.Hover(config.DEFAULT_ALTITUDE, constants.DEFAULT_HOVER_DURATION)
             self._task_queue.push((constants.Priorities.LOW, new_task))
 
         return True

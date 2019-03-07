@@ -21,35 +21,31 @@ class Encoder:
     }
 
     @staticmethod
-    def encode(task, priority, **kwargs):
+    def encode(**kwargs):
         """Encodes a set up keyword arguments into an array of bytes which
         represent a task.
 
         Paramters
         ---------
-        task : TaskBase subclass type
-            The type of task being encoded.
-        priority : flight.constants.Priorities
-            The priority at which the task should be executed.
         kwargs : dict
-            The exact keywords that are in each of the task initialization
-            functions.
+            Always requires the key pairs {task : Encodings.Tasks},
+            {priority : flight.constants.Priorites} and the exact keywords that
+            are in each of the task initialization functions.
         """
         try:
-            type_id = Encodings.Tasks[task]
-            # get ordering of type for this particular task
-            field_types = Encodings.TypeOrders[task]
-            # get name of arguments for this particular task
-            arg_names = Encodings.KeywordArguments[task]
+            task_info = Encodings.Info[kwargs[Encodings.TASK_KEYWORD].value]
+
+            type_order = task_info.type_order
+            keywords = task_info.keywords
 
             msg = bytearray()
-            msg += constants.INT(type_id).tobytes()
-            msg += constants.INT(Encodings.Priorities[priority]).tobytes()
+            msg += constants.INT(kwargs[Encodings.TASK_KEYWORD].value).tobytes()
+            msg += constants.INT(Encodings.Priorities[kwargs[Encodings.PRIORITY_KEYWORD]]).tobytes()
 
-            for data_type, arg_name in zip(field_types, arg_names):
-                if arg_name not in kwargs.keys():
+            for data_type, keyword in zip(type_order, keywords):
+                if keyword not in kwargs.keys():
                     raise ValueError
-                arg = kwargs[arg_name]
+                arg = kwargs[keyword]
 
                 # Check to see if this type needs further processing
                 # (this will be the case for enum types)
@@ -61,7 +57,7 @@ class Encoder:
                 msg += data_type(arg).tobytes()
 
             # Pad the rest of the message with empty fields
-            for _ in range(Encodings.NUM_FIELDS - len(field_types) - Encodings.COMMON_FIELDS):
+            for _ in range(Encodings.NUM_FIELDS - len(type_order) - Encodings.COMMON_FIELDS):
                 msg += EMPTY_FIELD
 
             return msg

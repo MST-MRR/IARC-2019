@@ -55,15 +55,15 @@ class Decoder:
             task_id = data_from_bytes(FIELDS[Encodings.TASK_ID_FIELD], msg, constants.INT)
             priority_id = data_from_bytes(FIELDS[Encodings.PRIORITY_FIELD], msg, constants.INT)
 
+            task_info = Encodings.Info[task_id]
+
             args = {}
 
-            task = Encodings.Tasks[task_id]
-            args['task'] = task
-
+            args['task'] = Encodings.Tasks(task_id) # cast int to enum type
             args['priority'] = Encodings.Priorities[priority_id]
 
-            data_types = Encodings.TypeOrders[task]
-            keywords = Encodings.KeywordArguments[task]
+            data_types = task_info.type_order
+            keywords = task_info.keywords
 
             # Using the gathered list of data_type and keywords, parse each
             # field into data, and then store that data in a dictionary
