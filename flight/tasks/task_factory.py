@@ -54,6 +54,10 @@ class TaskFactory(object):
         The drone that tasks are being created for. Only needed if decoding.
     """
 
+    @staticmethod
+    def from_dict(**kwargs):
+        task = kwargs
+
     def exit_task_encode(self, priority=constants.Priorities.HIGH):
         """Translates parameters into an encoded exit task.
 
