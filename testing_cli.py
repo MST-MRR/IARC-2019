@@ -12,14 +12,6 @@ from flight.tasks.encodings import Encodings
 
 PROMPT_FOR_COMMAND = '> '
 
-CLI_STR_TO_TASK = {
-    'exit': Encodings.Tasks.EXIT,
-    'land': Encodings.Tasks.LAND,
-    'takeoff': Encodings.Tasks.TAKEOFF,
-    'move': Encodings.Tasks.LINEAR_MOVE,
-    'hover': Encodings.Tasks.HOVER
-}
-
 def main():
 
     parser = create_program_input_parser()
@@ -79,13 +71,16 @@ def create_command_parser():
     subparsers = parser.add_subparsers(help='sub-command help', dest='task')
 
     # Exit sub-parser (has no arguments)
-    parser_exit = subparsers.add_parser('exit', help='exit help')
+    parser_exit = subparsers.add_parser(Encodings.CommandLine.EXIT.value,
+        help='exit help')
 
     # Land sub-parser (has no arguments)
-    parser_land = subparsers.add_parser('land', help='land help')
+    parser_land = subparsers.add_parser(Encodings.CommandLine.LAND.value,
+        help='land help')
 
     # Takeoff sub-parser
-    parser_takeoff = subparsers.add_parser('takeoff', help='takeoff help')
+    parser_takeoff = subparsers.add_parser(Encodings.CommandLine.TAKEOFF.value,
+        help='takeoff help')
     parser_takeoff.add_argument('--altitude',
         dest='altitude',
         action=store_float(),
@@ -93,7 +88,8 @@ def create_command_parser():
         help='altitude to take off to')
 
     # Linear movement sub-parser
-    parser_linear_move = subparsers.add_parser('move', help='move help')
+    parser_linear_move = subparsers.add_parser(Encodings.CommandLine.LINEAR_MOVE.value,
+        help='move help')
     parser_linear_move.add_argument('--duration',
         dest='duration',
         action=store_float(),
@@ -111,7 +107,8 @@ def create_command_parser():
         help='altitude to maintain during move')
 
     # Hover sub-parser
-    parser_hover = subparsers.add_parser('hover', help='hover help')
+    parser_hover = subparsers.add_parser(Encodings.CommandLine.HOVER.value,
+        help='hover help')
     parser_hover.add_argument('--duration',
         dest='duration',
         action=store_float(),
@@ -180,7 +177,8 @@ def input_loop(controller):
         try:
             raw_args = raw_input(PROMPT_FOR_COMMAND).split()
             parsed_args = parser.parse_args(args=raw_args)
-            parsed_args.task = CLI_STR_TO_TASK[parsed_args.task]
+            # Convert string command name to enum type
+            parsed_args.task = Encodings.CommandLine(parsed_args.task)
             task = TaskFactory.from_args(**vars(parsed_args))
             controller.add_task(task)
         except SystemExit: # argparse throws this when given invalid input

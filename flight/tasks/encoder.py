@@ -16,8 +16,8 @@ class Encoder:
 
     # Maps types that must be converted to a function that does the conversion
     SPECIAL_TYPES = {
-        constants.Directions: lambda direction : constants.INT(Encodings.Directions[direction]),
-        constants.Priorities: lambda priority : constants.INT(Encodings.Priorities[priority])
+        constants.Directions: lambda direction : constants.INT(Encodings.DIRECTIONS[direction]),
+        constants.Priorities: lambda priority : constants.INT(Encodings.PRIORITIES[priority])
     }
 
     @staticmethod
@@ -33,14 +33,14 @@ class Encoder:
             are in each of the task initialization functions.
         """
         try:
-            task_info = Encodings.Info[kwargs[Encodings.TASK_KEYWORD].value]
+            task_info = Encodings.INFO[kwargs[Encodings.TASK_KEYWORD].value]
 
             type_order = task_info.type_order
             keywords = task_info.keywords
 
             msg = bytearray()
             msg += constants.INT(kwargs[Encodings.TASK_KEYWORD].value).tobytes()
-            msg += constants.INT(Encodings.Priorities[kwargs[Encodings.PRIORITY_KEYWORD]]).tobytes()
+            msg += constants.INT(Encodings.PRIORITIES[kwargs[Encodings.PRIORITY_KEYWORD]]).tobytes()
 
             for data_type, keyword in zip(type_order, keywords):
                 if keyword not in kwargs.keys():

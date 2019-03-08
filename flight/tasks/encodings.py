@@ -42,7 +42,26 @@ class Encodings:
     # Index of the priority field
     PRIORITY_FIELD = 1
 
+    # Keyword shared across all tasks for task type
+    TASK_KEYWORD = 'task'
+
+    # Keyword shared across all tasks for priority
+    PRIORITY_KEYWORD = 'priority'
+
+    class CommandLine(Enum):
+        """The command-line string name for each task."""
+        EXIT = 'exit'
+
+        LAND = 'land'
+
+        TAKEOFF = 'takeoff'
+
+        LINEAR_MOVE = 'move'
+
+        HOVER = 'hover'
+
     class Tasks(Enum):
+        """The ID of each task."""
         EXIT = 0
 
         LAND = 1
@@ -53,14 +72,8 @@ class Encodings:
 
         HOVER = 4
 
-    # Keyword shared across all tasks for task type
-    TASK_KEYWORD = 'task'
-
-    # Keyword shared across all tasks for priority
-    PRIORITY_KEYWORD = 'priority'
-
     # Maps task id to information about the task
-    Info = [
+    INFO = [
         TaskInfo([], []),       # 0 Exit
 
         TaskInfo([], []),       # 1 Land
@@ -79,7 +92,7 @@ class Encodings:
     ]
 
     # Maps a Direction enum type to its ID (its index in the list)
-    Directions = BidirectionalDictionary([
+    DIRECTIONS = BidirectionalDictionary([
         constants.Directions.UP,      # 0
         constants.Directions.DOWN,    # 1
         constants.Directions.LEFT,    # 2
@@ -89,7 +102,7 @@ class Encodings:
     ])
 
     # Maps a Priorities enum type to its ID (its index in the list)
-    Priorities = BidirectionalDictionary([
+    PRIORITIES = BidirectionalDictionary([
         constants.Priorities.LOW,    # 0
         constants.Priorities.MEDIUM, # 1
         constants.Priorities.HIGH    # 2
@@ -97,7 +110,7 @@ class Encodings:
 
     # Maps type used for encoding to the native version of the type for the
     # system the code is running on
-    TypeToNativeType = {
+    TO_NATIVE_TYPE = {
         constants.FLOAT: float,
         constants.INT: int
     }

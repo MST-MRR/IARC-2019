@@ -34,7 +34,7 @@ class Decoder:
     """Decodes an array of bytes into a dictionary."""
 
     SPECIAL_KEYWORDS = {
-        'direction': lambda direction_id : Encodings.Directions[direction_id]
+        'direction': lambda direction_id : Encodings.DIRECTIONS[direction_id]
     }
 
     @staticmethod
@@ -55,12 +55,12 @@ class Decoder:
             task_id = data_from_bytes(FIELDS[Encodings.TASK_ID_FIELD], msg, constants.INT)
             priority_id = data_from_bytes(FIELDS[Encodings.PRIORITY_FIELD], msg, constants.INT)
 
-            task_info = Encodings.Info[task_id]
+            task_info = Encodings.INFO[task_id]
 
             args = {}
 
             args['task'] = Encodings.Tasks(task_id) # cast int to enum type
-            args['priority'] = Encodings.Priorities[priority_id]
+            args['priority'] = Encodings.PRIORITIES[priority_id]
 
             data_types = task_info.type_order
             keywords = task_info.keywords
@@ -71,7 +71,7 @@ class Decoder:
                 arg = data_from_bytes(FIELDS[index + Encodings.COMMON_FIELDS], msg, data_type)
                 # Convert from numpy data type to the native version of that
                 # datatype
-                arg = Encodings.TypeToNativeType[data_type](arg)
+                arg = Encodings.TO_NATIVE_TYPE[data_type](arg)
                 # Check to see if keyword is "special" (i.e. needs further
                 # processing). This will be the case for enum types.
                 if keyword in Decoder.SPECIAL_KEYWORDS.keys():
