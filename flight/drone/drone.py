@@ -11,7 +11,7 @@ from pymavlink import mavutil
 import time
 
 from optical_flow_attribute import OpticalFlow
-from flight import constants as constants
+from flight import constants
 from flight.utils.helpers import to_quaternion
 
 class Drone(Vehicle):

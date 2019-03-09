@@ -3,7 +3,7 @@ Constant values which are changed rarely.
 """
 
 from enum import Enum
-import numpy as np
+import numpy
 
 ###################################
 # Enum Classes
@@ -126,7 +126,7 @@ OPTICAL_FLOW_MESSAGE = 'OPTICAL_FLOW'
 ACCEPTABLE_ALTITUDE_DEVIATION = 0.1
 
 # Integer type used in encoding/decoding
-INT = np.int32
+INT = numpy.int32
 
 # Floating point type used in encoding/decoding
-FLOAT = np.float32
+FLOAT = numpy.float32
