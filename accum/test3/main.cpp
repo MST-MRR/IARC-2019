@@ -1,16 +1,14 @@
 #include <stdio.h>
 #include <stdlib.h>
-// Include GLEW. 
-// Always include it before gl.h and glfw3.h
+// Include glew before gl.h and glfw3.h
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 #include <glm/glm.hpp>
 using namespace glm;
 
-#include "loader.h"
-#include <stdexcept>
-
 #include <iostream>
+#include <stdexcept>
+#include "loader.h"
 
 // pragma debug thing in shaders for debug mode
 
@@ -100,14 +98,8 @@ class SickOpenGL{
 		// Give vertices to OpenGL.
 		glBufferData(GL_ARRAY_BUFFER, sizeof(g_vertex_buffer_data), g_vertex_buffer_data, GL_STATIC_DRAW);
 
-		// TODO #~ - Way to pass in verticies
-
-		// GOAL - rw memory directly, synchronize shader calls
-		// 		construct data structure in memory
-
-		// TODO #1 - Create texture that works with vbo.
-		// layout (rgba32ui) uniform uimage2D demo_texture;  // image format layout qualifier
-/*	GLuint tex, buf;
+		/*	
+		GLuint tex, buf;
 
 		glGenBuffers(1, &buf);  // Generate name for buffer
 		glBindBuffer(GL_TEXTURE_BUFFER, buf);  // Bind
@@ -118,60 +110,40 @@ class SickOpenGL{
 		glTexBuffer(GL_TEXTURE_BUFFER, GL_R32UI, buf);  // Attatch buffer object to texture as single channel floating point
 
 		glBindImageTexture(0, tex, 0, GL_FALSE, 0, GL_READ_WRITE, GL_R32UI);  // bind for r/w in image unit
-*/
+		*/
 
-GLuint tex;
+		GLuint tex;
 
-glGenTextures(1, &tex);
-glBindTexture(GL_TEXTURE_2D, tex);
-glTexStorage2D(GL_TEXTURE_2D, 1, GL_R32UI, 512, 512);
-glBindTexture(GL_TEXTURE_2D, 0);
-glBindImageTexture(0, tex, 0, GL_FALSE, 0, GL_READ_WRITE, GL_R32UI);
+		glGenTextures(1, &tex);
+		glBindTexture(GL_TEXTURE_2D, tex);
+		glTexStorage2D(GL_TEXTURE_2D, 1, GL_R32UI, 512, 512);
+		glBindTexture(GL_TEXTURE_2D, 0);
+		glBindImageTexture(0, tex, 0, GL_FALSE, 0, GL_READ_WRITE, GL_R32UI);
 
-
-
-
-
-
-
-
-		// TODO #2 - Give texture arbitrary value storage.
-		// GL_RGBA32F - bits per texel is what is significant for storage
-
-// declare and generate a buffer object name
-GLuint atomicsBuffer;
-glGenBuffers(1, &atomicsBuffer);
-// bind the buffer and define its initial storage capacity
-glBindBuffer(GL_ATOMIC_COUNTER_BUFFER, atomicsBuffer);
-glBufferData(GL_ATOMIC_COUNTER_BUFFER, sizeof(GLuint) * 3, NULL, GL_DYNAMIC_DRAW);
-// unbind the buffer 
-glBindBuffer(GL_ATOMIC_COUNTER_BUFFER, 0);
+		// declare and generate a buffer object name
+		GLuint atomicsBuffer;
+		glGenBuffers(1, &atomicsBuffer);
+		// bind the buffer and define its initial storage capacity
+		glBindBuffer(GL_ATOMIC_COUNTER_BUFFER, atomicsBuffer);
+		glBufferData(GL_ATOMIC_COUNTER_BUFFER, sizeof(GLuint) * 3, NULL, GL_DYNAMIC_DRAW);
+		// unbind the buffer 
+		glBindBuffer(GL_ATOMIC_COUNTER_BUFFER, 0);
 
 
-// reset atomic buffers
-// declare a pointer to hold the values in the buffer
-GLuint *userCounters;
-glBindBuffer(GL_ATOMIC_COUNTER_BUFFER, atomicsBuffer);
-// map the buffer, userCounters will point to the buffers data
-userCounters = (GLuint*)glMapBufferRange(GL_ATOMIC_COUNTER_BUFFER, 
+		// reset atomic buffers
+		// declare a pointer to hold the values in the buffer
+		GLuint *userCounters;
+		glBindBuffer(GL_ATOMIC_COUNTER_BUFFER, atomicsBuffer);
+		// map the buffer, userCounters will point to the buffers data
+		userCounters = (GLuint*)glMapBufferRange(GL_ATOMIC_COUNTER_BUFFER, 
                                          0 , 
                                          sizeof(GLuint) * 3, 
                                          GL_MAP_WRITE_BIT | GL_MAP_INVALIDATE_BUFFER_BIT | GL_MAP_UNSYNCHRONIZED_BIT
                                          );
-// set the memory to zeros, resetting the values in the buffer
-memset(userCounters, 0, sizeof(GLuint) *3 );
-// unmap the buffer
-glUnmapBuffer(GL_ATOMIC_COUNTER_BUFFER);
-
-
-
-/*
-glBindBuffer(GL_ATOMIC_COUNTER_BUFFER, atomicsBuffer);
- 
-GLuint a[3] = {0,0,0};
-glBufferSubData(GL_ATOMIC_COUNTER_BUFFER, 0 , sizeof(GLuint) * 3, a);
-glBindBuffer(GL_ATOMIC_COUNTER_BUFFER, 0);
-*/
+		// set the memory to zeros, resetting the values in the buffer
+		memset(userCounters, 0, sizeof(GLuint) *3 );
+		// unmap the buffer
+		glUnmapBuffer(GL_ATOMIC_COUNTER_BUFFER);
 
 		do{
 			// Clear screen
@@ -188,9 +160,6 @@ glBindBuffer(GL_ATOMIC_COUNTER_BUFFER, 0);
 			glUseProgram(programID);  // Use shader
 			
 			// Draw
-			// TODO #3 - Draw w/ arbitrary values in texture.
-			// can modify variables in texture through fragment shader!
-
 			glDrawArrays(GL_LINES, 0, v_count); // Starting from vertex 0; 3 vertices total -> 1 triangle
 			glDisableVertexAttribArray(0);
 
@@ -229,6 +198,22 @@ std::cout << "Counters: " << redPixels
 
 
 // pg 581 on atomic adding to a specific coordinate
+
+
+// Goal is to make atomic buffer that is the size of the image.
+// Then for every x,y that gets a pixel written to, the 
+// corresponding buffer can also be incremented.
+
+// Currently there is just 3 counters, added to regardless of
+// location.
+
+//// Goals
+// 1. Get the basic counters working.
+// 2. Add to counters based on x,y rather than color.
+// 3. Increase size of buffer to image size and increment when
+// 	  fragment called at pixel
+// 4. Output whole vector
+// 5. Allow vertex input.
 
 int main(){
   SickOpenGL demo;
