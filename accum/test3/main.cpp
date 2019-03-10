@@ -98,7 +98,8 @@ class SickOpenGL{
 		// Give vertices to OpenGL.
 		glBufferData(GL_ARRAY_BUFFER, sizeof(g_vertex_buffer_data), g_vertex_buffer_data, GL_STATIC_DRAW);
 
-		/*	
+		/* 
+		// Texture creation v2, makes use of buffer?
 		GLuint tex, buf;
 
 		glGenBuffers(1, &buf);  // Generate name for buffer
@@ -112,6 +113,7 @@ class SickOpenGL{
 		glBindImageTexture(0, tex, 0, GL_FALSE, 0, GL_READ_WRITE, GL_R32UI);  // bind for r/w in image unit
 		*/
 
+		// Texture creation v1
 		GLuint tex;
 
 		glGenTextures(1, &tex);
@@ -120,26 +122,26 @@ class SickOpenGL{
 		glBindTexture(GL_TEXTURE_2D, 0);
 		glBindImageTexture(0, tex, 0, GL_FALSE, 0, GL_READ_WRITE, GL_R32UI);
 
-		// declare and generate a buffer object name
+		// Atomic buffer creation
 		GLuint atomicsBuffer;
 		glGenBuffers(1, &atomicsBuffer);
-		// bind the buffer and define its initial storage capacity
+		// bind buffer and define initial storage capacity
 		glBindBuffer(GL_ATOMIC_COUNTER_BUFFER, atomicsBuffer);
 		glBufferData(GL_ATOMIC_COUNTER_BUFFER, sizeof(GLuint) * 3, NULL, GL_DYNAMIC_DRAW);
-		// unbind the buffer 
+		// unbind buffer 
 		glBindBuffer(GL_ATOMIC_COUNTER_BUFFER, 0);
 
 
-		// reset atomic buffers
+		// Reset atomic buffers
 		// declare a pointer to hold the values in the buffer
 		GLuint *userCounters;
 		glBindBuffer(GL_ATOMIC_COUNTER_BUFFER, atomicsBuffer);
 		// map the buffer, userCounters will point to the buffers data
 		userCounters = (GLuint*)glMapBufferRange(GL_ATOMIC_COUNTER_BUFFER, 
-                                         0 , 
-                                         sizeof(GLuint) * 3, 
-                                         GL_MAP_WRITE_BIT | GL_MAP_INVALIDATE_BUFFER_BIT | GL_MAP_UNSYNCHRONIZED_BIT
-                                         );
+            0, 
+            sizeof(GLuint) * 3, 
+            GL_MAP_WRITE_BIT | GL_MAP_INVALIDATE_BUFFER_BIT | GL_MAP_UNSYNCHRONIZED_BIT
+            );
 		// set the memory to zeros, resetting the values in the buffer
 		memset(userCounters, 0, sizeof(GLuint) *3 );
 		// unmap the buffer
@@ -171,27 +173,27 @@ class SickOpenGL{
 		while( glfwGetKey(window, GLFW_KEY_ESCAPE ) != GLFW_PRESS &&
 			glfwWindowShouldClose(window) == 0 );
 
-		// TODO #4 - Output texture values.
+		// Output atomic values
+		//GLuint *userCounters;
+		glBindBuffer(GL_ATOMIC_COUNTER_BUFFER, atomicsBuffer);
+		// again we map the buffer to userCounters, but this time for read-only access
+		userCounters = (GLuint*)glMapBufferRange(GL_ATOMIC_COUNTER_BUFFER, 
+							0, 
+							sizeof(GLuint) * 3,
+							GL_MAP_READ_BIT
+							);
+	
+		// copy the values to other variables because...
+		GLuint redPixels = userCounters[0],
+		greenPixels = userCounters[1],
+		bluePixels = userCounters[2];
+		// ... as soon as we unmap the buffer
+		// the pointer userCounters becomes invalid.
+		glUnmapBuffer(GL_ATOMIC_COUNTER_BUFFER);
 
-//GLuint *userCounters;
-glBindBuffer(GL_ATOMIC_COUNTER_BUFFER, atomicsBuffer);
-// again we map the buffer to userCounters, but this time for read-only access
-userCounters = (GLuint*)glMapBufferRange(GL_ATOMIC_COUNTER_BUFFER, 
-                                         0, 
-                                         sizeof(GLuint) * 3,
-                                         GL_MAP_READ_BIT
-                                        );
-// copy the values to other variables because...
-GLuint redPixels = userCounters[0],
-greenPixels = userCounters[1],
-bluePixels = userCounters[2];
-// ... as soon as we unmap the buffer
-// the pointer userCounters becomes invalid.
-glUnmapBuffer(GL_ATOMIC_COUNTER_BUFFER);
-
-std::cout << "Counters: " << redPixels 
-		<< " " << greenPixels 
-		<< " " << bluePixels << std::endl;
+		std::cout << "Counters: " << redPixels 
+				<< " " << greenPixels 
+				<< " " << bluePixels << std::endl;
 
 	}
 };
