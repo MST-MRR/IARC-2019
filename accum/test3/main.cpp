@@ -99,7 +99,7 @@ class SickOpenGL{
 		glBufferData(GL_ARRAY_BUFFER, sizeof(g_vertex_buffer_data), g_vertex_buffer_data, GL_STATIC_DRAW);
 
 		/* 
-		// Texture creation v2, makes use of buffer?
+	   // Texture creation v2, makes use of buffer?
 		GLuint tex, buf;
 
 		glGenBuffers(1, &buf);  // Generate name for buffer
@@ -113,7 +113,7 @@ class SickOpenGL{
 		glBindImageTexture(0, tex, 0, GL_FALSE, 0, GL_READ_WRITE, GL_R32UI);  // bind for r/w in image unit
 		*/
 
-		// Texture creation v1
+	   // Texture creation v1
 		GLuint tex;
 
 		glGenTextures(1, &tex);
@@ -122,7 +122,7 @@ class SickOpenGL{
 		glBindTexture(GL_TEXTURE_2D, 0);
 		glBindImageTexture(0, tex, 0, GL_FALSE, 0, GL_READ_WRITE, GL_R32UI);
 
-		// Atomic buffer creation
+	   // Atomic buffer creation
 		GLuint atomicsBuffer;
 		glGenBuffers(1, &atomicsBuffer);
 		// bind buffer and define initial storage capacity
@@ -132,7 +132,7 @@ class SickOpenGL{
 		glBindBuffer(GL_ATOMIC_COUNTER_BUFFER, 0);
 
 
-		// Reset atomic buffers
+	   // Reset atomic buffers, can reset every frame from w/in loop
 		// declare a pointer to hold the values in the buffer
 		GLuint *userCounters;
 		glBindBuffer(GL_ATOMIC_COUNTER_BUFFER, atomicsBuffer);
@@ -173,7 +173,7 @@ class SickOpenGL{
 		while( glfwGetKey(window, GLFW_KEY_ESCAPE ) != GLFW_PRESS &&
 			glfwWindowShouldClose(window) == 0 );
 
-		// Output atomic values
+	   // Output atomic values
 		//GLuint *userCounters;
 		glBindBuffer(GL_ATOMIC_COUNTER_BUFFER, atomicsBuffer);
 		// again we map the buffer to userCounters, but this time for read-only access
@@ -194,7 +194,9 @@ class SickOpenGL{
 		std::cout << "Counters: " << redPixels 
 				<< " " << greenPixels 
 				<< " " << bluePixels << std::endl;
-
+		
+		if (redPixels > 0 || greenPixels > 0 || bluePixels > 0)
+			std::cout << "woooooo u did it\n!!!!!!\n!!!!!!\n!!!!!!\n!!!!!!\n!!!!!!\n!!!!!!\n!!!!!!\n!!!!!!\n!!!!!!\n!!!!!!\n!!!!!!\n!!!!!!\n!!!!!!\n!!!!!!\n!!!!!!\n!!!!!!\n!!!!!!\n!!!!!!\n!!!!!!\n!!!!!!\n!!!!!!\n!!!!!!\n!!!!!!\n!!!!!!\n!!!!!!" << std::endl;
 	}
 };
 
@@ -208,6 +210,9 @@ class SickOpenGL{
 
 // Currently there is just 3 counters, added to regardless of
 // location.
+
+//// Possible issues
+// May be the case that the shader isn't binding to the atomic buffer.
 
 //// Goals
 // 1. Get the basic counters working.

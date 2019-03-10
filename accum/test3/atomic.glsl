@@ -1,21 +1,24 @@
-#version 420
+#version 430
  
-layout (binding = 1, offset = 0) uniform atomic_uint atRed;
-layout (binding = 1, offset = 4) uniform atomic_uint atGreen;
-layout (binding = 1, offset = 8) uniform atomic_uint atBlue;
+layout (binding = 1, offset = 0) uniform atomic_uint at;
  
-in vec4 color;
+uniform sampler2D texUnit;
+ 
+in VertexData {
+    vec4 color;
+    vec4 texCoord;
+    float texCount;
+} FragmentIn;
  
 out vec4 colorOut;
  
 void main() {
  
-    if ((color.r >= color.g) && (color.r >= color.b))
-        atomicCounterIncrement(atRed);
-    else if (color.g >= color.b)
-        atomicCounterIncrement(atGreen);
-    else
-        atomicCounterIncrement(atBlue);
+    uint a = atomicCounterIncrement(at);
+    //uint b = atomicCounterDecrement(at);
  
-    colorOut = color;
+    if (a == a)
+        colorOut = texture(texUnit, FragmentIn.texCoord.xy);
+    else
+        colorOut = vec4(1.0, 0.0, 0.0, 1.0);
 }
