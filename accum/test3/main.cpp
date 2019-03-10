@@ -22,7 +22,8 @@ static void glfwError(int id, const char* description)
 class SickOpenGL{
   private:
  	GLFWwindow* window;
-  	const GLfloat g_vertex_buffer_data[42] = {
+	static const GLuint v_count = 14;
+  	const GLfloat g_vertex_buffer_data[v_count*3] = {
 		-1.0f, -1.0f, 0.0f,
 		1.0f, 1.0f, 0.0f,
 		-1.0f,  1.0f, 0.0f,
@@ -43,7 +44,6 @@ class SickOpenGL{
 		0.0f, -1.0f, 0.0f
 	
 	};
-	GLuint v_count = 14;
 
   public:
 	SickOpenGL(){
