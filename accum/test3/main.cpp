@@ -24,19 +24,28 @@ static void glfwError(int id, const char* description)
 class SickOpenGL{
   private:
  	GLFWwindow* window;
-  	const GLfloat g_vertex_buffer_data[30] = {
+  	const GLfloat g_vertex_buffer_data[42] = {
 		-1.0f, -1.0f, 0.0f,
 		1.0f, 1.0f, 0.0f,
 		-1.0f,  1.0f, 0.0f,
 		1.0f, -1.0f, 0.0f,
 		-1.0f, 0.5f, 0.0f,
 		1.0f,  0.5f, 0.0f,
+
 		0.0f, 1.0f, 0.0f,
 		0.0f, -1.0f, 0.0f,
+
+		0.0f, 1.0f, 0.0f,
+		0.0f, -1.0f, 0.0f,
+		
+		0.0f, 1.0f, 0.0f,
+		0.0f, -1.0f, 0.0f,
+		
 		0.0f, 1.0f, 0.0f,
 		0.0f, -1.0f, 0.0f
+	
 	};
-	GLuint v_count = 12;
+	GLuint v_count = 14;
 
   public:
 	SickOpenGL(){
@@ -78,7 +87,7 @@ class SickOpenGL{
 	}
 
 	void run(){
-		GLuint programID = LoadShaders("vertex.glsl", "atomic-counter.glsl" );  // Create and compile our GLSL program from the shaders
+		GLuint programID = LoadShaders("vertex.glsl", "atomic.glsl" );  // Create and compile our GLSL program from the shaders
 
 		GLuint VertexArrayID;
 		glGenVertexArrays(1, &VertexArrayID);
@@ -98,7 +107,7 @@ class SickOpenGL{
 
 		// TODO #1 - Create texture that works with vbo.
 		// layout (rgba32ui) uniform uimage2D demo_texture;  // image format layout qualifier
-		GLuint tex, buf;
+/*	GLuint tex, buf;
 
 		glGenBuffers(1, &buf);  // Generate name for buffer
 		glBindBuffer(GL_TEXTURE_BUFFER, buf);  // Bind
@@ -109,6 +118,22 @@ class SickOpenGL{
 		glTexBuffer(GL_TEXTURE_BUFFER, GL_R32UI, buf);  // Attatch buffer object to texture as single channel floating point
 
 		glBindImageTexture(0, tex, 0, GL_FALSE, 0, GL_READ_WRITE, GL_R32UI);  // bind for r/w in image unit
+*/
+
+GLuint tex;
+
+glGenTextures(1, &tex);
+glBindTexture(GL_TEXTURE_2D, tex);
+glTexStorage2D(GL_TEXTURE_2D, 1, GL_R32UI, 512, 512);
+glBindTexture(GL_TEXTURE_2D, 0);
+glBindImageTexture(0, tex, 0, GL_FALSE, 0, GL_READ_WRITE, GL_R32UI);
+
+
+
+
+
+
+
 
 		// TODO #2 - Give texture arbitrary value storage.
 		// GL_RGBA32F - bits per texel is what is significant for storage
@@ -123,13 +148,30 @@ glBufferData(GL_ATOMIC_COUNTER_BUFFER, sizeof(GLuint) * 3, NULL, GL_DYNAMIC_DRAW
 glBindBuffer(GL_ATOMIC_COUNTER_BUFFER, 0);
 
 
+// reset atomic buffers
+// declare a pointer to hold the values in the buffer
+GLuint *userCounters;
+glBindBuffer(GL_ATOMIC_COUNTER_BUFFER, atomicsBuffer);
+// map the buffer, userCounters will point to the buffers data
+userCounters = (GLuint*)glMapBufferRange(GL_ATOMIC_COUNTER_BUFFER, 
+                                         0 , 
+                                         sizeof(GLuint) * 3, 
+                                         GL_MAP_WRITE_BIT | GL_MAP_INVALIDATE_BUFFER_BIT | GL_MAP_UNSYNCHRONIZED_BIT
+                                         );
+// set the memory to zeros, resetting the values in the buffer
+memset(userCounters, 0, sizeof(GLuint) *3 );
+// unmap the buffer
+glUnmapBuffer(GL_ATOMIC_COUNTER_BUFFER);
 
+
+
+/*
 glBindBuffer(GL_ATOMIC_COUNTER_BUFFER, atomicsBuffer);
  
 GLuint a[3] = {0,0,0};
 glBufferSubData(GL_ATOMIC_COUNTER_BUFFER, 0 , sizeof(GLuint) * 3, a);
 glBindBuffer(GL_ATOMIC_COUNTER_BUFFER, 0);
-
+*/
 
 		do{
 			// Clear screen
@@ -162,17 +204,31 @@ glBindBuffer(GL_ATOMIC_COUNTER_BUFFER, 0);
 
 		// TODO #4 - Output texture values.
 
-		GLuint userCounters[3];
+//GLuint *userCounters;
 glBindBuffer(GL_ATOMIC_COUNTER_BUFFER, atomicsBuffer);
-glGetBufferSubData(GL_ATOMIC_COUNTER_BUFFER, 0, sizeof(GLuint) * 3, userCounters);
-glBindBuffer(GL_ATOMIC_COUNTER_BUFFER, 0);
-GLuint redPixels = userCounters[0];
-GLuint greenPixels = userCounters[1];
-GLuint bluePixels = userCounters[2];
+// again we map the buffer to userCounters, but this time for read-only access
+userCounters = (GLuint*)glMapBufferRange(GL_ATOMIC_COUNTER_BUFFER, 
+                                         0, 
+                                         sizeof(GLuint) * 3,
+                                         GL_MAP_READ_BIT
+                                        );
+// copy the values to other variables because...
+GLuint redPixels = userCounters[0],
+greenPixels = userCounters[1],
+bluePixels = userCounters[2];
+// ... as soon as we unmap the buffer
+// the pointer userCounters becomes invalid.
+glUnmapBuffer(GL_ATOMIC_COUNTER_BUFFER);
+
+std::cout << "Counters: " << redPixels 
+		<< " " << greenPixels 
+		<< " " << bluePixels << std::endl;
 
 	}
 };
 
+
+// pg 581 on atomic adding to a specific coordinate
 
 int main(){
   SickOpenGL demo;

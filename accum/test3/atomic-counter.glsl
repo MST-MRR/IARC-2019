@@ -18,12 +18,13 @@ void main(void){
     //imageAtomicAdd(countboi, 0, 1);
 
     uint counter =  atomicCounterIncrement(countboi);
+    // atomic counter returns c's prior value!
 
-    if(counter >= 1){
+    if(counter > 0){
       fragment_color = vec4(
-        1.0 - texel_color.r,
-        1.0 - texel_color.g,
-        1.0 - texel_color.b,
+        1.0, // - texel_color.r,
+        1.0,// - texel_color.g,
+        1.0,// - texel_color.b,
         1);
     } else {
       fragment_color = vec4(
@@ -34,3 +35,5 @@ void main(void){
 
     }
 }
+
+// check book pg 574
