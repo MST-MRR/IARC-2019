@@ -44,7 +44,6 @@ class Yaw(TaskBase):
             self.start_heading = self._drone.heading
             self._drone.send_yaw(self._new_heading, self._yaw_speed, self._yaw_direction, self._relative)
             self._has_started = True
-        #_is_not_finished stores whether the drone has finished the manuever within a certain degree of accuracy
         if (abs(self._drone.heading - self.start_heading) < self._new_heading - DEGREE_BUFFER):
             return False
         else:
