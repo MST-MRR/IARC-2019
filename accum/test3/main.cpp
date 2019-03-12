@@ -114,6 +114,7 @@ class SickOpenGL{
 		*/
 
 	   // Texture creation v1
+/*
 		GLuint tex;
 
 		glGenTextures(1, &tex);
@@ -121,7 +122,7 @@ class SickOpenGL{
 		glTexStorage2D(GL_TEXTURE_2D, 1, GL_R32UI, 512, 512);
 		glBindTexture(GL_TEXTURE_2D, 0);
 		glBindImageTexture(0, tex, 0, GL_FALSE, 0, GL_READ_WRITE, GL_R32UI);
-
+*/
 	   // Atomic buffer creation
 		GLuint atomicsBuffer;
 		glGenBuffers(1, &atomicsBuffer);
@@ -185,8 +186,8 @@ class SickOpenGL{
 	
 		// copy the values to other variables because...
 		GLuint redPixels = userCounters[0],
-		greenPixels = userCounters[1],
-		bluePixels = userCounters[2];
+			   greenPixels = userCounters[1],
+			   bluePixels = userCounters[2];
 		// ... as soon as we unmap the buffer
 		// the pointer userCounters becomes invalid.
 		glUnmapBuffer(GL_ATOMIC_COUNTER_BUFFER);

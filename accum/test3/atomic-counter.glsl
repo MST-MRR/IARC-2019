@@ -15,9 +15,9 @@ layout (location=0) out vec4 fragment_color;
 void main(void){
     vec4 texel_color = texture(my_texture, tex_coord);
     
-    //imageAtomicAdd(countboi, 0, 1);
+    uint counter = imageAtomicAdd(countboi, 0, 1);
 
-    uint counter =  atomicCounterIncrement(countboi);
+    //uint counter =  atomicCounterIncrement(countboi);
     // atomic counter returns c's prior value!
 
     if(counter > 0){
@@ -32,7 +32,6 @@ void main(void){
         texel_color.g,
         texel_color.b,
         1);
-
     }
 }
 
