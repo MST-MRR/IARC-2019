@@ -85,7 +85,7 @@ class SickOpenGL{
 	}
 
 	void run(){
-		GLuint programID = LoadShaders("vertex.glsl", "atomic.glsl" );  // Create and compile our GLSL program from the shaders
+		GLuint programID = LoadShaders("vertex.glsl", "atomic-counter.glsl" );  // Create and compile our GLSL program from the shaders
 
 		GLuint VertexArrayID;
 		glGenVertexArrays(1, &VertexArrayID);
@@ -98,7 +98,7 @@ class SickOpenGL{
 		// Give vertices to OpenGL.
 		glBufferData(GL_ARRAY_BUFFER, sizeof(g_vertex_buffer_data), g_vertex_buffer_data, GL_STATIC_DRAW);
 
-		/* 
+		
 	   // Texture creation v2, makes use of buffer?
 		GLuint tex, buf;
 
@@ -111,7 +111,7 @@ class SickOpenGL{
 		glTexBuffer(GL_TEXTURE_BUFFER, GL_R32UI, buf);  // Attatch buffer object to texture as single channel floating point
 
 		glBindImageTexture(0, tex, 0, GL_FALSE, 0, GL_READ_WRITE, GL_R32UI);  // bind for r/w in image unit
-		*/
+		
 
 	   // Texture creation v1
 /*
@@ -132,6 +132,7 @@ class SickOpenGL{
 		// unbind buffer 
 		glBindBuffer(GL_ATOMIC_COUNTER_BUFFER, 0);
 
+std::cout << atomicsBuffer << std::endl;
 
 	   // Reset atomic buffers, can reset every frame from w/in loop
 		// declare a pointer to hold the values in the buffer
@@ -149,6 +150,9 @@ class SickOpenGL{
 		glUnmapBuffer(GL_ATOMIC_COUNTER_BUFFER);
 
 		do{
+			// TODO #~ - Find out where the counting is done
+			// 			and resset on every frame!
+
 			// Clear screen
 			glClear( GL_COLOR_BUFFER_BIT  | GL_DEPTH_BUFFER_BIT);
 			glClearColor(0.0f, 0.0f, 0.4f, 0.0f) ;
@@ -216,7 +220,8 @@ class SickOpenGL{
 // May be the case that the shader isn't binding to the atomic buffer.
 
 //// Goals
-// 1. Get the basic counters working.
+// 1. TODO - COUNTERS WORKING BUT WITH TEXUTRE?
+// !!! COUNTERS NOT BEING RESET!!!
 // 2. Add to counters based on x,y rather than color.
 // 3. Increase size of buffer to image size and increment when
 // 	  fragment called at pixel
