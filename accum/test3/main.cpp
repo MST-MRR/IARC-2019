@@ -45,6 +45,9 @@ class SickOpenGL{
 	
 	};
 
+	const char* vshader = "vertex.glsl";
+	const char* fshader = "atomic-counter.glsl";
+
   public:
 	SickOpenGL(){
 		glEnable( GL_DEBUG_OUTPUT );
@@ -85,7 +88,7 @@ class SickOpenGL{
 	}
 
 	void run(){
-		GLuint programID = LoadShaders("vertex.glsl", "atomic-counter.glsl" );  // Create and compile our GLSL program from the shaders
+		GLuint programID = LoadShaders(vshader, fshader);  // Create and compile our GLSL program from the shaders
 
 		GLuint VertexArrayID;
 		glGenVertexArrays(1, &VertexArrayID);
@@ -98,7 +101,6 @@ class SickOpenGL{
 		// Give vertices to OpenGL.
 		glBufferData(GL_ARRAY_BUFFER, sizeof(g_vertex_buffer_data), g_vertex_buffer_data, GL_STATIC_DRAW);
 
-		
 	   // Texture creation v2, makes use of buffer?
 		GLuint tex, buf;
 
@@ -123,6 +125,8 @@ class SickOpenGL{
 		glBindTexture(GL_TEXTURE_2D, 0);
 		glBindImageTexture(0, tex, 0, GL_FALSE, 0, GL_READ_WRITE, GL_R32UI);
 */
+
+/*
 	   // Atomic buffer creation
 		GLuint atomicsBuffer;
 		glGenBuffers(1, &atomicsBuffer);
@@ -131,8 +135,6 @@ class SickOpenGL{
 		glBufferData(GL_ATOMIC_COUNTER_BUFFER, sizeof(GLuint) * 3, NULL, GL_DYNAMIC_DRAW);
 		// unbind buffer 
 		glBindBuffer(GL_ATOMIC_COUNTER_BUFFER, 0);
-
-std::cout << atomicsBuffer << std::endl;
 
 	   // Reset atomic buffers, can reset every frame from w/in loop
 		// declare a pointer to hold the values in the buffer
@@ -148,16 +150,28 @@ std::cout << atomicsBuffer << std::endl;
 		memset(userCounters, 0, sizeof(GLuint) *3 );
 		// unmap the buffer
 		glUnmapBuffer(GL_ATOMIC_COUNTER_BUFFER);
+*/
+
+	   // Shader storage buffer, may need to disable other buffers?
+	   	GLuint buff;
+		
+		glGenBuffers(1, &buff);
+		glBindBuffer(GL_SHADER_STORAGE_BUFFER, buff);
+		glBufferData(GL_SHADER_STORAGE_BUFFER, 8192, NULL, GL_DYNAMIC_COPY);
+
+		glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, buff);
+
+		std::cout << "Shader storage location: " << buff << std::endl;
 
 		do{
-			// TODO #~ - Find out where the counting is done
-			// 			and resset on every frame!
+			// Counting is done in texture or associated buffer.
+			// TODO Why is it not double counting overlaps
 
 			// Clear screen
 			glClear( GL_COLOR_BUFFER_BIT  | GL_DEPTH_BUFFER_BIT);
 			glClearColor(0.0f, 0.0f, 0.4f, 0.0f) ;
 
-			// Set buffer
+			// Set vertex buffer
 			// 1st attribute buffer : vertices
 			glEnableVertexAttribArray(0);
 			glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);
@@ -177,7 +191,7 @@ std::cout << atomicsBuffer << std::endl;
 		} // Check if the ESC key was pressed or the window was closed
 		while( glfwGetKey(window, GLFW_KEY_ESCAPE ) != GLFW_PRESS &&
 			glfwWindowShouldClose(window) == 0 );
-
+/*
 	   // Output atomic values
 		//GLuint *userCounters;
 		glBindBuffer(GL_ATOMIC_COUNTER_BUFFER, atomicsBuffer);
@@ -202,6 +216,7 @@ std::cout << atomicsBuffer << std::endl;
 		
 		if (redPixels > 0 || greenPixels > 0 || bluePixels > 0)
 			std::cout << "woooooo u did it\n!!!!!!\n!!!!!!\n!!!!!!\n!!!!!!\n!!!!!!\n!!!!!!\n!!!!!!\n!!!!!!\n!!!!!!\n!!!!!!\n!!!!!!\n!!!!!!\n!!!!!!\n!!!!!!\n!!!!!!\n!!!!!!\n!!!!!!\n!!!!!!\n!!!!!!\n!!!!!!\n!!!!!!\n!!!!!!\n!!!!!!\n!!!!!!\n!!!!!!" << std::endl;
+*/
 	}
 };
 
