@@ -101,7 +101,7 @@ class SickOpenGL{
 		// Give vertices to OpenGL.
 		glBufferData(GL_ARRAY_BUFFER, sizeof(g_vertex_buffer_data), g_vertex_buffer_data, GL_STATIC_DRAW);
 
-	   // Texture creation v2, makes use of buffer?
+	   // Texture creation with buffer binded to image unit? p572
 		GLuint tex, buf;
 
 		glGenBuffers(1, &buf);  // Generate name for buffer
@@ -113,7 +113,7 @@ class SickOpenGL{
 		glTexBuffer(GL_TEXTURE_BUFFER, GL_R32UI, buf);  // Attatch buffer object to texture as single channel floating point
 
 		glBindImageTexture(0, tex, 0, GL_FALSE, 0, GL_READ_WRITE, GL_R32UI);  // bind for r/w in image unit
-		
+
 
 	   // Texture creation v1
 /*
@@ -161,7 +161,7 @@ class SickOpenGL{
 
 		glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, buff);
 
-		std::cout << "Shader storage location: " << buff << std::endl;
+		std::cout << "Shader name: " << buff << std::endl;
 
 		do{
 			// Counting is done in texture or associated buffer.
