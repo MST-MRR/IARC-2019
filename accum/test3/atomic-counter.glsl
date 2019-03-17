@@ -10,6 +10,8 @@
 
 layout (r32ui) uniform uimageBuffer image_buffer;  
 
+// layout (r32ui) uniform uimage2D image_buffer;
+
 uniform sampler2D my_texture;
 
 in vec2 tex_coord;
