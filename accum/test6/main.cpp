@@ -117,7 +117,7 @@ class SickOpenGL{
 		// Give vertices to OpenGL.
 		glBufferData(GL_ARRAY_BUFFER, sizeof(g_vertex_buffer_data), g_vertex_buffer_data, GL_STATIC_DRAW);
 
-
+//https://learnopengl.com/Advanced-OpenGL/Framebuffers
 
 unsigned int fbo;
 glGenFramebuffers(1, &fbo);
@@ -142,8 +142,56 @@ glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, 800, 600, 0, GL_RGB, GL_UNSIGNED_BYTE, NU
 glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);  
 
-
 glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, texture, 0);
+
+
+glTexImage2D(
+  GL_TEXTURE_2D, 0, GL_DEPTH24_STENCIL8, 800, 600, 0, 
+  GL_DEPTH_STENCIL, GL_UNSIGNED_INT_24_8, NULL
+);
+
+glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_TEXTURE_2D, texture, 0);
+
+
+unsigned int rbo;
+glGenRenderbuffers(1, &rbo);
+
+glBindRenderbuffer(GL_RENDERBUFFER, rbo);
+
+glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, 800, 600);
+
+glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, rbo);
+
+unsigned int framebuffer;
+glGenFramebuffers(1, &framebuffer);
+glBindFramebuffer(GL_FRAMEBUFFER, framebuffer);    
+
+// generate texture
+unsigned int texColorBuffer;
+glGenTextures(1, &texColorBuffer);
+glBindTexture(GL_TEXTURE_2D, texColorBuffer);
+glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, 800, 600, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
+glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR );
+glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+glBindTexture(GL_TEXTURE_2D, 0);
+
+// attach it to currently bound framebuffer object
+glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, texColorBuffer, 0);
+
+unsigned int rbo;
+glGenRenderbuffers(1, &rbo);
+glBindRenderbuffer(GL_RENDERBUFFER, rbo); 
+glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, 800, 600);  
+glBindRenderbuffer(GL_RENDERBUFFER, 0);
+
+glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, rbo);
+
+if(glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
+	std::cout << "ERROR::FRAMEBUFFER:: Framebuffer is not complete!" << std::endl;
+glBindFramebuffer(GL_FRAMEBUFFER, 0);  
+
+
+
 
 		do{
 			// Counting is done in texture or associated buffer.
@@ -160,15 +208,36 @@ glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, text
 
 			glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, (void*)0);
 
-			glUseProgram(programID);  // Use shader
-
+			
+/*
 			// Draw
 			glDrawArrays(GL_LINES, 0, v_count); // Starting from vertex 0; 3 vertices total -> 1 triangle
 			glDisableVertexAttribArray(0);
 
 			// Swap buffers
 			glfwSwapBuffers(window);
-			glfwPollEvents();
+			glfwPollEvents();*/
+
+// first pass
+glBindFramebuffer(GL_FRAMEBUFFER, framebuffer);
+glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
+glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // we're not using the stencil buffer now
+glEnable(GL_DEPTH_TEST);
+glfwSwapBuffers(window);// DrawScene();	
+  
+// second pass
+glBindFramebuffer(GL_FRAMEBUFFER, 0); // back to default
+glClearColor(1.0f, 1.0f, 1.0f, 1.0f); 
+glClear(GL_COLOR_BUFFER_BIT);
+  
+glUseProgram(programID);  // Use shader   screenShader.use();  
+glBindVertexArray(vertexbuffer);
+glDisable(GL_DEPTH_TEST);
+
+glActiveTexture(GL_TEXTURE0);
+//glBindTexture(GL_TEXTURE_2D, textureColorbuffer);
+glDrawArrays(GL_TRIANGLES, 0, 6);  
+
 
 		} // Check if the ESC key was pressed or the window was closed
 		while( glfwGetKey(window, GLFW_KEY_ESCAPE ) != GLFW_PRESS &&
