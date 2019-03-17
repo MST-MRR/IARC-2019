@@ -19,10 +19,6 @@ static void glfwError(int id, const char* description)
 }
 
 
-/// figure out how textures work
-
-
-
 class SickOpenGL{
   private:
  	GLFWwindow* window;
@@ -104,8 +100,9 @@ class SickOpenGL{
 		
 		// Give vertices to OpenGL.
 		glBufferData(GL_ARRAY_BUFFER, sizeof(g_vertex_buffer_data), g_vertex_buffer_data, GL_STATIC_DRAW);
-
+/*
 	   // Texture creation with buffer binded to image unit? p572
+	   // https://stackoverflow.com/questions/21424968/what-is-the-purpose-of-opengl-texture-buffer-objects
 		GLuint tex, buf;
 
 		glGenBuffers(1, &buf);  // Generate name for buffer
@@ -117,11 +114,7 @@ class SickOpenGL{
 		glTexBuffer(GL_TEXTURE_BUFFER, GL_R32UI, buf);  // Attatch buffer object to texture as single channel floating point
 
 		glBindImageTexture(0, tex, 0, GL_FALSE, 0, GL_READ_WRITE, GL_R32UI);  // bind for r/w in image unit
-/*
-//http://www.opengl-tutorial.org/intermediate-tutorials/tutorial-14-render-to-texture/
-GLuint FramebufferName = 0;
-glGenFramebuffers(1, &FramebufferName);
-glBindFramebuffer(GL_FRAMEBUFFER, FramebufferName);
+*/
 
 
 // The texture we're going to render to
@@ -140,23 +133,6 @@ glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 
 
 
-// Frame buffer
-
-// Set "renderedTexture" as our colour attachement #0
-glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, renderedTexture, 0);
-
-// Set the list of draw buffers.
-GLenum DrawBuffers[1] = {GL_COLOR_ATTACHMENT0};
-glDrawBuffers(1, DrawBuffers); // "1" is the size of DrawBuffers
-
-if(glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
-return;
-
-*/
-
-
-
-
 
 //https://www.khronos.org/opengl/wiki/Shader_Storage_Buffer_Object
 int *data = NULL;
@@ -169,7 +145,6 @@ glBindBuffer(GL_SHADER_STORAGE_BUFFER, ssbo);
 glBufferData(GL_SHADER_STORAGE_BUFFER, size, data, GL_DYNAMIC_DRAW);
 glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 6, ssbo);
 // uses layout qualifier 6
-
 
 glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0); // unbind
 
@@ -189,12 +164,6 @@ glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0); // unbind
 			glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, (void*)0);
 
 			glUseProgram(programID);  // Use shader
-		/*
-// Render to our framebuffer
-glBindFramebuffer(GL_FRAMEBUFFER, FramebufferName);
-glViewport(0,0,1024,768); // Render on the whole framebuffer,
-*/
-
 
 			// Draw
 			glDrawArrays(GL_LINES, 0, v_count); // Starting from vertex 0; 3 vertices total -> 1 triangle
@@ -207,57 +176,8 @@ glViewport(0,0,1024,768); // Render on the whole framebuffer,
 		} // Check if the ESC key was pressed or the window was closed
 		while( glfwGetKey(window, GLFW_KEY_ESCAPE ) != GLFW_PRESS &&
 			glfwWindowShouldClose(window) == 0 );
-/*
-	   // Output atomic values
-		//GLuint *userCounters;
-		glBindBuffer(GL_ATOMIC_COUNTER_BUFFER, atomicsBuffer);
-		// again we map the buffer to userCounters, but this time for read-only access
-		userCounters = (GLuint*)glMapBufferRange(GL_ATOMIC_COUNTER_BUFFER, 
-							0, 
-							sizeof(GLuint) * 3,
-							GL_MAP_READ_BIT
-							);
-	
-		// copy the values to other variables because...
-		GLuint redPixels = userCounters[0],
-			   greenPixels = userCounters[1],
-			   bluePixels = userCounters[2];
-		// ... as soon as we unmap the buffer
-		// the pointer userCounters becomes invalid.
-		glUnmapBuffer(GL_ATOMIC_COUNTER_BUFFER);
-
-		std::cout << "Counters: " << redPixels 
-				<< " " << greenPixels 
-				<< " " << bluePixels << std::endl;
-		
-		if (redPixels > 0 || greenPixels > 0 || bluePixels > 0)
-			std::cout << "woooooo u did it\n!!!!!!\n!!!!!!\n!!!!!!\n!!!!!!\n!!!!!!\n!!!!!!\n!!!!!!\n!!!!!!\n!!!!!!\n!!!!!!\n!!!!!!\n!!!!!!\n!!!!!!\n!!!!!!\n!!!!!!\n!!!!!!\n!!!!!!\n!!!!!!\n!!!!!!\n!!!!!!\n!!!!!!\n!!!!!!\n!!!!!!\n!!!!!!\n!!!!!!" << std::endl;
-*/
 	}
 };
-
-
-// pg 581 on atomic adding to a specific coordinate
-
-
-// Goal is to make atomic buffer that is the size of the image.
-// Then for every x,y that gets a pixel written to, the 
-// corresponding buffer can also be incremented.
-
-// Currently there is just 3 counters, added to regardless of
-// location.
-
-//// Possible issues
-// May be the case that the shader isn't binding to the atomic buffer.
-
-//// Goals
-// 1. TODO - COUNTERS WORKING BUT WITH TEXUTRE?
-// !!! COUNTERS NOT BEING RESET!!!
-// 2. Add to counters based on x,y rather than color.
-// 3. Increase size of buffer to image size and increment when
-// 	  fragment called at pixel
-// 4. Output whole vector
-// 5. Allow vertex input.
 
 int main(){
   SickOpenGL demo;
