@@ -117,6 +117,45 @@ class SickOpenGL{
 		glTexBuffer(GL_TEXTURE_BUFFER, GL_R32UI, buf);  // Attatch buffer object to texture as single channel floating point
 
 		glBindImageTexture(0, tex, 0, GL_FALSE, 0, GL_READ_WRITE, GL_R32UI);  // bind for r/w in image unit
+/*
+//http://www.opengl-tutorial.org/intermediate-tutorials/tutorial-14-render-to-texture/
+GLuint FramebufferName = 0;
+glGenFramebuffers(1, &FramebufferName);
+glBindFramebuffer(GL_FRAMEBUFFER, FramebufferName);
+
+
+// The texture we're going to render to
+GLuint renderedTexture;
+glGenTextures(1, &renderedTexture);
+
+// "Bind" the newly created texture : all future texture functions will modify this texture
+glBindTexture(GL_TEXTURE_2D, renderedTexture);
+
+// Give an empty image to OpenGL ( the last "0" )
+glTexImage2D(GL_TEXTURE_2D, 0,GL_RGB, 1024, 768, 0,GL_RGB, GL_UNSIGNED_BYTE, 0);
+
+// Poor filtering. Needed !
+glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+
+
+
+// Frame buffer
+
+// Set "renderedTexture" as our colour attachement #0
+glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, renderedTexture, 0);
+
+// Set the list of draw buffers.
+GLenum DrawBuffers[1] = {GL_COLOR_ATTACHMENT0};
+glDrawBuffers(1, DrawBuffers); // "1" is the size of DrawBuffers
+
+if(glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
+return;
+
+*/
+
+
+
 
 
 //https://www.khronos.org/opengl/wiki/Shader_Storage_Buffer_Object
@@ -150,7 +189,13 @@ glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0); // unbind
 			glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, (void*)0);
 
 			glUseProgram(programID);  // Use shader
-			
+		/*
+// Render to our framebuffer
+glBindFramebuffer(GL_FRAMEBUFFER, FramebufferName);
+glViewport(0,0,1024,768); // Render on the whole framebuffer,
+*/
+
+
 			// Draw
 			glDrawArrays(GL_LINES, 0, v_count); // Starting from vertex 0; 3 vertices total -> 1 triangle
 			glDisableVertexAttribArray(0);

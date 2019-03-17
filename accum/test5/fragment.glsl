@@ -22,7 +22,7 @@ layout(std430, binding=6) buffer layoutname
   ssbo_data data_SSBO[]; // render time sized array
 };
 */
-layout (r32ui) uniform uimage2D overdraw_count;
+layout (binding = 6, r32ui) uniform uimage2D overdraw_count;
 
 out vec3 color;
 
@@ -33,15 +33,26 @@ void main(){
   // Idea #2 - buffer shared across program w/ locks
 
 
-//GLuint count = 0;
-imageAtomicAdd(overdraw_count, ivec2(gl_FragCoord.xy), 1);
+// test 3 atomic-counter: shows that this works with a uimagebuffer
+// but cannot index buffer w/ ivec2
 
-  
-  //layoutname.baz[10] += 1;
+uint count = imageAtomicAdd(overdraw_count, ivec2(gl_FragCoord.xy), 1);
+count = imageAtomicAdd(overdraw_count, ivec2(gl_FragCoord.xy), 1);
 
-  /*if(count > 1){   // layoutname.baz[10] > 1){// gl_FragCoord.x > 512){
-    color = vec3(1,0,0);
+//vec4 x = imageLoad(overdraw_count, ivec2(gl_FragCoord.xy));
+  /*
+if (x[0] > 0){
+  color = vec3(1,0,0);
   } else {
     color = vec3(0,1,0);
   }*/
+
+
+  //layoutname.baz[10] += 1;
+
+  if(count > 0){   // layoutname.baz[10] > 1){// gl_FragCoord.x > 512){
+    color = vec3(1,0,0);
+  } else {
+    color = vec3(0,1,0);
+  }
 }
