@@ -27,11 +27,25 @@ void main(void){
     
     uint counter = imageAtomicAdd(image_buffer, 0, 1);
     
-    if(counter > 300000000){  // Since not resetting each frame
+    int mult = 10000000;
+
+    if(counter%(9*mult)  < 3*mult){  // Since not resetting each frame
       fragment_color = vec4(
         1.0,
         0.0, 
         0.0,
+        1);
+    } else if(counter%(9*mult)  < 6*mult) {
+      fragment_color = vec4(
+        0.0, 
+        1.0, 
+        0.0,
+        1);
+    } else if(counter%(9*mult) < 9*mult){
+      fragment_color = vec4(
+        0.0, 
+        0.0, 
+        1.0,
         1);
     } else {
       fragment_color = vec4(
