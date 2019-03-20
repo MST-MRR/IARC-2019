@@ -88,18 +88,20 @@ class SickOpenGL{
 	}
 
 	void run(){
-		GLuint programID = LoadShaders(vshader, fshader);  // Create and compile our GLSL program from the shaders
+		GLuint programID = LoadShaders(vshader, fshader);  
 
 		GLuint VertexArrayID;
 		glGenVertexArrays(1, &VertexArrayID);
 		glBindVertexArray(VertexArrayID);
 		
-		GLuint vertexbuffer;  // Identifies vertex buffer
-		glGenBuffers(1, &vertexbuffer);  // Generate 1 buffer, & store identifier in vertexbuffer
-		glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);  // The following commands will talk about our 'vertexbuffer' buffer
+		GLuint vertexbuffer;  
+		glGenBuffers(1, &vertexbuffer);
+		glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);  
 		
-		// Give vertices to OpenGL.
 		glBufferData(GL_ARRAY_BUFFER, sizeof(g_vertex_buffer_data), g_vertex_buffer_data, GL_STATIC_DRAW);
+
+	// Create buffers for glsl
+
 
 	   // Texture creation with buffer binded to image unit? p572
 		GLuint tex, buf;
@@ -114,109 +116,26 @@ class SickOpenGL{
 
 		glBindImageTexture(0, tex, 0, GL_FALSE, 0, GL_READ_WRITE, GL_R32UI);  // bind for r/w in image unit
 
-
-	   // Texture creation v1
-/*
-		GLuint tex;
-
-		glGenTextures(1, &tex);
-		glBindTexture(GL_TEXTURE_2D, tex);
-		glTexStorage2D(GL_TEXTURE_2D, 1, GL_R32UI, 512, 512);
-		glBindTexture(GL_TEXTURE_2D, 0);
-		glBindImageTexture(0, tex, 0, GL_FALSE, 0, GL_READ_WRITE, GL_R32UI);
-*/
-
-/*
-	   // Atomic buffer creation
-		GLuint atomicsBuffer;
-		glGenBuffers(1, &atomicsBuffer);
-		// bind buffer and define initial storage capacity
-		glBindBuffer(GL_ATOMIC_COUNTER_BUFFER, atomicsBuffer);
-		glBufferData(GL_ATOMIC_COUNTER_BUFFER, sizeof(GLuint) * 3, NULL, GL_DYNAMIC_DRAW);
-		// unbind buffer 
-		glBindBuffer(GL_ATOMIC_COUNTER_BUFFER, 0);
-
-	   // Reset atomic buffers, can reset every frame from w/in loop
-		// declare a pointer to hold the values in the buffer
-		GLuint *userCounters;
-		glBindBuffer(GL_ATOMIC_COUNTER_BUFFER, atomicsBuffer);
-		// map the buffer, userCounters will point to the buffers data
-		userCounters = (GLuint*)glMapBufferRange(GL_ATOMIC_COUNTER_BUFFER, 
-            0, 
-            sizeof(GLuint) * 3, 
-            GL_MAP_WRITE_BIT | GL_MAP_INVALIDATE_BUFFER_BIT | GL_MAP_UNSYNCHRONIZED_BIT
-            );
-		// set the memory to zeros, resetting the values in the buffer
-		memset(userCounters, 0, sizeof(GLuint) *3 );
-		// unmap the buffer
-		glUnmapBuffer(GL_ATOMIC_COUNTER_BUFFER);
-*/
-
-	   // Shader storage buffer, may need to disable other buffers?
-	   	GLuint buff;
-		
-		glGenBuffers(1, &buff);
-		glBindBuffer(GL_SHADER_STORAGE_BUFFER, buff);
-		glBufferData(GL_SHADER_STORAGE_BUFFER, 8192, NULL, GL_DYNAMIC_COPY);
-
-		glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, buff);
-
-		std::cout << "Shader name: " << buff << std::endl;
-
 		do{
-			// Counting is done in texture or associated buffer.
-			// TODO Why is it not double counting overlaps
-
-			// Clear screen
 			glClear( GL_COLOR_BUFFER_BIT  | GL_DEPTH_BUFFER_BIT);
 			glClearColor(0.0f, 0.0f, 0.4f, 0.0f) ;
 
-			// Set vertex buffer
-			// 1st attribute buffer : vertices
 			glEnableVertexAttribArray(0);
 			glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);
 
 			glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, (void*)0);
 
-			glUseProgram(programID);  // Use shader
+			glUseProgram(programID);
 			
 			// Draw
-			glDrawArrays(GL_LINES, 0, v_count); // Starting from vertex 0; 3 vertices total -> 1 triangle
+			glDrawArrays(GL_LINES, 0, v_count);
 			glDisableVertexAttribArray(0);
 
-			// Swap buffers
 			glfwSwapBuffers(window);
 			glfwPollEvents();
 
-		} // Check if the ESC key was pressed or the window was closed
-		while( glfwGetKey(window, GLFW_KEY_ESCAPE ) != GLFW_PRESS &&
+		} while( glfwGetKey(window, GLFW_KEY_ESCAPE ) != GLFW_PRESS &&
 			glfwWindowShouldClose(window) == 0 );
-/*
-	   // Output atomic values
-		//GLuint *userCounters;
-		glBindBuffer(GL_ATOMIC_COUNTER_BUFFER, atomicsBuffer);
-		// again we map the buffer to userCounters, but this time for read-only access
-		userCounters = (GLuint*)glMapBufferRange(GL_ATOMIC_COUNTER_BUFFER, 
-							0, 
-							sizeof(GLuint) * 3,
-							GL_MAP_READ_BIT
-							);
-	
-		// copy the values to other variables because...
-		GLuint redPixels = userCounters[0],
-			   greenPixels = userCounters[1],
-			   bluePixels = userCounters[2];
-		// ... as soon as we unmap the buffer
-		// the pointer userCounters becomes invalid.
-		glUnmapBuffer(GL_ATOMIC_COUNTER_BUFFER);
-
-		std::cout << "Counters: " << redPixels 
-				<< " " << greenPixels 
-				<< " " << bluePixels << std::endl;
-		
-		if (redPixels > 0 || greenPixels > 0 || bluePixels > 0)
-			std::cout << "woooooo u did it\n!!!!!!\n!!!!!!\n!!!!!!\n!!!!!!\n!!!!!!\n!!!!!!\n!!!!!!\n!!!!!!\n!!!!!!\n!!!!!!\n!!!!!!\n!!!!!!\n!!!!!!\n!!!!!!\n!!!!!!\n!!!!!!\n!!!!!!\n!!!!!!\n!!!!!!\n!!!!!!\n!!!!!!\n!!!!!!\n!!!!!!\n!!!!!!\n!!!!!!" << std::endl;
-*/
 	}
 };
 
