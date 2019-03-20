@@ -1,6 +1,5 @@
 #include <stdio.h>
 #include <stdlib.h>
-// Include glew before gl.h and glfw3.h
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 #include <glm/glm.hpp>
@@ -10,9 +9,7 @@ using namespace glm;
 #include <stdexcept>
 #include "loader.h"
 
-// pragma debug thing in shaders for debug mode
 
-// shared value in texture is shared between program and shader
 static void glfwError(int id, const char* description)
 {
   std::cout << description << std::endl;
@@ -46,7 +43,7 @@ class SickOpenGL{
 	};
 
 	const char* vshader = "vertex.glsl";
-	const char* fshader = "atomic-counter.glsl";
+	const char* fshader = "fragment.glsl";
 
   public:
 	SickOpenGL(){
@@ -62,12 +59,10 @@ class SickOpenGL{
 		}
 	
 		glfwWindowHint(GLFW_SAMPLES, 4); // 4x antialiasing
-		glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4); // We want OpenGL 3.3
+		glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
 		glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
-		glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE); // To make MacOS happy
-		glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE); // We don't want the old OpenGL 
-
-		// Open window & add OpenGL context
+		glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
+		glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 		
 		window = glfwCreateWindow( 1024, 768, "Texture Accumulating Arbitrary Values", NULL, NULL);
 		if( window == NULL ){
@@ -75,15 +70,14 @@ class SickOpenGL{
 			glfwTerminate();
 			throw std::runtime_error("Failed to open GLFW window. If you have an Intel GPU, they are not 3.3 compatible.");
 		}
-		glfwMakeContextCurrent(window); // Initialize GLEW
+		glfwMakeContextCurrent(window); 
 		
-		glewExperimental=true; // Needed in core profile
+		glewExperimental=true;
 		if (glewInit() != GLEW_OK) {
 			fprintf(stderr, "Failed to initialize GLEW\n");
 			throw std::runtime_error("Failed to initialize GLEW");
 		}
 
-		// Ensure can capture escape key press
 		glfwSetInputMode(window, GLFW_STICKY_KEYS, GL_TRUE);
 	}
 
@@ -106,15 +100,16 @@ class SickOpenGL{
 	   // Texture creation with buffer binded to image unit? p572
 		GLuint tex, buf;
 
-		glGenBuffers(1, &buf);  // Generate name for buffer
-		glBindBuffer(GL_TEXTURE_BUFFER, buf);  // Bind
-		glBufferData(GL_TEXTURE_BUFFER, 4096, NULL, GL_DYNAMIC_COPY);  // Allocate data
+		glGenBuffers(1, &buf); 
+		glBindBuffer(GL_TEXTURE_BUFFER, buf); 
+		glBufferData(GL_TEXTURE_BUFFER, 4096, NULL, GL_DYNAMIC_COPY); 
 
-		glGenTextures(1, &tex);  // Gerate name for texture
-		glBindTexture(GL_TEXTURE_BUFFER, tex);  // Bind to buffer texture target to create
-		glTexBuffer(GL_TEXTURE_BUFFER, GL_R32UI, buf);  // Attatch buffer object to texture as single channel floating point
+		glGenTextures(1, &tex);  
+		glBindTexture(GL_TEXTURE_BUFFER, tex); 
+		glTexBuffer(GL_TEXTURE_BUFFER, GL_R32UI, buf);  
 
-		glBindImageTexture(0, tex, 0, GL_FALSE, 0, GL_READ_WRITE, GL_R32UI);  // bind for r/w in image unit
+		glBindImageTexture(0, tex, 0, GL_FALSE, 0, GL_READ_WRITE, GL_R32UI); 
+
 
 		do{
 			glClear( GL_COLOR_BUFFER_BIT  | GL_DEPTH_BUFFER_BIT);
@@ -139,28 +134,6 @@ class SickOpenGL{
 	}
 };
 
-
-// pg 581 on atomic adding to a specific coordinate
-
-
-// Goal is to make atomic buffer that is the size of the image.
-// Then for every x,y that gets a pixel written to, the 
-// corresponding buffer can also be incremented.
-
-// Currently there is just 3 counters, added to regardless of
-// location.
-
-//// Possible issues
-// May be the case that the shader isn't binding to the atomic buffer.
-
-//// Goals
-// 1. TODO - COUNTERS WORKING BUT WITH TEXUTRE?
-// !!! COUNTERS NOT BEING RESET!!!
-// 2. Add to counters based on x,y rather than color.
-// 3. Increase size of buffer to image size and increment when
-// 	  fragment called at pixel
-// 4. Output whole vector
-// 5. Allow vertex input.
 
 int main(){
   SickOpenGL demo;
