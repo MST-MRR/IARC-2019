@@ -45,6 +45,8 @@ class SickOpenGL{
 	const char* vshader = "vertex.glsl";
 	const char* fshader = "fragment.glsl";
 
+	GLsizeiptr buff_size = 10240 * 7680;
+
   public:
 	SickOpenGL(){
 		glEnable( GL_DEBUG_OUTPUT );
@@ -94,7 +96,40 @@ class SickOpenGL{
 		
 		glBufferData(GL_ARRAY_BUFFER, sizeof(g_vertex_buffer_data), g_vertex_buffer_data, GL_STATIC_DRAW);
 
-	// Create buffers for glsl
+// TODO - Change this buffer to a pixel buffer
+
+//GL_TEXTURE_2D
+/*
+static const GLubyte tex_checkerboard_data[] = 
+{
+	0xFF, 0x00, 0xFF, 0x00, 0xFF, 0x00, 0xFF, 0x00,
+	0xFF, 0x00, 0xFF, 0x00, 0xFF, 0x00, 0xFF, 0x00,
+	0xFF, 0x00, 0xFF, 0x00, 0xFF, 0x00, 0xFF, 0x00,
+	0xFF, 0x00, 0xFF, 0x00, 0xFF, 0x00, 0xFF, 0x00,
+	0xFF, 0x00, 0xFF, 0x00, 0xFF, 0x00, 0xFF, 0x00,
+	0xFF, 0x00, 0xFF, 0x00, 0xFF, 0x00, 0xFF, 0x00,
+	0xFF, 0x00, 0xFF, 0x00, 0xFF, 0x00, 0xFF, 0x00,
+	0xFF, 0x00, 0xFF, 0x00, 0xFF, 0x00, 0xFF, 0x00
+};
+static const GLfloat tex_color_data[] =
+{
+	1.0f, 0.0f, 0.0f, 1.0f,
+	0.0f, 1.0f, 0.0f, 1.0f,
+	0.0f, 0.0f, 1.0f, 1.0f,
+	1.0f, 1.0f, 0.0f, 1.0f
+};
+
+GLuint tex_checkerboard, tex_color;
+
+glBindTexture(GL_TEXTURE_2D, tex_checkerboard);
+glTexStorage2D(GL_TEXTURE_2D, 4, GL_R8, 8, 8); // allocate data
+glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 8, 8, GL_RED, GL_UNSIGNED_BYTE, tex_checkerboard_data);
+
+// texture 2
+glBindTexture(GL_TEXTURE_2D, tex_color);
+glTexStorage2D(GL_TEXTURE_2D, 2, GL_RGBA32F, 2, 2);
+glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 2, 2, GL_RGBA, GL_FLOAT, tex_color_data);
+*/
 
 
 	   // Texture creation with buffer binded to image unit? p572
@@ -102,7 +137,7 @@ class SickOpenGL{
 
 		glGenBuffers(1, &buf); 
 		glBindBuffer(GL_TEXTURE_BUFFER, buf); 
-		glBufferData(GL_TEXTURE_BUFFER, 4096, NULL, GL_DYNAMIC_COPY); 
+		glBufferData(GL_TEXTURE_BUFFER, buff_size, NULL, GL_DYNAMIC_COPY); 
 
 		glGenTextures(1, &tex);  
 		glBindTexture(GL_TEXTURE_BUFFER, tex); 
@@ -122,8 +157,8 @@ class SickOpenGL{
 
 			glUseProgram(programID);
 			
-			// Draw
 			glDrawArrays(GL_LINES, 0, v_count);
+
 			glDisableVertexAttribArray(0);
 
 			glfwSwapBuffers(window);
