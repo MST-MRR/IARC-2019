@@ -26,7 +26,7 @@ class SickOpenGL{
   private:
  	GLFWwindow* window;
 	static const GLuint v_count = 14;
-  	const GLfloat g_vertex_buffer_data[v_count*3] = {
+  	 GLfloat g_vertex_buffer_data[v_count*3] = {
 		-1.0f, -1.0f, 0.0f,
 		1.0f, 1.0f, 0.0f,
 		-1.0f,  1.0f, 0.0f,
