@@ -16,10 +16,9 @@ static void glfwError(int id, const char* description)
 }
 
 // TODO //
-// Save buffer data to opencv image
-// looks like middle line got fucked
-// buffsize * int size?
 // test vertex input
+// Save buffer data to opencv image
+
 
 
 class SickOpenGL{
@@ -72,11 +71,11 @@ class SickOpenGL{
 		glfwSetInputMode(window, GLFW_STICKY_KEYS, GL_TRUE);
 	}
 
-	void set_verticies(const GLuint size, GLfloat *values){
-		v_count = size * int_per_vertex;
+	void set_verticies(const GLuint vertex_count, GLfloat *values){
+		v_count = vertex_count;
 
 
-		g_vertex_buffer_data = new GLfloat[size*int_per_vertex];
+		g_vertex_buffer_data = new GLfloat[v_count*int_per_vertex];
 		g_vertex_buffer_data = values;
 	}
 
@@ -90,7 +89,6 @@ class SickOpenGL{
 		GLuint vertexbuffer;  
 		glGenBuffers(1, &vertexbuffer);
 		glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);  
-		
 		glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat) * v_count * int_per_vertex, g_vertex_buffer_data, GL_STATIC_DRAW);
 
 		GLuint tex, buf;
@@ -139,8 +137,9 @@ class SickOpenGL{
 
 int main(){
   SickOpenGL demo;
-const GLuint v_count = 14;
-GLfloat x[v_count*3] = {
+  
+  const GLuint v_count = 14;
+  GLfloat x[v_count*3] = {
 		-1.0f, -1.0f, 0.0f,
 		1.0f, 1.0f, 0.0f,
 		-1.0f,  1.0f, 0.0f,
