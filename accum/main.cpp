@@ -22,7 +22,9 @@ static void glfwError(int id, const char* description)
 
 
 class SickOpenGL{
-  private:
+  public:
+	int w_width = 1024, w_height = 768; // need to change in fragment too
+
  	GLFWwindow* window;
 	
 	const int int_per_vertex = 3;
@@ -33,9 +35,8 @@ class SickOpenGL{
 	const char* vshader = "vertex.glsl";
 	const char* fshader = "fragment.glsl";
 
-	GLsizeiptr buff_size = 10240 * 7680;
+	GLsizeiptr buff_size = w_width * w_height * 100;
 
-  public:
 	SickOpenGL(){
 		glEnable( GL_DEBUG_OUTPUT );
 		glfwSetErrorCallback(&glfwError);
@@ -54,7 +55,7 @@ class SickOpenGL{
 		glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
 		glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 		
-		window = glfwCreateWindow( 1024, 768, "Texture Accumulating Arbitrary Values", NULL, NULL);
+		window = glfwCreateWindow(w_width, w_height, "Texture Buffer Counting Overlap", NULL, NULL);
 		if( window == NULL ){
 			fprintf( stderr, "Failed to open GLFW window. If you have an Intel GPU, they are not 3.3 compatible.\n" );
 			glfwTerminate();
@@ -139,7 +140,7 @@ int main(){
   SickOpenGL demo;
   
   const GLuint v_count = 14;
-  GLfloat x[v_count*3] = {
+  GLfloat x[v_count*demo.int_per_vertex] = {
 		-1.0f, -1.0f, 0.0f,
 		1.0f, 1.0f, 0.0f,
 		-1.0f,  1.0f, 0.0f,
