@@ -16,7 +16,6 @@ static void glfwError(int id, const char* description)
 }
 
 // TODO //
-// test vertex input
 // Save buffer data to opencv image
 
 
@@ -75,7 +74,6 @@ class SickOpenGL{
 	void set_verticies(const GLuint vertex_count, GLfloat *values){
 		v_count = vertex_count;
 
-
 		g_vertex_buffer_data = new GLfloat[v_count*int_per_vertex];
 		g_vertex_buffer_data = values;
 	}
@@ -113,7 +111,7 @@ class SickOpenGL{
 			glEnableVertexAttribArray(0);
 			glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);
 
-			glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, (void*)0);
+			glVertexAttribPointer(0, int_per_vertex, GL_FLOAT, GL_FALSE, 0, (void*)0);
 
 			glUseProgram(programID);
 			
@@ -130,6 +128,16 @@ class SickOpenGL{
 		GLuint *data = new GLuint[buff_size];
 		
 		glGetBufferSubData(GL_TEXTURE_BUFFER, 0, buff_size, data);
+
+
+		for (int i=0; i < w_height; i++){
+			for(int j=0; j < w_width; j++){
+				GLuint v = data[i*w_width + j];
+				if(v > 0)
+				  std::cout << v << std::endl;
+			}
+		}
+		std::cout << data[0] << std::endl;
 
 		std::cout << "Error: " << glGetError() << std::endl;
 	}
