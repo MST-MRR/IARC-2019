@@ -78,7 +78,6 @@ class SickOpenGL{
 
 		g_vertex_buffer_data = new GLfloat[size*int_per_vertex];
 		g_vertex_buffer_data = values;
-
 	}
 
 	void run(){
