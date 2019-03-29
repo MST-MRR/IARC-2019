@@ -16,36 +16,20 @@ static void glfwError(int id, const char* description)
 }
 
 // TODO //
-// Run only once
 // Save buffer data to opencv image
-// Allow huge inputs
+// looks like middle line got fucked
 // buffsize * int size?
+// test vertex input
 
 
 class SickOpenGL{
   private:
  	GLFWwindow* window;
-	static const GLuint v_count = 14;
-  	 GLfloat g_vertex_buffer_data[v_count*3] = {
-		-1.0f, -1.0f, 0.0f,
-		1.0f, 1.0f, 0.0f,
-		-1.0f,  1.0f, 0.0f,
-		1.0f, -1.0f, 0.0f,
-		-1.0f, 0.5f, 0.0f,
-		1.0f,  0.5f, 0.0f,
+	
+	const int int_per_vertex = 3;
 
-		0.0f, 1.0f, 0.0f,
-		0.0f, -1.0f, 0.0f,
-
-		0.0f, 1.0f, 0.0f,
-		0.0f, -1.0f, 0.0f,
-		
-		0.0f, 1.0f, 0.0f,
-		0.0f, -1.0f, 0.0f,
-		
-		0.0f, 1.0f, 0.0f,
-		0.0f, -1.0f, 0.0f	
-	};
+	GLuint v_count;
+  	GLfloat *g_vertex_buffer_data;
 
 	const char* vshader = "vertex.glsl";
 	const char* fshader = "fragment.glsl";
@@ -88,8 +72,12 @@ class SickOpenGL{
 		glfwSetInputMode(window, GLFW_STICKY_KEYS, GL_TRUE);
 	}
 
-	void set_verticies(GLfloat *values){
+	void set_verticies(const GLuint size, GLfloat *values){
+		v_count = size * int_per_vertex;
 
+
+		g_vertex_buffer_data = new GLfloat[size*int_per_vertex];
+		g_vertex_buffer_data = values;
 
 	}
 
@@ -104,7 +92,7 @@ class SickOpenGL{
 		glGenBuffers(1, &vertexbuffer);
 		glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);  
 		
-		glBufferData(GL_ARRAY_BUFFER, sizeof(g_vertex_buffer_data), g_vertex_buffer_data, GL_STATIC_DRAW);
+		glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat) * v_count * int_per_vertex, g_vertex_buffer_data, GL_STATIC_DRAW);
 
 		GLuint tex, buf;
 
@@ -152,6 +140,28 @@ class SickOpenGL{
 
 int main(){
   SickOpenGL demo;
+const GLuint v_count = 14;
+GLfloat x[v_count*3] = {
+		-1.0f, -1.0f, 0.0f,
+		1.0f, 1.0f, 0.0f,
+		-1.0f,  1.0f, 0.0f,
+		1.0f, -1.0f, 0.0f,
+		-1.0f, 0.5f, 0.0f,
+		1.0f,  0.5f, 0.0f,
+
+		0.0f, 1.0f, 0.0f,
+		0.0f, -1.0f, 0.0f,
+
+		0.0f, 1.0f, 0.0f,
+		0.0f, -1.0f, 0.0f,
+		
+		0.0f, 1.0f, 0.0f,
+		0.0f, -1.0f, 0.0f,
+		
+		0.0f, 1.0f, 0.0f,
+		0.0f, -1.0f, 0.0f	
+	};
+  demo.set_verticies(v_count , x);
 
   demo.run(); 
 
