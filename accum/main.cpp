@@ -15,6 +15,12 @@ static void glfwError(int id, const char* description)
   std::cout << description << std::endl;
 }
 
+// TODO //
+// Run only once
+// Save buffer data to opencv image
+// Allow huge inputs
+// buffsize * int size?
+
 
 class SickOpenGL{
   private:
@@ -38,8 +44,7 @@ class SickOpenGL{
 		0.0f, -1.0f, 0.0f,
 		
 		0.0f, 1.0f, 0.0f,
-		0.0f, -1.0f, 0.0f
-	
+		0.0f, -1.0f, 0.0f	
 	};
 
 	const char* vshader = "vertex.glsl";
@@ -83,6 +88,11 @@ class SickOpenGL{
 		glfwSetInputMode(window, GLFW_STICKY_KEYS, GL_TRUE);
 	}
 
+	void set_verticies(GLfloat *values){
+
+
+	}
+
 	void run(){
 		GLuint programID = LoadShaders(vshader, fshader);  
 
@@ -96,7 +106,6 @@ class SickOpenGL{
 		
 		glBufferData(GL_ARRAY_BUFFER, sizeof(g_vertex_buffer_data), g_vertex_buffer_data, GL_STATIC_DRAW);
 
-	   // Texture creation with buffer binded to image unit? p572
 		GLuint tex, buf;
 
 		glGenBuffers(1, &buf); 
@@ -110,6 +119,7 @@ class SickOpenGL{
 		glBindImageTexture(0, tex, 0, GL_FALSE, 0, GL_READ_WRITE, GL_R32UI); 
 
 
+		//
 		do{
 			glClear( GL_COLOR_BUFFER_BIT  | GL_DEPTH_BUFFER_BIT);
 			glClearColor(0.0f, 0.0f, 0.4f, 0.0f) ;
@@ -124,15 +134,18 @@ class SickOpenGL{
 			glDrawArrays(GL_LINES, 0, v_count);
 
 			glDisableVertexAttribArray(0);
-
-			
-/* TODO - Output to opencv image then make only run one time */			
-
 		
 			glfwSwapBuffers(window);
 			glfwPollEvents();
 		} while( glfwGetKey(window, GLFW_KEY_ESCAPE ) != GLFW_PRESS &&
 			glfwWindowShouldClose(window) == 0 );
+/**/
+		// what data type is the buffer stored as?
+		GLuint *data = new GLuint[buff_size];
+		
+		glGetBufferSubData(GL_TEXTURE_BUFFER, 0, buff_size, data);
+
+		std::cout << "Error: " << glGetError() << std::endl;
 	}
 };
 
