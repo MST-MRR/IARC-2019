@@ -137,8 +137,7 @@ class SickOpenGL{
 				  std::cout << v << std::endl;
 			}
 		}
-		std::cout << data[0] << std::endl;
-
+		
 		std::cout << "Error: " << glGetError() << std::endl;
 	}
 };
