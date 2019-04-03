@@ -9,16 +9,14 @@ using namespace glm;
 #include <stdexcept>
 #include "loader.h"
 
+#include <opencv2/opencv.hpp>
+#include "mat.hpp"
+
 
 static void glfwError(int id, const char* description)
 {
   std::cout << description << std::endl;
 }
-
-// TODO //
-// Save buffer data to opencv image
-
-
 
 class SickOpenGL{
   public:
@@ -35,7 +33,7 @@ class SickOpenGL{
 	const char* fshader = "fragment.glsl";
 
 	GLsizeiptr buff_size = w_width * w_height * 100;
-
+	
 	SickOpenGL(){
 		glEnable( GL_DEBUG_OUTPUT );
 		glfwSetErrorCallback(&glfwError);
@@ -124,12 +122,21 @@ class SickOpenGL{
 		} while( glfwGetKey(window, GLFW_KEY_ESCAPE ) != GLFW_PRESS &&
 			glfwWindowShouldClose(window) == 0 );
 /**/
+		
+	}
+	
+	void convert_output(){
+
+
 		// what data type is the buffer stored as?
 		GLuint *data = new GLuint[buff_size];
 		
 		glGetBufferSubData(GL_TEXTURE_BUFFER, 0, buff_size, data);
 
 
+
+
+		/*
 		for (int i=0; i < w_height; i++){
 			for(int j=0; j < w_width; j++){
 				GLuint v = data[i*w_width + j];
@@ -137,8 +144,9 @@ class SickOpenGL{
 				  std::cout << v << std::endl;
 			}
 		}
+		*/
 		
-		std::cout << "Error: " << glGetError() << std::endl;
+		//std::cout << "Error: " << glGetError() << std::endl;
 	}
 };
 
@@ -170,6 +178,8 @@ int main(){
   demo.set_verticies(v_count , x);
 
   demo.run(); 
+
+  demo.convert_output();
 
   return 0;
 }
