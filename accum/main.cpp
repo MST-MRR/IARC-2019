@@ -12,7 +12,10 @@ using namespace glm;
 #include <vector>
 
 #include <opencv2/opencv.hpp>
-//#include "mat.hpp"
+
+#include <fstream>
+
+
 
 
 static void glfwError(int id, const char* description)
@@ -165,11 +168,22 @@ class SickOpenGL{
 		*/
 
 		// currently broken
-
+		std::vector<GLuint> ttt;
+		 for(int i=0; i<big_ole_mat.rows; ++i){
+			for(int j=0; j<big_ole_mat.cols; ++j){
+				GLuint v = big_ole_mat.at<GLuint>(i, j);
+				if (std::find(ttt.begin(), ttt.end(), v) == ttt.end()){
+					std::cout << "\n\n" << v << "\n\n";
+				}
+				ttt.push_back(v);
+			}
+			std::cout << std::endl;
+	   }
+	/*
 		cv::Mat dst;
 		cv::normalize(big_ole_mat, dst, 0, 1, cv::NORM_MINMAX);
     cv::imshow("test", dst);
-    cv::waitKey(0);
+    cv::waitKey(0);*/
 	
 	}
 };
