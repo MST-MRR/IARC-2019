@@ -9,8 +9,10 @@ using namespace glm;
 #include <stdexcept>
 #include "loader.h"
 
+#include <vector>
+
 #include <opencv2/opencv.hpp>
-#include "mat.hpp"
+//#include "mat.hpp"
 
 
 static void glfwError(int id, const char* description)
@@ -126,27 +128,49 @@ class SickOpenGL{
 	}
 	
 	void convert_output(){
-
-
 		// what data type is the buffer stored as?
 		GLuint *data = new GLuint[buff_size];
 		
 		glGetBufferSubData(GL_TEXTURE_BUFFER, 0, buff_size, data);
 
+		std::vector<std::vector<GLuint>> v;
 
+		// create v as a 2d array from data
+		for (int i = 0; i < w_height; i++){
+			std::vector<GLuint> x;
+			
 
-
-		/*
-		for (int i=0; i < w_height; i++){
-			for(int j=0; j < w_width; j++){
-				GLuint v = data[i*w_width + j];
-				if(v > 0)
-				  std::cout << v << std::endl;
+			for (int j = 0; j < w_width; j++){
+				x.push_back(data[i*w_width + w_height]);
 			}
+
+			v.push_back(x);
 		}
-		*/
+	
+		cv::Mat big_ole_mat(w_height, w_width, CV_64FC1);
+		for(int i=0; i<big_ole_mat.rows; ++i)
+			for(int j=0; j<big_ole_mat.cols; ++j)
+				big_ole_mat.at<GLuint>(i, j) = v.at(i).at(j);
+
+		std::cout << big_ole_mat.rows << std::endl;
 		
-		//std::cout << "Error: " << glGetError() << std::endl;
+		/*  Nonzero values do exist in the mat
+		for(int i=0; i<big_ole_mat.rows; ++i)
+			for(int j=0; j<big_ole_mat.cols; ++j){
+				GLuint v = big_ole_mat.at<GLuint>(i, j);
+				if (v){
+					std::cout << v << std::endl;
+				}
+			}
+		*/
+
+		// currently broken
+
+		cv::Mat dst;
+		cv::normalize(big_ole_mat, dst, 0, 1, cv::NORM_MINMAX);
+    cv::imshow("test", dst);
+    cv::waitKey(0);
+	
 	}
 };
 
