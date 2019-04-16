@@ -25,25 +25,27 @@ static void glfwError(int id, const char* description)
 
 class SickOpenGL{
   public:
-	int w_width = 1024, w_height = 768; // need to change in fragment too
+		GLFWwindow* window;
 
- 	GLFWwindow* window;
-	
-	const int int_per_vertex = 3;
+		const char* vshader = "vertex.glsl";
+		const char* fshader = "fragment.glsl";
 
-	GLuint v_count;
+		const int int_per_vertex = 3;
+
+		int w_width = 1024, w_height = 768; // need to change in fragment too
+
+		GLuint buff_size = w_width * w_height;
+		GLsizeiptr buff_data_size = buff_size * sizeof(GLuint);
+
+		GLuint v_count, v_size;
+		GLsizeiptr v_data_size;
   	GLfloat *g_vertex_buffer_data;
 
-	const char* vshader = "vertex.glsl";
-	const char* fshader = "fragment.glsl";
 
-	GLsizeiptr buff_size = w_width * w_height * 100;
-	
 	SickOpenGL(){
 		glEnable( GL_DEBUG_OUTPUT );
 		glfwSetErrorCallback(&glfwError);
 
-		// Init GLFW
 		glewExperimental = true; // Needed for core profile
 		if( !glfwInit() )
 		{
@@ -51,12 +53,12 @@ class SickOpenGL{
 			throw std::runtime_error("Failed to initialize GLFW.");
 		}
 	
-		glfwWindowHint(GLFW_SAMPLES, 4); // 4x antialiasing
-		glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
+		glfwWindowHint(GLFW_SAMPLES, 4); // antialiasing
+		glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4); // 4.3
 		glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
 		glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
 		glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-		
+
 		window = glfwCreateWindow(w_width, w_height, "Texture Buffer Counting Overlap", NULL, NULL);
 		if( window == NULL ){
 			fprintf( stderr, "Failed to open GLFW window. If you have an Intel GPU, they are not 3.3 compatible.\n" );
@@ -76,8 +78,10 @@ class SickOpenGL{
 
 	void set_verticies(const GLuint vertex_count, GLfloat *values){
 		v_count = vertex_count;
+		v_size = v_count * int_per_vertex;
+		v_data_size = v_size * sizeof(GLfloat);
 
-		g_vertex_buffer_data = new GLfloat[v_count*int_per_vertex];
+		g_vertex_buffer_data = new GLfloat[v_size];
 		g_vertex_buffer_data = values;
 	}
 
@@ -91,20 +95,21 @@ class SickOpenGL{
 		GLuint vertexbuffer;  
 		glGenBuffers(1, &vertexbuffer);
 		glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);  
-		glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat) * v_count * int_per_vertex, g_vertex_buffer_data, GL_STATIC_DRAW);
+		glBufferData(GL_ARRAY_BUFFER, v_data_size, g_vertex_buffer_data, GL_STATIC_DRAW);
 
 		GLuint tex, buf;
 
+		GLuint filler[buff_size] = {0};
+
 		glGenBuffers(1, &buf); 
 		glBindBuffer(GL_TEXTURE_BUFFER, buf); 
-		glBufferData(GL_TEXTURE_BUFFER, buff_size, NULL, GL_DYNAMIC_COPY); 
+		glBufferData(GL_TEXTURE_BUFFER, buff_data_size, filler, GL_DYNAMIC_COPY); 
 
 		glGenTextures(1, &tex);  
 		glBindTexture(GL_TEXTURE_BUFFER, tex); 
-		glTexBuffer(GL_TEXTURE_BUFFER, GL_R32UI, buf);  
+		glTexBuffer(GL_TEXTURE_BUFFER, GL_R32UI, buf);
 
 		glBindImageTexture(0, tex, 0, GL_FALSE, 0, GL_READ_WRITE, GL_R32UI); 
-
 
 		//
 		do{
@@ -131,54 +136,49 @@ class SickOpenGL{
 	}
 	
 	void convert_output(){
-		// what data type is the buffer stored as?
-		GLuint *data = new GLuint[buff_size];
-		
-		glGetBufferSubData(GL_TEXTURE_BUFFER, 0, buff_size, data);
+		// vram buffer -> ram buffer
+		GLuint *initial = new GLuint[buff_size];
+		glGetBufferSubData(GL_TEXTURE_BUFFER, 0, buff_size, initial);
 
-		std::vector<std::vector<GLuint>> v;
 
-		// create v as a 2d array from data
+
+
+		//glTexBuffer(GL_TEXTURE_BUFFER, GL_R32UI, buf);
+		// data in buffer = R32UI
+
+		// buff_size IS a fuckin GLsizeiptr ie fix inital and the
+		// test thing i created
+
+
+		std::vector<GLuint> unique;
+
+		// buffer -> 2d uint vector
+		std::vector<std::vector<GLuint>> intermediary;
+
 		for (int i = 0; i < w_height; i++){
-			std::vector<GLuint> x;
-			
+			std::vector<GLuint> cache;
 
 			for (int j = 0; j < w_width; j++){
-				x.push_back(data[i*w_width + w_height]);
+				cache.push_back(initial[i*w_width + w_height]);
+
+				if(std::find(unique.begin(), unique.end(), initial[i*w_width + w_height]) == unique.end()){
+					std::cout << initial[i*w_width + w_height] << i << j << std::endl;
+					unique.push_back(initial[i*w_width + w_height]);
+				}
 			}
 
-			v.push_back(x);
+			intermediary.push_back(cache);
 		}
-	
-		cv::Mat big_ole_mat(w_height, w_width, CV_64FC1);
-		for(int i=0; i<big_ole_mat.rows; ++i)
-			for(int j=0; j<big_ole_mat.cols; ++j)
-				big_ole_mat.at<GLuint>(i, j) = v.at(i).at(j);
 
-		std::cout << big_ole_mat.rows << std::endl;
-		
-		/*  Nonzero values do exist in the mat
-		for(int i=0; i<big_ole_mat.rows; ++i)
-			for(int j=0; j<big_ole_mat.cols; ++j){
-				GLuint v = big_ole_mat.at<GLuint>(i, j);
-				if (v){
-					std::cout << v << std::endl;
-				}
-			}
-		*/
 
-		// currently broken
-		std::vector<GLuint> ttt;
-		 for(int i=0; i<big_ole_mat.rows; ++i){
-			for(int j=0; j<big_ole_mat.cols; ++j){
-				GLuint v = big_ole_mat.at<GLuint>(i, j);
-				if (std::find(ttt.begin(), ttt.end(), v) == ttt.end()){
-					std::cout << "\n\n" << v << "\n\n";
-				}
-				ttt.push_back(v);
+		// vector -> mat
+		cv::Mat finish(w_height, w_width, CV_64FC1);
+		for(int i=0; i<finish.rows; ++i){
+			for(int j=0; j<finish.cols; ++j){
+				finish.at<GLuint>(i, j) = intermediary.at(i).at(j);
 			}
-			std::cout << std::endl;
-	   }
+		}
+
 	/*
 		cv::Mat dst;
 		cv::normalize(big_ole_mat, dst, 0, 1, cv::NORM_MINMAX);
