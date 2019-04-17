@@ -5,21 +5,20 @@
 #include <glm/glm.hpp>
 using namespace glm;
 
-#include <iostream>
-#include <stdexcept>
-#include "loader.h"
-
-#include <vector>
-
 #include <opencv2/opencv.hpp>
 
+#include <iostream>
+#include <stdexcept>
+#include <vector>
 #include <fstream>
 
+#include "loader.h"
 
 
 
-static void glfwError(int id, const char* description)
-{
+
+
+static void glfwError(int id, const char* description){
   std::cout << description << std::endl;
 }
 
@@ -32,7 +31,8 @@ class SickOpenGL{
 
 		const int int_per_vertex = 3;
 
-		int w_width = 1024, w_height = 768; // need to change in fragment too
+		// need to change in fragment too
+		int w_width = 1024, w_height = 768; 
 
 		GLuint buff_size = w_width * w_height;
 		GLsizeiptr buff_data_size = buff_size * sizeof(GLuint);
@@ -43,6 +43,9 @@ class SickOpenGL{
 
 
 	SickOpenGL(){
+		/*
+		* Basic opengl setup.
+		*/
 		glEnable( GL_DEBUG_OUTPUT );
 		glfwSetErrorCallback(&glfwError);
 
@@ -59,16 +62,17 @@ class SickOpenGL{
 		glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
 		glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-		window = glfwCreateWindow(w_width, w_height, "Texture Buffer Counting Overlap", NULL, NULL);
+		window = glfwCreateWindow(w_width, w_height, 
+						"Texture Buffer Counting Overlap", NULL, NULL);
 		if( window == NULL ){
-			fprintf( stderr, "Failed to open GLFW window. If you have an Intel GPU, they are not 3.3 compatible.\n" );
+			fprintf(stderr, "Failed to open GLFW window. If you have an Intel GPU, they are not 3.3 compatible.\n");
 			glfwTerminate();
 			throw std::runtime_error("Failed to open GLFW window. If you have an Intel GPU, they are not 3.3 compatible.");
 		}
 		glfwMakeContextCurrent(window); 
 		
 		glewExperimental=true;
-		if (glewInit() != GLEW_OK) {
+		if (glewInit() != GLEW_OK){
 			fprintf(stderr, "Failed to initialize GLEW\n");
 			throw std::runtime_error("Failed to initialize GLEW");
 		}
@@ -77,6 +81,10 @@ class SickOpenGL{
 	}
 
 	void set_verticies(const GLuint vertex_count, GLfloat *values){
+		/*
+		* Call to set verticies. 
+		* 3 tuples, 2 sets makes a line.
+		*/
 		v_count = vertex_count;
 		v_size = v_count * int_per_vertex;
 		v_data_size = v_size * sizeof(GLfloat);
@@ -86,8 +94,13 @@ class SickOpenGL{
 	}
 
 	void run(){
+		/*
+		* After verticies set, process
+		*/
+		// init shaders
 		GLuint programID = LoadShaders(vshader, fshader);  
 
+		// init vbuffer
 		GLuint VertexArrayID;
 		glGenVertexArrays(1, &VertexArrayID);
 		glBindVertexArray(VertexArrayID);
@@ -95,23 +108,28 @@ class SickOpenGL{
 		GLuint vertexbuffer;  
 		glGenBuffers(1, &vertexbuffer);
 		glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);  
-		glBufferData(GL_ARRAY_BUFFER, v_data_size, g_vertex_buffer_data, GL_STATIC_DRAW);
+		glBufferData(GL_ARRAY_BUFFER, v_data_size, g_vertex_buffer_data, 
+									GL_STATIC_DRAW);
 
+		// init texture, buffer
 		GLuint tex, buf;
-
 		GLuint filler[buff_size] = {0};
 
 		glGenBuffers(1, &buf); 
 		glBindBuffer(GL_TEXTURE_BUFFER, buf); 
-		glBufferData(GL_TEXTURE_BUFFER, buff_data_size, filler, GL_DYNAMIC_COPY); 
+		glBufferData(GL_TEXTURE_BUFFER, buff_data_size, filler, 
+									GL_DYNAMIC_COPY); 
 
 		glGenTextures(1, &tex);  
 		glBindTexture(GL_TEXTURE_BUFFER, tex); 
 		glTexBuffer(GL_TEXTURE_BUFFER, GL_R32UI, buf);
 
-		glBindImageTexture(0, tex, 0, GL_FALSE, 0, GL_READ_WRITE, GL_R32UI); 
-
 		//
+		// do i need this shit and what does it do
+		//
+		glBindImageTexture(0, tex, 0, GL_FALSE, 0, GL_READ_WRITE, 
+											GL_R32UI); 
+
 		do{
 			glClear( GL_COLOR_BUFFER_BIT  | GL_DEPTH_BUFFER_BIT);
 			glClearColor(0.0f, 0.0f, 0.4f, 0.0f) ;
@@ -119,7 +137,8 @@ class SickOpenGL{
 			glEnableVertexAttribArray(0);
 			glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);
 
-			glVertexAttribPointer(0, int_per_vertex, GL_FLOAT, GL_FALSE, 0, (void*)0);
+			glVertexAttribPointer(0, int_per_vertex, GL_FLOAT, GL_FALSE, 
+														0, (void*)0);
 
 			glUseProgram(programID);
 			
@@ -129,18 +148,19 @@ class SickOpenGL{
 		
 			glfwSwapBuffers(window);
 			glfwPollEvents();
-		} while( glfwGetKey(window, GLFW_KEY_ESCAPE ) != GLFW_PRESS &&
-			glfwWindowShouldClose(window) == 0 );
-/**/
-		
+		} while(glfwGetKey(window, GLFW_KEY_ESCAPE ) != GLFW_PRESS &&
+						glfwWindowShouldClose(window) == 0);
 	}
 	
 	void convert_output(){
-		// vram buffer -> ram buffer
+		/*
+		* Convert buffer output to opencv mat
+		*/
+		// vram -> ram
 		GLuint *initial = new GLuint[buff_size];
-		glGetBufferSubData(GL_TEXTURE_BUFFER, 0, buff_size, initial);
+		glGetBufferSubData(GL_TEXTURE_BUFFER, 0, buff_data_size, initial);
 
-
+		// should be 5 different numbers
 
 
 		//glTexBuffer(GL_TEXTURE_BUFFER, GL_R32UI, buf);
