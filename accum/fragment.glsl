@@ -2,7 +2,7 @@
 
 layout (r32ui) uniform uimageBuffer image_buffer;  
 
-uniform sampler2D my_texture;
+// uniform sampler2D my_texture;
 
 out vec4 fragment_color;
 

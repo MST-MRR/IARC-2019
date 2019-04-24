@@ -15,9 +15,6 @@ using namespace glm;
 #include "loader.h"
 
 
-
-
-
 static void glfwError(int id, const char* description){
   std::cout << description << std::endl;
 }
@@ -40,6 +37,8 @@ class SickOpenGL{
 		GLuint v_count, v_size;
 		GLsizeiptr v_data_size;
   	GLfloat *g_vertex_buffer_data;
+
+		GLuint tex, buf;
 
 
 	SickOpenGL(){
@@ -112,7 +111,6 @@ class SickOpenGL{
 									GL_STATIC_DRAW);
 
 		// init texture, buffer
-		GLuint tex, buf;
 		GLuint filler[buff_size] = {0};
 
 		glGenBuffers(1, &buf); 
@@ -150,6 +148,9 @@ class SickOpenGL{
 			glfwPollEvents();
 		} while(glfwGetKey(window, GLFW_KEY_ESCAPE ) != GLFW_PRESS &&
 						glfwWindowShouldClose(window) == 0);
+
+
+		glfwDestroyWindow(window);	
 	}
 	
 	void convert_output(){
@@ -158,24 +159,50 @@ class SickOpenGL{
 		*/
 		// vram -> ram
 		GLuint *initial = new GLuint[buff_size];
-		glGetBufferSubData(GL_TEXTURE_BUFFER, 0, buff_data_size, initial);
+		glGetBufferSubData(GL_TEXTURE_BUFFER, buf, buff_data_size, 
+											initial);
 
-		// should be 5 different numbers
+		// New
+		// *) cannot read vram while being rendered to screen.
+		// 		close window before trying to read
+		// a) is fragment adding to the right positions in memory
+		// b) is convert_output reading the right memory
+		// c) is something obstructing the read/acess
+		// d) vram could be getting defeferenced because I stopped using it
 
+
+		// GOAL figure out what buffer the fragment shader is interacting with
+
+		// am i in default framebuffer? and do i need to switch
+		// do i need to explicitly tell fragment to switch
+
+		// what if i make the buffer size too small and it breaks
+		// what does that mean
+
+
+		// GOAL should be 5 different numbers
+
+		//glBindImageTexture(0, tex, 0, GL_FALSE, 0, GL_READ_WRITE, 
+		//									GL_R32UI); 
 
 		//glTexBuffer(GL_TEXTURE_BUFFER, GL_R32UI, buf);
 		// data in buffer = R32UI
-
-		// buff_size IS a fuckin GLsizeiptr ie fix inital and the
-		// test thing i created
-
 
 		std::vector<GLuint> unique;
 
 		// buffer -> 2d uint vector
 		std::vector<std::vector<GLuint>> intermediary;
 
-		for (int i = 0; i < w_height; i++){
+		for (int x = 0; x < buff_size; x++){
+				if(std::find(unique.begin(), unique.end(), initial[x]) == unique.end()){
+					std::cout << initial[x] << " " << x<< std::endl;
+					unique.push_back(initial[x]);
+				}
+			}
+
+
+
+		/*for (int i = 0; i < w_height; i++){
 			std::vector<GLuint> cache;
 
 			for (int j = 0; j < w_width; j++){
@@ -188,23 +215,22 @@ class SickOpenGL{
 			}
 
 			intermediary.push_back(cache);
-		}
+		}*/
 
-
+		/*
 		// vector -> mat
-		cv::Mat finish(w_height, w_width, CV_64FC1);
+		cv::Mat finish(w_height, w_width, CV_64);  // double check type
 		for(int i=0; i<finish.rows; ++i){
 			for(int j=0; j<finish.cols; ++j){
 				finish.at<GLuint>(i, j) = intermediary.at(i).at(j);
 			}
 		}
-
-	/*
-		cv::Mat dst;
-		cv::normalize(big_ole_mat, dst, 0, 1, cv::NORM_MINMAX);
-    cv::imshow("test", dst);
-    cv::waitKey(0);*/
 	
+		cv::Mat dst;
+		cv::normalize(finish, dst, 0, 1, cv::NORM_MINMAX);
+    cv::imshow("test", dst);
+    cv::waitKey(0);
+	*/
 	}
 };
 
