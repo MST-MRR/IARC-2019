@@ -40,11 +40,8 @@ class SickOpenGL{
 
 		GLuint tex, buf;
 
-
 	SickOpenGL(){
-		/*
-		* Basic opengl setup.
-		*/
+		/* setup opengl */
 		glEnable( GL_DEBUG_OUTPUT );
 		glfwSetErrorCallback(&glfwError);
 
@@ -80,10 +77,7 @@ class SickOpenGL{
 	}
 
 	void set_verticies(const GLuint vertex_count, GLfloat *values){
-		/*
-		* Call to set verticies. 
-		* 3 tuples, 2 sets makes a line.
-		*/
+		/* 3 tuples, 2 sets makes a line. */
 		v_count = vertex_count;
 		v_size = v_count * int_per_vertex;
 		v_data_size = v_size * sizeof(GLfloat);
@@ -93,13 +87,9 @@ class SickOpenGL{
 	}
 
 	void run(){
-		/*
-		* After verticies set, process
-		*/
-		// init shaders
+		/* count lines drawn per pixel */
 		GLuint programID = LoadShaders(vshader, fshader);  
 
-		// init vbuffer
 		GLuint VertexArrayID;
 		glGenVertexArrays(1, &VertexArrayID);
 		glBindVertexArray(VertexArrayID);
@@ -110,7 +100,6 @@ class SickOpenGL{
 		glBufferData(GL_ARRAY_BUFFER, v_data_size, g_vertex_buffer_data, 
 									GL_STATIC_DRAW);
 
-		// init texture, buffer
 		GLuint filler[buff_size] = {0};
 
 		glGenBuffers(1, &buf); 
@@ -124,8 +113,8 @@ class SickOpenGL{
 
 		//
 		// do i need this shit and what does it do
-		//
-		glBindImageTexture(0, tex, 0, GL_FALSE, 0, GL_READ_WRITE, 
+		// should this be index of buf?
+		glBindImageTexture(tex, tex, 0, GL_FALSE, 0, GL_READ_WRITE, 
 											GL_R32UI); 
 
 		do{
@@ -149,7 +138,6 @@ class SickOpenGL{
 		} while(glfwGetKey(window, GLFW_KEY_ESCAPE ) != GLFW_PRESS &&
 						glfwWindowShouldClose(window) == 0);
 
-
 		glfwDestroyWindow(window);	
 	}
 	
@@ -159,16 +147,24 @@ class SickOpenGL{
 		*/
 		// vram -> ram
 		GLuint *initial = new GLuint[buff_size];
-		glGetBufferSubData(GL_TEXTURE_BUFFER, buf, buff_data_size, 
+		glGetBufferSubData(GL_TEXTURE_BUFFER, tex, buff_data_size, 
 											initial);
 
 		// New
-		// *) cannot read vram while being rendered to screen.
-		// 		close window before trying to read
+		 
+		// *) is fragment binding to right place
 		// a) is fragment adding to the right positions in memory
 		// b) is convert_output reading the right memory
 		// c) is something obstructing the read/acess
 		// d) vram could be getting defeferenced because I stopped using it
+
+		// am I currently raeding memory
+		// are registers not being resets
+
+		// indexing wrong in fragment
+
+
+
 
 
 		// GOAL figure out what buffer the fragment shader is interacting with
@@ -190,36 +186,28 @@ class SickOpenGL{
 
 		std::vector<GLuint> unique;
 
-		// buffer -> 2d uint vector
 		std::vector<std::vector<GLuint>> intermediary;
-
-		for (int x = 0; x < buff_size; x++){
+		
+		for (uint x = 0; x < buff_size; x++){
 				if(std::find(unique.begin(), unique.end(), initial[x]) == unique.end()){
 					std::cout << initial[x] << " " << x<< std::endl;
 					unique.push_back(initial[x]);
 				}
 			}
 
-
-
-		/*for (int i = 0; i < w_height; i++){
+		// buffer -> 2d uint vector
+		for (int i = 0; i < w_height; i++){
 			std::vector<GLuint> cache;
 
 			for (int j = 0; j < w_width; j++){
-				cache.push_back(initial[i*w_width + w_height]);
-
-				if(std::find(unique.begin(), unique.end(), initial[i*w_width + w_height]) == unique.end()){
-					std::cout << initial[i*w_width + w_height] << i << j << std::endl;
-					unique.push_back(initial[i*w_width + w_height]);
-				}
+				cache.push_back(initial[i*w_height + j]);
 			}
 
 			intermediary.push_back(cache);
-		}*/
-
-		/*
+		}
+		
 		// vector -> mat
-		cv::Mat finish(w_height, w_width, CV_64);  // double check type
+		cv::Mat finish(w_height, w_width, CV_32S);  // S or F
 		for(int i=0; i<finish.rows; ++i){
 			for(int j=0; j<finish.cols; ++j){
 				finish.at<GLuint>(i, j) = intermediary.at(i).at(j);
@@ -230,7 +218,7 @@ class SickOpenGL{
 		cv::normalize(finish, dst, 0, 1, cv::NORM_MINMAX);
     cv::imshow("test", dst);
     cv::waitKey(0);
-	*/
+	
 	}
 };
 
@@ -239,7 +227,7 @@ int main(){
   SickOpenGL demo;
   
   const GLuint v_count = 14;
-  GLfloat x[v_count*demo.int_per_vertex] = {
+  GLfloat verticies[v_count*demo.int_per_vertex] = {
 		-1.0f, -1.0f, 0.0f,
 		1.0f, 1.0f, 0.0f,
 		-1.0f,  1.0f, 0.0f,
@@ -249,17 +237,18 @@ int main(){
 
 		0.0f, 1.0f, 0.0f,
 		0.0f, -1.0f, 0.0f,
+		/*
+		0.0f, 1.0f, 0.0f,
+		0.0f, -1.0f, 0.0f,
 
 		0.0f, 1.0f, 0.0f,
 		0.0f, -1.0f, 0.0f,
 		
-		0.0f, 1.0f, 0.0f,
-		0.0f, -1.0f, 0.0f,
-		
-		0.0f, 1.0f, 0.0f,
+	 	0.0f, 1.0f, 0.0f,
 		0.0f, -1.0f, 0.0f	
-	};
-  demo.set_verticies(v_count , x);
+		*/
+		};
+  demo.set_verticies(v_count , verticies);
 
   demo.run(); 
 
