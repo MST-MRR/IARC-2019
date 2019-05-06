@@ -74,8 +74,6 @@ class SickOpenGL{
 			throw std::runtime_error("Failed to initialize GLEW");
 		}
 
-		glfwSetInputMode(window, GLFW_STICKY_KEYS, GL_TRUE);
-
 		glEnable              ( GL_DEBUG_OUTPUT );
 		glDebugMessageCallback( MessageCallback, 0 );
 	}
@@ -134,17 +132,16 @@ class SickOpenGL{
 		glDisableVertexAttribArray(0);
 	
 		glfwSwapBuffers(window);
-
-		//glfwDestroyWindow(window);
 	}
 	
 	void convert_output(){
 		/* Convert processed data to opencv mat. */
 	
 		GLuint *initial = new GLuint[BUFF_SIZE];
-
-		// TODO use buf or image_unit
 		glGetNamedBufferSubData(buf, 0, BUFF_DATA_SIZE, initial);
+
+		glfwDestroyWindow(window);
+
 
 		std::map<GLuint, uint> instance_counter;
 		for (uint x = 0; x < BUFF_SIZE; x++){
@@ -158,6 +155,27 @@ class SickOpenGL{
 		}
 		for(auto elem : instance_counter)
 		  std::cout << elem.first << " " << elem.second << std::endl;
+
+
+
+
+
+	    // Convert to mat
+		// vector -> mat
+		cv::Mat finish(HEIGHT, WIDTH, CV_32S);  // S or F
+		for (int i = 0; i < HEIGHT; i++){
+
+			for (int j = 0; j < WIDTH; j++){
+				finish.at<GLuint>(i, j) = initial[i*WIDTH + j];
+			}
+		}
+		
+	
+	
+		cv::Mat dst;
+		cv::normalize(finish, dst, 0, 1, cv::NORM_MINMAX);
+    	cv::imshow("test", dst);
+    	cv::waitKey(0);
 
 	}
 };

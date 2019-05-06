@@ -14,6 +14,20 @@ using namespace glm;
 
 #include "loader.h"
 
+void GLAPIENTRY MessageCallback( GLenum source,
+                 GLenum type,
+                 GLuint id,
+                 GLenum severity,
+                 GLsizei length,
+                 const GLchar* message,
+                 const void* userParam )
+{
+  fprintf( stderr, "GL CALLBACK: %s type = 0x%x, severity = 0x%x, message = %s\n",
+           ( type == GL_DEBUG_TYPE_ERROR ? "** GL ERROR **" : "" ),
+            type, severity, message );
+}
+
+
 
 static void glfwError(int id, const char* description){
   std::cout << description << std::endl;
@@ -39,6 +53,8 @@ class SickOpenGL{
   	GLfloat *g_vertex_buffer_data;
 
 		GLuint tex, buf;
+
+		GLuint image_unit = 0;  // only works with 0?
 
 	SickOpenGL(){
 		/* setup opengl */
@@ -74,6 +90,10 @@ class SickOpenGL{
 		}
 
 		glfwSetInputMode(window, GLFW_STICKY_KEYS, GL_TRUE);
+
+		// During init, enable debug output
+		glEnable              ( GL_DEBUG_OUTPUT );
+		glDebugMessageCallback( MessageCallback, 0 );
 	}
 
 	void set_verticies(const GLuint vertex_count, GLfloat *values){
@@ -100,12 +120,18 @@ class SickOpenGL{
 		glBufferData(GL_ARRAY_BUFFER, v_data_size, g_vertex_buffer_data, 
 									GL_STATIC_DRAW);
 
-		GLuint filler[buff_size] = {0};
+		GLuint filler[buff_size] = {2};
+
+		/*glGenBuffers returns n buffer object names in buffers. 
+			There is no guarantee that the names form a contiguous 
+			set of integers; however, it is guaranteed that none of 
+			the returned names was in use immediately before the 
+			call to glGenBuffers.*/
 
 		glGenBuffers(1, &buf); 
 		glBindBuffer(GL_TEXTURE_BUFFER, buf); 
 		glBufferData(GL_TEXTURE_BUFFER, buff_data_size, filler, 
-									GL_DYNAMIC_COPY); 
+									GL_DYNAMIC_COPY);
 
 		glGenTextures(1, &tex);  
 		glBindTexture(GL_TEXTURE_BUFFER, tex); 
@@ -114,7 +140,7 @@ class SickOpenGL{
 		//
 		// do i need this shit and what does it do
 		// should this be index of buf?
-		glBindImageTexture(tex, tex, 0, GL_FALSE, 0, GL_READ_WRITE, 
+		glBindImageTexture(image_unit, tex, 0, GL_FALSE, 0, GL_READ_WRITE, 
 											GL_R32UI); 
 
 		do{
@@ -138,25 +164,23 @@ class SickOpenGL{
 		} while(glfwGetKey(window, GLFW_KEY_ESCAPE ) != GLFW_PRESS &&
 						glfwWindowShouldClose(window) == 0);
 
+
+		// TODO unbind the buffer man
+
 		glfwDestroyWindow(window);	
 	}
 	
 	void convert_output(){
-		/*
-		* Convert buffer output to opencv mat
-		*/
-		// vram -> ram
-		GLuint *initial = new GLuint[buff_size];
-		glGetBufferSubData(GL_TEXTURE_BUFFER, tex, buff_data_size, 
-											initial);
+		/* Convert processed data to opencv mat. */
 
-		// New
-		 
 		// *) is fragment binding to right place
+		// *) understand where I am storing data in run
 		// a) is fragment adding to the right positions in memory
 		// b) is convert_output reading the right memory
 		// c) is something obstructing the read/acess
 		// d) vram could be getting defeferenced because I stopped using it
+		// e) how does binding work
+		// f) try atomic counter buffer
 
 		// am I currently raeding memory
 		// are registers not being resets
@@ -165,35 +189,24 @@ class SickOpenGL{
 
 
 
+		// vram -> ram
+		GLuint *initial = new GLuint[buff_size];
+		glGetBufferSubData(GL_TEXTURE_BUFFER, 0, buff_data_size, 
+											initial);
 
+		//glGetNamedBufferSubData(tex, 0, buff_data_size, initial);
 
-		// GOAL figure out what buffer the fragment shader is interacting with
-
-		// am i in default framebuffer? and do i need to switch
-		// do i need to explicitly tell fragment to switch
-
-		// what if i make the buffer size too small and it breaks
-		// what does that mean
-
-
-		// GOAL should be 5 different numbers
-
-		//glBindImageTexture(0, tex, 0, GL_FALSE, 0, GL_READ_WRITE, 
-		//									GL_R32UI); 
-
-		//glTexBuffer(GL_TEXTURE_BUFFER, GL_R32UI, buf);
-		// data in buffer = R32UI
-
+		// count unique values in buffer
 		std::vector<GLuint> unique;
 
 		std::vector<std::vector<GLuint>> intermediary;
 		
 		for (uint x = 0; x < buff_size; x++){
-				if(std::find(unique.begin(), unique.end(), initial[x]) == unique.end()){
-					std::cout << initial[x] << " " << x<< std::endl;
-					unique.push_back(initial[x]);
-				}
+			if(std::find(unique.begin(), unique.end(), initial[x]) == unique.end()){
+				std::cout << initial[x] << " " << x<< std::endl;
+				unique.push_back(initial[x]);
 			}
+		}
 
 		// buffer -> 2d uint vector
 		for (int i = 0; i < w_height; i++){
