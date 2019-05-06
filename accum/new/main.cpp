@@ -26,14 +26,20 @@ class SickOpenGL{
 		const char* vshader = "vertex.glsl";
 		const char* fshader = "fragment.glsl";
 
-		int w_width = 1024, w_height = 768; 
+		int WIDTH = 1024, HEIGHT = 768; 
 
-		GLuint buff_size = w_width * w_height;
-		GLsizeiptr buff_data_size = buff_size * sizeof(GLuint);
+		GLuint BUFF_SIZE = WIDTH * HEIGHT;
+		GLsizeiptr BUFF_DATA_SIZE = BUFF_SIZE * sizeof(GLuint);
 
 		GLuint tex, buf;
 
 		GLuint image_unit = 0;
+
+		const int INT_PER_VERTEX = 3;
+
+		GLuint VCOUNT, VSIZE;
+		GLsizeiptr VERTEX_DATA_SIZE;
+  		GLfloat *g_vertex_buffer_data;
 
 	SickOpenGL(){
 		/* setup opengl */
@@ -53,7 +59,7 @@ class SickOpenGL{
 		glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
 		glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-		window = glfwCreateWindow(w_width, w_height, 
+		window = glfwCreateWindow(WIDTH, HEIGHT, 
 						"Texture Buffer Counting Overlap", NULL, NULL);
 		if( window == NULL ){
 			fprintf(stderr, "Failed to open GLFW window. If you have an Intel GPU, they are not 3.3 compatible.\n");
@@ -74,25 +80,74 @@ class SickOpenGL{
 		glDebugMessageCallback( MessageCallback, 0 );
 	}
 
+	void set_verticies(const GLuint vertex_count, GLfloat *values){
+		/* 3 tuples, 2 sets makes a line. */
+		VCOUNT = vertex_count;
+		VSIZE = VCOUNT * INT_PER_VERTEX;
+		VERTEX_DATA_SIZE = VSIZE * sizeof(GLfloat);
+
+		g_vertex_buffer_data = new GLfloat[VSIZE];
+		g_vertex_buffer_data = values;
+	}
+
 	void run(){
 		/* count lines drawn per pixel */
-		GLuint filler[buff_size] = {0}; // i dont think this is doing for every one lmao
-
-		for(uint i = 0; i < buff_size; i++)
-			filler[i] = 6;
+		// Main data
+		GLuint filler[BUFF_SIZE] = {0};
 
 		glGenBuffers(1, &buf);
 		glBindBuffer(GL_TEXTURE_BUFFER, buf);
-		glBufferData(GL_TEXTURE_BUFFER, buff_data_size, filler, GL_DYNAMIC_COPY);
+		glBufferData(GL_TEXTURE_BUFFER, BUFF_DATA_SIZE, filler, GL_DYNAMIC_COPY);
 
-	// just try to read from this buffer, any buffer really
+		glGenTextures(1, &tex);
 
+		glBindTexture(GL_TEXTURE_BUFFER, tex); 
+		glTexBuffer(GL_TEXTURE_BUFFER, GL_R32UI, buf);
 
-		GLuint *initial = new GLuint[buff_size];
-		glGetNamedBufferSubData(buf, 0, buff_data_size, initial);
+		glBindImageTexture(image_unit, tex, 0, GL_FALSE, 0, GL_READ_WRITE, GL_R32UI); 
+
+		// Vertex buffer
+		GLuint VertexArrayID;
+		glGenVertexArrays(1, &VertexArrayID);
+		glBindVertexArray(VertexArrayID);
+		
+		GLuint vertexbuffer;  
+		glGenBuffers(1, &vertexbuffer);
+		glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);  
+		glBufferData(GL_ARRAY_BUFFER, VERTEX_DATA_SIZE, g_vertex_buffer_data, 
+									GL_STATIC_DRAW);
+
+		// Process
+		glClear( GL_COLOR_BUFFER_BIT  | GL_DEPTH_BUFFER_BIT);
+		glClearColor(0.0f, 0.0f, 0.4f, 0.0f) ;
+
+		glEnableVertexAttribArray(0);
+		glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);
+
+		glVertexAttribPointer(0, INT_PER_VERTEX, GL_FLOAT, GL_FALSE, 0, (void*)0);
+
+		GLuint programID = LoadShaders(vshader, fshader);  
+		glUseProgram(programID);
+		
+		glDrawArrays(GL_LINES, 0, VCOUNT);
+
+		glDisableVertexAttribArray(0);
+	
+		glfwSwapBuffers(window);
+
+		//glfwDestroyWindow(window);
+	}
+	
+	void convert_output(){
+		/* Convert processed data to opencv mat. */
+	
+		GLuint *initial = new GLuint[BUFF_SIZE];
+
+		// TODO use buf or image_unit
+		glGetNamedBufferSubData(buf, 0, BUFF_DATA_SIZE, initial);
 
 		std::map<GLuint, uint> instance_counter;
-		for (uint x = 0; x < buff_size; x++){
+		for (uint x = 0; x < BUFF_SIZE; x++){
 			GLuint value = initial[x];
 
 			if(instance_counter.find(value) == instance_counter.end())
@@ -104,26 +159,36 @@ class SickOpenGL{
 		for(auto elem : instance_counter)
 		  std::cout << elem.first << " " << elem.second << std::endl;
 
-/*
-		glGenTextures(1, &tex);
-
-		glBindTexture(GL_TEXTURE_BUFFER, tex); 
-		glTexBuffer(GL_TEXTURE_BUFFER, GL_R32UI, buf);
-
-		glBindImageTexture(image_unit, tex, 0, GL_FALSE, 0, GL_READ_WRITE, GL_R32UI); 
-
-		glfwDestroyWindow(window);*/
-	}
-	
-	void convert_output(){
-		/* Convert processed data to opencv mat. */
-	// do I want to read the buffer or the whole image? buf/image_unit?
 	}
 };
 
 
 int main(){
   SickOpenGL demo;
+
+  const GLuint VCOUNT = 14;
+  GLfloat verticies[VCOUNT*demo.INT_PER_VERTEX] = {
+		-1.0f, -1.0f, 0.0f,
+		1.0f, 1.0f, 0.0f,
+		-1.0f,  1.0f, 0.0f,
+		1.0f, -1.0f, 0.0f,
+		-1.0f, 0.5f, 0.0f,
+		1.0f,  0.5f, 0.0f,
+
+		0.0f, 1.0f, 0.0f,
+		0.0f, -1.0f, 0.0f,
+		/*
+		0.0f, 1.0f, 0.0f,
+		0.0f, -1.0f, 0.0f,
+
+		0.0f, 1.0f, 0.0f,
+		0.0f, -1.0f, 0.0f,
+		
+	 	0.0f, 1.0f, 0.0f,
+		0.0f, -1.0f, 0.0f	
+		*/
+		};
+  demo.set_verticies(VCOUNT , verticies);
 
   demo.run(); 
 
