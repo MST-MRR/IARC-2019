@@ -11,7 +11,7 @@ void main(void){
     int loc = int(mod(gl_FragCoord.y * 1024 + gl_FragCoord.x, 10240 * 7680));
     uint counter = imageAtomicAdd(image_buffer, loc, 1);
 
-    if (counter > 20000){
+    if (gl_FragCoord.x < 20){
       fragment_color = vec4(
         1.0,
         0.0, 

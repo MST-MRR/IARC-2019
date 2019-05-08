@@ -53,7 +53,7 @@ class SickOpenGL{
 			throw std::runtime_error("Failed to initialize GLFW.");
 		}
 	
-		glfwWindowHint(GLFW_SAMPLES, 4); // antialiasing
+		glfwWindowHint(GLFW_SAMPLES, 1); // antialiasing
 		glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4); // 4.3
 		glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
 		glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
@@ -114,7 +114,9 @@ class SickOpenGL{
 		glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);  
 		glBufferData(GL_ARRAY_BUFFER, VERTEX_DATA_SIZE, g_vertex_buffer_data, 
 									GL_STATIC_DRAW);
+		
 
+		//do{
 		// Process
 		glClear( GL_COLOR_BUFFER_BIT  | GL_DEPTH_BUFFER_BIT);
 		glClearColor(0.0f, 0.0f, 0.4f, 0.0f) ;
@@ -124,7 +126,7 @@ class SickOpenGL{
 
 		glVertexAttribPointer(0, INT_PER_VERTEX, GL_FLOAT, GL_FALSE, 0, (void*)0);
 
-		GLuint programID = LoadShaders(vshader, fshader);  
+ 		GLuint programID = LoadShaders(vshader, fshader); 
 		glUseProgram(programID);
 		
 		glDrawArrays(GL_LINES, 0, VCOUNT);
@@ -132,6 +134,11 @@ class SickOpenGL{
 		glDisableVertexAttribArray(0);
 	
 		glfwSwapBuffers(window);
+
+
+			glfwPollEvents();
+		/*} while(glfwGetKey(window, GLFW_KEY_ESCAPE ) != GLFW_PRESS &&
+						glfwWindowShouldClose(window) == 0);*/
 	}
 	
 	void convert_output(){
@@ -152,6 +159,11 @@ class SickOpenGL{
 
 
 			instance_counter[value] += 1;
+
+			/*if (value >1)
+				std::cout << value << ": " << x << std::endl;*/
+				// Proof I need antialiasing
+
 		}
 		for(auto elem : instance_counter)
 		  std::cout << elem.first << " " << elem.second << std::endl;
@@ -162,19 +174,34 @@ class SickOpenGL{
 
 	    // Convert to mat
 		// vector -> mat
-		cv::Mat finish(HEIGHT, WIDTH, CV_32S);  // S or F
-		for (int i = 0; i < HEIGHT; i++){
+		cv::Mat finish(HEIGHT, WIDTH, CV_32S, cv::Scalar(0));  // S or F
+		
+		/*for (int i = 0; i < HEIGHT; i++){
 
 			for (int j = 0; j < WIDTH; j++){
 				finish.at<GLuint>(i, j) = initial[i*WIDTH + j];
+				test.at<GLuint>(i, j) = 255;
 			}
-		}
+		}*
 		
 	
-	
-		cv::Mat dst;
-		cv::normalize(finish, dst, 0, 1, cv::NORM_MINMAX);
-    	cv::imshow("test", dst);
+		cv::Mat one, two;
+		cv::normalize(finish, one, 0, 1, cv::NORM_MINMAX);
+    	
+		std::cout << one.cols << ", " << one.rows << std::endl;
+		std::cout << WIDTH << ", " << HEIGHT << std::endl;
+
+		// width and height must be odd
+    	//GaussianBlur( one, two, cv::Size(WIDTH - 1, HEIGHT - 1), 0, 0 );
+
+/*
+    	cv::imshow("ya boi", finish);
+    	cv::waitKey(0);*/
+		cv::Mat test(HEIGHT, WIDTH, CV_16UC1, cv::Scalar(65536));
+
+		// pixel values need to be normalized relative to mat map type
+
+    	cv::imshow("test", test);
     	cv::waitKey(0);
 
 	}
