@@ -152,7 +152,10 @@ class TSSpace{
 		glBufferData(GL_ARRAY_BUFFER, VERTEX_DATA_SIZE, 
 			g_vertex_buffer_data, GL_STATIC_DRAW);
 
+		GLuint programID = LoadShaders(vshader, fshader); 
+
 		// process
+		do {
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		glClearColor(0.0f, 0.0f, 0.4f, 0.0f) ;
 
@@ -162,14 +165,17 @@ class TSSpace{
 		glVertexAttribPointer(0, INT_PER_VERTEX, GL_FLOAT, GL_FALSE, 
 			0, (void*)0);
 
- 		GLuint programID = LoadShaders(vshader, fshader); 
-		glUseProgram(programID);
+ 		glUseProgram(programID);
 		
 		glDrawArrays(GL_LINES, 0, VCOUNT);
 
 		glDisableVertexAttribArray(0);
 	
 		glfwSwapBuffers(window);
+		
+		// DEBUG
+		glfwPollEvents();
+		}while( glfwGetKey(window, GLFW_KEY_ESCAPE ) != GLFW_PRESS && glfwWindowShouldClose(window) == 0 );
 	}
 	
 	cv::Mat convert_output(){
@@ -205,29 +211,17 @@ class TSSpace{
 
 
 		// vector -> mat
-		cv::Mat finish(HEIGHT, WIDTH, CV_16UC1);  
+		// CV_16UC1 = ushort, [0, 65535]
+		cv::Mat intermediate(HEIGHT, WIDTH, CV_16UC1, cv::Scalar(0));  
 		for (int i = 0; i < HEIGHT; i++){
 			for (int j = 0; j < WIDTH; j++){
-				finish.at<uchar>(i, j) = 65536;
-				//finish.at<GLuint>(i, j) = 1;//initial[i*WIDTH + j];
+				intermediate.at<ushort>(i, j) = initial[i*WIDTH + j];
 			}
 		}
 		
-	/*
-		cv::Mat one, two;
-		// pixel values need to be normalized relative to mat map type
-		cv::normalize(finish, one, 0, 65536, cv::NORM_MINMAX);
-    	
-		std::cout << one.cols << ", " << one.rows << std::endl;
-		std::cout << WIDTH << ", " << HEIGHT << std::endl;
+		cv::Mat finish;
+		cv::normalize(intermediate, finish, 0, 65535, cv::NORM_MINMAX);
 
-		// width and height must be odd
-    	//GaussianBlur( one, two, cv::Size(WIDTH - 1, HEIGHT - 1), 0, 0 );
-
-		//cv::Mat test(HEIGHT, WIDTH, CV_16UC1, cv::Scalar(65536));
-
-		
-    	*/
     	return finish;
 	}
 };
@@ -265,6 +259,8 @@ int main(){
 
   cv::imshow("Accumulated values", output);
   cv::waitKey(0);
+
+  // note: mat is upsidown from opengl, flipped horizontally?
 
   return 0;
 }
