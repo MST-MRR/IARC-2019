@@ -172,7 +172,7 @@ class TSSpace{
 		glfwSwapBuffers(window);
 	}
 	
-	void convert_output(){
+	cv::Mat convert_output(){
 		/* 
 		@fn convert_output
 		@breif Convert processed data into opencv mat.
@@ -205,19 +205,18 @@ class TSSpace{
 
 
 		// vector -> mat
-		cv::Mat finish(HEIGHT, WIDTH, CV_32S, cv::Scalar(0));  
-		
-		/*for (int i = 0; i < HEIGHT; i++){
-
+		cv::Mat finish(HEIGHT, WIDTH, CV_16UC1);  
+		for (int i = 0; i < HEIGHT; i++){
 			for (int j = 0; j < WIDTH; j++){
-				finish.at<GLuint>(i, j) = initial[i*WIDTH + j];
-				test.at<GLuint>(i, j) = 255;
+				finish.at<uchar>(i, j) = 65536;
+				//finish.at<GLuint>(i, j) = 1;//initial[i*WIDTH + j];
 			}
-		}*
+		}
 		
-	
+	/*
 		cv::Mat one, two;
-		cv::normalize(finish, one, 0, 1, cv::NORM_MINMAX);
+		// pixel values need to be normalized relative to mat map type
+		cv::normalize(finish, one, 0, 65536, cv::NORM_MINMAX);
     	
 		std::cout << one.cols << ", " << one.rows << std::endl;
 		std::cout << WIDTH << ", " << HEIGHT << std::endl;
@@ -225,16 +224,11 @@ class TSSpace{
 		// width and height must be odd
     	//GaussianBlur( one, two, cv::Size(WIDTH - 1, HEIGHT - 1), 0, 0 );
 
-		/*
-    	cv::imshow("ya boi", finish);
-    	cv::waitKey(0);*/
-		cv::Mat test(HEIGHT, WIDTH, CV_16UC1, cv::Scalar(65536));
+		//cv::Mat test(HEIGHT, WIDTH, CV_16UC1, cv::Scalar(65536));
 
-		// pixel values need to be normalized relative to mat map type
-
-    	cv::imshow("test", test);
-    	cv::waitKey(0);
-
+		
+    	*/
+    	return finish;
 	}
 };
 
@@ -267,7 +261,10 @@ int main(){
 
   tsspace.accumulate(); 
 
-  tsspace.convert_output();
+  cv::Mat output = tsspace.convert_output();
+
+  cv::imshow("Accumulated values", output);
+  cv::waitKey(0);
 
   return 0;
 }
