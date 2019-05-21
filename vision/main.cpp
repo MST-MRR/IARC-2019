@@ -24,7 +24,7 @@ class SickOpenGL{
 		GLFWwindow* window;
 
 		const char* vshader = "vertex.glsl";
-		const char* fshader = "fragment.glsl";
+		const char* fshader = "fragment_accumulator.glsl";
 
 		int WIDTH = 1024, HEIGHT = 768; 
 
