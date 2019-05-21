@@ -1,4 +1,4 @@
 #!/bin/bash
 clear
-g++ -std=c++17 -Wall main.cpp shader_loader.cpp -ggdb -g -lglfw -lGL -lGLEW -lfreeimage -lopencv_core -lopencv_highgui -lopencv_imgproc -o QRDetector.exe
+g++ -std=c++17 -Wall qrmain.cpp shader_loader.cpp -ggdb -g -lglfw -lGL -lGLEW -lfreeimage -lopencv_core -lopencv_highgui -lopencv_imgproc -o QRDetector.exe
 ./QRDetector.exe
