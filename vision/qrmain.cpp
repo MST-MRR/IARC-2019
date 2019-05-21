@@ -25,6 +25,7 @@ class TSSpace{
 		const char* vshader = "vertex.glsl";
 		const char* fshader = "fragment_accumulator.glsl";
 
+		// Width in fragment_accumulator as magic number
 		int WIDTH = 1024, HEIGHT = 768; 
 
 		GLuint BUFF_SIZE = WIDTH * HEIGHT;
@@ -215,7 +216,7 @@ class TSSpace{
 		cv::Mat intermediate(HEIGHT, WIDTH, CV_16UC1, cv::Scalar(0));  
 		for (int i = 0; i < HEIGHT; i++){
 			for (int j = 0; j < WIDTH; j++){
-				intermediate.at<ushort>(i, j) = initial[i*WIDTH + j];
+				intermediate.at<ushort>(i, j) = initial[(i*WIDTH) + j];
 			}
 		}
 		
