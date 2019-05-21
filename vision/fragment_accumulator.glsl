@@ -10,5 +10,5 @@ void main(void){
     imageAtomicAdd(image_buffer, loc, 1);
 
     // DEBUG
-    fragment_color = vec4(0.0, 0.0, 0.0, 1);
+    fragment_color = vec4(1.0, 1.0, 1.0, 1);
 }
