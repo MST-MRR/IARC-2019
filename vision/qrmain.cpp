@@ -22,8 +22,8 @@ class TSSpace{
   public:
 		GLFWwindow* window;
 
-		const char* vshader = "vertex.glsl";
-		const char* fshader = "fragment_accumulator.glsl";
+		const char* vshader = "shaders/vertex.glsl";
+		const char* fshader = "shaders/fragment_accumulator.glsl";
 
 		// Width in fragment_accumulator as magic number
 		int WIDTH = 1024, HEIGHT = 768; 
@@ -155,8 +155,10 @@ class TSSpace{
 
 		GLuint programID = LoadShaders(vshader, fshader); 
 
+		//glOrtho(0, WIDTH, HEIGHT, 0, 0, 1);
+
 		// process
-		do {
+		//do {
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		glClearColor(0.0f, 0.0f, 0.0f, 0.0f) ;
 
@@ -176,7 +178,7 @@ class TSSpace{
 		
 		// DEBUG
 		glfwPollEvents();
-		}while( glfwGetKey(window, GLFW_KEY_ESCAPE ) != GLFW_PRESS && glfwWindowShouldClose(window) == 0 );
+		//}while( glfwGetKey(window, GLFW_KEY_ESCAPE ) != GLFW_PRESS && glfwWindowShouldClose(window) == 0 );
 	}
 	
 	cv::Mat convert_output(){
@@ -197,6 +199,7 @@ class TSSpace{
 
 
 		// DEBUG
+		bool trigger = false;
 		std::map<GLuint, uint> instance_counter;
 		for (uint x = 0; x < BUFF_SIZE; x++){
 			GLuint value = initial[x];
@@ -204,6 +207,11 @@ class TSSpace{
 			if(instance_counter.find(value) == instance_counter.end())
 				instance_counter.insert(
 					std::pair<GLuint, uint>(value, 0));
+
+			if(value == 1 && !trigger){
+				std::cout << x << std::endl;
+				trigger = true;
+			}
 
 			instance_counter[value] += 1;
 		}
@@ -216,7 +224,7 @@ class TSSpace{
 		cv::Mat intermediate(HEIGHT, WIDTH, CV_16UC1, cv::Scalar(0));  
 		for (int i = 0; i < HEIGHT; i++){
 			for (int j = 0; j < WIDTH; j++){
-				intermediate.at<ushort>(i, j) = initial[(i*WIDTH) + j];
+				intermediate.at<ushort>(HEIGHT - i - 1, j) = initial[(i*WIDTH) + j];
 			}
 		}
 		
@@ -229,7 +237,10 @@ class TSSpace{
 
 
 int main(){
-  const GLuint VCOUNT = 14;
+  const GLuint VCOUNT = 10;
+
+  // 0, 0 is in the middle of opengl, 1,1 is top right
+
   GLfloat verticies[VCOUNT*INT_PER_VERTEX] = {
 		-1.0f, -1.0f, 0.0f,
 		1.0f, 1.0f, 0.0f,
@@ -240,16 +251,8 @@ int main(){
 
 		0.0f, 1.0f, 0.0f,
 		0.0f, -1.0f, 0.0f,
-		/*
 		0.0f, 1.0f, 0.0f,
 		0.0f, -1.0f, 0.0f,
-
-		0.0f, 1.0f, 0.0f,
-		0.0f, -1.0f, 0.0f,
-		
-	 	0.0f, 1.0f, 0.0f,
-		0.0f, -1.0f, 0.0f	
-		*/
 		};
 
   TSSpace tsspace(VCOUNT , verticies);
