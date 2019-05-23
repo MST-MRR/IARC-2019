@@ -199,7 +199,6 @@ class TSSpace{
 
 
 		// DEBUG
-		bool trigger = false;
 		std::map<GLuint, uint> instance_counter;
 		for (uint x = 0; x < BUFF_SIZE; x++){
 			GLuint value = initial[x];
@@ -207,11 +206,6 @@ class TSSpace{
 			if(instance_counter.find(value) == instance_counter.end())
 				instance_counter.insert(
 					std::pair<GLuint, uint>(value, 0));
-
-			if(value == 1 && !trigger){
-				std::cout << x << std::endl;
-				trigger = true;
-			}
 
 			instance_counter[value] += 1;
 		}
