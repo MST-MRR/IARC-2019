@@ -12,11 +12,12 @@ from threading import Event
 from time import sleep
 import traceback
 
+from math import radians
 import config
 from flight import constants as c
 from drone import Drone
 import exceptions
-from flight.tasks import Hover, Takeoff, LinearMovement, Land, Exit, TakeoffSim
+from flight.tasks import Hover, Takeoff, LinearMovement, Land, Exit, TakeoffSim, Yaw
 from flight.utils.priority_queue import PriorityQueue
 from flight.utils.timer import Timer
 from tools.data_distributor.data_splitter import DataSplitter
@@ -140,7 +141,7 @@ class DroneController(object):
             sleep(c.DELAY_INTERVAL)  # Sleep in case was doing write operation
             self._splitter.exit()
 
-    def add_hover_task(self, altitude, duration, priority=c.Priorities.LOW):
+    def add_hover_task(self, duration=c.DEFAULT_HOVER_DURATION, altitude=None, priority=c.Priorities.LOW):
         """Instruct the drone to hover.
 
         Parameters
@@ -152,6 +153,8 @@ class DroneController(object):
         priority : Priorities.{LOW, MEDIUM, HIGH}, optional
             The importance of this task.
         """
+        if altitude == None:
+            altitude = self._drone.rangefinder.distance
         new_task = Hover(self._drone, altitude, duration)
         self._task_queue.push(priority, new_task)
 
@@ -212,6 +215,18 @@ class DroneController(object):
         """
         new_task = Exit(self._drone)
         self._task_queue.push(priority, new_task)
+    
+    def add_yaw_task(self, heading, priority=c.Priorities.MEDIUM):
+        """Instructs the drone to yaw.
+        Parameters
+        ----------
+        heading : int
+            The heading for the drone to go to.
+        priority : constants.Priorities
+            The priority of the yaw task
+        """
+        new_task = Yaw(self._drone, heading)
+        self._task_queue.push(priority, new_task)
 
     def _update(self):
         """Execute one iteration of control logic.
@@ -249,8 +264,7 @@ class DroneController(object):
         # If there are no more tasks, begin to hover.
         if self._drone.armed and self._current_task is None:
             self._logger.info('No more tasks - beginning long hover')
-            self.add_hover_task(config.DEFAULT_ALTITUDE,
-                                c.DEFAULT_HOVER_DURATION)
+            self.add_hover_task()
 
         return True
 
@@ -263,6 +277,11 @@ class DroneController(object):
             if (
                     self._drone.rangefinder.distance > config.MAXIMUM_ALLOWED_ALTITUDE):
                 raise exceptions.AltitudeExceededThreshold()
+            if abs(self._drone.attitude.roll) > radians(c.MAXIMUM_PITCH_ROLL):
+                raise exceptions.RollExceededMaximum()
+
+            if abs(self._drone.attitude.pitch) > radians(c.MAXIMUM_PITCH_ROLL):
+                raise exceptions.PitchExceededMaximum()
 
         except Exception as e:
             self._exception = e  # This variable only set when exception found
