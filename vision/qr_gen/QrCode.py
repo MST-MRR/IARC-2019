@@ -21,7 +21,7 @@ import os
 
 BORDER_SIZE = 15
 
-class QrCode():
+class QrCode(object):
     """A class for generating QR codes.
 
     Parameters
