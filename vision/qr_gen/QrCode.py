@@ -73,7 +73,7 @@ class QrCode():
         """Gets the top left corner segment of the QR code."""
         return self._top_left_corner
 
-    @property 
+    @property
     def top_right_corner(self):
         """Gets the top right corner segment of the QR code."""
         return self._top_right_corner
@@ -87,7 +87,7 @@ class QrCode():
     def bottom_right_corner(self):
         """Gets the bottom right corner segment of the QR code."""
         return self._bottom_right_corner
-    
+
     def mid_y(self):
         """Gets the midpoint of the image along the y-axis"""
         return int(self.img.shape[0]/2)
