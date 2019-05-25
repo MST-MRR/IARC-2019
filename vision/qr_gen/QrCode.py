@@ -1,8 +1,9 @@
 """
 (PYTHON 3 ONLY)
 Objects for dealing with QR codes.
-This module provides a utility class for encoding values to their QR code representation. All objects passed should have a string
-representation defined for the encoding to function as expected.
+This module provides a utility class for encoding values to their QR code 
+representation. All objects passed should have a string representation 
+defined for the encoding to function as expected.
 
 Constants
 ---------
@@ -98,11 +99,13 @@ class QrCode():
     @property
     def combined_image(self):
         """
-        Gets a image with 4 QR code segments separated out to simulate IARC Mission 8.
+        Gets a image with 4 QR code segments separated out to simulate IARC 
+        Mission 8.
         """
 
         # Create image and read in border mask.
-        self._combined_image = (np.ones((self._corner_width*QrCode.UPSCALE_FACTOR, self._corner_width*QrCode.UPSCALE_FACTOR, 3))*255).astype(np.uint8)
+        self._combined_image = (np.ones((self._corner_width*QrCode.UPSCALE_FACTOR, 
+            self._corner_width*QrCode.UPSCALE_FACTOR, 3))*255).astype(np.uint8)
 
         """
         border_img_path = 'border.png'
@@ -113,16 +116,21 @@ class QrCode():
         # Write the QR code segments onto the image
         cw, ch = self._corner_width, self._corner_height
         h, w, _ = self._combined_image.shape
-        self._combined_image[BORDER_SIZE:ch+BORDER_SIZE, BORDER_SIZE:cw+BORDER_SIZE] = self.top_left_corner.reshape(cw, ch, -1)
-        self._combined_image[BORDER_SIZE:ch+BORDER_SIZE, w-BORDER_SIZE-cw:w-BORDER_SIZE] = self.top_right_corner.reshape(cw, ch, -1)
-        self._combined_image[h-BORDER_SIZE-ch:h-BORDER_SIZE, BORDER_SIZE:cw+BORDER_SIZE] = self.bottom_left_corner.reshape(cw, ch, -1)
-        self._combined_image[h-BORDER_SIZE-ch:h-BORDER_SIZE, w-BORDER_SIZE-cw:w-BORDER_SIZE] = self.bottom_right_corner.reshape(cw, ch, -1)
+        self._combined_image[BORDER_SIZE:ch+BORDER_SIZE, 
+            BORDER_SIZE:cw+BORDER_SIZE] = self.top_left_corner.reshape(cw, ch, -1)
+        self._combined_image[BORDER_SIZE:ch+BORDER_SIZE, 
+            w-BORDER_SIZE-cw:w-BORDER_SIZE] = self.top_right_corner.reshape(cw, ch, -1)
+        self._combined_image[h-BORDER_SIZE-ch:h-BORDER_SIZE, 
+            BORDER_SIZE:cw+BORDER_SIZE] = self.bottom_left_corner.reshape(cw, ch, -1)
+        self._combined_image[h-BORDER_SIZE-ch:h-BORDER_SIZE, 
+            w-BORDER_SIZE-cw:w-BORDER_SIZE] = self.bottom_right_corner.reshape(cw, ch, -1)
 
         # Write the value the QR code represents in plaintext for record keeping purposes.
         text = str(self.encoded_value)
         text_size = cv2.getTextSize(text, QrCode.FONT, 4, QrCode.THICKNESS)[0]
         center = (int((w-text_size[0])/2), int((h+text_size[1])/2))
-        cv2.putText(self._combined_image, text, center, QrCode.FONT, 4, (0, 0, 0), QrCode.THICKNESS, cv2.LINE_AA)
+        cv2.putText(self._combined_image, text, center, QrCode.FONT, 4, (0, 0, 0), 
+            QrCode.THICKNESS, cv2.LINE_AA)
 
         # Add border
         #margin = int(BORDER_SIZE*1.5)
@@ -135,8 +143,9 @@ class QrCode():
 
     def save(self, path=None):
         """
-        Generates an image in which the 4 corners of the QR code are separated by white space in the image. The
-        generated image has a label in the middle which gives the plaintext value that the QR code encoded.
+        Generates an image in which the 4 corners of the QR code are separated by white space in the 
+        image. The generated image has a label in the middle which gives the plaintext 
+        value that the QR code encoded.
 
         Parameters
         ----------
@@ -148,12 +157,14 @@ class QrCode():
         None
         """
         assert path is None or os.path.isdir(path), 'Cannot save to {}'.format(path)
-        cv2.imwrite('{}.png'.format(str(self.encoded_value)) if path is None else path, self.combined_image)
+        cv2.imwrite('{}.png'.format(str(self.encoded_value)) if path is None else path, 
+            self.combined_image)
 
     @encoded_value.setter
     def encoded_value(self, value):
         """
-        Sets the value represented by the QR code and updates all fields to represent this change.
+        Sets the value represented by the QR code and updates all fields to represent this 
+        change.
         """
 
         self._encoded_value = value
