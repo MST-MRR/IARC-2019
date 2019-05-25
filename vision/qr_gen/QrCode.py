@@ -152,11 +152,15 @@ class QrCode():
 
         Returns
         -------
-        None
+        str Filename of the qr code.
         """
         assert path is None or os.path.isdir(path), 'Cannot save to {}'.format(path)
-        cv2.imwrite('{}.png'.format(str(self.encoded_value)) if path is None else path,
-            self.combined_image)
+            
+        filename = '{}.png'.format(str(self.encoded_value)) if path is None else path
+
+        cv2.imwrite(filename, self.combined_image)
+
+        return filename
 
     @encoded_value.setter
     def encoded_value(self, value):
