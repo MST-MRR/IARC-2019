@@ -169,8 +169,8 @@ class QrCode():
 
         self._encoded_value = value
         qr = qrcode.QRCode(
-            version=None,
-            error_correction=qrcode.constants.ERROR_CORRECT_L,
+            version=1,
+            error_correction=qrcode.constants.ERROR_CORRECT_H,
             box_size=10,
             border=2,
         )
