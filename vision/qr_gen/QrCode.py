@@ -161,7 +161,7 @@ class QrCode():
     @encoded_value.setter
     def encoded_value(self, value):
         """
-        Sets the value represented by the QR code and updates all fields to represent this 
+        Sets the value represented by the QR code and updates all fields to represent this
         change.
         """
 
@@ -178,7 +178,7 @@ class QrCode():
 
         img = qr.make_image(fill_color="black", back_color="white")
         self._img = np.asarray(img.getdata()).reshape(img.size[0], img.size[1]).astype(np.uint8)
-        self._top_left_corner = self.img[:self.mid_y(),:self.mid_x()]
+        self._top_left_corner = self.img[:self.mid_y(), :self.mid_x()]
         self._bottom_left_corner = self.img[self.mid_y():, :self.mid_x()]
         self._top_right_corner = self.img[:self.mid_y(), self.mid_x():]
         self._bottom_right_corner = self.img[self.mid_y():, self.mid_x():]
