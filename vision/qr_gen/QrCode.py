@@ -139,7 +139,7 @@ class QrCode(object):
 
         return self._combined_image
 
-    def save(self, path=None):
+    def save(self, target=None, path=None):
         """
         Generates an image in which the 4 corners of the QR code are separated by white space in the
         image. The generated image has a label in the middle which gives the plaintext
@@ -147,6 +147,9 @@ class QrCode(object):
 
         Parameters
         ----------
+        target: mat
+            Image to be saved.
+
         path : str
             Path to save the image to, defaults to the current directory if None.
 
@@ -158,7 +161,7 @@ class QrCode(object):
             
         filename = '{}.png'.format(str(self.encoded_value)) if path is None else path
 
-        cv2.imwrite(filename, self.combined_image)
+        cv2.imwrite(filename, target if target is not None else self.combined_image)
 
         return filename
 
