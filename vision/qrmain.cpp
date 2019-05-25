@@ -37,7 +37,7 @@ class TSSpace{
 
 		GLuint VCOUNT, VSIZE;
 		GLsizeiptr VERTEX_DATA_SIZE;
-  		GLfloat *g_vertex_buffer_data;
+  		GLfloat *g_vertex_buffer_data = nullptr;
 
   	TSSpace(){
 		/* 
