@@ -21,7 +21,7 @@ def binarize_mat(img):
 	return img
 
 
-def get_ts_verticies(edges):
+def get_ts_verticies(edges, u=10):
 	"""
 	Convert edge coordinates to verticies of lines in TS space.
 
@@ -29,23 +29,21 @@ def get_ts_verticies(edges):
 	----------
 	edges: mat
 		1 channel binary OpenCV mat.
+	u: int
+		Scale of u axis.
 
 	Returns
 	-------
 	List of pairs of 3 tuples representing verticies of lines.
 	"""
-	u = 5
 	rule = lambda x, y: [(-u, -y), (0, x), (0, x), (u, y)]
 
-	x_offset = 0
-	y_offset = 0
-
-	output = []
+	verticies = []
 	for index, v in np.ndenumerate(edges):
 		if v == 1:
-			print(index)
-			x, y = index
-			output += rule(x, y)
+			verticies += rule(*index)
+
+	return verticies
 
 
 if __name__ == '__main__':
