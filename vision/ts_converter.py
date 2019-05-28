@@ -28,7 +28,7 @@ def get_ts_verticies(edges):
 	Parameters
 	----------
 	edges: mat
-		OpenCV mat with edges = 1.
+		1 channel binary OpenCV mat.
 
 	Returns
 	-------
@@ -44,11 +44,11 @@ def get_ts_verticies(edges):
 	for index, v in np.ndenumerate(edges):
 		if v == 1:
 			print(index)
-			x, y, _ = index
+			x, y = index
 			output += rule(x, y)
 
 
 if __name__ == '__main__':
-	edges = cv2.imread('edges.jpg')
+	edges = cv2.imread('edges.jpg',  0)
 
 	get_ts_verticies(binarize_mat(edges))
