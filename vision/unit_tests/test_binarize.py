@@ -1,8 +1,9 @@
 import cv2
 import numpy as np
 
+import sys, os
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-import ts_converter.py
+from ts_converter import binarize_mat
 
 
 if __name__ == '__main__':
