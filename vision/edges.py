@@ -12,7 +12,7 @@ def get_edges(image):
 
 
 if __name__ == '__main__':
-	qr = cv2.imread('code.png', cv2.IMREAD_UNCHANGED)
+	qr = cv2.imread('code.png')
 	cv2.imshow('code', get_edges(qr))
 	cv2.waitKey(0)
 	cv2.destroyAllWindows()
