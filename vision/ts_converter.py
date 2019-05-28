@@ -47,6 +47,6 @@ def get_ts_verticies(edges, u=10.):
 
 
 if __name__ == '__main__':
-	edges = cv2.imread('edges.jpg',  0)
+	edges = cv2.imread('edges.jpg', 0)
 
 	get_ts_verticies(binarize_mat(edges))
