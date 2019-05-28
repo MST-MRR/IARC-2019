@@ -35,13 +35,17 @@ def get_ts_verticies(edges):
 	List of pairs of 3 tuples representing verticies of lines.
 	"""
 	u = 5
-	rule = lambda x, y: ((-u, -y), (0, x), (u, y))
+	rule = lambda x, y: [(-u, -y), (0, x), (0, x), (u, y)]
 
-	print(rule(1, 1))
+	x_offset = 0
+	y_offset = 0
 
-	# for each edge in mat, create 2 lines
-
-
+	output = []
+	for index, v in np.ndenumerate(edges):
+		if v == 1:
+			print(index)
+			x, y, _ = index
+			output += rule(x, y)
 
 
 if __name__ == '__main__':
