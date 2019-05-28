@@ -21,7 +21,7 @@ def binarize_mat(img):
 	return img
 
 
-def get_ts_verticies(edges, u=10):
+def get_ts_verticies(edges, u=10.):
 	"""
 	Convert edge coordinates to verticies of lines in TS space.
 
@@ -36,7 +36,7 @@ def get_ts_verticies(edges, u=10):
 	-------
 	List of pairs of 3 tuples representing verticies of lines.
 	"""
-	rule = lambda x, y: [(-u, -y), (0, x), (0, x), (u, y)]
+	rule = lambda x, y: [(-u, -y), (0., x), (0., x), (u, y)]
 
 	verticies = []
 	for index, v in np.ndenumerate(edges):
