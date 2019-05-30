@@ -7,9 +7,9 @@ from ts_converter import binarize_mat
 
 
 if __name__ == '__main__':
-	size = 512
+	SIZE = 512
 
-	x, y = np.meshgrid(np.linspace(-1, 1, size), np.linspace(-1, 1, size))
+	x, y = np.meshgrid(np.linspace(-1, 1, SIZE), np.linspace(-1, 1, SIZE))
 	d = np.sqrt(x**2 + y**2)
 	sigma, mu = 1.0, 0.0
 	gaussian = np.exp(-((d - mu)**2 / (2.0 * sigma**2)))

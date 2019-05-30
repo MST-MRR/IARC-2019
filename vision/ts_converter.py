@@ -33,7 +33,7 @@ def get_ts_verticies(edges, u=10., z=1.):
 		Scale of u axis.
 	z: float
 		Z value.
-		
+
 	Returns
 	-------
 	List of pairs of 3 tuples representing verticies of lines.
@@ -41,8 +41,8 @@ def get_ts_verticies(edges, u=10., z=1.):
 	rule = lambda x, y: [(-u, -y, z), (0., x, z), (0., x, z), (u, y, z)]
 
 	verticies = []
-	for index, v in np.ndenumerate(edges):
-		if v == 1:
+	for index, value in np.ndenumerate(edges):
+		if value == 1:
 			verticies += rule(*index)
 
 	return verticies
