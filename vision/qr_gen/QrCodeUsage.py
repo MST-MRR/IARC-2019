@@ -1,11 +1,13 @@
-# -----------------------------------------------------------------------------
+"""
+#-----------------------------------------------------------------------------
 # Description:
 # Demonstrates usage of a utility class which generates QR codes and auxiliary
 # data neccessary for IARC mission 8.
 #
 # Author: Christopher O'Toole
 # Published: 12/2/2018
-# -----------------------------------------------------------------------------
+#-----------------------------------------------------------------------------
+"""
 
 import cv2
 from QrCode import QrCode

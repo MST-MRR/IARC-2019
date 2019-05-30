@@ -17,8 +17,14 @@ import qrtools
 
 
 class TestQRGen(unittest.TestCase):
-	def test_generator(self):
+	"""
+	QR code generator tester.
+	"""
 
+	def test_generator(self):
+		"""
+		Test the qr generator by reading multiple generated codes.
+		"""
 		for code in ['1003', '1234']:
 			qr_code = QrCode(code)
 
