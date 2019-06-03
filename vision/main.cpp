@@ -11,10 +11,10 @@ using namespace glm;
 
 #include "shader_loader.h"
 
+//DEBUG
+//void GLAPIENTRY MessageCallback(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const GLchar* message, const void* userParam ){fprintf( stderr, "GL CALLBACK: %s type = 0x%x, severity = 0x%x, message = %s\n", ( type == GL_DEBUG_TYPE_ERROR ? "** GL ERROR **" : "" ), type, severity, message );}
 
-void GLAPIENTRY MessageCallback(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const GLchar* message, const void* userParam ){fprintf( stderr, "GL CALLBACK: %s type = 0x%x, severity = 0x%x, message = %s\n", ( type == GL_DEBUG_TYPE_ERROR ? "** GL ERROR **" : "" ), type, severity, message );}
 static void glfwError(int id, const char* description){std::cout << description << std::endl;}
-
 const int INT_PER_VERTEX = 3;
 
 class TSSpace{
@@ -70,6 +70,9 @@ class TSSpace{
 		glEnable( GL_DEBUG_OUTPUT );
 		glfwSetErrorCallback(&glfwError);
 
+		//DEBUG
+		//glDebugMessageCallback(MessageCallback, 0);
+
 		glewExperimental = true; // Needed for core profile
 		if(!glfwInit()){
 			fprintf( stderr, "Failed to initialize GLFW\n" );
@@ -96,9 +99,6 @@ class TSSpace{
 			fprintf(stderr, "Failed to initialize GLEW\n");
 			throw std::runtime_error("Failed to initialize GLEW");
 		}
-
-		glEnable              (GL_DEBUG_OUTPUT);
-		glDebugMessageCallback(MessageCallback, 0);
 	}
 
 	void set_verticies(const GLuint vertex_count, GLfloat *vertex_values){
@@ -199,6 +199,7 @@ class TSSpace{
 
 
 		// DEBUG
+		/*
 		std::map<GLuint, uint> instance_counter;
 		for (uint x = 0; x < BUFF_SIZE; x++){
 			GLuint value = initial[x];
@@ -211,7 +212,7 @@ class TSSpace{
 		}
 		for(auto elem : instance_counter)
 		  std::cout << elem.first << " " << elem.second << std::endl;
-
+		*/
 
 		// vector -> mat
 		// CV_16UC1 = ushort, [0, 65535]
