@@ -7,6 +7,8 @@ using namespace glm;
 
 #include <GL/gl.h>
 
+#include <opencv2/opencv.hpp>
+
 #include "shader_loader.h"
 
 
@@ -177,6 +179,53 @@ class TSSpace{
 		// DEBUG
 		glfwPollEvents();
 		}while( glfwGetKey(window, GLFW_KEY_ESCAPE ) != GLFW_PRESS && glfwWindowShouldClose(window) == 0 );
+	}
+
+	cv::Mat convert_output(){
+		/* 
+		@fn convert_output
+		@breif Convert processed data into opencv mat.
+
+		@pre Buffer id buf contains processed values.
+
+		@return Opencv mat[HEIGHT][WIDTH]
+		*/
+	
+		// buffer -> vector
+		GLuint *initial = new GLuint[BUFF_SIZE];
+		glGetNamedBufferSubData(buf, 0, BUFF_DATA_SIZE, initial);
+
+		glfwDestroyWindow(window);  // cannot destroy window before read
+
+
+		// DEBUG
+		std::map<GLuint, uint> instance_counter;
+		for (uint x = 0; x < BUFF_SIZE; x++){
+			GLuint value = initial[x];
+
+			if(instance_counter.find(value) == instance_counter.end())
+				instance_counter.insert(
+					std::pair<GLuint, uint>(value, 0));
+
+			instance_counter[value] += 1;
+		}
+		for(auto elem : instance_counter)
+		  std::cout << elem.first << " " << elem.second << std::endl;
+
+
+		// vector -> mat
+		// CV_16UC1 = ushort, [0, 65535]
+		cv::Mat intermediate(HEIGHT, WIDTH, CV_16UC1, cv::Scalar(0));  
+		for (int i = 0; i < HEIGHT; i++){
+			for (int j = 0; j < WIDTH; j++){
+				intermediate.at<ushort>(HEIGHT - i - 1, j) = initial[(i*WIDTH) + j];
+			}
+		}
+		
+		cv::Mat finish;
+		cv::normalize(intermediate, finish, 0, 65535, cv::NORM_MINMAX);
+
+    	return finish;
 	}
 };
 
