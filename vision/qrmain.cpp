@@ -248,7 +248,7 @@ int main(){
 		0.0f, 1.0f, 0.0f,
 		0.0f, -1.0f, 0.0f,
 		};
-/*
+
   TSSpace tsspace(VCOUNT , verticies);
 
   tsspace.accumulate(); 
@@ -259,14 +259,5 @@ int main(){
   cv::waitKey(0);
 
   // note: mat is upsidown from opengl, flipped horizontally?
-*/
   return 0;
-}
-
-
-extern "C" {
-    //Foo* Foo_new(){ return new Foo(); }
-    //void Foo_bar(Foo* foo){ foo->bar(); }
-
-	int c_main(){main();}
 }
