@@ -5,6 +5,10 @@
 #include <glm/glm.hpp>
 using namespace glm;
 
+#include <GL/gl.h>
+
+
+//static void glfwError(int id, const char* description){std::cout << description << std::endl;}
 
 const int INT_PER_VERTEX = 3;
 
@@ -38,6 +42,7 @@ class TSSpace{
 	}
 
 	TSSpace(const GLuint vertex_count, GLfloat *vertex_values){
+	// TODO
 		/* 
 		@fn TSSpace
 		@breif Setup opengl and set verticies.
@@ -56,8 +61,9 @@ class TSSpace{
 		/*
 		@fn setup_opengl
 		@breif Do all of the opengl window setup.
-		*//*
+		*/
 		glEnable( GL_DEBUG_OUTPUT );
+		std::cout << "what" << std::endl;
 		/*glfwSetErrorCallback(&glfwError);
 
 		glewExperimental = true; // Needed for core profile
@@ -110,7 +116,13 @@ class TSSpace{
 	}
 };
 
+int main(){
+	TSSpace space;
+
+	return 0;
+}
+
 extern "C" {
 	TSSpace* init_ts(){ return new TSSpace(); }
-	TSSpace* parameterized_init_ts(const GLuint vertex_count, GLfloat *vertex_values){return new TSSpace(vertex_count, vertex_values);}
+	TSSpace* parameterized_init_ts(const GLuint v_count, GLfloat *verticies){return new TSSpace(v_count, verticies);}
 }
