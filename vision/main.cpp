@@ -8,7 +8,8 @@ using namespace glm;
 #include <GL/gl.h>
 
 
-//static void glfwError(int id, const char* description){std::cout << description << std::endl;}
+void GLAPIENTRY MessageCallback(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const GLchar* message, const void* userParam ){fprintf( stderr, "GL CALLBACK: %s type = 0x%x, severity = 0x%x, message = %s\n", ( type == GL_DEBUG_TYPE_ERROR ? "** GL ERROR **" : "" ), type, severity, message );}
+static void glfwError(int id, const char* description){std::cout << description << std::endl;}
 
 const int INT_PER_VERTEX = 3;
 
@@ -63,8 +64,7 @@ class TSSpace{
 		@breif Do all of the opengl window setup.
 		*/
 		glEnable( GL_DEBUG_OUTPUT );
-		std::cout << "what" << std::endl;
-		/*glfwSetErrorCallback(&glfwError);
+		glfwSetErrorCallback(&glfwError);
 
 		glewExperimental = true; // Needed for core profile
 		if(!glfwInit()){
@@ -94,7 +94,7 @@ class TSSpace{
 		}
 
 		glEnable              (GL_DEBUG_OUTPUT);
-		glDebugMessageCallback(MessageCallback, 0);*/
+		glDebugMessageCallback(MessageCallback, 0);
 	}
 
 	void set_verticies(const GLuint vertex_count, GLfloat *vertex_values){
