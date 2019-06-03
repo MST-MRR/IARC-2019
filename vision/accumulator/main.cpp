@@ -197,7 +197,6 @@ class TSSpace{
 
 		glfwDestroyWindow(window);  // cannot destroy window before read
 
-
 		// DEBUG
 		/*
 		std::map<GLuint, uint> instance_counter;
@@ -223,6 +222,8 @@ class TSSpace{
 			}
 		}
 		
+		delete initial;
+
 		output = new cv::Mat;
 		cv::normalize(intermediate, *output, 0, 65535, cv::NORM_MINMAX);
 
@@ -230,6 +231,7 @@ class TSSpace{
 	}
 
 	void free_output(){
+		/* Delete the stored output data. */
 		delete output;
 	}
 };
@@ -257,10 +259,15 @@ int main(){
 
   tsspace.accumulate(); 
 
-  cv::Mat output = tsspace.convert_output();
+  tsspace.convert_output();
 
-  cv::imshow("Accumulated values", output);
-  cv::waitKey(0);
+  // read the pointer
+
+
+  tsspace.free_output();
+
+  //cv::imshow("Accumulated values", output);
+  //cv::waitKey(0);
 
   return 0;
 }
