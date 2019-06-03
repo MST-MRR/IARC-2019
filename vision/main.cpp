@@ -158,7 +158,7 @@ class TSSpace{
 		//glOrtho(0, WIDTH, HEIGHT, 0, 0, 1);
 
 		// process
-		do {
+		//do {
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		glClearColor(0.0f, 0.0f, 0.0f, 0.0f) ;
 
@@ -177,11 +177,11 @@ class TSSpace{
 		glfwSwapBuffers(window);
 		
 		// DEBUG
-		glfwPollEvents();
-		}while( glfwGetKey(window, GLFW_KEY_ESCAPE ) != GLFW_PRESS && glfwWindowShouldClose(window) == 0 );
+		//glfwPollEvents();
+		//}while( glfwGetKey(window, GLFW_KEY_ESCAPE ) != GLFW_PRESS && glfwWindowShouldClose(window) == 0 );
 	}
 
-	cv::Mat convert_output(){
+	void convert_output(){
 		/* 
 		@fn convert_output
 		@breif Convert processed data into opencv mat.
@@ -225,11 +225,12 @@ class TSSpace{
 		cv::Mat finish;
 		cv::normalize(intermediate, finish, 0, 65535, cv::NORM_MINMAX);
 
-    	return finish;
+    	//return finish;
 	}
 };
 
 int main(){
+	// sanity check
 	TSSpace space;
 
 	return 0;
@@ -239,4 +240,5 @@ extern "C" {
 	TSSpace* init_ts(){ return new TSSpace(); }
 	TSSpace* parameterized_init_ts(const GLuint v_count, GLfloat *verticies){return new TSSpace(v_count, verticies);}
 	void accumulate(TSSpace* space){space->accumulate();}
+	void convert_output(TSSpace* space){space->convert_output();}
 }

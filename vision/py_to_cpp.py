@@ -1,4 +1,5 @@
 import numpy as np
+import cv2
 
 from ctypes import cdll
 lib = cdll.LoadLibrary('./qr.so')
@@ -11,6 +12,10 @@ class TS(object):
 
     def accumulate(self):
         lib.accumulate(self.obj)
+
+    def output(self): # merge w/ accumulate
+    	lib.convert_output(self.obj)
+    	# print(output)
 
 
 if __name__ == '__main__':
@@ -33,3 +38,4 @@ if __name__ == '__main__':
 
 	space = TS(VCOUNT, verticies.ctypes.data)
 	space.accumulate()
+	space.output()
