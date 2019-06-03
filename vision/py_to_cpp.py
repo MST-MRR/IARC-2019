@@ -1,3 +1,5 @@
+import numpy as np
+
 from ctypes import cdll
 lib = cdll.LoadLibrary('./qr.so')
 
@@ -13,5 +15,21 @@ class TS(object):
 
 if __name__ == '__main__':
 	# currently cannot convert parameterized input correctly
-	space = TS()
+	VCOUNT = 10;
+
+	verticies = np.array([
+		-1.0, -1.0, 0.0,
+		1.0, 1.0, 0.0,
+		-1.0,  1.0, 0.0,
+		1.0, -1.0, 0.0,
+		-1.0, 0.5, 0.0,
+		1.0,  0.5, 0.0,
+
+		0.0, 1.0, 0.0,
+		0.0, -1.0, 0.0,
+		0.0, 1.0, 0.0,
+		0.0, -1.0, 0.0,
+		], dtype=np.float32)  # cpp verticies=GLfloat = 32 bit!
+
+	space = TS(VCOUNT, verticies.ctypes.data)
 	space.accumulate()
