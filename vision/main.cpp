@@ -7,6 +7,8 @@ using namespace glm;
 
 #include <GL/gl.h>
 
+#include "shader_loader.h"
+
 
 void GLAPIENTRY MessageCallback(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const GLchar* message, const void* userParam ){fprintf( stderr, "GL CALLBACK: %s type = 0x%x, severity = 0x%x, message = %s\n", ( type == GL_DEBUG_TYPE_ERROR ? "** GL ERROR **" : "" ), type, severity, message );}
 static void glfwError(int id, const char* description){std::cout << description << std::endl;}
@@ -114,6 +116,68 @@ class TSSpace{
 		g_vertex_buffer_data = new GLfloat[VSIZE];
 		g_vertex_buffer_data = vertex_values;
 	}
+
+	void accumulate(){
+		/* 
+		@fn accumulate
+		@breif Counts number of lines drawn on each pixel.
+
+		@pre Opengl is initialized, verticies are set and shaders exist.
+		*/
+
+		// setup
+		GLuint filler[BUFF_SIZE] = {0};
+
+		glGenBuffers(1, &buf);
+		glBindBuffer(GL_TEXTURE_BUFFER, buf);
+		glBufferData(GL_TEXTURE_BUFFER, BUFF_DATA_SIZE, filler, 
+			GL_DYNAMIC_COPY);
+
+		glGenTextures(1, &tex);
+
+		glBindTexture(GL_TEXTURE_BUFFER, tex); 
+		glTexBuffer(GL_TEXTURE_BUFFER, GL_R32UI, buf);
+
+		glBindImageTexture(image_unit, tex, 0, GL_FALSE, 0, 
+			GL_READ_WRITE, GL_R32UI); 
+
+		GLuint VertexArrayID;
+		glGenVertexArrays(1, &VertexArrayID);
+		glBindVertexArray(VertexArrayID);
+		
+		GLuint vertexbuffer;  
+		glGenBuffers(1, &vertexbuffer);
+		glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);  
+		glBufferData(GL_ARRAY_BUFFER, VERTEX_DATA_SIZE, 
+			g_vertex_buffer_data, GL_STATIC_DRAW);
+
+		GLuint programID = LoadShaders(vshader, fshader); 
+
+		//glOrtho(0, WIDTH, HEIGHT, 0, 0, 1);
+
+		// process
+		//do {
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		glClearColor(0.0f, 0.0f, 0.0f, 0.0f) ;
+
+		glEnableVertexAttribArray(0);
+		glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);
+
+		glVertexAttribPointer(0, INT_PER_VERTEX, GL_FLOAT, GL_FALSE, 
+			0, (void*)0);
+
+ 		glUseProgram(programID);
+		
+		glDrawArrays(GL_LINES, 0, VCOUNT);
+
+		glDisableVertexAttribArray(0);
+	
+		glfwSwapBuffers(window);
+		
+		// DEBUG
+		glfwPollEvents();
+		//}while( glfwGetKey(window, GLFW_KEY_ESCAPE ) != GLFW_PRESS && glfwWindowShouldClose(window) == 0 );
+	}
 };
 
 int main(){
@@ -125,4 +189,5 @@ int main(){
 extern "C" {
 	TSSpace* init_ts(){ return new TSSpace(); }
 	TSSpace* parameterized_init_ts(const GLuint v_count, GLfloat *verticies){return new TSSpace(v_count, verticies);}
+	void accumulate(TSSpace* space){space->accumulate();}
 }
