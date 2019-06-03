@@ -14,6 +14,9 @@ class TS(object):
         lib.accumulate(self.obj)
         addr = lib.convert_output(self.obj)
         print(addr)
+
+    def free_output(self):
+    	lib.free_output(self.obj)
  
 
 if __name__ == '__main__':
@@ -36,3 +39,4 @@ if __name__ == '__main__':
 
 	space = TS(VCOUNT, verticies.ctypes.data)
 	space.accumulate()
+	space.free_output()
