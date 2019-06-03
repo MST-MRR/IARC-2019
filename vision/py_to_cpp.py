@@ -12,11 +12,9 @@ class TS(object):
 
     def accumulate(self):
         lib.accumulate(self.obj)
-
-    def output(self): # merge w/ accumulate
-    	lib.convert_output(self.obj)
-    	# print(output)
-
+        addr = lib.convert_output(self.obj)
+        print(addr)
+ 
 
 if __name__ == '__main__':
 	# currently cannot convert parameterized input correctly
@@ -38,4 +36,3 @@ if __name__ == '__main__':
 
 	space = TS(VCOUNT, verticies.ctypes.data)
 	space.accumulate()
-	space.output()

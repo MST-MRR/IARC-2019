@@ -38,6 +38,8 @@ class TSSpace{
 		GLsizeiptr VERTEX_DATA_SIZE;
   		GLfloat *g_vertex_buffer_data = nullptr;
 
+  		cv::Mat * output = nullptr;
+
   	TSSpace(){
 		/* 
 		@fn TSSpace
@@ -181,7 +183,7 @@ class TSSpace{
 		//}while( glfwGetKey(window, GLFW_KEY_ESCAPE ) != GLFW_PRESS && glfwWindowShouldClose(window) == 0 );
 	}
 
-	void convert_output(){
+	cv::Mat * convert_output(){
 		/* 
 		@fn convert_output
 		@breif Convert processed data into opencv mat.
@@ -223,10 +225,14 @@ class TSSpace{
 			}
 		}
 		
-		cv::Mat finish;
-		cv::normalize(intermediate, finish, 0, 65535, cv::NORM_MINMAX);
+		output = new cv::Mat;
+		cv::normalize(intermediate, *output, 0, 65535, cv::NORM_MINMAX);
 
-    	//return finish;
+    	return output;
+	}
+
+	void free_output(){
+		delete output;
 	}
 };
 
@@ -241,5 +247,6 @@ extern "C" {
 	TSSpace* init_ts(){ return new TSSpace(); }
 	TSSpace* parameterized_init_ts(const GLuint v_count, GLfloat *verticies){return new TSSpace(v_count, verticies);}
 	void accumulate(TSSpace* space){space->accumulate();}
-	void convert_output(TSSpace* space){space->convert_output();}
+	cv::Mat* convert_output(TSSpace* space){return space->convert_output();}
+	void free_output(TSSpace* space){space->free_output();}
 }
