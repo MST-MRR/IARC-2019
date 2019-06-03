@@ -5,8 +5,6 @@
 #include <glm/glm.hpp>
 using namespace glm;
 
-#include <GL/gl.h>
-
 #include <opencv2/opencv.hpp>
 
 #include "shader_loader.h"
@@ -238,9 +236,33 @@ class TSSpace{
 
 int main(){
 	// sanity check
-	TSSpace space;
+  // 0, 0 is in the middle of opengl, 1,1 is top right
 
-	return 0;
+  const GLuint VCOUNT = 10;
+  GLfloat verticies[VCOUNT*INT_PER_VERTEX] = {
+		-1.0f, -1.0f, 0.0f,
+		1.0f, 1.0f, 0.0f,
+		-1.0f,  1.0f, 0.0f,
+		1.0f, -1.0f, 0.0f,
+		-1.0f, 0.5f, 0.0f,
+		1.0f,  0.5f, 0.0f,
+
+		0.0f, 1.0f, 0.0f,
+		0.0f, -1.0f, 0.0f,
+		0.0f, 1.0f, 0.0f,
+		0.0f, -1.0f, 0.0f,
+		};
+
+  TSSpace tsspace(VCOUNT , verticies);
+
+  tsspace.accumulate(); 
+
+  cv::Mat output = tsspace.convert_output();
+
+  cv::imshow("Accumulated values", output);
+  cv::waitKey(0);
+
+  return 0;
 }
 
 extern "C" {
