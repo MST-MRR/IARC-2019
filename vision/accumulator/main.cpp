@@ -47,7 +47,6 @@ class TSSpace{
 	}
 
 	TSSpace(const GLuint vertex_count, GLfloat *vertex_values){
-	// TODO
 		/* 
 		@fn TSSpace
 		@breif Setup opengl and set verticies.
@@ -60,6 +59,13 @@ class TSSpace{
 		setup_opengl();
 
 		set_verticies(vertex_count , vertex_values);
+	}
+
+	~TSSpace(){
+		delete vshader;
+		delete fshader;
+		delete[] g_vertex_buffer_data;
+		delete output;
 	}
 
 	void setup_opengl(){
@@ -115,7 +121,7 @@ class TSSpace{
 		VSIZE = VCOUNT * INT_PER_VERTEX;
 		VERTEX_DATA_SIZE = VSIZE * sizeof(GLfloat);
 
-		g_vertex_buffer_data = new GLfloat[VSIZE];
+		//g_vertex_buffer_data = new GLfloat[VSIZE];
 		g_vertex_buffer_data = vertex_values;
 	}
 
@@ -229,11 +235,6 @@ class TSSpace{
 
     	return output;
 	}
-
-	void free_output(){
-		/* Delete the stored output data. */
-		delete output;
-	}
 };
 
 int main(){
@@ -263,9 +264,6 @@ int main(){
 
   // read the pointer
 
-
-  tsspace.free_output();
-
   //cv::imshow("Accumulated values", output);
   //cv::waitKey(0);
 
@@ -277,5 +275,4 @@ extern "C" {
 	TSSpace* parameterized_init_ts(const GLuint v_count, GLfloat *verticies){return new TSSpace(v_count, verticies);}
 	void accumulate(TSSpace* space){space->accumulate();}
 	cv::Mat* convert_output(TSSpace* space){return space->convert_output();}
-	void free_output(TSSpace* space){space->free_output();}
 }
