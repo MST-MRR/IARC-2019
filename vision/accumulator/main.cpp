@@ -270,9 +270,21 @@ int main(){
   return 0;
 }
 
+
+typedef void*(*allocator_t)(int, int*, char);
 extern "C" {
 	TSSpace* init_ts(){ return new TSSpace(); }
 	TSSpace* parameterized_init_ts(const GLuint v_count, GLfloat *verticies){return new TSSpace(v_count, verticies);}
 	void accumulate(TSSpace* space){space->accumulate();}
 	cv::Mat* convert_output(TSSpace* space){return space->convert_output();}
+	void load_to_python(allocator_t allocator){
+		int dims[] = {2, 3};
+		float * data = (float*) allocator(2, dims, 'f');
+
+		for(uint x = 0; x < dims[1]; x++){
+			for(uint y = 0; y < dims[0]; y++){
+				data[x + y*dims[1]] = x + y*dims[1];
+			}
+		}
+	}
 }

@@ -2,7 +2,24 @@ import numpy as np
 import cv2
 
 from ctypes import cdll
+import ctypes
 lib = cdll.LoadLibrary('./qr.so')
+
+class Allocator:
+    CFUNCTYPE = ctypes.CFUNCTYPE(ctypes.c_long, ctypes.c_int, ctypes.POINTER(ctypes.c_int), ctypes.c_char)
+
+    def __init__(self):
+        self.allocated_arrays = []
+
+    def __call__(self, dims, shape, dtype):
+        x = np.empty(shape[:dims], np.dtype(dtype))
+        self.allocated_arrays.append(x)
+        return x.ctypes.data_as(ctypes.c_void_p).value
+
+    def getcfunc(self):
+        return self.CFUNCTYPE(self)
+
+    cfunc = property(getcfunc)
 
 
 class TS(object):
@@ -13,11 +30,13 @@ class TS(object):
     def accumulate(self):
         lib.accumulate(self.obj)
         addr = lib.convert_output(self.obj)
-        print(addr)
 
-    def free_output(self):
-    	lib.free_output(self.obj)
- 
+        #lib.load_to_python.argtypes = [..., Allocator.CFUNCTYPE]
+	
+        alloc = Allocator()
+        lib.load_to_python(alloc.cfunc)
+        print(tuple(alloc.allocated_arrays[:3]))
+
 
 if __name__ == '__main__':
 	# currently cannot convert parameterized input correctly
@@ -39,4 +58,6 @@ if __name__ == '__main__':
 
 	space = TS(VCOUNT, verticies.ctypes.data)
 	space.accumulate()
-	space.free_output()
+
+	# does the cpp destructor get called?
+	# pass window size, width parameters
