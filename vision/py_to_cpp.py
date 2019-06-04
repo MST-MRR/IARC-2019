@@ -9,17 +9,20 @@ class Allocator:
     CFUNCTYPE = ctypes.CFUNCTYPE(ctypes.c_long, ctypes.c_int, ctypes.POINTER(ctypes.c_int), ctypes.c_char)
 
     def __init__(self):
-        self.allocated_arrays = []
+        self._data = None
 
     def __call__(self, dims, shape, dtype):
         x = np.empty(shape[:dims], np.dtype(dtype))
-        self.allocated_arrays.append(x)
+        self._data = x
         return x.ctypes.data_as(ctypes.c_void_p).value
 
-    def getcfunc(self):
+    @property
+    def cfunc(self):
         return self.CFUNCTYPE(self)
 
-    cfunc = property(getcfunc)
+    @property
+    def data(self):
+    	return self._data
 
 
 class TS(object):
@@ -29,13 +32,12 @@ class TS(object):
 
     def accumulate(self):
         lib.accumulate(self.obj)
-        addr = lib.convert_output(self.obj)
+        
+        img = Allocator()
 
-        #lib.load_to_python.argtypes = [..., Allocator.CFUNCTYPE]
-	
-        alloc = Allocator()
-        lib.load_to_python(alloc.cfunc)
-        print(tuple(alloc.allocated_arrays[:3]))
+        lib.convert_output(self.obj, img.cfunc)
+
+        return img.data
 
 
 if __name__ == '__main__':
@@ -57,7 +59,12 @@ if __name__ == '__main__':
 		], dtype=np.float32)  # cpp verticies=GLfloat = 32 bit!
 
 	space = TS(VCOUNT, verticies.ctypes.data)
-	space.accumulate()
+	img = space.accumulate()
+
+	print(img)
+
+	cv2.imshow("img", img)
+	cv2.waitKey(0)
 
 	# does the cpp destructor get called?
 	# pass window size, width parameters

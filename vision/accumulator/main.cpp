@@ -36,8 +36,6 @@ class TSSpace{
 		GLsizeiptr VERTEX_DATA_SIZE;
   		GLfloat *g_vertex_buffer_data = nullptr;
 
-  		cv::Mat * output = nullptr;
-
   	TSSpace(){
 		/* 
 		@fn TSSpace
@@ -65,7 +63,6 @@ class TSSpace{
 		delete vshader;
 		delete fshader;
 		delete[] g_vertex_buffer_data;
-		delete output;
 	}
 
 	void setup_opengl(){
@@ -187,7 +184,7 @@ class TSSpace{
 		//}while( glfwGetKey(window, GLFW_KEY_ESCAPE ) != GLFW_PRESS && glfwWindowShouldClose(window) == 0 );
 	}
 
-	cv::Mat * convert_output(){
+	cv::Mat convert_output(){
 		/* 
 		@fn convert_output
 		@breif Convert processed data into opencv mat.
@@ -230,10 +227,10 @@ class TSSpace{
 		
 		delete initial;
 
-		output = new cv::Mat;
-		cv::normalize(intermediate, *output, 0, 65535, cv::NORM_MINMAX);
+		cv::Mat final;
+		cv::normalize(intermediate, final, 0, 65535, cv::NORM_MINMAX);
 
-    	return output;
+    	return final;
 	}
 };
 
@@ -276,8 +273,10 @@ extern "C" {
 	TSSpace* init_ts(){ return new TSSpace(); }
 	TSSpace* parameterized_init_ts(const GLuint v_count, GLfloat *verticies){return new TSSpace(v_count, verticies);}
 	void accumulate(TSSpace* space){space->accumulate();}
-	cv::Mat* convert_output(TSSpace* space){return space->convert_output();}
-	void load_to_python(allocator_t allocator){
+	void convert_output(TSSpace* space, allocator_t allocator){
+		cv::Mat value = space->convert_output();
+
+
 		int dims[] = {2, 3};
 		float * data = (float*) allocator(2, dims, 'f');
 
