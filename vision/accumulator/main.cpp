@@ -12,6 +12,7 @@ using namespace glm;
 
 #include "shader_loader.h"
 
+
 //DEBUG
 //void GLAPIENTRY MessageCallback(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const GLchar* message, const void* userParam ){fprintf( stderr, "GL CALLBACK: %s type = 0x%x, severity = 0x%x, message = %s\n", ( type == GL_DEBUG_TYPE_ERROR ? "** GL ERROR **" : "" ), type, severity, message );}
 
@@ -25,7 +26,6 @@ class TSSpace{
 		const char* vshader = "shaders/vertex.glsl";
 		const char* fshader = "shaders/fragment_accumulator.glsl";
 
-		// Width in fragment_accumulator as magic number
 		int WIDTH, HEIGHT; 
 		GLuint BUFF_SIZE;
 		GLsizeiptr BUFF_DATA_SIZE;
@@ -34,28 +34,30 @@ class TSSpace{
 
 		GLuint VCOUNT, VSIZE;
 		GLsizeiptr VERTEX_DATA_SIZE;
-  		GLfloat *g_vertex_buffer_data = nullptr;
+  		GLfloat *vertex_buffer_data = nullptr;
 
   	TSSpace(const int width, const int height){
 		/* 
 		@fn TSSpace
 		@breif Setup opengl.
+
+		@param width int Width of window.
+		@param height int Height of window.
 		*/
   		set_window(width, height);
 
 		setup_opengl();
 	}
 
-	TSSpace(const int width, const int height, const GLuint vertex_count, 
-			GLfloat *vertex_values){
+	TSSpace(const int width, const int height, const GLuint vertex_count, GLfloat *vertex_values){
 		/* 
 		@fn TSSpace
 		@breif Setup opengl and set verticies.
 
-		@param vertex_count uint Number of 3D verticies in 
-				vertex_values.
-		@param vertex_values Glfloat* XYZ locations of verticies, 
-				every 2 values is a line.
+		@param width int Width of window.
+		@param height int Height of window.
+		@param vertex_count uint Number of 3D verticies in vertex_values.
+		@param vertex_values Glfloat* XYZ locations of verticies, every 2 values is a line.
 		*/
 		set_window(width, height);
 
@@ -67,7 +69,9 @@ class TSSpace{
 	void setup_opengl(){
 		/*
 		@fn setup_opengl
-		@breif Do all of the opengl window setup.
+		@breif Opengl window setup.
+
+		@pre Window dimensions set.
 		*/
 		glEnable( GL_DEBUG_OUTPUT );
 		glfwSetErrorCallback(&glfwError);
@@ -80,9 +84,9 @@ class TSSpace{
 			fprintf( stderr, "Failed to initialize GLFW\n" );
 			throw std::runtime_error("Failed to initialize GLFW.");
 		}
-	
+
 		glfwWindowHint(GLFW_SAMPLES, 1); // antialiasing
-		glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4); // 4.3
+		glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4); // v4.3
 		glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
 		glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
 		glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
@@ -95,7 +99,7 @@ class TSSpace{
 			throw std::runtime_error("Failed to open GLFW window.");
 		}
 		glfwMakeContextCurrent(window); 
-		
+
 		glewExperimental=true;
 		if (glewInit() != GLEW_OK){
 			fprintf(stderr, "Failed to initialize GLEW\n");
@@ -104,6 +108,13 @@ class TSSpace{
 	}
 
 	void set_window(const int w, const int h){
+		/*
+		@fn set_window
+		@breif Set values that depend on window dimensions.
+
+		@param width int Width of window.
+		@param height int Height of window.
+		*/
 		WIDTH = w;
 		HEIGHT = h;
 		BUFF_SIZE = WIDTH * HEIGHT;
@@ -115,16 +126,14 @@ class TSSpace{
 		@fn set_verticies
 		@breif Sets space verticies to create lines.
 
-		@param vertex_count uint Number of 3D verticies in 
-				vertex_values.
-		@param vertex_values Glfloat* XYZ locations of verticies, 
-				every 2 values is a line.
+		@param vertex_count uint Number of 3D verticies in vertex_values.
+		@param vertex_values Glfloat* XYZ locations of verticies, every 2 values is a line.
 		*/
 		VCOUNT = vertex_count;
 		VSIZE = VCOUNT * INT_PER_VERTEX;
 		VERTEX_DATA_SIZE = VSIZE * sizeof(GLfloat);
 
-		g_vertex_buffer_data = vertex_values;
+		vertex_buffer_data = vertex_values;
 	}
 
 	void accumulate(){
@@ -140,16 +149,13 @@ class TSSpace{
 
 		glGenBuffers(1, &buf);
 		glBindBuffer(GL_TEXTURE_BUFFER, buf);
-		glBufferData(GL_TEXTURE_BUFFER, BUFF_DATA_SIZE, filler, 
-			GL_DYNAMIC_COPY);
+		glBufferData(GL_TEXTURE_BUFFER, BUFF_DATA_SIZE, filler, GL_DYNAMIC_COPY);
 
 		glGenTextures(1, &tex);
-
 		glBindTexture(GL_TEXTURE_BUFFER, tex); 
 		glTexBuffer(GL_TEXTURE_BUFFER, GL_R32UI, buf);
 
-		glBindImageTexture(0, tex, 0, GL_FALSE, 0, 
-			GL_READ_WRITE, GL_R32UI); 
+		glBindImageTexture(0, tex, 0, GL_FALSE, 0, GL_READ_WRITE, GL_R32UI); 
 
 		GLuint VertexArrayID;
 		glGenVertexArrays(1, &VertexArrayID);
@@ -158,8 +164,7 @@ class TSSpace{
 		GLuint vertexbuffer;  
 		glGenBuffers(1, &vertexbuffer);
 		glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);  
-		glBufferData(GL_ARRAY_BUFFER, VERTEX_DATA_SIZE, 
-			g_vertex_buffer_data, GL_STATIC_DRAW);
+		glBufferData(GL_ARRAY_BUFFER, VERTEX_DATA_SIZE, vertex_buffer_data, GL_STATIC_DRAW);
 
 		GLuint programID = LoadShaders(vshader, fshader); 
 
@@ -171,8 +176,7 @@ class TSSpace{
 		glEnableVertexAttribArray(0);
 		glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);
 
-		glVertexAttribPointer(0, INT_PER_VERTEX, GL_FLOAT, GL_FALSE, 
-			0, (void*)0);
+		glVertexAttribPointer(0, INT_PER_VERTEX, GL_FLOAT, GL_FALSE, 0, (void*)0);
 
  		glUseProgram(programID);
 		

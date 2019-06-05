@@ -43,6 +43,7 @@ class TS(object):
 
 if __name__ == '__main__':
 	# 0, 0 is in the middle of opengl, 1,1 is top right
+	# Width in fragment_accumulator as magic number
 	VCOUNT = 10
 	verticies = np.array([
 		-1.0, -1.0, 0.0,
