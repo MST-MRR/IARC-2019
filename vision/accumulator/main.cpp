@@ -26,10 +26,9 @@ class TSSpace{
 		const char* fshader = "shaders/fragment_accumulator.glsl";
 
 		// Width in fragment_accumulator as magic number
-		int WIDTH = 1024, HEIGHT = 768; 
-
-		GLuint BUFF_SIZE = WIDTH * HEIGHT;
-		GLsizeiptr BUFF_DATA_SIZE = BUFF_SIZE * sizeof(GLuint);
+		int WIDTH, HEIGHT; 
+		GLuint BUFF_SIZE;
+		GLsizeiptr BUFF_DATA_SIZE;
 
 		GLuint tex, buf;
 
@@ -39,15 +38,18 @@ class TSSpace{
 		GLsizeiptr VERTEX_DATA_SIZE;
   		GLfloat *g_vertex_buffer_data = nullptr;
 
-  	TSSpace(){
+  	TSSpace(const int width, const int height){
 		/* 
 		@fn TSSpace
 		@breif Setup opengl.
 		*/
+  		set_window(width, height);
+
 		setup_opengl();
 	}
 
-	TSSpace(const GLuint vertex_count, GLfloat *vertex_values){
+	TSSpace(const int width, const int height, const GLuint vertex_count, 
+			GLfloat *vertex_values){
 		/* 
 		@fn TSSpace
 		@breif Setup opengl and set verticies.
@@ -57,6 +59,8 @@ class TSSpace{
 		@param vertex_values Glfloat* XYZ locations of verticies, 
 				every 2 values is a line.
 		*/
+		set_window(width, height);
+
 		setup_opengl();
 
 		set_verticies(vertex_count , vertex_values);
@@ -99,6 +103,13 @@ class TSSpace{
 			fprintf(stderr, "Failed to initialize GLEW\n");
 			throw std::runtime_error("Failed to initialize GLEW");
 		}
+	}
+
+	void set_window(const int w, const int h){
+		WIDTH = w;
+		HEIGHT = h;
+		BUFF_SIZE = WIDTH * HEIGHT;
+		BUFF_DATA_SIZE = BUFF_SIZE * sizeof(GLuint);
 	}
 
 	void set_verticies(const GLuint vertex_count, GLfloat *vertex_values){
@@ -153,8 +164,6 @@ class TSSpace{
 			g_vertex_buffer_data, GL_STATIC_DRAW);
 
 		GLuint programID = LoadShaders(vshader, fshader); 
-
-		//glOrtho(0, WIDTH, HEIGHT, 0, 0, 1);
 
 		// process
 		//do {
@@ -211,7 +220,7 @@ int main(){
 		0.0f, -1.0f, 0.0f,
 		};
 
-  TSSpace tsspace(VCOUNT , verticies);
+  TSSpace tsspace(1024, 768, VCOUNT , verticies);
 
   tsspace.accumulate();
 
@@ -220,7 +229,6 @@ int main(){
   tsspace.convert_output(data);
 
   delete[] data;
-  std::cout << "check" << std::endl;
 
   return 0;
 }
@@ -228,8 +236,8 @@ int main(){
 
 typedef void*(*allocator_t)(int, int*);
 extern "C" {
-	TSSpace* init_ts(){ return new TSSpace(); }
-	TSSpace* parameterized_init_ts(const GLuint v_count, GLfloat *verticies){return new TSSpace(v_count, verticies);}
+	TSSpace* init_ts(const int w, const int h){ return new TSSpace(w, h); }
+	TSSpace* parameterized_init_ts(const int w, const int h, const GLuint v_count, GLfloat *verticies){return new TSSpace(w, h, v_count, verticies);}
 	void accumulate(TSSpace* space){space->accumulate();}
 
 	void convert_output(TSSpace* space, allocator_t allocator){

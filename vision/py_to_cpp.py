@@ -27,8 +27,8 @@ class Allocator:
 
 
 class TS(object):
-    def __init__(self, v_count=None, verticies=None):
-        self.obj = lib.parameterized_init_ts(v_count, verticies) \
+    def __init__(self, width, height, v_count=None, verticies=None):
+        self.obj = lib.parameterized_init_ts(width, height, v_count, verticies) \
         	if v_count and verticies else lib.init_ts()
 
     def accumulate(self):
@@ -58,7 +58,7 @@ if __name__ == '__main__':
 		0.0, -1.0, 0.0,
 		], dtype=np.float32)
 
-	space = TS(VCOUNT, verticies.ctypes.data)
+	space = TS(1024, 768, VCOUNT, verticies.ctypes.data)
 	img = space.accumulate()
 
 	print(dict(zip(np.unique(img), np.bincount(img.flatten()))))
@@ -70,4 +70,4 @@ if __name__ == '__main__':
 	print(img)
 
 	cv2.imshow("img", img)
-	cv2.waitKey(10)
+	cv2.waitKey(0)
