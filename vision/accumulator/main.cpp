@@ -184,44 +184,17 @@ class TSSpace{
 		//}while( glfwGetKey(window, GLFW_KEY_ESCAPE ) != GLFW_PRESS && glfwWindowShouldClose(window) == 0 );
 	}
 
-	cv::Mat convert_output(uint * initial){
+	void convert_output(uint * output){
 		/* 
 		@fn convert_output
 		@breif Convert processed data into opencv mat.
 
-		@pre Buffer id buf contains processed values.
+		@pre Buffer id buf contains processed values. Size allocated at output = BUFF_SIZE.
 
-		@return Opencv mat[HEIGHT][WIDTH]
+		@param output uint* Location of gpu buffer to end go.
 		*/
-	
-		// buffer -> vector
-		//GLushort *initial = new GLushort[BUFF_SIZE];
-		glGetNamedBufferSubData(buf, 0, BUFF_DATA_SIZE, initial);
-
+		glGetNamedBufferSubData(buf, 0, BUFF_DATA_SIZE, output);
 		glfwDestroyWindow(window);  // cannot destroy window before read
-
-		// DEBUG
-		/*
-		std::map<GLuint, uint> instance_counter;
-		for (uint x = 0; x < BUFF_SIZE; x++){
-			GLuint value = initial[x];
-
-			if(instance_counter.find(value) == instance_counter.end())
-				instance_counter.insert(
-					std::pair<GLuint, uint>(value, 0));
-
-			instance_counter[value] += 1;
-		}
-		for(auto elem : instance_counter)
-		  std::cout << elem.first << " " << elem.second << std::endl;
-		*/
-		
-		cv::Mat final;
-		cv::normalize(*initial, final, 0, 65535, cv::NORM_MINMAX);
-
-		//delete initial;
-    	
-    	return final;
 	}
 };
 
@@ -246,9 +219,14 @@ int main(){
 
   TSSpace tsspace(VCOUNT , verticies);
 
-  tsspace.accumulate(); 
+  tsspace.accumulate();
 
-  //tsspace.convert_output();
+  uint * data = new uint[tsspace.BUFF_SIZE];
+
+  tsspace.convert_output(data);
+
+std::cout << "XX" <<std::endl;
+  delete[] data;
 
   //cv::imshow("Accumulated values", output);
   //cv::waitKey(0);
@@ -256,7 +234,7 @@ int main(){
   return 0;
 }
 
-
+/*
 typedef void*(*allocator_t)(int, int*);
 extern "C" {
 	TSSpace* init_ts(){ return new TSSpace(); }
@@ -274,6 +252,7 @@ extern "C" {
 				data[x + y*dims[1]] = 65536;
 			}
 		}*/
-	}
+	/*}
 
 }
+*/

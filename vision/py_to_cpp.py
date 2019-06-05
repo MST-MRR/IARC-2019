@@ -63,7 +63,7 @@ if __name__ == '__main__':
 
 	print(np.unique(img))
 	print(np.bincount(img.flatten()))
-	print(np.where(img >= 3))
+	print(zip(np.where(img >= 3)))
 
 	img = np.where(img == 1, .2, 0.)
 	img = np.where(img > 1, 1., img)
@@ -72,7 +72,7 @@ if __name__ == '__main__':
 	print(img)
 
 	cv2.imshow("img", img)
-	cv2.waitKey(0)
+	cv2.waitKey(10)
 
 	# does the cpp destructor get called?
 	# pass window size, width parameters
