@@ -23,7 +23,7 @@ class Allocator:
         ----------
         dims: int
             Number of dimensions.
-        shape: tuple of int 
+        shape: tuple of int
             Size of each dimension.
         """
         self._data = np.empty(shape[:dims], np.dtype('uint32'))
@@ -47,7 +47,7 @@ class Allocator:
 class TS(object):
     """
     TS Space, bindings to accumulator in c++.
-    
+
     Parameters
     ----------
     width: int
@@ -104,12 +104,7 @@ if __name__ == '__main__':
     print(dict(zip(np.unique(img), np.bincount(img.flatten()))))
     print(dict(zip(*np.where(img >= 3))))
 
-    print(dict(zip(np.unique(img[-1]), np.bincount(img[-1]))))
-    print(np.where(img[-1] >= 2))
-
     img = np.where(img > 0, .2, 0.)
-
-    print(img)
 
     cv2.imshow("img", img)
     cv2.waitKey(0)
