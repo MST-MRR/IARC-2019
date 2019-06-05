@@ -6,13 +6,13 @@ import ctypes
 lib = cdll.LoadLibrary('./qr.so')
 
 class Allocator:
-    CFUNCTYPE = ctypes.CFUNCTYPE(ctypes.c_long, ctypes.c_int, ctypes.POINTER(ctypes.c_int), ctypes.c_char)
+    CFUNCTYPE = ctypes.CFUNCTYPE(ctypes.c_long, ctypes.c_int, ctypes.POINTER(ctypes.c_int))
 
     def __init__(self):
         self._data = None
 
-    def __call__(self, dims, shape, dtype):
-        x = np.empty(shape[:dims], np.dtype(dtype))
+    def __call__(self, dims, shape):
+        x = np.empty(shape[:dims], np.dtype('uint16'))
         self._data = x
         return x.ctypes.data_as(ctypes.c_void_p).value
 
@@ -56,15 +56,12 @@ if __name__ == '__main__':
 		0.0, -1.0, 0.0,
 		0.0, 1.0, 0.0,
 		0.0, -1.0, 0.0,
-		], dtype=np.float32)  # cpp verticies=GLfloat = 32 bit!
+		], dtype=np.float32)
 
 	space = TS(VCOUNT, verticies.ctypes.data)
 	img = space.accumulate()
 
 	print(img)
-
-	cv2.imshow("img", img)
-	cv2.waitKey(0)
 
 	# does the cpp destructor get called?
 	# pass window size, width parameters
