@@ -16,6 +16,16 @@ class Allocator:
         self._data = None
 
     def __call__(self, dims, shape):
+        """
+        Allocate data.
+        
+        Parameters
+        ----------
+        dims: int 
+            Number of dimensions.
+        shape: tuple of int 
+            Size of each dimension.
+        """
         self._data = np.empty(shape[:dims], np.dtype('uint32'))
         return self._data.ctypes.data_as(ctypes.c_void_p).value
 
@@ -35,11 +45,29 @@ class Allocator:
 
 
 class TS(object):
+    """
+    TS Space, bindings to accumulator in c++.
+    
+    Parameters
+    ----------
+    width: int 
+        Width of image.
+    height: int 
+        Height of image.
+    v_count: int
+        Number of verticies in verticies, each vertex is a 3 tuple.
+        Must be even.
+    verticies: numpy array
+        List of verticies, each vertex is a 3 tuple. Every 2 verticies is a line. 
+    """
     def __init__(self, width, height, v_count=None, verticies=None):
         self.obj = lib.parameterized_init_ts(width, height, v_count, verticies) \
             if v_count and verticies else lib.init_ts()
 
     def accumulate(self):
+        """
+        Accumulate line overlaps in TS space.
+        """
         lib.accumulate(self.obj)
         
         img = Allocator()
@@ -59,17 +87,17 @@ if __name__ == '__main__':
     verticies = np.array([
         -1.0, -1.0, 0.0,
         1.0, 1.0, 0.0,
-        -1.0,  1.0, 0.0,
+        -1.0, 1.0, 0.0,
         1.0, -1.0, 0.0,
         -1.0, 0.5, 0.0,
-        1.0,  0.5, 0.0,
+        1.0, 0.5, 0.0,
 
         0.0, 1.0, 0.0,
         0.0, -1.0, 0.0,
         0.0, 1.0, 0.0,
         0.0, -1.0, 0.0,
         ], dtype=np.float32)
-    
+
     space = TS(1024, 768, VCOUNT, verticies.ctypes.data)
     img = space.accumulate()
 
