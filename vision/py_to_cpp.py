@@ -21,7 +21,7 @@ class Allocator:
         
         Parameters
         ----------
-        dims: int 
+        dims: int
             Number of dimensions.
         shape: tuple of int 
             Size of each dimension.
@@ -50,15 +50,15 @@ class TS(object):
     
     Parameters
     ----------
-    width: int 
+    width: int
         Width of image.
-    height: int 
+    height: int
         Height of image.
     v_count: int
         Number of verticies in verticies, each vertex is a 3 tuple.
         Must be even.
     verticies: numpy array
-        List of verticies, each vertex is a 3 tuple. Every 2 verticies is a line. 
+        List of verticies, each vertex is a 3 tuple. Every 2 verticies is a line.
     """
     def __init__(self, width, height, v_count=None, verticies=None):
         self.obj = lib.parameterized_init_ts(width, height, v_count, verticies) \
@@ -69,7 +69,7 @@ class TS(object):
         Accumulate line overlaps in TS space.
         """
         lib.accumulate(self.obj)
-        
+
         img = Allocator()
 
         lib.convert_output(self.obj, img.cfunc)
