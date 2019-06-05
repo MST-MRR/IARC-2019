@@ -42,8 +42,8 @@ def get_ts_verticies(edges, u=10., z=1.):
 
     verticies = []
     for index, value in np.ndenumerate(edges):
-    	if value == 1:
-    		verticies += rule(*index)
+        if value == 1:
+            verticies += rule(*index)
 
     return verticies
 
