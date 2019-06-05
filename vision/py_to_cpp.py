@@ -43,6 +43,7 @@ class TS(object):
 
 if __name__ == '__main__':
 	# 0, 0 is in the middle of opengl, 1,1 is top right
+	# https://www.khronos.org/registry/OpenGL-Refpages/gl4/html/gl_FragCoord.xhtml
 	# Width in fragment_accumulator as magic number
 	VCOUNT = 10
 	verticies = np.array([

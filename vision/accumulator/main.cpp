@@ -34,7 +34,7 @@ class TSSpace{
 
 		GLuint VCOUNT, VSIZE;
 		GLsizeiptr VERTEX_DATA_SIZE;
-  		GLfloat *vertex_buffer_data = nullptr;
+  		float *vertex_buffer_data = nullptr;
 
   	TSSpace(const int width, const int height){
 		/* 
@@ -49,7 +49,7 @@ class TSSpace{
 		setup_opengl();
 	}
 
-	TSSpace(const int width, const int height, const GLuint vertex_count, GLfloat *vertex_values){
+	TSSpace(const int width, const int height, const GLuint vertex_count, float *vertex_values){
 		/* 
 		@fn TSSpace
 		@breif Setup opengl and set verticies.
@@ -57,7 +57,7 @@ class TSSpace{
 		@param width int Width of window.
 		@param height int Height of window.
 		@param vertex_count uint Number of 3D verticies in vertex_values.
-		@param vertex_values Glfloat* XYZ locations of verticies, every 2 values is a line.
+		@param vertex_values float* XYZ locations of verticies, every 2 values is a line.
 		*/
 		set_window(width, height);
 
@@ -118,10 +118,10 @@ class TSSpace{
 		WIDTH = w;
 		HEIGHT = h;
 		BUFF_SIZE = WIDTH * HEIGHT;
-		BUFF_DATA_SIZE = BUFF_SIZE * sizeof(GLuint);
+		BUFF_DATA_SIZE = BUFF_SIZE * sizeof(uint32_t);
 	}
 
-	void set_verticies(const GLuint vertex_count, GLfloat *vertex_values){
+	void set_verticies(const GLuint vertex_count, float *vertex_values){
 		/* 
 		@fn set_verticies
 		@breif Sets space verticies to create lines.
@@ -131,7 +131,7 @@ class TSSpace{
 		*/
 		VCOUNT = vertex_count;
 		VSIZE = VCOUNT * INT_PER_VERTEX;
-		VERTEX_DATA_SIZE = VSIZE * sizeof(GLfloat);
+		VERTEX_DATA_SIZE = VSIZE * sizeof(float);
 
 		vertex_buffer_data = vertex_values;
 	}
@@ -161,9 +161,9 @@ class TSSpace{
 		glGenVertexArrays(1, &VertexArrayID);
 		glBindVertexArray(VertexArrayID);
 		
-		GLuint vertexbuffer;  
+		GLuint vertexbuffer;
 		glGenBuffers(1, &vertexbuffer);
-		glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);  
+		glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);
 		glBufferData(GL_ARRAY_BUFFER, VERTEX_DATA_SIZE, vertex_buffer_data, GL_STATIC_DRAW);
 
 		GLuint programID = LoadShaders(vshader, fshader); 
@@ -208,7 +208,7 @@ class TSSpace{
 int main(){
   // sanity check
   const GLuint VCOUNT = 10;
-  GLfloat verticies[VCOUNT*INT_PER_VERTEX] = {
+  float verticies[VCOUNT*INT_PER_VERTEX] = {
 		-1.0f, -1.0f, 0.0f,
 		1.0f, 1.0f, 0.0f,
 		-1.0f,  1.0f, 0.0f,
@@ -239,7 +239,7 @@ int main(){
 typedef void*(*allocator_t)(int, int*);
 extern "C" {
 	TSSpace* init_ts(const int w, const int h){ return new TSSpace(w, h); }
-	TSSpace* parameterized_init_ts(const int w, const int h, const GLuint v_count, GLfloat *verticies){return new TSSpace(w, h, v_count, verticies);}
+	TSSpace* parameterized_init_ts(const int w, const int h, const GLuint v_count, float *verticies){return new TSSpace(w, h, v_count, verticies);}
 	void accumulate(TSSpace* space){space->accumulate();}
 
 	void convert_output(TSSpace* space, allocator_t allocator){
