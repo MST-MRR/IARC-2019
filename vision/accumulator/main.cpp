@@ -32,8 +32,6 @@ class TSSpace{
 
 		GLuint tex, buf;
 
-		GLuint image_unit = 0;
-
 		GLuint VCOUNT, VSIZE;
 		GLsizeiptr VERTEX_DATA_SIZE;
   		GLfloat *g_vertex_buffer_data = nullptr;
@@ -150,7 +148,7 @@ class TSSpace{
 		glBindTexture(GL_TEXTURE_BUFFER, tex); 
 		glTexBuffer(GL_TEXTURE_BUFFER, GL_R32UI, buf);
 
-		glBindImageTexture(image_unit, tex, 0, GL_FALSE, 0, 
+		glBindImageTexture(0, tex, 0, GL_FALSE, 0, 
 			GL_READ_WRITE, GL_R32UI); 
 
 		GLuint VertexArrayID;
