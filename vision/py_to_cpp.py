@@ -12,7 +12,7 @@ class Allocator:
         self._data = None
 
     def __call__(self, dims, shape):
-        x = np.empty(shape[:dims], np.dtype('uint16'))
+        x = np.empty(shape[:dims], np.dtype('uint32'))
         self._data = x
         return x.ctypes.data_as(ctypes.c_void_p).value
 
@@ -61,7 +61,18 @@ if __name__ == '__main__':
 	space = TS(VCOUNT, verticies.ctypes.data)
 	img = space.accumulate()
 
+	print(np.unique(img))
+	print(np.bincount(img.flatten()))
+	print(np.where(img >= 3))
+
+	img = np.where(img == 1, .2, 0.)
+	img = np.where(img > 1, 1., img)
+
+	#img = cv2.normalize(img, 0, 65535, cv2.NORM_MINMAX);
 	print(img)
+
+	cv2.imshow("img", img)
+	cv2.waitKey(0)
 
 	# does the cpp destructor get called?
 	# pass window size, width parameters

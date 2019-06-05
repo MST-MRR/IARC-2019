@@ -184,7 +184,7 @@ class TSSpace{
 		//}while( glfwGetKey(window, GLFW_KEY_ESCAPE ) != GLFW_PRESS && glfwWindowShouldClose(window) == 0 );
 	}
 
-	cv::Mat convert_output(){
+	cv::Mat convert_output(uint * initial){
 		/* 
 		@fn convert_output
 		@breif Convert processed data into opencv mat.
@@ -195,7 +195,7 @@ class TSSpace{
 		*/
 	
 		// buffer -> vector
-		GLushort *initial = new GLushort[BUFF_SIZE];
+		//GLushort *initial = new GLushort[BUFF_SIZE];
 		glGetNamedBufferSubData(buf, 0, BUFF_DATA_SIZE, initial);
 
 		glfwDestroyWindow(window);  // cannot destroy window before read
@@ -219,7 +219,7 @@ class TSSpace{
 		cv::Mat final;
 		cv::normalize(*initial, final, 0, 65535, cv::NORM_MINMAX);
 
-		delete initial;
+		//delete initial;
     	
     	return final;
 	}
@@ -248,9 +248,7 @@ int main(){
 
   tsspace.accumulate(); 
 
-  tsspace.convert_output();
-
-  // read the pointer
+  //tsspace.convert_output();
 
   //cv::imshow("Accumulated values", output);
   //cv::waitKey(0);
@@ -266,18 +264,16 @@ extern "C" {
 	void accumulate(TSSpace* space){space->accumulate();}
 
 	void convert_output(TSSpace* space, allocator_t allocator){
-		cv::Mat value = space->convert_output();
-
 		int dims[] = {space->HEIGHT, space->WIDTH};
-		ushort * data = (ushort*) allocator(2, dims);
+		uint * data = (uint*) allocator(2, dims);
 
-		//space->convert_output();
-
+		space->convert_output(data);
+/*
 		for(uint x = 0; x < dims[1]; x++){
 			for(uint y = 0; y < dims[0]; y++){
 				data[x + y*dims[1]] = 65536;
 			}
-		}
+		}*/
 	}
 
 }
