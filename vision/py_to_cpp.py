@@ -5,6 +5,7 @@ from ctypes import cdll
 import ctypes
 lib = cdll.LoadLibrary('./qr.so')
 
+
 class Allocator:
     CFUNCTYPE = ctypes.CFUNCTYPE(ctypes.c_long, ctypes.c_int, ctypes.POINTER(ctypes.c_int))
 
@@ -41,9 +42,8 @@ class TS(object):
 
 
 if __name__ == '__main__':
-	# currently cannot convert parameterized input correctly
-	VCOUNT = 10;
-
+	# 0, 0 is in the middle of opengl, 1,1 is top right
+	VCOUNT = 10
 	verticies = np.array([
 		-1.0, -1.0, 0.0,
 		1.0, 1.0, 0.0,
@@ -68,11 +68,7 @@ if __name__ == '__main__':
 	img = np.where(img == 1, .2, 0.)
 	img = np.where(img > 1, 1., img)
 
-	#img = cv2.normalize(img, 0, 65535, cv2.NORM_MINMAX);
 	print(img)
 
 	cv2.imshow("img", img)
 	cv2.waitKey(10)
-
-	# does the cpp destructor get called?
-	# pass window size, width parameters

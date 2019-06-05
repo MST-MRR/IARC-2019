@@ -1,4 +1,7 @@
+// C++11+
+
 #include <iostream>
+#include <cstdint>
 
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
@@ -184,7 +187,7 @@ class TSSpace{
 		//}while( glfwGetKey(window, GLFW_KEY_ESCAPE ) != GLFW_PRESS && glfwWindowShouldClose(window) == 0 );
 	}
 
-	void convert_output(uint * output){
+	void convert_output(uint32_t * output){
 		/* 
 		@fn convert_output
 		@breif Convert processed data into opencv mat.
@@ -199,9 +202,7 @@ class TSSpace{
 };
 
 int main(){
-	// sanity check
-  // 0, 0 is in the middle of opengl, 1,1 is top right
-
+  // sanity check
   const GLuint VCOUNT = 10;
   GLfloat verticies[VCOUNT*INT_PER_VERTEX] = {
 		-1.0f, -1.0f, 0.0f,
@@ -221,20 +222,16 @@ int main(){
 
   tsspace.accumulate();
 
-  uint * data = new uint[tsspace.BUFF_SIZE];
+  uint32_t * data = new uint32_t[tsspace.BUFF_SIZE];
 
   tsspace.convert_output(data);
 
-std::cout << "XX" <<std::endl;
   delete[] data;
-
-  //cv::imshow("Accumulated values", output);
-  //cv::waitKey(0);
 
   return 0;
 }
 
-/*
+
 typedef void*(*allocator_t)(int, int*);
 extern "C" {
 	TSSpace* init_ts(){ return new TSSpace(); }
@@ -243,16 +240,10 @@ extern "C" {
 
 	void convert_output(TSSpace* space, allocator_t allocator){
 		int dims[] = {space->HEIGHT, space->WIDTH};
-		uint * data = (uint*) allocator(2, dims);
+		uint32_t * data = (uint32_t*) allocator(2, dims);
 
 		space->convert_output(data);
-/*
-		for(uint x = 0; x < dims[1]; x++){
-			for(uint y = 0; y < dims[0]; y++){
-				data[x + y*dims[1]] = 65536;
-			}
-		}*/
-	/*}
+
+	}
 
 }
-*/
