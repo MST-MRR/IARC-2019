@@ -161,7 +161,7 @@ class TSSpace{
 		//glOrtho(0, WIDTH, HEIGHT, 0, 0, 1);
 
 		// process
-		//do {
+		do {
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		glClearColor(0.0f, 0.0f, 0.0f, 0.0f) ;
 
@@ -180,8 +180,8 @@ class TSSpace{
 		glfwSwapBuffers(window);
 		
 		// DEBUG
-		//glfwPollEvents();
-		//}while( glfwGetKey(window, GLFW_KEY_ESCAPE ) != GLFW_PRESS && glfwWindowShouldClose(window) == 0 );
+		glfwPollEvents();
+		}while( glfwGetKey(window, GLFW_KEY_ESCAPE ) != GLFW_PRESS && glfwWindowShouldClose(window) == 0 );
 	}
 
 	cv::Mat convert_output(){
@@ -195,13 +195,13 @@ class TSSpace{
 		*/
 	
 		// buffer -> vector
-		GLuint *initial = new GLuint[BUFF_SIZE];
+		GLushort *initial = new GLushort[BUFF_SIZE];
 		glGetNamedBufferSubData(buf, 0, BUFF_DATA_SIZE, initial);
 
 		glfwDestroyWindow(window);  // cannot destroy window before read
 
 		// DEBUG
-		/*
+		
 		std::map<GLuint, uint> instance_counter;
 		for (uint x = 0; x < BUFF_SIZE; x++){
 			GLuint value = initial[x];
@@ -214,22 +214,22 @@ class TSSpace{
 		}
 		for(auto elem : instance_counter)
 		  std::cout << elem.first << " " << elem.second << std::endl;
-		*/
+		
 
 		// vector -> mat
 		// CV_16UC1 = ushort, [0, 65535]
-		cv::Mat intermediate(HEIGHT, WIDTH, CV_16UC1, cv::Scalar(0));  
+		/*cv::Mat intermediate(HEIGHT, WIDTH, CV_16UC1, cv::Scalar(0));  
 		for (int i = 0; i < HEIGHT; i++){
 			for (int j = 0; j < WIDTH; j++){
 				intermediate.at<ushort>(HEIGHT - i - 1, j) = initial[(i*WIDTH) + j];
 			}
-		}
+		}*/
 		
-		delete initial;
+		
 
 		cv::Mat final;
-		cv::normalize(intermediate, final, 0, 65535, cv::NORM_MINMAX);
-
+		cv::normalize(*initial, final, 0, 65535, cv::NORM_MINMAX);
+delete initial;
     	return final;
 	}
 };
