@@ -21,17 +21,23 @@ class Allocator:
 
     @property
     def cfunc(self):
+        """
+        __call__ c function type.
+        """
         return self.CFUNCTYPE(self)
 
     @property
     def data(self):
-    	return self._data
+        """
+        Allocated data.
+        """
+        return self._data
 
 
 class TS(object):
     def __init__(self, width, height, v_count=None, verticies=None):
         self.obj = lib.parameterized_init_ts(width, height, v_count, verticies) \
-        	if v_count and verticies else lib.init_ts()
+            if v_count and verticies else lib.init_ts()
 
     def accumulate(self):
         lib.accumulate(self.obj)
@@ -44,38 +50,38 @@ class TS(object):
 
 
 if __name__ == '__main__':
-	# 0, 0 is in the middle of opengl, 1,1 is top right
-	# https://www.khronos.org/registry/OpenGL-Refpages/gl4/html/gl_FragCoord.xhtml
-	# Width in fragment_accumulator as magic number
-	# opengl window is opposite of np
+    # 0, 0 is in the middle of opengl, 1,1 is top right
+    # https://www.khronos.org/registry/OpenGL-Refpages/gl4/html/gl_FragCoord.xhtml
+    # Width in fragment_accumulator as magic number
+    # opengl window is opposite of np
 
-	VCOUNT = 10
-	verticies = np.array([
-		-1.0, -1.0, 0.0,
-		1.0, 1.0, 0.0,
-		-1.0,  1.0, 0.0,
-		1.0, -1.0, 0.0,
-		-1.0, 0.5, 0.0,
-		1.0,  0.5, 0.0,
+    VCOUNT = 10
+    verticies = np.array([
+        -1.0, -1.0, 0.0,
+        1.0, 1.0, 0.0,
+        -1.0,  1.0, 0.0,
+        1.0, -1.0, 0.0,
+        -1.0, 0.5, 0.0,
+        1.0,  0.5, 0.0,
 
-		0.0, 1.0, 0.0,
-		0.0, -1.0, 0.0,
-		0.0, 1.0, 0.0,
-		0.0, -1.0, 0.0,
-		], dtype=np.float32)
+        0.0, 1.0, 0.0,
+        0.0, -1.0, 0.0,
+        0.0, 1.0, 0.0,
+        0.0, -1.0, 0.0,
+        ], dtype=np.float32)
+    
+    space = TS(1024, 768, VCOUNT, verticies.ctypes.data)
+    img = space.accumulate()
 
-	space = TS(1024, 768, VCOUNT, verticies.ctypes.data)
-	img = space.accumulate()
+    print(dict(zip(np.unique(img), np.bincount(img.flatten()))))
+    print(dict(zip(*np.where(img >= 3))))
 
-	print(dict(zip(np.unique(img), np.bincount(img.flatten()))))
-	print(dict(zip(*np.where(img >= 3))))
+    print(dict(zip(np.unique(img[-1]), np.bincount(img[-1]))))
+    print(np.where(img[-1] >= 2))
 
-	print(dict(zip(np.unique(img[-1]), np.bincount(img[-1]))))
-	print(np.where(img[-1] >= 2))
+    img = np.where(img > 0, .2, 0.)
 
-	img = np.where(img > 0, .2, 0.)
+    print(img)
 
-	print(img)
-
-	cv2.imshow("img", img)
-	cv2.waitKey(0)
+    cv2.imshow("img", img)
+    cv2.waitKey(0)
