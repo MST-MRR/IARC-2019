@@ -45,6 +45,8 @@ if __name__ == '__main__':
 	# 0, 0 is in the middle of opengl, 1,1 is top right
 	# https://www.khronos.org/registry/OpenGL-Refpages/gl4/html/gl_FragCoord.xhtml
 	# Width in fragment_accumulator as magic number
+	# opengl window is opposite of np
+
 	VCOUNT = 10
 	verticies = np.array([
 		-1.0, -1.0, 0.0,
@@ -66,8 +68,10 @@ if __name__ == '__main__':
 	print(dict(zip(np.unique(img), np.bincount(img.flatten()))))
 	print(dict(zip(*np.where(img >= 3))))
 
-	img = np.where(img == 1, .2, 0.)
-	img = np.where(img > 1, 1., img)
+	print(dict(zip(np.unique(img[-1]), np.bincount(img[-1]))))
+	print(np.where(img[-1] >= 2))
+
+	img = np.where(img > 0, .2, 0.)
 
 	print(img)
 
