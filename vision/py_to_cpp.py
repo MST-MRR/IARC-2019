@@ -7,15 +7,17 @@ lib = cdll.LoadLibrary('./qr.so')
 
 
 class Allocator:
+    """
+    Allocate contiguous memory.
+    """
     CFUNCTYPE = ctypes.CFUNCTYPE(ctypes.c_long, ctypes.c_int, ctypes.POINTER(ctypes.c_int))
 
     def __init__(self):
         self._data = None
 
     def __call__(self, dims, shape):
-        x = np.empty(shape[:dims], np.dtype('uint32'))
-        self._data = x
-        return x.ctypes.data_as(ctypes.c_void_p).value
+        self._data = np.empty(shape[:dims], np.dtype('uint32'))
+        return self._data.ctypes.data_as(ctypes.c_void_p).value
 
     @property
     def cfunc(self):
