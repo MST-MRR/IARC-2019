@@ -18,7 +18,7 @@ class Allocator:
     def __call__(self, dims, shape):
         """
         Allocate data.
-        
+
         Parameters
         ----------
         dims: int
