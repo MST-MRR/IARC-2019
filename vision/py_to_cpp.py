@@ -61,9 +61,8 @@ if __name__ == '__main__':
 	space = TS(VCOUNT, verticies.ctypes.data)
 	img = space.accumulate()
 
-	print(np.unique(img))
-	print(np.bincount(img.flatten()))
-	print(zip(np.where(img >= 3)))
+	print(dict(zip(np.unique(img), np.bincount(img.flatten()))))
+	print(dict(zip(*np.where(img >= 3))))
 
 	img = np.where(img == 1, .2, 0.)
 	img = np.where(img > 1, 1., img)

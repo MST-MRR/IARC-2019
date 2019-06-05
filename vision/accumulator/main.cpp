@@ -62,12 +62,6 @@ class TSSpace{
 		set_verticies(vertex_count , vertex_values);
 	}
 
-	~TSSpace(){
-		delete vshader;
-		delete fshader;
-		delete[] g_vertex_buffer_data;
-	}
-
 	void setup_opengl(){
 		/*
 		@fn setup_opengl
@@ -121,7 +115,6 @@ class TSSpace{
 		VSIZE = VCOUNT * INT_PER_VERTEX;
 		VERTEX_DATA_SIZE = VSIZE * sizeof(GLfloat);
 
-		//g_vertex_buffer_data = new GLfloat[VSIZE];
 		g_vertex_buffer_data = vertex_values;
 	}
 
@@ -227,6 +220,7 @@ int main(){
   tsspace.convert_output(data);
 
   delete[] data;
+  std::cout << "check" << std::endl;
 
   return 0;
 }
