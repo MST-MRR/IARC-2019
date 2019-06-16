@@ -1,3 +1,6 @@
+"""
+Setup
+"""
 from setuptools import setup
 
 setup(name='easy_qr',
