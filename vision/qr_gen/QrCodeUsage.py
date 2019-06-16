@@ -23,11 +23,11 @@ if __name__ == '__main__':
 
     options = parser.parse_args()
 
-    default_code = '1003'
+    DEFAULT_CODE = '1003'
 
     # It's not necessary for this to be a string here, it should work with any value
     # that has a valid strign representation.
-    qr_code = QrCode(options.code if options.code else default_code)
+    qr_code = QrCode(options.code if options.code else DEFAULT_CODE)
     # Shows the QR code
     qr_code.show()
     # Saves the QR code with its 4 segments separated out to an image in the current
