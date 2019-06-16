@@ -1,3 +1,6 @@
+"""
+Unit test for grayscaling image.
+"""
 import cv2
 import numpy as np
 
@@ -9,6 +12,7 @@ from ts_converter import binarize_mat
 if __name__ == '__main__':
     SIZE = 512
 
+    # joint gaussian
     x, y = np.meshgrid(np.linspace(-1, 1, SIZE), np.linspace(-1, 1, SIZE))
     d = np.sqrt(x**2 + y**2)
     sigma, mu = 1.0, 0.0
