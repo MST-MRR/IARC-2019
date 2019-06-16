@@ -1,3 +1,6 @@
+"""
+Python code to interact with dll.
+"""
 import numpy as np
 import cv2
 
