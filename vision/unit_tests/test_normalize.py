@@ -47,9 +47,9 @@ class TestNormalizer(unittest.TestCase):
 
         X = []
         Y = []
-        for x, y, _ in verticies:
-            X.append(x)
-            Y.append(y)
+        for i in range(len(verticies), 3):  # update
+            X.append(verticies[i])
+            Y.append(verticies[i+1])
 
         plt.plot(X, Y)
         plt.show()
