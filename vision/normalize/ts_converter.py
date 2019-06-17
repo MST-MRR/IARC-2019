@@ -5,7 +5,7 @@ import cv2
 import numpy as np
 
 
-def binarize_mat(img):
+def binarize_mat(img, threshold=.5):
     """
     Convert mat to binary based on threshold.
 
@@ -13,13 +13,15 @@ def binarize_mat(img):
     ----------
     img: mat
     	OpenCV mat.
+    threshold: float
+        Threshold value.
 
     Returns
     -------
     Mat with all values in [0, 1].
     """
 
-    img = np.where(img > .5, 1., 0.)
+    img = np.where(img > threshold, 1., 0.)
 
     return img
 
