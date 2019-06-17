@@ -41,7 +41,7 @@ def get_ts_verticies(edges, u=10., z=1.):
 
     Returns
     -------
-    Numpy array of pairs of 3 representing verticies of lines.
+    Numpy array[float32] of pairs of 3 representing verticies of lines.
     """
     z = float(z)
 
@@ -50,9 +50,10 @@ def get_ts_verticies(edges, u=10., z=1.):
     verticies = []
     for index, value in np.ndenumerate(edges):
         if value == 1:
-            verticies += rule(*index)
+            #x, y = index
+            verticies += rule(*map(float, index))
 
-    return np.array(verticies)
+    return np.array(verticies, dtype=np.float32)
 
 
 if __name__ == '__main__':
