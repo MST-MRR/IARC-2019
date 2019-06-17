@@ -7,10 +7,10 @@ https://docs.google.com/document/d/1dT2ow6sCkQifk0xZS4s1N0_G-nCKfon1znZfymsH39w/
 
 
 ## Running
-'''
+"""
 ./accumulator/compile.sh
 python3 qr-pipeline.py
-'''
+"""
 
 
 ## File Descriptions
