@@ -2,7 +2,7 @@
 Pipeline from image of qr code to sending its value.
 """
 import cv2
-from qr_gen.QrCode import QrCode
+from generator.QrCode import QrCode
 from normalize.edges import get_edges
 from normalize.ts_converter import get_ts_verticies
 
@@ -28,6 +28,8 @@ if __name__ == '__main__':
 	# cv2.waitKey(0)
 	
 	# TEST
+	print(edges)
 	verticies = get_ts_verticies(edges)
 
 	# unit test: plot these verticies
+	print(verticies)
