@@ -6,6 +6,15 @@ Current todo list
 https://docs.google.com/document/d/1dT2ow6sCkQifk0xZS4s1N0_G-nCKfon1znZfymsH39w/edit?usp=sharing
 
 
+## Running
+'''
+cd vision
+./accumulator/compile.sh
+python3 qr-pipeline.py
+
+'''
+
+
 ## File Descriptions
 fragment_accumulator.glsl
 Fragment per point overlap counter, count stored in image.
