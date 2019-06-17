@@ -1,9 +1,6 @@
-<<<<<<< HEAD
-=======
 """
 Convert points to TS space.
 """
->>>>>>> 7410287fb2c63561c0c6086682a7cff002cae280
 import cv2
 import numpy as np
 
