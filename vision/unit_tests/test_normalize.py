@@ -1,10 +1,11 @@
 """
-Unit test for grayscaling image.
+Unit test for normalizing image.
 """
 import unittest
 
 import cv2
 import numpy as np
+import matplotlib.pyplot as plt
 
 import sys, os
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
@@ -31,6 +32,27 @@ class TestNormalizer(unittest.TestCase):
         img = binarize_mat(gaussian)
 
         self.assertEqual(len(np.unique(img)), 2)
+
+    def visualize_ts(self, img):
+        """
+        Visualize the ts space representation of an image, points with a 
+        value of 1 will be converted to ts space.
+
+        Parameters
+        ----------
+        img: opencv mat
+            Image to be converted to ts space.
+        """
+        verticies = get_ts_verticies(img, u=20, z=0.)
+
+        X = []
+        Y = []
+        for x, y, _ in verticies:
+            X.append(x)
+            Y.append(y)
+
+        plt.plot(X, Y)
+        plt.show()
 
 
 if __name__ == '__main__':

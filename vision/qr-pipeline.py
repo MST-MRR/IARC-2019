@@ -28,9 +28,4 @@ if __name__ == '__main__':
 	# cv2.imshow("edges", edges)
 	# cv2.waitKey(0)
 	
-	# TEST
-	print(np.unique(edges))
-	verticies = get_ts_verticies(edges)
-
-	# unit test: plot these verticies
-	print(verticies)
+	verticies = get_ts_verticies(edges, u=10, z=0.) #if z needs to be float ensure it in ts_converter.
