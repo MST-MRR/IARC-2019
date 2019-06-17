@@ -41,18 +41,18 @@ def get_ts_verticies(edges, u=10., z=1.):
 
     Returns
     -------
-    List of pairs of 3 tuples representing verticies of lines.
+    Numpy array of pairs of 3 representing verticies of lines.
     """
     z = float(z)
 
-    rule = lambda x, y: [(-u, -y, z), (0., x, z), (0., x, z), (u, y, z)]
+    rule = lambda x, y: [-u, -y, z, 0., x, z, 0., x, z, u, y, z]
 
     verticies = []
     for index, value in np.ndenumerate(edges):
         if value == 1:
             verticies += rule(*index)
 
-    return verticies
+    return np.array(verticies)
 
 
 if __name__ == '__main__':
