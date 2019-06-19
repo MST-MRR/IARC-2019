@@ -11,25 +11,25 @@ from normalize.ts_converter import get_ts_verticies, binarize_mat
 from accumulator.py_to_cpp import TS
 
 
-if __name__ == '__main__':
-    value = '1234'
+def PCLines(edges):
+    ##PC Lines
 
-    generator = QrCode(value)
+    # Input: Image I w/ dimensions (W, H)
+    # Output: Detected lines L = {(m, b), ...}
+    
+    #S(u, v) = 0, for u in {-d, ... d}, v in {vmin, ... vmax}
+    
+    #for all x in {1...W}, y in {1...H}:
+        
+        #if I(x, y) is an edge:
+            
+            #rasterize line in S space
+            
+            #rasterize line in T space
 
-    # switch to each corners
-    image = generator.img
-
-    # cv2.imshow("qr", image)
-    # cv2.waitKey(0)
-
-    edges = binarize_mat(get_edges(image), threshold=.5)
-
-    # cv2.imshow("edges", edges)
-    # cv2.waitKey(0)
-
+    # two-segment polyline defined by three points: (−d, −y),(0, x),(d, y).
     # adjust coordinates to work w/ accumulator
     # should be n-1 lines w/ n dimension vector
-    # two-segment polyline defined by three points: (−d, −y),(0, x),(d, y).
     verticies = get_ts_verticies(edges, d=10, z=0.)
 
     vertex_count = len(verticies) // 3 
@@ -45,15 +45,11 @@ if __name__ == '__main__':
     # cv2.imshow("img", out)
     # cv2.waitKey(0)
 
-    maxima = argrelextrema(accumulated, np.greater)
-    X, Y = maxima
-
-    # Only take accumulators above threshold !
-
-    # (optional) Find N highest maxima
-    print(maxima)
-
-
+    # (optional) take maxima above threshold.
+    # (optional) take N highest maxima.
+    temp_maxima = argrelextrema(accumulated, np.greater)
+    maxima = zip(*temp_maxima)
+    # tune output X, Y
     """
     UV plane:
         Straight Space S: parallel axis x', y'
@@ -81,23 +77,44 @@ if __name__ == '__main__':
         − max(W/2, H/2) ≤ v ≤ max(W/2, H/2)
     
         W, H are dimensions of the input raster image.
-
     
+       v    T          S      
+       |-y        |x         |y   
+       |          |          |   
+       |          |          |   
+    ---|----------|----------|---u
+       |-d        |0         |d  
+       |          |          |   
+       |          |          |   
     """
-    # Input: Image I w/ dimensions (W, H)
-    # Output: Detected lines L = {(m, b), ...}
-    
-    #S(u, v) = 0, for u in {-d, ... d}, v in {vmin, ... vmax}
-    
-    #for all x in {1...W}, y in {1...H}:
-        
-        #if I(x, y) is an edge:
-            
-            #rasterize line in S space
-            
-            #rasterize line in T space
+    def m(u):
+        return u
 
-    #L = []
-    L = []
-    #L = [(m(u), b(u, v)) for u in {-d...d} ^ v in {vmin...vmax} ^ S(u, v) is a high local max]
+    def b(u, v):
+        return u + v
 
+    lines = [(m(u), b(u, v)) for u, v in maxima]
+
+    return lines
+
+
+if __name__ == '__main__':
+
+    value = '1234'
+
+    generator = QrCode(value)
+
+    # switch to each corners
+    image = generator.img
+
+    # cv2.imshow("qr", image)
+    # cv2.waitKey(0)
+
+    edges = binarize_mat(get_edges(image), threshold=.5)
+
+    # cv2.imshow("edges", edges)
+    # cv2.waitKey(0)
+    
+    lines = PCLines(edges)
+
+    print(lines)
