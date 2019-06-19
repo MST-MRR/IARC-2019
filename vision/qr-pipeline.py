@@ -30,7 +30,7 @@ if __name__ == '__main__':
     # adjust coordinates to work w/ accumulator
     # should be n-1 lines w/ n dimension vector
     # two-segment polyline defined by three points: (−d, −y),(0, x),(d, y).
-    verticies = get_ts_verticies(edges, u=10, z=0.)
+    verticies = get_ts_verticies(edges, d=10, z=0.)
 
     vertex_count = len(verticies) // 3 
  
