@@ -28,7 +28,8 @@ def binarize_mat(img, threshold=.5):
 
 def get_ts_verticies(edges, d=10., z=1.):
     """
-    Convert edge coordinates to verticies of lines in TS space.
+    Convert edge coordinates to two-segment polyline defined by 
+    three points: (−d, −y),(0, x),(d, y), for TS space.
 
     Parameters
     ----------
