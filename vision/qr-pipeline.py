@@ -7,7 +7,7 @@ from scipy.signal import argrelextrema
 
 from generator.QrCode import QrCode
 from normalize.edges import get_edges
-from normalize.ts_converter import get_ts_verticies, binarize_mat
+from normalize.ts_converter import get_ts_verticies, binarize_mat, pix_to_opengl
 from accumulator.py_to_cpp import TS
 
 
@@ -71,7 +71,7 @@ def PCLines(edges):
     def b(u, v):  # TODO
         return u + v
 
-    D = 10
+    D = 100  # I can scale the x with d, so I need a way to scale Y
 
     IMG_WIDTH = len(edges[0])
     IMG_HEIGHT = len(edges)
@@ -79,14 +79,19 @@ def PCLines(edges):
     TS_WIDTH = 2 * D + 10
     TS_HEIGHT = max(IMG_WIDTH, IMG_HEIGHT)
 
-    # 1.0 in opengl != 1 pixel !!!!
-
     verticies = get_ts_verticies(edges, d=D, z=0.)
     n_verticies = len(verticies) // 3 
 
-    space = TS(TS_WIDTH, TS_HEIGHT, n_verticies, verticies.ctypes.data)
+    opengl_verticies = pix_to_opengl(verticies, TS_WIDTH, TS_HEIGHT)
 
-    # ensure captures all values
+
+    opengl_verticies = np.array([0., 0., 0., 0., 0., 0.])  # oof
+
+    ## account for line width
+
+    space = TS(TS_WIDTH, TS_HEIGHT, n_verticies, opengl_verticies.ctypes.data)
+
+    ## ensure captures all values
     accumulated = space.accumulate()
 
     cv2.imshow("img", np.where(accumulated > 0, .2, 0.))

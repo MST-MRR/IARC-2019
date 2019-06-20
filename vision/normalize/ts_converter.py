@@ -26,6 +26,46 @@ def binarize_mat(img, threshold=.5):
     return img
 
 
+def pix_to_opengl(values, window_width, window_height):
+    """
+    Because the location of 1.0 in opengl varies by the number of pixels 
+    in the window.
+
+    Formula
+    -------
+    https://stackoverflow.com/questions/30242385/convert-pixel-length-to-opengl-coordinates
+
+    Parameters
+    ----------
+    Values: np array
+        Array of values [x, y, z, ...] to convert.
+
+    window_width: int
+        Width of window to be displayed in.
+
+    window_height: int
+        Height of window to be displayed in.
+    
+    Returns
+    -------
+    np array of verticies that opengl can work with.
+    """
+    out = []
+
+    for i in range(0, len(values), 3):
+        old_x = values[i]
+        old_y = values[i+1]
+        old_z = values[i+2]
+
+        new_x = (2.0 * old_x + 1.0) / window_width - 1.0
+        new_y = (2.0 * old_y + 1.0) / window_height - 1.0
+        new_z = old_z
+
+        out += [new_x, new_y, new_z]
+
+    return np.array(out)
+
+
 def get_ts_verticies(edges, d=10., z=1.):
     """
     Convert edge coordinates to two-segment polyline defined by 
