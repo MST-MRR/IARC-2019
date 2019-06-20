@@ -63,7 +63,7 @@ def pix_to_opengl(values, window_width, window_height):
 
         out += [new_x, new_y, new_z]
 
-    return np.array(out)
+    return np.array(out, dtype=np.float32)
 
 
 def get_ts_verticies(edges, d=10., z=1.):
