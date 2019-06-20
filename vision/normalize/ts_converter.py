@@ -91,7 +91,7 @@ def get_ts_verticies(edges, d=10., z=1.):
     verticies = []
     for index, value in np.ndenumerate(edges):
         if value == 1:
-            verticies.append(rule(*map(float, index)))
+            verticies += rule(*map(float, index))
 
     return np.array(verticies, dtype=np.float32)
 
