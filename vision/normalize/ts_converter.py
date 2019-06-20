@@ -46,13 +46,12 @@ def get_ts_verticies(edges, d=10., z=1.):
     """
     z = float(z)
 
-    rule = lambda x, y: [-d, -y, z, 0., x, z, 0., x, z, d, y, z]
+    rule = lambda x, y: [0., x, z, -d, -y, z, 0., x, z, d, y, z]
 
     verticies = []
     for index, value in np.ndenumerate(edges):
         if value == 1:
-            #x, y = index
-            verticies += rule(*map(float, index))
+            verticies.append(rule(*map(float, index)))
 
     return np.array(verticies, dtype=np.float32)
 
