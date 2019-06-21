@@ -230,9 +230,11 @@ int main(){
 
   tsspace.convert_output(data);
 
-  cv::Mat out = cv::Mat(1024, 768, CV_32F, data);
+  cv::Mat accumulated = cv::Mat(1024, 768, CV_32F, data);
+  
+  accumulated.setTo(1, accumulated > 0);
 
-  cv::imshow("img", out);
+  cv::imshow("img", accumulated);
   cv::waitKey(0);
 
 
