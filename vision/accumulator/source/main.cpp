@@ -145,7 +145,9 @@ class TSSpace{
 		*/
 
 		// setup
-		GLuint filler[BUFF_SIZE] = {0};
+		GLuint *filler = new GLuint[BUFF_SIZE];
+		for(int i = 0; i < BUFF_SIZE; i++)
+			filler[i] = 0;
 
 		glGenBuffers(1, &buf);
 		glBindBuffer(GL_TEXTURE_BUFFER, buf);
@@ -160,7 +162,7 @@ class TSSpace{
 		GLuint VertexArrayID;
 		glGenVertexArrays(1, &VertexArrayID);
 		glBindVertexArray(VertexArrayID);
-		
+
 		GLuint vertexbuffer;
 		glGenBuffers(1, &vertexbuffer);
 		glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);
@@ -169,7 +171,7 @@ class TSSpace{
 		GLuint programID = LoadShaders(vshader, fshader); 
 
 		// process
-		//do {
+		do {
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		glClearColor(0.0f, 0.0f, 0.0f, 0.0f) ;
 
@@ -187,8 +189,10 @@ class TSSpace{
 		glfwSwapBuffers(window);
 		
 		// DEBUG
-		//glfwPollEvents();
-		//}while( glfwGetKey(window, GLFW_KEY_ESCAPE ) != GLFW_PRESS && glfwWindowShouldClose(window) == 0 );
+		glfwPollEvents();
+		}while( glfwGetKey(window, GLFW_KEY_ESCAPE ) != GLFW_PRESS && glfwWindowShouldClose(window) == 0 );
+	
+		delete[] filler;
 	}
 
 	void convert_output(uint32_t * output){
@@ -222,7 +226,7 @@ int main(){
 		0.0f, -1.0f, 0.0f,
 		};
 
-  int WIDTH = 512;// 1024 - 64;
+  int WIDTH = 1024;
   int HEIGHT = 768;
 
   TSSpace tsspace(WIDTH, HEIGHT, VCOUNT , verticies);
