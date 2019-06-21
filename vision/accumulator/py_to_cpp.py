@@ -57,7 +57,7 @@ class TS(object):
         Width of image.
     height: int
         Height of image.
-    verticies: numpy array
+    verticies: numpy array[np.float32]
         List of verticies, each vertex is a 3 tuple. Every 2 verticies is a line.
     """
     def __init__(self, width, height, verticies=None):
