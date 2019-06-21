@@ -71,16 +71,16 @@ def PCLines(edges):
     def b(u, v):  # TODO
         return u + v
 
-    D = 100  # I can scale the x with d, so I need a way to scale Y
+    D = 100  # x scale; need Y scale to account for line width
 
     IMG_WIDTH = len(edges[0])
     IMG_HEIGHT = len(edges)
 
-    TS_WIDTH = 2 * D + 10
-    TS_HEIGHT = max(IMG_WIDTH, IMG_HEIGHT)
+    TS_WIDTH = 1024  # 2 * D + 10
+    TS_HEIGHT = 768  # max(IMG_WIDTH, IMG_HEIGHT)
 
     #verticies = get_ts_verticies(edges, d=D, z=0.)    
-    # opengl_verticies = pix_to_opengl(verticies, TS_WIDTH, TS_HEIGHT)
+    #opengl_verticies = pix_to_opengl(verticies, TS_WIDTH, TS_HEIGHT)
 
     opengl_verticies = np.array([-1.0, -1.0, 0.0,
         1.0, 1., 0.0,
@@ -93,22 +93,19 @@ def PCLines(edges):
         0.0, 1.0, 0.0,
         0.0, -1.0, 0.0], dtype=np.float32)
 
-    print(opengl_verticies)
-
-    ## account for line width
-
     space = TS(TS_WIDTH, TS_HEIGHT, opengl_verticies)
-
-    ## ensure captures all values
     accumulated = space.accumulate()
 
-    print(np.unique(accumulated))
+    accumulated = accumulated.reshape((TS_HEIGHT, TS_WIDTH))
+    print(accumulated.shape)
 
-    cv2.imshow("img", np.where(accumulated > 0, .2, 0.))
+    cv2.imshow("img", np.where(accumulated > 0, 1, 0.))
     cv2.waitKey(0)
 
     import sys
     sys.exit()
+
+
 
     # (optional) take maxima above threshold.
     # (optional) take N highest maxima.
