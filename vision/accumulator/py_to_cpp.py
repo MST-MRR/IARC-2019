@@ -13,23 +13,23 @@ class Allocator:
     """
     Allocate contiguous memory.
     """
-    CFUNCTYPE = ctypes.CFUNCTYPE(ctypes.c_long, ctypes.c_int, ctypes.POINTER(ctypes.c_int))
+    CFUNCTYPE = ctypes.CFUNCTYPE(ctypes.c_long, ctypes.c_int)
 
     def __init__(self):
         self._data = None
 
-    def __call__(self, dims, shape):
+    def __call__(self, size):
         """
         Allocate data.
 
         Parameters
         ----------
-        dims: int
-            Number of dimensions.
-        shape: tuple of int
-            Size of each dimension.
+        size: tuple of int
+            Size of array.
         """
-        self._data = np.empty(shape[:dims], np.dtype('uint32'))
+
+        self._data = np.empty(size, np.dtype('uint32'))
+
         return self._data.ctypes.data_as(ctypes.c_void_p).value
 
     @property

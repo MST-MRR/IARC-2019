@@ -27,7 +27,7 @@ class TSSpace{
 		const char* fshader = "shaders/fragment_accumulator.glsl";
 
 		int WIDTH, HEIGHT; 
-		GLuint BUFF_SIZE;
+		int BUFF_SIZE;
 		GLsizeiptr BUFF_DATA_SIZE;
 
 		GLuint tex, buf;
@@ -244,18 +244,16 @@ int main(){
 }
 
 
-typedef void*(*allocator_t)(int, int*);
+typedef void*(*allocator_t)(int);
 extern "C" {
 	TSSpace* init_ts(const int w, const int h){ return new TSSpace(w, h); }
 	TSSpace* parameterized_init_ts(const int w, const int h, const GLuint v_count, float *verticies){return new TSSpace(w, h, v_count, verticies);}
 	void accumulate(TSSpace* space){space->accumulate();}
 
 	void convert_output(TSSpace* space, allocator_t allocator){
-		int dims[] = {space->HEIGHT, space->WIDTH};
-		uint32_t * data = (uint32_t*) allocator(2, dims);
+		uint32_t * data = (uint32_t*) allocator(space->BUFF_SIZE);
 
 		space->convert_output(data);
-
 	}
 
 }
