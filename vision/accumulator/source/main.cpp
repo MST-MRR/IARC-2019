@@ -12,7 +12,7 @@ using namespace glm;
 
 #include "shader_loader.h"
 
-
+#include <fstream>
 //DEBUG
 //void GLAPIENTRY MessageCallback(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const GLchar* message, const void* userParam ){fprintf( stderr, "GL CALLBACK: %s type = 0x%x, severity = 0x%x, message = %s\n", ( type == GL_DEBUG_TYPE_ERROR ? "** GL ERROR **" : "" ), type, severity, message );}
 
@@ -222,7 +222,10 @@ int main(){
 		0.0f, -1.0f, 0.0f,
 		};
 
-  TSSpace tsspace(1024, 768, VCOUNT , verticies);
+  int WIDTH = 512;// 1024 - 64;
+  int HEIGHT = 768;
+
+  TSSpace tsspace(WIDTH, HEIGHT, VCOUNT , verticies);
 
   tsspace.accumulate();
 
@@ -230,7 +233,13 @@ int main(){
 
   tsspace.convert_output(data);
 
-  cv::Mat accumulated = cv::Mat(768, 1024, CV_32F, data);
+  std::ofstream file;
+  file.open("out.txt");
+  for(int i = 0; i <tsspace.BUFF_SIZE; i++)
+	  file << data[i] << "\n";
+  file.close();
+
+  cv::Mat accumulated = cv::Mat(HEIGHT, WIDTH, CV_32F, data);
   
   accumulated.setTo(1, accumulated > 0);
 
