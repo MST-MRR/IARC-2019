@@ -230,23 +230,12 @@ int main(){
 
   tsspace.convert_output(data);
 
-  cv::Mat accumulated = cv::Mat(1024, 768, CV_32F, data);
+  cv::Mat accumulated = cv::Mat(768, 1024, CV_32F, data);
   
   accumulated.setTo(1, accumulated > 0);
 
   cv::imshow("img", accumulated);
   cv::waitKey(0);
-
-
-  std::vector<uint32_t> unique;
-  for(uint i = 0; i < tsspace.BUFF_SIZE; i++){
-  	if(std::find(unique.begin(), unique.end(), data[i]) == unique.end()){
-  		unique.push_back(data[i]);
-  	}
-  }
-  for(uint i = 0; i < unique.size(); i++){
-  	std::cout << unique[i] << std::endl;
-  }
 
 
   delete[] data;
