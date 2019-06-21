@@ -57,15 +57,20 @@ class TS(object):
         Width of image.
     height: int
         Height of image.
-    v_count: int
-        Number of verticies in verticies, each vertex is a 3 tuple.
-        Must be even.
     verticies: numpy array
         List of verticies, each vertex is a 3 tuple. Every 2 verticies is a line.
     """
-    def __init__(self, width, height, v_count=None, verticies=None):
-        self.obj = lib.parameterized_init_ts(width, height, v_count, verticies) \
-            if v_count and verticies else lib.init_ts()
+    def __init__(self, width, height, verticies=None):
+        if verticies is not None:
+            v_count = len(verticies) // 3 
+            verticies_location = verticies.ctypes.data
+
+            assert not v_count % 2, "Need even number of verticies!"
+
+            self.obj = lib.parameterized_init_ts(width, height, v_count, verticies_location)
+
+        else:
+            self.obj = lib.init_ts()
 
     def accumulate(self):
         """

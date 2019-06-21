@@ -79,14 +79,8 @@ def PCLines(edges):
     TS_WIDTH = 2 * D + 10
     TS_HEIGHT = max(IMG_WIDTH, IMG_HEIGHT)
 
-    verticies = get_ts_verticies(edges, d=D, z=0.)
-    
-
-    opengl_verticies = pix_to_opengl(verticies, TS_WIDTH, TS_HEIGHT)
-
-    opengl_verticies = opengl_verticies[-6:]
-
-    print(opengl_verticies)
+    #verticies = get_ts_verticies(edges, d=D, z=0.)    
+    # opengl_verticies = pix_to_opengl(verticies, TS_WIDTH, TS_HEIGHT)
 
     opengl_verticies = np.array([-1.0, -1.0, 0.0,
         1.0, 1., 0.0,
@@ -101,11 +95,9 @@ def PCLines(edges):
 
     print(opengl_verticies)
 
-    n_verticies = len(opengl_verticies) // 3 
-
     ## account for line width
 
-    space = TS(TS_WIDTH, TS_HEIGHT, n_verticies, opengl_verticies.ctypes.data)
+    space = TS(TS_WIDTH, TS_HEIGHT, opengl_verticies)
 
     ## ensure captures all values
     accumulated = space.accumulate()
