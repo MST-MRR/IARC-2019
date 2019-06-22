@@ -171,7 +171,7 @@ class TSSpace{
 		GLuint programID = LoadShaders(vshader, fshader); 
 
 		// process
-		do {
+		//do {
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		glClearColor(0.0f, 0.0f, 0.0f, 0.0f) ;
 
@@ -189,8 +189,8 @@ class TSSpace{
 		glfwSwapBuffers(window);
 		
 		// DEBUG
-		glfwPollEvents();
-		}while( glfwGetKey(window, GLFW_KEY_ESCAPE ) != GLFW_PRESS && glfwWindowShouldClose(window) == 0 );
+		//glfwPollEvents();
+		//}while( glfwGetKey(window, GLFW_KEY_ESCAPE ) != GLFW_PRESS && glfwWindowShouldClose(window) == 0 );
 	
 		delete[] filler;
 	}
