@@ -65,41 +65,22 @@ def PCLines(edges):
         ℓ is on the y', -y' axis at m=0.
         ℓ is an ideal point, at infinity, at m=1.
     """
-    def m(u):  # TODO
-        return u
-
-    def b(u, v):  # TODO
-        return u + v
-
-    D = 1000  # x scale
-    V_SCALE = 2
-
     IMG_WIDTH = len(edges[0])
     IMG_HEIGHT = len(edges)
 
-    scale = 2  # width needs to be set in fragment shader also!
+    scale = 1  # width needs to be set in fragment shader also!
     TS_WIDTH = int(1024 * scale) # >=  2 * D + 10
     TS_HEIGHT = int(768 * scale) # >= max(IMG_WIDTH, IMG_HEIGHT)
 
-    U_OFFSET = int(.5 * TS_WIDTH)  # D  # location of u=0
-    V_OFFSET = int(.5 * TS_HEIGHT)  # location of v=0
+    U_OFFSET = int(.5 * TS_WIDTH)
+    V_OFFSET = int(.5 * TS_HEIGHT)
 
-    verticies = get_ts_verticies(edges, U_OFFSET, V_OFFSET, V_SCALE, d=D, z=0.)    
-    
-    """
-    verticies = np.array([
-        -1.0, -1.0, 0.0,
-        1.0, 1., 0.0,
-        -1.0,  1.0, 0.0,
-        1.0, -1.0, 0.0,
-        -1.0, 0.5, 0.0,
-        1.0,  0.5, 0.0,
-        0.0, 1.0, 0.0,
-        0.0, -1.0, 0.0,
-        0.0, 1.0, 0.0,
-        0.0, -1.0, 0.0], dtype=np.float32) * 100
-    """
-    
+    D = int(.5 * TS_WIDTH) - 5
+    ####
+    V_SCALE = 1
+    ####
+
+    verticies = get_ts_verticies(edges, U_OFFSET, V_OFFSET, V_SCALE, D)    
 
     opengl_verticies = pix_to_opengl(verticies, TS_WIDTH, TS_HEIGHT)
 
@@ -107,24 +88,29 @@ def PCLines(edges):
     accumulated = space.accumulate()
 
     accumulated = accumulated.reshape((TS_HEIGHT, TS_WIDTH))
-    print(accumulated.shape)
 
     accumulated = accumulated[::-1]
-    accumulated[:, U_OFFSET] = 1
-    accumulated[V_OFFSET] = 1
 
     cv2.imshow("img", np.where(accumulated > 0, 1, 0.))
     cv2.waitKey(0)
-    
+
+    ########################
+
     # (optional) take maxima above threshold.
     # (optional) take N highest maxima.
+    def m(u):  # TODO
+        return u
+
+    def b(u, v):  # TODO
+        return u + v
+
     temp_maxima = argrelextrema(accumulated, np.greater)
     maxima = zip(*temp_maxima)
     
-    print(maxima)
+    print(len(list(maxima)))
 
     lines = [(m(u-U_OFFSET), b(u - U_OFFSET, v - V_OFFSET)) for u, v in maxima]
-
+    ########################
     return lines
 
 
