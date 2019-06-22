@@ -66,7 +66,7 @@ def pix_to_opengl(values, window_width, window_height):
     return np.array(out, dtype=np.float32)
 
 
-def get_ts_verticies(edges, d=10., z=1.):
+def get_ts_verticies(edges, u_offset, v_offset, v_scale, d, z=0.):
     """
     Convert edge coordinates to two-segment polyline defined by 
     three points: (−d, −y),(0, x),(d, y), for TS space.
@@ -86,7 +86,11 @@ def get_ts_verticies(edges, d=10., z=1.):
     """
     z = float(z)
 
-    rule = lambda x, y: [0., x, z, -d, -y, z, 0., x, z, d, y, z]
+    rule = lambda x, y: [
+        0. + u_offset, x * v_scale + v_offset, z, 
+        -d + u_offset, -y * v_scale + v_offset, z,
+        0. + u_offset, x * v_scale + v_offset, z, 
+        d + u_offset, y * v_scale + v_offset, z]
 
     verticies = []
     for index, value in np.ndenumerate(edges):

@@ -71,20 +71,23 @@ def PCLines(edges):
     def b(u, v):  # TODO
         return u + v
 
-    D = 100  # x scale; need Y scale to account for line width
+    D = 1000  # x scale
+    V_SCALE = 2
 
     IMG_WIDTH = len(edges[0])
     IMG_HEIGHT = len(edges)
 
-    TS_WIDTH = 1024 - 99# 512 + 256# 1024  # 2 * D + 10
-    TS_HEIGHT = 768# 768  # max(IMG_WIDTH, IMG_HEIGHT)
+    scale = 2  # width needs to be set in fragment shader also!
+    TS_WIDTH = int(1024 * scale) # >=  2 * D + 10
+    TS_HEIGHT = int(768 * scale) # >= max(IMG_WIDTH, IMG_HEIGHT)
 
-    #verticies = get_ts_verticies(edges, d=D, z=0.)    
-    #opengl_verticies = pix_to_opengl(verticies, TS_WIDTH, TS_HEIGHT)
+    U_OFFSET = int(.5 * TS_WIDTH)  # D  # location of u=0
+    V_OFFSET = int(.5 * TS_HEIGHT)  # location of v=0
 
-    scale = 100
-
-    opengl_verticies = np.array([
+    verticies = get_ts_verticies(edges, U_OFFSET, V_OFFSET, V_SCALE, d=D, z=0.)    
+    
+    """
+    verticies = np.array([
         -1.0, -1.0, 0.0,
         1.0, 1., 0.0,
         -1.0,  1.0, 0.0,
@@ -94,21 +97,11 @@ def PCLines(edges):
         0.0, 1.0, 0.0,
         0.0, -1.0, 0.0,
         0.0, 1.0, 0.0,
-        0.0, -1.0, 0.0], dtype=np.float32)## * scale
+        0.0, -1.0, 0.0], dtype=np.float32) * 100
+    """
+    
 
-
-    # offset negative d values
-    ## for i in range(0, len(verticies), 3):
-    ##     verticies[i] += scale
-
-    # offset negative y values
-    #todo
-
-    ##opengl_verticies = pix_to_opengl(verticies, TS_WIDTH, TS_HEIGHT)
-
-    ## BROKEN FOR MANY WIDTHS AND HEIGHTS IN BOTH, probably needs to be 2^x
-
-    print(opengl_verticies)
+    opengl_verticies = pix_to_opengl(verticies, TS_WIDTH, TS_HEIGHT)
 
     space = TS(TS_WIDTH, TS_HEIGHT, opengl_verticies)
     accumulated = space.accumulate()
@@ -116,22 +109,20 @@ def PCLines(edges):
     accumulated = accumulated.reshape((TS_HEIGHT, TS_WIDTH))
     print(accumulated.shape)
 
+    accumulated = accumulated[::-1]
+    accumulated[:, U_OFFSET] = 1
+    accumulated[V_OFFSET] = 1
+
     cv2.imshow("img", np.where(accumulated > 0, 1, 0.))
     cv2.waitKey(0)
-
-    import sys
-    sys.exit()
-
-
-
+    
     # (optional) take maxima above threshold.
     # (optional) take N highest maxima.
     temp_maxima = argrelextrema(accumulated, np.greater)
     maxima = zip(*temp_maxima)
-
-    U_OFFSET = 0  ##TODO: location of u=0.
-    V_OFFSET = 0  ##TODO: location of v=0.    
     
+    print(maxima)
+
     lines = [(m(u-U_OFFSET), b(u - U_OFFSET, v - V_OFFSET)) for u, v in maxima]
 
     return lines
