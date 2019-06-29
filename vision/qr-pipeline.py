@@ -91,26 +91,31 @@ def PCLines(edges):
 
     accumulated = accumulated[::-1]
 
-    cv2.imshow("img", np.where(accumulated > 0, 1, 0.))
-    cv2.waitKey(0)
+    # cv2.imshow("img", np.where(accumulated > 0, 1, 0.))
+    # cv2.waitKey(0)
 
     ########################
+    # ℓ : ax + by + c = 0
+    # ℓ : a/b x + y + c/b = 0
+    # ℓ : y = -a/b x - c/b
+    # ℓ : [a, b, c] = ℓ* : [db, -c, a + b]
+    # ℓ : y = db/c x + a/c + b/c
 
-    # (optional) take maxima above threshold.
-    # (optional) take N highest maxima.
-    def m(u):  # TODO
+    def m(u):
         return u
 
-    def b(u, v):  # TODO
+    def b(u, v):
         return u + v
 
+    # TODO N highest maxima.
     temp_maxima = argrelextrema(accumulated, np.greater)
     maxima = zip(*temp_maxima)
     
     print(len(list(maxima)))
+    ########################
 
     lines = [(m(u-U_OFFSET), b(u - U_OFFSET, v - V_OFFSET)) for u, v in maxima]
-    ########################
+    
     return lines
 
 
