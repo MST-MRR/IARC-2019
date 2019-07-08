@@ -11,6 +11,13 @@ from normalize.ts_converter import get_ts_verticies, binarize_mat, pix_to_opengl
 from accumulator.py_to_cpp import TS
 
 
+## Add to pipeline
+from processing.crop_n_stitch import crop, stitch
+from processing.read import read
+
+
+## pyzbar to get corners of qr code rq, does work with sections?
+
 def PCLines(edges):
     """
     PC Lines algorithm for detecting lines.
@@ -96,10 +103,15 @@ def PCLines(edges):
 
     ########################
     # ℓ : ax + by + c = 0
-    # ℓ : a/b x + y + c/b = 0
-    # ℓ : y = -a/b x - c/b
-    # ℓ : [a, b, c] = ℓ* : [db, -c, a + b]
-    # ℓ : y = db/c x + a/c + b/c
+    # ℓ : ax/b + y + c/b = 0
+    # ℓ : y = -ax/b - c/b
+    # ℓ : [a, b, c] = ℓ* : (db, -c, a + b)
+    # ℓ : y + dx = 1
+
+
+    # Parametrization
+    ## y = mx + b
+    ## point l* has (d, b, 1-m)
 
     def m(u):
         return u
@@ -131,7 +143,7 @@ if __name__ == '__main__':
 
         # cv2.imshow("edges", edges)
         # cv2.waitKey(0)
-        
+
         lines = PCLines(edges)
 
         print(lines)
