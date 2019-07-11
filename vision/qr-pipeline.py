@@ -98,36 +98,53 @@ def PCLines(edges):
 
     accumulated = accumulated[::-1]
 
-    # cv2.imshow("img", np.where(accumulated > 0, 1, 0.))
-    # cv2.waitKey(0)
+    #cv2.imshow("img", np.where(accumulated > 0, 1, 0.))
+    #cv2.waitKey(0)
 
     ########################
-    # ℓ : ax + by + c = 0
-    # ℓ : ax/b + y + c/b = 0
-    # ℓ : y = -ax/b - c/b
-    # ℓ : [a, b, c] = ℓ* : (db, -c, a + b)
-    # ℓ : y + dx = 1
+    # S Space
+    # ℓ : u = d/(1-m)
+    # ℓ : v = b/(1-m)
 
+    # m = -d/u + 1
+    # b = dv/u
+
+    # T Space
+    # ℓ : u = -d/(1+m)
+    # ℓ : v = -b/(1+m)
+
+    # m = -d/u - 1
+    # b = dv/u
 
     # Parametrization
     ## y = mx + b
     ## point l* has (d, b, 1-m)
 
+    ## TODO divide by 0
     def m(u):
-        return u
+        return -D / u - 1  # S: + 1, T: -1
 
     def b(u, v):
-        return u + v
+        return D * u / v
 
     # TODO N highest maxima.
-    temp_maxima = argrelextrema(accumulated, np.greater)
-    maxima = zip(*temp_maxima)
+    # temp_maxima = argrelextrema(accumulated, np.greater)
+    # maxima = zip(*temp_maxima)
     
-    print(len(list(maxima)))
-    ########################
+    maxima = []
+    for _ in range(1):
+        pos = np.argmax(accumulated)
+        maxima.append((pos % len(accumulated), pos // len(accumulated)))
 
-    lines = [(m(u-U_OFFSET), b(u - U_OFFSET, v - V_OFFSET)) for u, v in maxima]
-    
+    print('M', maxima)
+
+
+    print(len(list(maxima)))
+
+    # b(u - U_OFFSET, v - V_OFFSET))
+    #lines = [m(u-U_OFFSET) for u, v in maxima]
+    lines = [b(u - U_OFFSET, v - V_OFFSET) for u, v in maxima]
+
     return lines
 
 
@@ -137,6 +154,29 @@ if __name__ == '__main__':
     generator = QrCode(value)
 
     images = [generator.img]  # [getattr(generator, section) for section in ['top_left_corner', 'top_right_corner', 'bottom_left_corner', 'bottom_right_corner']]
+
+    image = np.zeros(shape=(100, 100))
+
+    theta = 3.1415/4
+    slope = np.tan(theta)
+
+    x1 = 10
+    y1 = 10
+
+    dx = 80
+
+    # print('slope:', slope)
+
+    x2 = x1 + dx
+    y2 = y1 + int(slope * dx)
+    cv2.line(image, (x1, y1), (x2, y2), 1., 2)
+
+    image = image[::-1]
+
+    #cv2.imshow("", image)
+    #cv2.waitKey(0)
+
+    images = [image]
 
     for image in images:
         edges = binarize_mat(get_edges(image), threshold=.5)
