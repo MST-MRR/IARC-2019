@@ -136,24 +136,24 @@ def PCLines(edges):
         pos = np.argmax(accumulated)
         maxima.append((pos % len(accumulated), pos // len(accumulated)))
 
-    print('M', maxima)
+    print('Maxima:', maxima)
 
-
-    print(len(list(maxima)))
-
-    # b(u - U_OFFSET, v - V_OFFSET))
-    #lines = [m(u-U_OFFSET) for u, v in maxima]
-    lines = [b(u - U_OFFSET, v - V_OFFSET) for u, v in maxima]
+    lines = [(m(u-U_OFFSET), b(u - U_OFFSET, v - V_OFFSET)) for u, v in maxima]
 
     return lines
 
 
 if __name__ == '__main__':
+
+    #####################
+
     value = '1234'
 
     generator = QrCode(value)
 
     images = [generator.img]  # [getattr(generator, section) for section in ['top_left_corner', 'top_right_corner', 'bottom_left_corner', 'bottom_right_corner']]
+
+    #####################
 
     image = np.zeros(shape=(100, 100))
 
@@ -165,7 +165,7 @@ if __name__ == '__main__':
 
     dx = 80
 
-    # print('slope:', slope)
+    print('Real slope:', slope)
 
     x2 = x1 + dx
     y2 = y1 + int(slope * dx)
@@ -173,10 +173,9 @@ if __name__ == '__main__':
 
     image = image[::-1]
 
-    #cv2.imshow("", image)
-    #cv2.waitKey(0)
-
     images = [image]
+
+    #####################
 
     for image in images:
         edges = binarize_mat(get_edges(image), threshold=.5)
@@ -186,4 +185,4 @@ if __name__ == '__main__':
 
         lines = PCLines(edges)
 
-        print(lines)
+        print("(m, b):", lines)
