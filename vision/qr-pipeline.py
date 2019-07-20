@@ -70,7 +70,9 @@ def PCLines(edges):
         ℓ is on the y', -y' axis at m=0.
         ℓ is an ideal point, at infinity, at m=1.
     """
-    N_MAXIMA = 1
+    N_MAXIMA = 3
+
+    V_SCALE = 1
 
     IMG_WIDTH = len(edges[0])
     IMG_HEIGHT = len(edges)
@@ -83,9 +85,6 @@ def PCLines(edges):
     V_OFFSET = int(.5 * TS_HEIGHT)
 
     D = int(.5 * TS_WIDTH) - 5
-    ####
-    V_SCALE = 1
-    ####
 
     verticies = get_ts_verticies(edges, U_OFFSET, V_OFFSET, V_SCALE, D)    
 
@@ -98,8 +97,8 @@ def PCLines(edges):
 
     accumulated = accumulated[::-1]
 
-    #cv2.imshow("img", np.where(accumulated > 0, 1, 0.))
-    #cv2.waitKey(0)
+    # cv2.imshow("img", np.where(accumulated > 0, 1, 0.))
+    # cv2.waitKey(0)
 
     ########################
     # S Space
@@ -121,32 +120,42 @@ def PCLines(edges):
     ## point l* has (d, b, 1-m)
 
     def m(u):
+        print(u)
         # S: + 1, T: -1
         if u == 0:
-            return 1 ## TODO ?
-        elif u > 0: ## S
-            return -D / u + 1
-        else:       ## T
-            return -D / u - 1
+            return 1
+        elif u > 0:
+            return (-D / u) + 1
+        else:
+            return (-D / u) - 1
 
     def b(u, v):
+        if u == 0:
+            return 0
+
         return D * v / u
 
-    ## TODO Only local maxima
-
     ################
-    
+    """
     maxima = []
     for _ in range(N_MAXIMA): 
         pos = np.argmax(accumulated)
-        accumulated[pos // len(accumulated), pos % len(accumulated)] = -1000
-        maxima.append((pos % len(accumulated), pos // len(accumulated)))
-    
-    ################
+
+        print(pos, accumulated[pos // len(accumulated[0]), pos % len(accumulated[0])])
+
+
+        accumulated[pos // len(accumulated[0]), pos % len(accumulated[0])] = 0
+        maxima.append((pos % len(accumulated[0]), pos // len(accumulated[0])))
+
+    print(len(accumulated[0]), U_OFFSET, maxima[0][0])
     """
+    ################
+    
     maxima_keys = argrelextrema(accumulated, np.greater)
 
-    maxima = [(maxima_keys[0][i], maxima_keys[1][i]) for i in range(len(maxima_keys[0]))]
+    print(maxima_keys)
+
+    maxima = [(maxima_keys[1][i], maxima_keys[0][i]) for i in range(len(maxima_keys[0]))]
 
     maxima = dict(zip(maxima, list(accumulated[maxima_keys])))
 
@@ -154,8 +163,20 @@ def PCLines(edges):
     sorted_x = sorted(maxima.items(), key=lambda kv: kv[1])[::-1]
 
     maxima = [v[0] for v in sorted_x][:N_MAXIMA]
-    """
+    
     ################
+
+    maxima = [maxima[2]]
+
+    ################
+
+    accumulated = np.where(accumulated > 0, 1, 0.)
+
+    for u, v in maxima:
+        accumulated = cv2.circle(accumulated, (u, v), 5, .5)
+
+    cv2.imshow("Accumulation w/ maxima", accumulated)
+    cv2.waitKey(0)
 
     print('Maxima:', maxima)
 
@@ -192,7 +213,7 @@ if __name__ == '__main__':
     y2 = y1 + int(slope * dx)
     cv2.line(image, (x1, y1), (x2, y2), 1., 2)
 
-    image = image[::-1]
+    image = image#[::-1]
 
     images = [image]
 
@@ -208,4 +229,22 @@ if __name__ == '__main__':
 
         print("(m, b):", lines)
 
-        
+        def line_generator(i, x):
+            return (x, lines[i][0]*x + lines[i][1])
+
+        points = [line_generator(i, x) for i in range(len(lines)) for x in [0, 100]]
+
+        pts = np.array(points, np.int32)
+        pts = pts.reshape((-1, 1, 2))
+
+        print(pts, pts.shape)
+
+        image = cv2.polylines(image, [pts], True, .5, 2)
+
+        cv2.imshow("", image)
+        cv2.waitKey(0)
+
+        edges = cv2.polylines(edges, [pts], True, .5, 2)
+
+        cv2.imshow("", edges)
+        cv2.waitKey(0)
