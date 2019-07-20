@@ -70,7 +70,7 @@ def PCLines(edges):
         ℓ is on the y', -y' axis at m=0.
         ℓ is an ideal point, at infinity, at m=1.
     """
-    N_MAXIMA = 100
+    N_MAXIMA = 150
 
     V_SCALE = 1
 
