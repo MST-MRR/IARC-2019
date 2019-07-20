@@ -14,8 +14,13 @@ def barcodeReader(image, bgr):
     for decodedObject in barcodes:
         points = decodedObject.polygon
 
+        print(points)
+
         pts = np.array(points, np.int32)
         pts = pts.reshape((-1, 1, 2))
+
+        print(pts, pts.shape)
+
         cv2.polylines(image, [pts], True, (0, 255, 0), 3)
 
     for bc in barcodes:
@@ -33,6 +38,7 @@ value = '1234'
 generator = QrCode(value)
 
 img = getattr(generator, 'bottom_right_corner')  # generator.img
+img = generator.img
 
 
 
