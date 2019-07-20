@@ -70,7 +70,7 @@ def PCLines(edges):
         ℓ is on the y', -y' axis at m=0.
         ℓ is an ideal point, at infinity, at m=1.
     """
-    N_MAXIMA = 4
+    N_MAXIMA = 1
 
     IMG_WIDTH = len(edges[0])
     IMG_HEIGHT = len(edges)
@@ -130,20 +130,20 @@ def PCLines(edges):
             return -D / u - 1
 
     def b(u, v):
-        return D * u / v
-    
+        return D * v / u
+
     ## TODO Only local maxima
 
     ################
-    """
+    
     maxima = []
     for _ in range(N_MAXIMA): 
         pos = np.argmax(accumulated)
         accumulated[pos // len(accumulated), pos % len(accumulated)] = -1000
         maxima.append((pos % len(accumulated), pos // len(accumulated)))
-    """
+    
     ################
-
+    """
     maxima_keys = argrelextrema(accumulated, np.greater)
 
     maxima = [(maxima_keys[0][i], maxima_keys[1][i]) for i in range(len(maxima_keys[0]))]
@@ -154,7 +154,7 @@ def PCLines(edges):
     sorted_x = sorted(maxima.items(), key=lambda kv: kv[1])[::-1]
 
     maxima = [v[0] for v in sorted_x][:N_MAXIMA]
-
+    """
     ################
 
     print('Maxima:', maxima)
@@ -175,7 +175,7 @@ if __name__ == '__main__':
     images = [generator.img]  # [getattr(generator, section) for section in ['top_left_corner', 'top_right_corner', 'bottom_left_corner', 'bottom_right_corner']]
 
     #####################
-    """
+
     image = np.zeros(shape=(100, 100))
 
     theta = 3.1415/4
@@ -195,7 +195,7 @@ if __name__ == '__main__':
     image = image[::-1]
 
     images = [image]
-    """
+
     #####################
 
     for image in images:
