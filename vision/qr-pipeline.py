@@ -70,7 +70,7 @@ def PCLines(edges):
         ℓ is on the y', -y' axis at m=0.
         ℓ is an ideal point, at infinity, at m=1.
     """
-    N_MAXIMA = 10
+    N_MAXIMA = 100
 
     V_SCALE = 1
 
@@ -120,7 +120,6 @@ def PCLines(edges):
     ## point l* has (d, b, 1-m)
 
     def m(u):
-        print(u)
         # S: + 1, T: -1
         if u == 0:
             return 0
@@ -133,7 +132,7 @@ def PCLines(edges):
         if u == 0:
             return 0
 
-        return D * v / u
+        return abs(D * v / u)# + IMG_HEIGHT // 2
 
     ################
     """
@@ -152,8 +151,6 @@ def PCLines(edges):
     ################
     
     maxima_keys = argrelextrema(accumulated, np.greater)
-
-    print(maxima_keys)
 
     maxima = [(maxima_keys[1][i], maxima_keys[0][i]) for i in range(len(maxima_keys[0]))]
 
@@ -175,8 +172,8 @@ def PCLines(edges):
     for u, v in maxima:
         accumulated = cv2.circle(accumulated, (u, v), 5, .5)
 
-    cv2.imshow("Accumulation w/ maxima", accumulated)
-    cv2.waitKey(0)
+    #cv2.imshow("Accumulation w/ maxima", accumulated)
+    #cv2.waitKey(0)
 
     print('Maxima:', maxima)
 
@@ -195,8 +192,29 @@ if __name__ == '__main__':
 
     images = [generator.img]  # [getattr(generator, section) for section in ['top_left_corner', 'top_right_corner', 'bottom_left_corner', 'bottom_right_corner']]
 
+    # images = [getattr(generator, 'top_right_corner')]
+
+
     #####################
 
+    """
+    row, col = images[0].shape[:2]
+    bottom = images[0][row-2:row, 0:col]
+    mean = cv2.mean(bottom)[0]
+
+    bordersize=30
+    # images[0] = cv2.copyMakeBorder(images[0], top=bordersize, bottom=bordersize, left=bordersize, right=bordersize, borderType= cv2.BORDER_CONSTANT, value=mean)
+    """
+
+    #####################
+    """
+    images = [cv2.imread('img/1.jpg')]
+
+    images = [cv2.cvtColor(image, cv2.COLOR_BGR2GRAY) for image in images]
+    """
+
+    #####################
+    """
     image = np.zeros(shape=(100, 100))
 
     theta = 3.1415/4
@@ -207,17 +225,17 @@ if __name__ == '__main__':
 
     dx = 80
 
-    print('Real slope:', slope)
+    print(f'Real slope: {slope:.2f}')
 
     x2 = x1 + dx
     y2 = y1 + int(slope * dx)
     cv2.line(image, (x1, y1), (x2, y2), 1., 2)
 
 
-    image = image[::-1]
+    image = image#[::-1]
 
     images = [image]
-
+    """
     #####################
 
     for image in images:
@@ -233,19 +251,17 @@ if __name__ == '__main__':
         def line_generator(i, x):
             return (x, lines[i][0]*x + lines[i][1])
 
-        points = [line_generator(i, x) for i in range(len(lines)) for x in [0, 100]]
+        points = [line_generator(i, x) for i in range(len(lines)) for x in [0, 1000]]
 
         pts = np.array(points, np.int32)
         pts = pts.reshape((-1, 1, 2))
 
-        print(pts, pts.shape)
+        image = cv2.polylines(image, [pts], True, 122, 1)
 
-        image = cv2.polylines(image, [pts], True, .5, 2)
+        #cv2.imshow("", image)
+        #cv2.waitKey(0)
 
-        cv2.imshow("", image)
-        cv2.waitKey(0)
-
-        edges = cv2.polylines(edges, [pts], True, .5, 2)
+        edges = cv2.polylines(edges, [pts], True, 122, 1)
 
         cv2.imshow("", edges)
         cv2.waitKey(0)
