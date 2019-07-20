@@ -70,7 +70,7 @@ def PCLines(edges):
         ℓ is on the y', -y' axis at m=0.
         ℓ is an ideal point, at infinity, at m=1.
     """
-    N_MAXIMA = 3
+    N_MAXIMA = 10
 
     V_SCALE = 1
 
@@ -81,10 +81,10 @@ def PCLines(edges):
     TS_WIDTH = int(1024 * scale) # >=  2 * D + 10
     TS_HEIGHT = int(768 * scale) # >= max(IMG_WIDTH, IMG_HEIGHT)
 
-    U_OFFSET = int(.5 * TS_WIDTH)
-    V_OFFSET = int(.5 * TS_HEIGHT)
+    U_OFFSET = TS_WIDTH // 2
+    V_OFFSET = TS_HEIGHT // 2
 
-    D = int(.5 * TS_WIDTH) - 5
+    D = TS_WIDTH // 2 - 1
 
     verticies = get_ts_verticies(edges, U_OFFSET, V_OFFSET, V_SCALE, D)    
 
@@ -123,7 +123,7 @@ def PCLines(edges):
         print(u)
         # S: + 1, T: -1
         if u == 0:
-            return 1
+            return 0
         elif u > 0:
             return (-D / u) + 1
         else:
@@ -166,7 +166,7 @@ def PCLines(edges):
     
     ################
 
-    maxima = [maxima[2]]
+    # maxima = [maxima[2]]
 
     ################
 
@@ -213,7 +213,8 @@ if __name__ == '__main__':
     y2 = y1 + int(slope * dx)
     cv2.line(image, (x1, y1), (x2, y2), 1., 2)
 
-    image = image#[::-1]
+
+    image = image[::-1]
 
     images = [image]
 
