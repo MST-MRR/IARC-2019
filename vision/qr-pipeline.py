@@ -70,7 +70,7 @@ def PCLines(edges):
         ℓ is on the y', -y' axis at m=0.
         ℓ is an ideal point, at infinity, at m=1.
     """
-    N_MAXIMA = 150
+    N_MAXIMA = 500
 
     V_SCALE = 1
 
@@ -136,20 +136,13 @@ def PCLines(edges):
 
     ################
     """
-    maxima = []
-    for _ in range(N_MAXIMA): 
-        pos = np.argmax(accumulated)
+    accumulated = cv2.GaussianBlur(np.float32(accumulated), (3, 3), 0)
 
-        print(pos, accumulated[pos // len(accumulated[0]), pos % len(accumulated[0])])
-
-
-        accumulated[pos // len(accumulated[0]), pos % len(accumulated[0])] = 0
-        maxima.append((pos % len(accumulated[0]), pos // len(accumulated[0])))
-
-    print(len(accumulated[0]), U_OFFSET, maxima[0][0])
+    cv2.imshow("", accumulated)
+    cv2.waitKey(0)
     """
     ################
-    
+
     maxima_keys = argrelextrema(accumulated, np.greater)
 
     maxima = [(maxima_keys[1][i], maxima_keys[0][i]) for i in range(len(maxima_keys[0]))]
@@ -207,12 +200,12 @@ if __name__ == '__main__':
     """
 
     #####################
-    """
-    images = [cv2.imread('img/1.jpg')]
+    """    
+    ## Solve preprocessing w/ this
+    images = [cv2.imread('img/22.jpg')]
 
     images = [cv2.cvtColor(image, cv2.COLOR_BGR2GRAY) for image in images]
     """
-
     #####################
     """
     image = np.zeros(shape=(100, 100))
@@ -237,6 +230,31 @@ if __name__ == '__main__':
     images = [image]
     """
     #####################
+    """
+    image = np.zeros(shape=(200, 200))
+
+    theta = 3.1415/4
+
+    for x1, y1, slope in [
+        (100, 10, np.tan(theta)), 
+        (10, 100, np.tan(theta)),
+        (10, 100, -np.tan(theta)), 
+        (100, 190, -np.tan(theta))]:
+
+        dx = 90
+
+        print(f'Real slope: {slope:.2f}')
+
+        x2 = x1 + dx
+        y2 = y1 + int(slope * dx)
+        cv2.line(image, (x1, y1), (x2, y2), 1., 2)
+
+
+        image = image#[::-1]
+
+        images = [image]
+    """
+    #######################
 
     for image in images:
         edges = binarize_mat(get_edges(image), threshold=.5)
@@ -248,6 +266,14 @@ if __name__ == '__main__':
 
         print("(m, b):", lines)
 
+        x = lines
+
+        x = sorted(x, key=lambda t: t[0])
+
+        lines = x[:len(x) // 8] + x[len(x) // 8 * 7:]
+
+        print("(m, b):", lines)
+
         def line_generator(i, x):
             return (x, lines[i][0]*x + lines[i][1])
 
@@ -256,12 +282,12 @@ if __name__ == '__main__':
         pts = np.array(points, np.int32)
         pts = pts.reshape((-1, 1, 2))
 
-        image = cv2.polylines(image, [pts], True, 122, 1)
+        image = cv2.polylines(image, [pts], True, .5, 1)
 
         #cv2.imshow("", image)
         #cv2.waitKey(0)
 
-        edges = cv2.polylines(edges, [pts], True, 122, 1)
+        edges = cv2.polylines(edges, [pts], True, .5, 1)
 
         cv2.imshow("", edges)
         cv2.waitKey(0)
