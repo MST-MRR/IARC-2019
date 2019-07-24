@@ -17,6 +17,14 @@ from processing.straighten import straighten
 from processing.read import read
 
 
+def preprocess(img):
+    """
+    Preprocess image.
+    """
+
+    return 1 - img
+
+
 def permute_ordering(im1, im2, im3, im4):
     """
     Permute every stiching ordering in hopes of finding one that pyzbar
@@ -264,6 +272,8 @@ if __name__ == '__main__':
 
     images = [cv2.cvtColor(image, cv2.COLOR_BGR2GRAY) for image in images]
     
+    images[0] = preprocess(images[0])
+
     cv2.imshow("", images[0])
     cv2.waitKey(0)
 
