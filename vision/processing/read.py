@@ -20,7 +20,8 @@ def read(image):
     """
     data = decode(image)  ## Outputs 4 corner locations as well!!
 
-    data = int(data[0][0])
+    if data:
+        data = int(data[0][0])
 
     return data
 

@@ -18,7 +18,7 @@ def crop(image, line_eq):
 	"""
 
 
-def stitch(im1, im2, im3, img4):
+def stitch(im1, im2, im3, im4):
 	"""
 	Stitch images together.
 
