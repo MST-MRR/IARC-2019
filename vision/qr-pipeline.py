@@ -16,6 +16,46 @@ from processing.crop_n_stitch import crop, stitch
 from processing.read import read
 
 
+def permute_ordering(im1, im2, im3, im4):
+    """
+    Permute every stiching ordering in hopes of finding one that pyzbar
+    will read.
+    
+    Parameters
+    ----------
+    im: 4 cv2 images(np.array)
+        Images of sections of qr codes.
+
+    Returns
+    -------
+    Interpreted code if successful else none.
+    """
+    sections1 = [im1, im2, im3, im4]
+
+    for i, image1 in enumerate(sections1):
+        sections2 = sections1.copy()
+        del sections2[i]
+
+        for j, image2 in enumerate(sections2):
+            sections3 = sections2.copy()
+            del sections3[j]
+
+            for k, image3 in enumerate(sections3):
+                sections4 = sections3.copy()
+                del sections4[k]
+
+                image4 = sections4[0]
+
+                full_image = stitch(image1, image2, image3, image4)
+
+                code = read(full_image)
+
+                if code:
+                    return code
+
+    return None
+
+
 def PCLines(edges):
     """
     PC Lines algorithm for detecting lines.
@@ -173,6 +213,22 @@ def PCLines(edges):
     lines = [(m(u-U_OFFSET), b(u - U_OFFSET, v - V_OFFSET)) for u, v in maxima]
 
     return lines
+
+
+if __name__ == '__main__':
+    value = '1234'
+
+    generator = QrCode(value)
+
+    images = [getattr(generator, section) for section in ['top_left_corner', 'top_right_corner', 'bottom_left_corner', 'bottom_right_corner']]
+
+    im1, im2, im3, im4 = images
+
+    print(permute_ordering(im1, im3, im3, im4))
+
+    import sys
+    sys.exit()
+
 
 
 if __name__ == '__main__':
