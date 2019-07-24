@@ -23,6 +23,8 @@ def straighten(img, pts):
 	HEIGHT = 552
 	WIDTH = 77
 
+	CHANNELS = 3
+
 	#---- 4 corner points of the bounding box
 	pts_src = np.array([[17, 0], [77, 5], [0, 552], [53, 552]])
 
@@ -30,7 +32,7 @@ def straighten(img, pts):
 	pts_dst = np.array([[0, 0], [WIDTH, 0], [0, HEIGHT], [WIDTH, HEIGHT]])
 
 	#---- forming the black image of specific size
-	im_dst = np.zeros((HEIGHT, WIDTH, 3), np.uint8)
+	im_dst = np.zeros((HEIGHT, WIDTH, CHANNELS) if CHANNELS > 1 else (HEIGHT, WIDTH), np.uint8)
 
 	#---- Framing the homography matrix
 	h, status = cv2.findHomography(pts_src, pts_dst)
