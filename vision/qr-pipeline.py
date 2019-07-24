@@ -13,6 +13,7 @@ from accumulator.py_to_cpp import TS
 
 ## Add to pipeline
 from processing.crop_n_stitch import crop, stitch
+from processing.straighten import straighten
 from processing.read import read
 
 
@@ -215,6 +216,7 @@ def PCLines(edges):
     return lines
 
 
+"""
 if __name__ == '__main__':
     value = '1234'
 
@@ -228,7 +230,7 @@ if __name__ == '__main__':
 
     import sys
     sys.exit()
-
+"""
 
 
 if __name__ == '__main__':
@@ -256,12 +258,18 @@ if __name__ == '__main__':
     """
 
     #####################
-    """    
+    
     ## Solve preprocessing w/ this
     images = [cv2.imread('img/22.jpg')]
 
     images = [cv2.cvtColor(image, cv2.COLOR_BGR2GRAY) for image in images]
-    """
+    
+    cv2.imshow("", images[0])
+    cv2.waitKey(0)
+
+    import sys
+    sys.exit()
+
     #####################
     """
     image = np.zeros(shape=(100, 100))
