@@ -30,9 +30,6 @@ def barcodeReader(image, bgr):
         return "Barcode: {} - Type: {}".format(bc.data.decode("utf-8"), bc.type)
 
 
-
-
-
 value = '1234'
 
 generator = QrCode(value)
