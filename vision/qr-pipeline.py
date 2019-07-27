@@ -17,12 +17,18 @@ from processing.straighten import straighten
 from processing.read import read
 
 
-def preprocess(img):
+def preprocess(imgs):
     """
-    Preprocess image.
+    Preprocess images.
     """
+    for i in range(len(imgs)):
+        img = imgs[i]
 
-    return 1 - img
+        img = 1 - img
+
+        imgs[i] = img
+
+    return imgs
 
 
 def permute_ordering(im1, im2, im3, im4):
@@ -65,6 +71,13 @@ def permute_ordering(im1, im2, im3, im4):
     return None
 
 
+def crop(img, lines):
+    """ Crop by straightening into frame. """
+
+
+    return straighten(img, ...)
+
+
 def PCLines(edges):
     """
     PC Lines algorithm for detecting lines.
@@ -85,7 +98,7 @@ def PCLines(edges):
     Twisted space consists of the parralel axes x', -y'.
 
        v    T          S      
-       |-y        |x         |y   
+       |-y        |x         |y  
        |          |          |   
        |          |          |   
     ---|----------|----------|---u
@@ -244,7 +257,7 @@ if __name__ == '__main__':
 if __name__ == '__main__':
 
     #####################
-
+    """
     value = '1234'
 
     generator = QrCode(value)
@@ -253,55 +266,12 @@ if __name__ == '__main__':
 
     # images = [getattr(generator, 'top_right_corner')]
 
-
-    #####################
-
-    """
     row, col = images[0].shape[:2]
     bottom = images[0][row-2:row, 0:col]
     mean = cv2.mean(bottom)[0]
 
     bordersize=30
-    # images[0] = cv2.copyMakeBorder(images[0], top=bordersize, bottom=bordersize, left=bordersize, right=bordersize, borderType= cv2.BORDER_CONSTANT, value=mean)
-    """
-
-    #####################
-    
-    ## Solve preprocessing w/ this
-    images = [cv2.imread('img/22.jpg')]
-
-    images = [cv2.cvtColor(image, cv2.COLOR_BGR2GRAY) for image in images]
-    
-    images[0] = preprocess(images[0])
-
-    cv2.imshow("", images[0])
-    cv2.waitKey(0)
-
-    import sys
-    sys.exit()
-
-    #####################
-    """
-    image = np.zeros(shape=(100, 100))
-
-    theta = 3.1415/4
-    slope = np.tan(theta)
-
-    x1 = 10
-    y1 = 10
-
-    dx = 80
-
-    print(f'Real slope: {slope:.2f}')
-
-    x2 = x1 + dx
-    y2 = y1 + int(slope * dx)
-    cv2.line(image, (x1, y1), (x2, y2), 1., 2)
-
-
-    image = image#[::-1]
-
-    images = [image]
+    images = [cv2.copyMakeBorder(images[0], top=bordersize, bottom=bordersize, left=bordersize, right=bordersize, borderType= cv2.BORDER_CONSTANT, value=mean)]
     """
     #####################
     """
@@ -328,7 +298,37 @@ if __name__ == '__main__':
 
         images = [image]
     """
-    #######################
+    ####################
+    """
+    image = np.zeros(shape=(100, 100))
+
+    theta = 3.1415/4
+    slope = np.tan(theta)
+
+    x1 = 10
+    y1 = 10
+
+    dx = 80
+
+    print(f'Real slope: {slope:.2f}')
+
+    x2 = x1 + dx
+    y2 = y1 + int(slope * dx)
+    cv2.line(image, (x1, y1), (x2, y2), 1., 2)
+
+
+    image = image#[::-1]
+
+    images = [image]
+    """
+    ####################
+
+    ## Solve preprocessing w/ this
+    images = [cv2.imread('img/22.jpg')]
+
+    images = [cv2.cvtColor(image, cv2.COLOR_BGR2GRAY) for image in images]
+    
+    images = preprocess(images)
 
     for image in images:
         edges = binarize_mat(get_edges(image), threshold=.5)
@@ -356,12 +356,21 @@ if __name__ == '__main__':
         pts = np.array(points, np.int32)
         pts = pts.reshape((-1, 1, 2))
 
-        image = cv2.polylines(image, [pts], True, .5, 1)
+        line_image = cv2.polylines(image, [pts], True, .5, 1)
 
-        #cv2.imshow("", image)
+        #cv2.imshow("", line_image)
         #cv2.waitKey(0)
 
-        edges = cv2.polylines(edges, [pts], True, .5, 1)
+        line_edges = cv2.polylines(edges, [pts], True, .5, 1)
 
-        cv2.imshow("", edges)
+        cv2.imshow("", line_edges)
         cv2.waitKey(0)
+
+        
+        ###############
+
+        #img = crop(image, lines)
+
+        #cv2.imshow("Cropped image", img)
+        #cv2.waitKey(0)
+ 
