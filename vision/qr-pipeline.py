@@ -24,7 +24,9 @@ def preprocess(imgs):
     for i in range(len(imgs)):
         img = imgs[i]
 
-        img = 1 - img
+        img = 255 - img
+
+        img = binarize_mat(get_edges(img), threshold=.5)
 
         imgs[i] = img
 
@@ -237,23 +239,6 @@ def PCLines(edges):
     return lines
 
 
-"""
-if __name__ == '__main__':
-    value = '1234'
-
-    generator = QrCode(value)
-
-    images = [getattr(generator, section) for section in ['top_left_corner', 'top_right_corner', 'bottom_left_corner', 'bottom_right_corner']]
-
-    im1, im2, im3, im4 = images
-
-    print(permute_ordering(im1, im3, im3, im4))
-
-    import sys
-    sys.exit()
-"""
-
-
 if __name__ == '__main__':
 
     #####################
@@ -328,10 +313,9 @@ if __name__ == '__main__':
 
     images = [cv2.cvtColor(image, cv2.COLOR_BGR2GRAY) for image in images]
     
-    images = preprocess(images)
+    e_images = preprocess(images)
 
-    for image in images:
-        edges = binarize_mat(get_edges(image), threshold=.5)
+    for edges in e_images:
 
         # cv2.imshow("edges", edges)
         # cv2.waitKey(0)
@@ -356,11 +340,6 @@ if __name__ == '__main__':
         pts = np.array(points, np.int32)
         pts = pts.reshape((-1, 1, 2))
 
-        line_image = cv2.polylines(image, [pts], True, .5, 1)
-
-        #cv2.imshow("", line_image)
-        #cv2.waitKey(0)
-
         line_edges = cv2.polylines(edges, [pts], True, .5, 1)
 
         cv2.imshow("", line_edges)
@@ -374,3 +353,16 @@ if __name__ == '__main__':
         #cv2.imshow("Cropped image", img)
         #cv2.waitKey(0)
  
+
+"""
+if __name__ == '__main__':
+    value = '1234'
+
+    generator = QrCode(value)
+
+    images = [getattr(generator, section) for section in ['top_left_corner', 'top_right_corner', 'bottom_left_corner', 'bottom_right_corner']]
+
+    im1, im2, im3, im4 = images
+
+    print(permute_ordering(im1, im3, im3, im4))
+"""
