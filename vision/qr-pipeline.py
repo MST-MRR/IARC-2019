@@ -26,7 +26,15 @@ def preprocess(imgs):
 
         img = 255 - img
 
-        img = binarize_mat(get_edges(img), threshold=.5)
+        edges = get_edges(img)
+
+        edges = cv2.GaussianBlur(edges, (3, 3), cv2.BORDER_DEFAULT)
+
+        img = binarize_mat(edges, threshold=.98)
+
+        img = cv2.GaussianBlur(img, (5, 5), cv2.BORDER_DEFAULT)
+
+        img = binarize_mat(edges, threshold=.96)
 
         imgs[i] = img
 
@@ -76,6 +84,7 @@ def permute_ordering(im1, im2, im3, im4):
 def crop(img, lines):
     """ Crop by straightening into frame. """
 
+    ## Find intersections of lines?
 
     return straighten(img, ...)
 
@@ -284,7 +293,7 @@ if __name__ == '__main__':
         images = [image]
     """
     ####################
-    """
+
     image = np.zeros(shape=(100, 100))
 
     theta = 3.1415/4
@@ -305,15 +314,18 @@ if __name__ == '__main__':
     image = image#[::-1]
 
     images = [image]
-    """
-    ####################
 
+    e_images = [binarize_mat(get_edges(img), threshold=.5) for img in images]
+
+    ####################
+    """
     ## Solve preprocessing w/ this
     images = [cv2.imread('img/22.jpg')]
 
     images = [cv2.cvtColor(image, cv2.COLOR_BGR2GRAY) for image in images]
     
     e_images = preprocess(images)
+    """
 
     for edges in e_images:
 
