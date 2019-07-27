@@ -38,7 +38,7 @@ def straighten(img, pts):
 	h, status = cv2.findHomography(pts_src, pts_dst)
 
 	#---- transforming the image bound in the rectangle to straighten
-	out = cv2.warpPerspective(im, h, (im_dst.shape[1], im_dst.shape[0]))
+	out = cv2.warpPerspective(img, h, (im_dst.shape[1], im_dst.shape[0]))
 	
 	return out
 
