@@ -112,21 +112,21 @@ class QrCode(object):
         # assert border is not None, 'Could not read {}'.format(border_img_path)
 
         # Write the QR code segments onto the image
-        cw, ch = self._corner_width, self._corner_height
-        h, w, _ = self._combined_image.shape
-        self._combined_image[BORDER_SIZE:ch+BORDER_SIZE,
-            BORDER_SIZE:cw+BORDER_SIZE] = self.top_left_corner.reshape(cw, ch, -1)
-        self._combined_image[BORDER_SIZE:ch+BORDER_SIZE,
-            w-BORDER_SIZE-cw:w-BORDER_SIZE] = self.top_right_corner.reshape(cw, ch, -1)
-        self._combined_image[h-BORDER_SIZE-ch:h-BORDER_SIZE,
-            BORDER_SIZE:cw+BORDER_SIZE] = self.bottom_left_corner.reshape(cw, ch, -1)
-        self._combined_image[h-BORDER_SIZE-ch:h-BORDER_SIZE,
-            w-BORDER_SIZE-cw:w-BORDER_SIZE] = self.bottom_right_corner.reshape(cw, ch, -1)
+        corner_w, corner_h = self._corner_width, self._corner_height
+        height, width, _ = self._combined_image.shape
+        self._combined_image[BORDER_SIZE:corner_h+BORDER_SIZE,
+            BORDER_SIZE:corner_w+BORDER_SIZE] = self.top_left_corner.reshape(corner_w, corner_h, -1)
+        self._combined_image[BORDER_SIZE:corner_h+BORDER_SIZE,
+            width-BORDER_SIZE-corner_w:width-BORDER_SIZE] = self.top_right_corner.reshape(corner_w, corner_h, -1)
+        self._combined_image[height-BORDER_SIZE-corner_h:height-BORDER_SIZE,
+            BORDER_SIZE:corner_w+BORDER_SIZE] = self.bottom_left_corner.reshape(corner_w, corner_h, -1)
+        self._combined_image[height-BORDER_SIZE-corner_h:height-BORDER_SIZE,
+            width-BORDER_SIZE-corner_w:width-BORDER_SIZE] = self.bottom_right_corner.reshape(corner_w, corner_h, -1)
 
         # Write the value the QR code represents in plaintext for record keeping purposes.
         text = str(self.encoded_value)
         text_size = cv2.getTextSize(text, QrCode.FONT, 4, QrCode.THICKNESS)[0]
-        center = (int((w-text_size[0])/2), int((h+text_size[1])/2))
+        center = (int((width-text_size[0])/2), int((height+text_size[1])/2))
         cv2.putText(self._combined_image, text, center, QrCode.FONT, 4, (0, 0, 0),
             QrCode.THICKNESS, cv2.LINE_AA)
 

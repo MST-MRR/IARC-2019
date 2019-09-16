@@ -81,14 +81,6 @@ def permute_ordering(im1, im2, im3, im4):
     return None
 
 
-def crop(img, lines):
-    """ Crop by straightening into frame. """
-
-    ## Find intersections of lines?
-
-    return straighten(img, ...)
-
-
 def PCLines(edges):
     """
     PC Lines algorithm for detecting lines.
@@ -108,14 +100,14 @@ def PCLines(edges):
     Straight space consists of the parralel axes x', y'.
     Twisted space consists of the parralel axes x', -y'.
 
-       v    T          S      
-       |-y        |x         |y  
-       |          |          |   
-       |          |          |   
+       v    T          S
+       |-y        |x         |y
+       |          |          |
+       |          |          |
     ---|----------|----------|---u
-       |-d        |0         |d  
-       |          |          |   
-       |          |          |   
+       |-d        |0         |d
+       |          |          |
+       |          |          |
     (T and S space attatched in the uv plane. Parralel axes separated by
     distance d along the u axis. Each parralel axis is length v.)
 
@@ -137,9 +129,9 @@ def PCLines(edges):
         Attaching the y′ and −y′ axes results in an enclosed Mobius strip.
 
     Slope based on location
-        ℓ is between x' & y' iff −∞ < m < 0. 
+        ℓ is between x' & y' iff −∞ < m < 0.
         ℓ is between x' & -y' iff 0 < m < ∞.
-        ℓ is on the x' axis for vertical lines m = ±∞. 
+        ℓ is on the x' axis for vertical lines m = ±∞.
         ℓ is on the y', -y' axis at m=0.
         ℓ is an ideal point, at infinity, at m=1.
     """
@@ -159,7 +151,7 @@ def PCLines(edges):
 
     D = TS_WIDTH // 2 - 1
 
-    verticies = get_ts_verticies(edges, U_OFFSET, V_OFFSET, V_SCALE, D)    
+    verticies = get_ts_verticies(edges, U_OFFSET, V_OFFSET, V_SCALE, D)
 
     opengl_verticies = pix_to_opengl(verticies, TS_WIDTH, TS_HEIGHT)
 
@@ -193,6 +185,9 @@ def PCLines(edges):
     ## point l* has (d, b, 1-m)
 
     def m(u):
+        """
+        Calculate slope based off u axis.
+        """
         # S: + 1, T: -1
         if u == 0:
             return 0
@@ -202,6 +197,9 @@ def PCLines(edges):
             return (-D / u) - 1
 
     def b(u, v):
+        """
+        Calculate y intercept based of TS space coordinates.
+        """
         if u == 0:
             return 0
 
@@ -256,7 +254,9 @@ if __name__ == '__main__':
 
     generator = QrCode(value)
 
-    images = [generator.img]  # [getattr(generator, section) for section in ['top_left_corner', 'top_right_corner', 'bottom_left_corner', 'bottom_right_corner']]
+    images = [generator.img]  
+    # [getattr(generator, section) for section in ['top_left_corner', 'top_right_corner',
+    'bottom_left_corner', 'bottom_right_corner']]
 
     # images = [getattr(generator, 'top_right_corner')]
 
@@ -265,7 +265,8 @@ if __name__ == '__main__':
     mean = cv2.mean(bottom)[0]
 
     bordersize=30
-    images = [cv2.copyMakeBorder(images[0], top=bordersize, bottom=bordersize, left=bordersize, right=bordersize, borderType= cv2.BORDER_CONSTANT, value=mean)]
+    images = [cv2.copyMakeBorder(images[0], top=bordersize, bottom=bordersize, left=bordersize,
+    right=bordersize, borderType= cv2.BORDER_CONSTANT, value=mean)]
     """
     #####################
     """
@@ -274,9 +275,9 @@ if __name__ == '__main__':
     theta = 3.1415/4
 
     for x1, y1, slope in [
-        (100, 10, np.tan(theta)), 
+        (100, 10, np.tan(theta)),
         (10, 100, np.tan(theta)),
-        (10, 100, -np.tan(theta)), 
+        (10, 100, -np.tan(theta)),
         (100, 190, -np.tan(theta))]:
 
         dx = 90
@@ -357,7 +358,7 @@ if __name__ == '__main__':
         cv2.imshow("", line_edges)
         cv2.waitKey(0)
 
-        
+
         ###############
 
         #img = crop(image, lines)

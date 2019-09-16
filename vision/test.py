@@ -1,3 +1,6 @@
+"""
+Test the QR pipeline
+"""
 from pyzbar.pyzbar import decode
 import cv2
 import numpy as np

@@ -7,9 +7,9 @@ import numpy as np
 def get_edges(image):
     """Get the edges in an image"""
     if len(image.shape) == 3:
-        """ has more than one channel """
+        # has more than one channel
         image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-    
+
     kernel = np.ones((5, 5), np.float32)/5
     dst = cv2.filter2D(image, -1, kernel)
     lap = cv2.Laplacian(dst, cv2.CV_64F)

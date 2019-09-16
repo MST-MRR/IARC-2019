@@ -28,7 +28,7 @@ def binarize_mat(img, threshold=.5):
 
 def pix_to_opengl(values, window_width, window_height):
     """
-    Because the location of 1.0 in opengl varies by the number of pixels 
+    Because the location of 1.0 in opengl varies by the number of pixels
     in the window.
 
     Formula
@@ -45,7 +45,7 @@ def pix_to_opengl(values, window_width, window_height):
 
     window_height: int
         Height of window to be displayed in.
-    
+ 
     Returns
     -------
     np array of verticies that opengl can work with.
@@ -68,7 +68,7 @@ def pix_to_opengl(values, window_width, window_height):
 
 def get_ts_verticies(edges, u_offset, v_offset, v_scale, d, z=0.):
     """
-    Convert edge coordinates to two-segment polyline defined by 
+    Convert edge coordinates to two-segment polyline defined by
     three points: (−d, −y),(0, x),(d, y), for TS space.
 
     Parameters
