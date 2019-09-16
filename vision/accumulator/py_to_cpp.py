@@ -62,7 +62,7 @@ class TS(object):
     """
     def __init__(self, width, height, verticies=None):
         if verticies is not None:
-            v_count = len(verticies) // 3 
+            v_count = len(verticies) // 3
             verticies_location = verticies.ctypes.data
 
             assert not v_count % 2, "Need even number of verticies!"
