@@ -33,29 +33,26 @@ def barcodeReader(image, bgr):
         return "Barcode: {} - Type: {}".format(bc.data.decode("utf-8"), bc.type)
 
 
-value = '1234'
+if __name__ == '__main__':
+    value = '1234'
 
-generator = QrCode(value)
+    generator = QrCode(value)
 
-img = getattr(generator, 'bottom_right_corner')  # generator.img
-img = generator.img
+    img = getattr(generator, 'bottom_right_corner')  # generator.img
+    img = generator.img
 
+    row, col= img.shape[:2]
+    bottom= img[row-2:row, 0:col]
+    mean= cv2.mean(bottom)[0]
 
+    bordersize=30
+    img=cv2.copyMakeBorder(img, top=bordersize, bottom=bordersize, left=bordersize, right=bordersize, borderType= cv2.BORDER_CONSTANT, value=[mean,mean,mean])
 
-row, col= img.shape[:2]
-bottom= img[row-2:row, 0:col]
-mean= cv2.mean(bottom)[0]
+    img = cv2.cvtColor(img, cv2.COLOR_GRAY2RGB)
 
-bordersize=30
-img=cv2.copyMakeBorder(img, top=bordersize, bottom=bordersize, left=bordersize, right=bordersize, borderType= cv2.BORDER_CONSTANT, value=[mean,mean,mean])
+    barcode = barcodeReader(img, (8, 70, 208))
 
+    print(barcode)
 
-
-img = cv2.cvtColor(img, cv2.COLOR_GRAY2RGB)
-
-barcode = barcodeReader(img, (8, 70, 208))
-
-print(barcode)
-
-cv2.imshow('Barcode reader', img)
-cv2.waitKey(0)
+    cv2.imshow('Barcode reader', img)
+    cv2.waitKey(0)
