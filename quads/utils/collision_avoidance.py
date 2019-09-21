@@ -125,7 +125,7 @@ class CollisionAvoidance(threading.Thread):
             avoid_unit_vector_temp = convert_sector_to_cartessian((self.sector))
             avoid_unit_vector = avoid_unit_vector_temp[0]
             n, e, d = (
-                AVOID_SPEED*avoid_unit_vector[0], AVOID_SPEED*avoid_unit_vector[1], Z_SPEED)
+                AVOID_SPEED*avoid_unit_vector[0], -AVOID_SPEED*avoid_unit_vector[1], Z_SPEED)
 
             print(n, e, d)
             if self.fs.net_client:
